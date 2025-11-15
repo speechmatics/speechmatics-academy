@@ -183,7 +183,7 @@ example-name/
 │   └── README.md           # Python-specific notes
 ├── .env.example            # Environment template
 ├── assets/                 # Screenshots, samples
-│   ├── demo.gif
+│   ├── demo.mp4
 │   └── sample.wav
 └── README.md               # Main documentation
 ```
