@@ -6,15 +6,15 @@ Comprehensive collection of working examples demonstrating real-world applicatio
 
 **3 Examples • Python • Copy-Paste Ready**
 
-[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
+[Browse Examples](#📚-example-categories) • [Quick Start](#⚡-quick-start) • [Contributing](#🤝-contributing)
 
 ---
 
 ## 📋 Table of Contents
 
-- [Quick Start](#quick-start)
-- [Example Categories](#example-categories)
-- [Finding Examples](#finding-examples)
+- [Quick Start](#⚡-quick-start)
+- [Example Categories](#📚-example-categories)
+- [Finding Examples](#🔍-finding-examples)
 
 ---
 
