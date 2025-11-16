@@ -192,38 +192,21 @@ if __name__ == "__main__":
 
 ## 📊 Configuration Cheat Sheet
 
-### 🔵 Core Settings
-
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `language` | `"en"`, `"es"`, `"fr"`, `"de"`, `"ja"`, etc. | `"en"` | **ISO 639-1 language code**<br>Specify the primary language for transcription. [See all supported languages →](https://docs.speechmatics.com/introduction/languages) |
-| `operating_point` | `OperatingPoint.STANDARD`, `OperatingPoint.ENHANCED` | `ENHANCED` | **Acoustic model selection**<br>**enhanced** - Best accuracy, slightly slower<br>**standard** - Faster processing, good accuracy |
-| `output_locale` | RFC-5646 codes (e.g., `"en-US"`, `"en-GB"`) | Same as `language` | **Output formatting locale**<br>Controls number formatting, date formats, and other locale-specific output |
-| `domain` | `"medical"`, `"finance"`, etc. | None | **Domain-optimized language pack**<br>Use specialized vocabulary for specific industries |
-
-### 🟢 Speech Recognition
-
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `diarization` | `"speaker"`, `"channel"`, `"channel_and_speaker"`, `"none"` | `"none"` | **Speaker/channel identification**<br>**speaker** - Identify different speakers in single-channel audio<br>**channel** - Label separate audio channels<br>**channel_and_speaker** - Identify speakers within each channel<br>**none** - No speaker labeling |
-| `speaker_diarization_config` | Dict: `{"max_speakers": int}` | `{}` | **Advanced speaker settings**<br>**max_speakers** (2-20) - Limit number of detected speakers<br>Only applies when `diarization="speaker"` |
-| `channel_diarization_labels` | List of strings (e.g., `["Agent", "Customer"]`) | None | **Custom channel labels**<br>Replace generic "Channel 1/2" with meaningful labels<br>Length must match number of audio channels |
-| `additional_vocab` | List of dicts with `content`, `sounds_like` | `[]` | **Custom vocabulary terms**<br>Add domain-specific words, product names, acronyms<br>Format: `[{"content": "word", "sounds_like": ["phonetic1", "phonetic2"]}]`<br>Limit: 1000 terms for optimal performance |
-
-### 🟡 Formatting
-
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `enable_entities` | `True`, `False` | `False` | **Automatic entity detection and formatting**<br>Detects and formats:<br>• Dates (e.g., "January 15th")<br>• Times (e.g., "3:30 p.m.")<br>• Numbers (e.g., "1,234")<br>• Currency (e.g., "$500")<br>• Percentages (e.g., "25%") |
-| `punctuation_overrides` | Dict: `{"permitted_marks": list}` | All marks enabled | **Custom punctuation rules**<br>**permitted_marks** - Limit which punctuation marks appear in transcript<br>Example: `{"permitted_marks": [".", "?", "!"]}` |
-
-### 🟣 Real-time Only
-
-| Parameter | Values | Default | Description |
-|-----------|--------|---------|-------------|
-| `enable_partials` | `True`, `False` | `False` | **Streaming partial results**<br>Receive intermediate transcription results before finalization<br>Useful for live captions and real-time feedback |
-| `max_delay` | Float (0.7 - 4.0 seconds) | `4.0` | **Maximum transcript delivery delay**<br>Lower values = faster results, may reduce accuracy<br>Higher values = better accuracy, slower results<br>Recommended: 2.0-3.0 for balanced performance |
-| `max_delay_mode` | `"fixed"`, `"flexible"` | `"fixed"` | **Delay enforcement mode**<br>**fixed** - Strictly adheres to max_delay setting<br>**flexible** - May exceed max_delay for entity detection/formatting |
+| Category                      | Feature              | Config Parameter             | Values                                              | Description                                                                 |
+|-------------------------------|----------------------|------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------|
+| 🔵 **Core Settings**          | Language             | `language`                   | `"en"`, `"es"`, `"fr"`, etc. (default: `"en"`)      | ISO 639-1 language code for transcription                                   |
+| 🔵 **Core Settings**          | Quality              | `operating_point`            | `OperatingPoint.STANDARD`, `ENHANCED` (default)     | Acoustic model to use - enhanced for best accuracy, standard for speed      |
+| 🔵 **Core Settings**          | Output Locale        | `output_locale`              | RFC-5646 code (e.g., `"en-US"`)                     | Language code for transcript output formatting                              |
+| 🔵 **Core Settings**          | Domain               | `domain`                     | `"medical"`, etc.                                   | Language pack optimized for specific domain                                 |
+| 🟢 **Speech Recognition**     | Speaker Labels       | `diarization`                | `"speaker"`, `"channel"`, `"channel_and_speaker"`   | Type of diarization - identifies different speakers or channels             |
+| 🟢 **Speech Recognition**     | Speaker Config       | `speaker_diarization_config` | Dict (e.g., `{"max_speakers": 4}`)                  | Advanced speaker settings like sensitivity and max speakers                 |
+| 🟢 **Speech Recognition**     | Channel Labels       | `channel_diarization_labels` | List of strings (e.g., `["Agent", "Customer"]`)     | Custom labels for audio channels                                            |
+| 🟢 **Speech Recognition**     | Custom Vocab         | `additional_vocab`           | List of dicts with `content`, `sounds_like`         | Additional vocabulary not in standard language pack                         |
+| 🟡 **Formatting**             | Entity Detection     | `enable_entities`            | `True`/`False`                                      | Detect and format dates, times, numbers, currencies, etc.                   |
+| 🟡 **Formatting**             | Punctuation          | `punctuation_overrides`      | Dict (e.g., `{"permitted_marks": [".", "?"]}`)      | Custom punctuation rules and permitted marks                                |
+| 🟣 **Real-time**              | Partial Results      | `enable_partials`            | `True`/`False`                                      | Receive partial transcription results before finalization                   |
+| 🟣 **Real-time**              | Max Delay            | `max_delay`                  | Float (seconds, e.g., `2.5`)                        | Maximum delay for transcript delivery (range: 0.7-4.0)                      |
+| 🟣 **Real-time**              | Max Delay Mode       | `max_delay_mode`             | `"fixed"` or `"flexible"`                           | Fixed strictly adheres to max_delay, flexible allows override for entities  |
 
 ## 📤 Expected Output
 
