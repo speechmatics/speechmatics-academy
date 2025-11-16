@@ -4,7 +4,7 @@
 
 Comprehensive collection of working examples demonstrating real-world applications, third-party integrations, and production deployment patterns.
 
-**3 Examples • Python • Copy-Paste Ready**
+**4 Examples • Python • Copy-Paste Ready**
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
 
@@ -83,6 +83,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | Beginner | Python | 5 min |
 | [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | Beginner | Python | 10 min |
 | [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | Beginner | Python | 15 min |
+| [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | Intermediate | Python | 15 min |
 
 [Browse all basics examples →](basics/)
 
@@ -129,11 +130,13 @@ Production-ready applications for specific industries.
 
 | Feature | Examples |
 |---------|----------|
-| **Batch Transcription** | Hello World, Configuration Guide, Podcast Processing, Court Reporting |
+| **Batch Transcription** | Hello World, Configuration Guide, Audio Intelligence, Podcast Processing, Court Reporting |
 | **Real-time Streaming** | Batch vs Real-time, LiveKit Integration, Discord Bot |
 | **Speaker Diarization** | Configuration Guide, Call Center Analytics, Meeting Transcription |
 | **Custom Vocabulary** | Configuration Guide, Medical Dictation, Court Reporting |
 | **Sentiment Analysis** | Audio Intelligence, Call Center Analytics, Voicemail Analysis |
+| **Topic Detection** | Audio Intelligence, Call Center Analytics |
+| **Summarization** | Audio Intelligence, Call Center Analytics, Meeting Transcription |
 | **Translation** | Translation, Education Transcription |
 | **Text-to-Speech** | Voice Assistant, Pipecat Voice Bot |
 
