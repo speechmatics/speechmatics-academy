@@ -6,7 +6,7 @@ Comprehensive collection of working examples demonstrating real-world applicatio
 
 **3 Examples • Python • Copy-Paste Ready**
 
-[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [CLI Tool](#cli-tool) • [Contributing](#contributing)
+[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
 
 ---
 
