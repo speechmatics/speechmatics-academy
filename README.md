@@ -130,13 +130,13 @@ Production-ready applications for specific industries.
 
 | Feature | Examples |
 |---------|----------|
-| **Batch Transcription** | Hello World, Configuration Guide, Audio Intelligence, Podcast Processing, Court Reporting |
-| **Real-time Streaming** | Batch vs Real-time, LiveKit Integration, Discord Bot |
-| **Speaker Diarization** | Configuration Guide, Call Center Analytics, Meeting Transcription |
-| **Custom Vocabulary** | Configuration Guide, Medical Dictation, Court Reporting |
-| **Sentiment Analysis** | Audio Intelligence, Call Center Analytics, Voicemail Analysis |
-| **Topic Detection** | Audio Intelligence, Call Center Analytics |
-| **Summarization** | Audio Intelligence, Call Center Analytics, Meeting Transcription |
+| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), Podcast Processing, Court Reporting |
+| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), LiveKit Integration, Discord Bot |
+| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), Call Center Analytics, Meeting Transcription |
+| **Custom Vocabulary** | [Configuration Guide](basics/03-configuration-guide/), Medical Dictation, Court Reporting |
+| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics, Voicemail Analysis |
+| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics |
+| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics, Meeting Transcription |
 | **Translation** | Translation, Education Transcription |
 | **Text-to-Speech** | Voice Assistant, Pipecat Voice Bot |
 
@@ -147,15 +147,15 @@ Production-ready applications for specific industries.
 ### By Difficulty
 
 **Beginner (5-15 min):**
-- Hello World (5 min)
-- Batch vs Real-time (10 min)
-- Configuration Guide (15 min)
+- [Hello World](basics/01-hello-world/) (5 min)
+- [Batch vs Real-time](basics/02-batch-vs-realtime/) (10 min)
+- [Configuration Guide](basics/03-configuration-guide/) (15 min)
 - Custom Vocabulary
 - FastAPI Integration
 - Flask Integration
 
 **Intermediate (15-45 min):**
-- Audio Intelligence
+- [Audio Intelligence](basics/04-audio-intelligence/)
 - Translation
 - Speaker Diarization
 - Pipecat Voice Bot
