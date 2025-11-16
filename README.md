@@ -4,7 +4,7 @@
 
 Comprehensive collection of working examples demonstrating real-world applications, third-party integrations, and production deployment patterns.
 
-**50+ Examples • Python • Copy-Paste Ready**
+**3 Examples • Python • Copy-Paste Ready**
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [CLI Tool](#cli-tool) • [Contributing](#contributing)
 
@@ -42,7 +42,7 @@ git clone https://github.com/speechmatics/speechmatics-academy.git
 cd speechmatics-academy
 
 # Navigate to an example
-cd basics/01-simple-transcription/python
+cd basics/01-hello-world/python
 
 # Install dependencies
 pip install -r requirements.txt
@@ -66,7 +66,7 @@ Use [degit](https://github.com/Rich-Harris/degit) to copy individual examples:
 npm install -g degit
 
 # Copy an example
-degit speechmatics/speechmatics-academy/basics/01-simple-transcription my-project
+degit speechmatics/speechmatics-academy/basics/01-hello-world my-project
 cd my-project
 ```
 ---
@@ -79,12 +79,9 @@ Fundamental examples for getting started with the Speechmatics SDK.
 
 | Example | Description | Difficulty | Languages | Time |
 |---------|-------------|------------|-----------|------|
-| [Simple Transcription](basics/01-simple-transcription/) | Upload audio and get a transcript | Beginner | Python | x min |
-| [Real-time Streaming](basics/02-realtime-streaming/) | Stream audio for live transcription | Beginner | Python | x min |
-| [Speaker Diarization](basics/03-speaker-diarization/) | Identify different speakers | Intermediate | Python | x min |
-| [Custom Vocabulary](basics/04-custom-vocabulary/) | Add domain-specific terms | Beginner | Python | x min |
-| [Audio Intelligence](basics/05-audio-intelligence/) | Sentiment, topics, summaries | Intermediate | Python | x min |
-| [Translation](basics/06-translation/) | Transcribe and translate | Intermediate | Python | x min |
+| [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | Beginner | Python | 5 min |
+| [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | Beginner | Python | 10 min |
+| [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | Beginner | Python | 15 min |
 
 [Browse all basics examples →](basics/)
 
@@ -131,10 +128,10 @@ Production-ready applications for specific industries.
 
 | Feature | Examples |
 |---------|----------|
-| **Batch Transcription** | Simple Transcription, Podcast Processing, Court Reporting |
-| **Real-time Streaming** | Real-time Streaming, LiveKit Integration, Discord Bot |
-| **Speaker Diarization** | Speaker Diarization, Call Center Analytics, Meeting Transcription |
-| **Custom Vocabulary** | Custom Vocabulary, Medical Dictation, Court Reporting |
+| **Batch Transcription** | Hello World, Configuration Guide, Podcast Processing, Court Reporting |
+| **Real-time Streaming** | Batch vs Real-time, LiveKit Integration, Discord Bot |
+| **Speaker Diarization** | Configuration Guide, Call Center Analytics, Meeting Transcription |
+| **Custom Vocabulary** | Configuration Guide, Medical Dictation, Court Reporting |
 | **Sentiment Analysis** | Audio Intelligence, Call Center Analytics, Voicemail Analysis |
 | **Translation** | Translation, Education Transcription |
 | **Text-to-Speech** | Voice Assistant, Pipecat Voice Bot |
@@ -146,16 +143,17 @@ Production-ready applications for specific industries.
 ### By Difficulty
 
 **Beginner (5-15 min):**
-- Simple Transcription
-- Real-time Streaming
+- Hello World (5 min)
+- Batch vs Real-time (10 min)
+- Configuration Guide (15 min)
 - Custom Vocabulary
 - FastAPI Integration
 - Flask Integration
 
 **Intermediate (15-45 min):**
-- Speaker Diarization
 - Audio Intelligence
 - Translation
+- Speaker Diarization
 - Pipecat Voice Bot
 - Twilio Integration
 - Discord Bot
@@ -269,7 +267,6 @@ All examples must meet these standards:
 
 ### Documentation
 
-- **[Architecture](docs/architecture.md)** - Academy design and structure
 - **[Example Template](docs/EXAMPLE_TEMPLATE.md)** - Template for new examples
 - **[Example Checklist](docs/EXAMPLE_CHECKLIST.md)** - Quality standards
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute
