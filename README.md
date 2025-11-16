@@ -101,7 +101,6 @@ Third-party framework and service integrations.
 | **Pipecat AI** | [Multimodal Agent](integrations/pipecat/multimodal-agent/) | Voice + vision, context switching | Python | x min |
 | **Twilio** | [Phone Transcription](integrations/twilio/phone-transcription/) | Phone calls, real-time streaming | Python | x min |
 | **Twilio** | [Voicemail Analysis](integrations/twilio/voicemail-analysis/) | Batch processing, sentiment | Python | x min |
-| **Discord** | [Voice Channel Bot](integrations/discord/voice-channel-bot/) | Discord bot, multi-speaker | Python | x min |
 | **FastAPI** | [Transcription API](integrations/web-frameworks/fastapi/) | REST API, async endpoints | Python | x min |
 | **Flask** | [Transcription Service](integrations/web-frameworks/flask/) | Web service, file uploads | Python | x min |
 
@@ -207,3 +206,99 @@ Each example includes:
 7. **Next Steps** - Related examples
 8. **Troubleshooting** - Common issues
 9. **Resources** - Relevant documentation
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! There are many ways to help:
+
+### Ways to Contribute
+
+1. **Add New Examples** - Share your implementations
+2. **Improve Existing Examples** - Fix bugs, add features
+3. **Add Language Support** - Port examples to other languages
+4. **Fix Documentation** - Improve README files
+5. **Report Issues** - Help us improve quality
+
+### Adding a New Example
+
+1. **Choose category** (basics/integrations/use-cases)
+2. **Follow structure** (see [EXAMPLE_TEMPLATE.md](docs/EXAMPLE_TEMPLATE.md))
+3. **Add metadata** to [docs/index.yaml](docs/index.yaml)
+4. **Write README** using the template
+5. **Test thoroughly** 
+6. **Submit PR** with clear description
+
+**Helpful Guides:**
+- [Creating Examples](docs/guides/creating-examples.md) - Step-by-step guide
+- [Testing Examples](docs/guides/testing-examples.md) - Testing best practices
+- [Example Checklist](docs/EXAMPLE_CHECKLIST.md) - Pre-submission checklist
+
+See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
+
+### Quality Standards
+
+All examples must meet these standards:
+
+- ✅ Clean, readable, well-commented Python code
+- ✅ Follows SDK best practices
+- ✅ Includes proper error handling
+- ✅ No hardcoded secrets
+- ✅ Complete documentation
+- ✅ Tested end-to-end
+- ✅ Metadata in index.yaml
+
+---
+
+## 🆘 Support & Resources
+
+### Getting Help
+
+- **Discord**: [Join our community](https://discord.gg/speechmatics) - Fast responses from developers
+- **GitHub Issues**: [Report bugs or request examples](https://github.com/speechmatics/speechmatics-academy/issues)
+- **GitHub Discussions**: [Ask questions, share projects](https://github.com/speechmatics/speechmatics-academy/discussions)
+- **Email Support**: academy@speechmatics.com
+
+### Resources
+
+- **SDK Repository**: [speechmatics-python-sdk](https://github.com/speechmatics/speechmatics-python-sdk)
+- **API Documentation**: [docs.speechmatics.com](https://docs.speechmatics.com)
+- **Developer Portal**: [portal.speechmatics.com](https://portal.speechmatics.com)
+- **Blog**: [speechmatics.com/blog](https://www.speechmatics.com/blog)
+
+### Documentation
+
+- **[Architecture](docs/architecture.md)** - Academy design and structure
+- **[Example Template](docs/EXAMPLE_TEMPLATE.md)** - Template for new examples
+- **[Example Checklist](docs/EXAMPLE_CHECKLIST.md)** - Quality standards
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute
+- **[Creating Examples](docs/guides/creating-examples.md)** - Step-by-step guide
+- **[Testing Examples](docs/guides/testing-examples.md)** - Testing guide
+- **[Multi-Language Support](docs/guides/multi-language-support.md)** - Language guide
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🔗 Links
+
+- **Academy**: [github.com/speechmatics/speechmatics-academy](https://github.com/speechmatics/speechmatics-academy)
+- **SDK**: [github.com/speechmatics/speechmatics-python-sdk](https://github.com/speechmatics/speechmatics-python-sdk)
+- **Docs**: [docs.speechmatics.com](https://docs.speechmatics.com)
+- **Portal**: [portal.speechmatics.com](https://portal.speechmatics.com)
+- **Community**: [discord.gg/speechmatics](https://discord.gg/speechmatics)
+
+---
+
+<div align="center">
+
+**Built with ❤️ by the Speechmatics Community**
+
+[Twitter](https://twitter.com/speechmatics) • [LinkedIn](https://linkedin.com/company/speechmatics) • [YouTube](https://youtube.com/@speechmatics)
+
+</div>

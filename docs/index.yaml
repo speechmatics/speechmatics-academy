@@ -1,0 +1,119 @@
+# Speechmatics Academy - Example Catalog
+# This file is the source of truth for all examples in the Academy
+# Used by CLI tool for search, filtering, and scaffolding
+
+version: "1.0.0"
+last_updated: "2025-01-16"
+total_examples: 3
+
+# Example Categories
+categories:
+  - id: "basics"
+    title: "Basics"
+    description: "Fundamental examples for getting started with Speechmatics SDK"
+  - id: "integrations"
+    title: "Integrations"
+    description: "Third-party framework and service integrations"
+  - id: "use-cases"
+    title: "Use Cases"
+    description: "Production-ready applications for specific industries"
+
+# Difficulty Levels
+difficulty_levels:
+  - beginner
+  - intermediate
+  - advanced
+
+# Supported Languages
+languages:
+  - python
+
+# Available Features
+features:
+  - batch-transcription
+  - realtime-transcription
+  - speaker-diarization
+  - custom-vocabulary
+  - audio-intelligence
+  - sentiment-analysis
+  - topic-detection
+  - summarization
+  - translation
+  - text-to-speech
+
+# Examples Catalog
+examples:
+  # === BASICS - Getting Started ===
+
+  - id: "hello-world"
+    title: "Hello World - Your First Transcription"
+    description: "The absolute simplest Speechmatics example"
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "basics/01-hello-world"
+    readme: "basics/01-hello-world/README.md"
+    tags: ["getting-started", "quickstart", "beginner", "batch"]
+    last_updated: "2025-01-16"
+    estimated_time: "5 minutes"
+
+  - id: "batch-vs-realtime"
+    title: "Batch vs Real-time - Understanding API Modes"
+    description: "Learn the difference between batch and real-time transcription modes and when to use each."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "realtime-transcription"
+    integrations: []
+    path: "basics/02-batch-vs-realtime"
+    readme: "basics/02-batch-vs-realtime/README.md"
+    tags: ["batch", "realtime", "streaming", "comparison"]
+    last_updated: "2025-01-16"
+    estimated_time: "10 minutes"
+
+  - id: "configuration-guide"
+    title: "Configuration Guide - All Options in One Place"
+    description: "Comprehensive guide to all Speechmatics configuration options including diarization, custom vocabulary, and output formats."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "speaker-diarization"
+      - "custom-vocabulary"
+    integrations: []
+    path: "basics/03-configuration-guide"
+    readme: "basics/03-configuration-guide/README.md"
+    tags: ["configuration", "diarization", "custom-vocabulary", "formatting", "entities"]
+    last_updated: "2025-01-16"
+    estimated_time: "15 minutes"
+
+# Integration Frameworks
+integration_frameworks:
+  - id: "livekit"
+    title: "LiveKit"
+    url: "https://livekit.io"
+  - id: "pipecat"
+    title: "Pipecat AI"
+    url: "https://github.com/pipecat-ai/pipecat"
+  - id: "twilio"
+    title: "Twilio"
+    url: "https://www.twilio.com"
+  - id: "fastapi"
+    title: "FastAPI"
+    url: "https://fastapi.tiangolo.com"
+  - id: "flask"
+    title: "Flask"
+    url: "https://flask.palletsprojects.com"
+
+
+# Metadata for CLI Tool
+cli_config:
+  search_fields: ["title", "description", "tags", "features"]
+  filter_fields: ["category", "difficulty", "languages", "features", "integrations"]
+  sort_options: ["title", "difficulty", "last_updated"]
