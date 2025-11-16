@@ -3,14 +3,12 @@ import os
 import time
 from pathlib import Path
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint
+from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint, AuthenticationError
 
 load_dotenv()
 
 async def main():
     api_key = os.getenv("SPEECHMATICS_API_KEY")
-    if not api_key:
-        raise ValueError("SPEECHMATICS_API_KEY required")
 
     audio_file = Path(__file__).parent.parent / "assets" / "sample.wav"
 
@@ -24,36 +22,40 @@ async def main():
     print("[... processing ...]")
     print()
 
-    # Track processing time
-    start_time = time.time()
+    try:
+        # Track processing time
+        start_time = time.time()
 
-    # Initialize batch client
-    async with AsyncClient(api_key=api_key) as client:
-        # Configure transcription
-        config = TranscriptionConfig(
-            language="en",
-            operating_point=OperatingPoint.ENHANCED,
-        )
+        # Initialize batch client
+        async with AsyncClient(api_key=api_key) as client:
+            # Configure transcription
+            config = TranscriptionConfig(
+                language="en",
+                operating_point=OperatingPoint.ENHANCED,
+            )
 
-        # Transcribe with batch API
-        result = await client.transcribe(
-            str(audio_file),
-            transcription_config=config,
-        )
+            # Transcribe with batch API
+            result = await client.transcribe(
+                str(audio_file),
+                transcription_config=config,
+            )
 
-    # Calculate actual processing time
-    end_time = time.time()
-    processing_time = end_time - start_time
-    minutes = int(processing_time // 60)
-    seconds = int(processing_time % 60)
+        # Calculate actual processing time
+        end_time = time.time()
+        processing_time = end_time - start_time
+        minutes = int(processing_time // 60)
+        seconds = int(processing_time % 60)
 
-    print(f"Complete! Processing time: {minutes}m {seconds}s")
-    print()
+        print(f"Complete! Processing time: {minutes}m {seconds}s")
+        print()
 
-    # Extract and display transcript
-    transcript = result.transcript_text
-    print("Full transcript:")
-    print(f'"{transcript}"')
+        # Extract and display transcript
+        transcript = result.transcript_text
+        print("Full transcript:")
+        print(f'"{transcript}"')
+
+    except (AuthenticationError, ValueError) as e:
+        print(f"\nAuthentication Error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())

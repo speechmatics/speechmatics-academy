@@ -102,36 +102,62 @@ python realtime_example.py
 ```python
 import asyncio
 import os
+import time
 from pathlib import Path
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint
+from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint, AuthenticationError
 
 load_dotenv()
 
 async def main():
     api_key = os.getenv("SPEECHMATICS_API_KEY")
-    if not api_key:
-        raise ValueError("SPEECHMATICS_API_KEY required")
 
     audio_file = Path(__file__).parent.parent / "assets" / "sample.wav"
 
-    # Initialize batch client
-    async with AsyncClient(api_key=api_key) as client:
-        # Configure transcription
-        config = TranscriptionConfig(
-            language="en",
-            operating_point=OperatingPoint.ENHANCED,
-        )
+    # Display file information
+    file_size_bytes = audio_file.stat().st_size
+    file_size_mb = file_size_bytes / (1024 * 1024)
 
-        # Transcribe with batch API
-        result = await client.transcribe(
-            str(audio_file),
-            transcription_config=config,
-        )
+    print(f"Processing file: {audio_file.name}")
+    print(f"File size: {file_size_mb:.1f} MB")
+    print()
+    print("[... processing ...]")
+    print()
 
-    # Extract transcript
-    transcript = result.transcript_text
-    print(transcript)
+    try:
+        # Track processing time
+        start_time = time.time()
+
+        # Initialize batch client
+        async with AsyncClient(api_key=api_key) as client:
+            # Configure transcription
+            config = TranscriptionConfig(
+                language="en",
+                operating_point=OperatingPoint.ENHANCED,
+            )
+
+            # Transcribe with batch API
+            result = await client.transcribe(
+                str(audio_file),
+                transcription_config=config,
+            )
+
+        # Calculate actual processing time
+        end_time = time.time()
+        processing_time = end_time - start_time
+        minutes = int(processing_time // 60)
+        seconds = int(processing_time % 60)
+
+        print(f"Complete! Processing time: {minutes}m {seconds}s")
+        print()
+
+        # Extract and display transcript
+        transcript = result.transcript_text
+        print("Full transcript:")
+        print(f'"{transcript}"')
+
+    except (AuthenticationError, ValueError) as e:
+        print(f"\nAuthentication Error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -152,14 +178,14 @@ from speechmatics.rt import (
     AudioFormat,
     AudioEncoding,
     Microphone,
+    AuthenticationError,
 )
 
 load_dotenv()
 
+
 async def main():
     api_key = os.getenv("SPEECHMATICS_API_KEY")
-    if not api_key:
-        raise ValueError("SPEECHMATICS_API_KEY required")
 
     transcript_parts = []
 
@@ -184,39 +210,44 @@ async def main():
         print("PyAudio not installed. Install: pip install pyaudio")
         return
 
-    async with AsyncClient(api_key=api_key) as client:
-        @client.on(ServerMessageType.ADD_TRANSCRIPT)
-        def handle_final_transcript(message):
-            result = TranscriptResult.from_message(message)
-            transcript = result.metadata.transcript
-            if transcript:
-                print(f"[final]: {transcript}")
-                transcript_parts.append(transcript)
+    try:
+        async with AsyncClient(api_key=api_key) as client:
+            @client.on(ServerMessageType.ADD_TRANSCRIPT)
+            def handle_final_transcript(message):
+                result = TranscriptResult.from_message(message)
+                transcript = result.metadata.transcript
+                if transcript:
+                    print(f"[final]: {transcript}")
+                    transcript_parts.append(transcript)
 
-        @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
-        def handle_partial_transcript(message):
-            result = TranscriptResult.from_message(message)
-            transcript = result.metadata.transcript
-            if transcript:
-                print(f"[partial]: {transcript}")
+            @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
+            def handle_partial_transcript(message):
+                result = TranscriptResult.from_message(message)
+                transcript = result.metadata.transcript
+                if transcript:
+                    print(f"[partial]: {transcript}")
 
-        try:
-            print("Connected! Start speaking (Ctrl+C to stop)...\n")
+            try:
+                print("Connected! Start speaking (Ctrl+C to stop)...\n")
 
-            await client.start_session(
-                transcription_config=transcription_config,
-                audio_format=audio_format,
-            )
+                await client.start_session(
+                    transcription_config=transcription_config,
+                    audio_format=audio_format,
+                )
 
-            while True:
-                frame = await mic.read(audio_format.chunk_size)
-                await client.send_audio(frame)
+                while True:
+                    frame = await mic.read(audio_format.chunk_size)
+                    await client.send_audio(frame)
 
-        except KeyboardInterrupt:
-            pass
-        finally:
-            mic.stop()
-            print(f"\n\nFull transcript: {' '.join(transcript_parts)}")
+            except KeyboardInterrupt:
+                pass
+            finally:
+                mic.stop()
+                print(f"\n\nFull transcript: {' '.join(transcript_parts)}")
+
+    except (AuthenticationError, ValueError) as e:
+        print(f"\nAuthentication Error: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())
