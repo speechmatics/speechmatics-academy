@@ -15,6 +15,9 @@ Comprehensive collection of working examples demonstrating real-world applicatio
 - [Quick Start](#quick-start)
 - [Example Categories](#example-categories)
 - [Finding Examples](#finding-examples)
+- [Example Structure](#example-structure)
+- [Contributing](#contributing)
+- [Support & Resources](#support--resources)
 
 
 ---
@@ -74,16 +77,20 @@ cd my-project
 
 <h2 id="example-categories">📚 Example Categories</h2>
 
-### 🟢 Basics
+### 🟢 Fundamentals
 
 Fundamental examples for getting started with the Speechmatics SDK.
 
-| Example | Description | Difficulty | Languages | Time |
-|---------|-------------|------------|-----------|------|
-| [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | Beginner | Python | 5 min |
-| [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | Beginner | Python | 10 min |
-| [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | Beginner | Python | 15 min |
-| [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | Intermediate | Python | 15 min |
+| Example | Description | Packages | Difficulty |
+|---------|-------------|----------|------------|
+| [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | `Batch` |  Beginner |
+| [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | `Batch` `RT` |  Beginner |
+| [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | `Batch` `RT` |  Beginner |
+| [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
+| [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `Batch` `RT` |  Intermediate |
+| [Working with Results](basics/06-working-with-results/) | Parse, format & export transcription results | `Batch` |  Intermediate |
+| [Real-time Speaker Identification](basics/08-speaker-identification/) | Recognize and tag specific speakers in real-time | `RT` |  Intermediate |
+| [Production Patterns](basics/07-production-patterns/) | Error handling, retries & best practices | `Batch` `RT` |   Advanced |
 
 [Browse all basics examples →](basics/)
 
@@ -126,13 +133,25 @@ Production-ready applications for specific industries.
 
 <h2 id="finding-examples">🔍 Finding Examples</h2>
 
+### By Package
+
+Find examples for the SDK package you installed:
+
+| Package | Description | Examples |
+|---------|-------------|----------|
+| **`speechmatics-batch`** | Async transcription of audio files | [Hello World](basics/01-hello-world/), [Audio Intelligence](basics/04-audio-intelligence/), [Working with Results](basics/06-working-with-results/), [Podcast Processing](use-cases/podcast-processing/), [Court Reporting](use-cases/court-reporting/), [FastAPI API](integrations/web-frameworks/fastapi/), [Flask Service](integrations/web-frameworks/flask/) |
+| **`speechmatics-rt`** | Real-time streaming transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Real-time Speaker Identification](basics/08-speaker-identification/), [Production Patterns](basics/07-production-patterns/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Twilio Phone](integrations/twilio/phone-transcription/), [FastAPI API](integrations/web-frameworks/fastapi/) |
+| **`speechmatics-voice`** | Voice agent with conversation management | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/), [Multimodal Agent](integrations/pipecat/multimodal-agent/), [Meeting Transcription](use-cases/meeting-transcription/) |
+| **`speechmatics-tts`** | Text-to-speech synthesis | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/), [Multimodal Agent](integrations/pipecat/multimodal-agent/) |
+
 ### By Feature
 
 | Feature | Examples |
 |---------|----------|
 | **Batch Transcription** | [Hello World](basics/01-hello-world/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), Podcast Processing, Court Reporting |
-| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), LiveKit Integration, Discord Bot |
+| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Speaker Identification](basics/08-speaker-identification/), LiveKit Integration, Discord Bot |
 | **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), Call Center Analytics, Meeting Transcription |
+| **Speaker Identification** | [Real-time Speaker Identification](basics/08-speaker-identification/) |
 | **Custom Vocabulary** | [Configuration Guide](basics/03-configuration-guide/), Medical Dictation, Court Reporting |
 | **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics, Voicemail Analysis |
 | **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics |
@@ -253,7 +272,7 @@ All examples must meet these standards:
 
 ---
 
-## 🆘 Support & Resources
+<h2 id="support--resources"> 🆘 Support & Resources</h2>
 
 ### Getting Help
 
