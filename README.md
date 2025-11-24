@@ -4,9 +4,9 @@
   <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="100%">
 </picture>
 
-**Production-ready examples, integrations, and templates for the Speechmatics Python SDK.**
+**Working examples, integrations, and templates for the Speechmatics Python SDK.**
 
-Comprehensive collection of working examples demonstrating real-world applications, third-party integrations, and production deployment patterns.
+Comprehensive collection of code examples demonstrating real-world applications, third-party integrations, and best practices.
 
 **11 Examples • Python • Copy-Paste Ready**
 
@@ -116,7 +116,7 @@ Third-party framework and service integrations.
 
 ### 🎯 Use Cases
 
-Production-ready applications for specific industries.
+Example applications for specific industries.
 
 _Use case examples coming soon! Check back for industry-specific implementations including call center analytics, meeting transcription, podcast processing, and more._
 
