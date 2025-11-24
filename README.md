@@ -1,7 +1,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="logos/speechmatics-academy-white-2400x600.png">
   <source media="(prefers-color-scheme: light)" srcset="logos/speechmatics-academy-black-2400x600.png">
-  <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="100%">
+  <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="70%">
 </picture>
 
 **Working examples, integrations, and templates for the Speechmatics Python SDK.**
