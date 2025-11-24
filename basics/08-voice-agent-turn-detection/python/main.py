@@ -10,12 +10,11 @@ import asyncio
 import os
 import sys
 from dotenv import load_dotenv
-from speechmatics.rt import Microphone,AuthenticationError
+from speechmatics.rt import Microphone, AuthenticationError
 from speechmatics.voice import (
     VoiceAgentClient,
     VoiceAgentConfigPreset,
     AgentServerMessageType,
-    
 )
 
 

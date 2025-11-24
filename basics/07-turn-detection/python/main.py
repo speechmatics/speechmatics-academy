@@ -89,8 +89,8 @@ async def main() -> None:
                     full_text = " ".join(current_utterance)
 
                     # Calculate duration from first transcript to silence detection
-                    metadata = message.get("metadata", {})
-                    end_time = metadata.get("end_time", 0)
+                    result = TranscriptResult.from_message(message)
+                    end_time = result.metadata.end_time
                     duration = end_time - utterance_start_time
 
                     utterances.append({
