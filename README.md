@@ -4,7 +4,9 @@
   <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="70%">
 </picture>
 
-**Working examples, integrations, and templates for the Speechmatics Python SDK.**
+---
+
+**Working examples, integrations, and templates for the Speechmatics SDK's.**
 
 Comprehensive collection of code examples demonstrating real-world applications, third-party integrations, and best practices.
 
