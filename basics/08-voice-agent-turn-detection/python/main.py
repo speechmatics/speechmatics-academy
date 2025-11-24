@@ -2,8 +2,6 @@
 """
 Voice Agent Turn Detection - Preset Configurations
 
-Demonstrates the official Speechmatics Voice SDK presets for turn detection.
-Each preset is optimized for specific use cases.
 """
 
 import asyncio

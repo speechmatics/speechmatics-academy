@@ -2,7 +2,7 @@
 
 **Real-time voice transcription with intelligent turn detection using Speechmatics Voice SDK presets.**
 
-Learn how to use production-ready preset configurations for different conversational AI use cases including voice assistants, note-taking, live captions, and multi-party conversations.
+Learn how to use optimized preset configurations for different conversational AI use cases including voice assistants, note-taking, live captions, and multi-party conversations.
 
 ## What You'll Learn
 
@@ -46,7 +46,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Note**: For SMART_TURN mode, additional ML dependencies are required (see below).
+**Note**: The requirements include ML dependencies for SMART_TURN mode (certifi, onnxruntime, transformers).
 
 **Step 3: Configure API key**
 
@@ -76,7 +76,7 @@ This example demonstrates intelligent turn detection by:
 
 ### Available Presets
 
-The Voice SDK includes 6 production-ready presets:
+The Voice SDK includes 6 optimized presets:
 
 | Preset | Mode | Use Case | Silence Trigger | Key Feature |
 |--------|------|----------|-----------------|-------------|
@@ -148,6 +148,8 @@ def on_turn_end(message):
 **4. Streaming Audio**
 
 ```python
+from speechmatics.rt import Microphone
+
 mic = Microphone(sample_rate=16000, chunk_size=320)
 mic.start()
 
@@ -156,6 +158,20 @@ await client.connect()
 while True:
     audio_chunk = await mic.read(320)
     await client.send_audio(audio_chunk)
+```
+
+**5. Error Handling**
+
+```python
+from speechmatics.rt import AuthenticationError
+
+try:
+    segments = await run_preset(preset_name)
+except (AuthenticationError, ValueError) as e:
+    print(f"\nAuthentication Error: {e}")
+    if not os.getenv("SPEECHMATICS_API_KEY"):
+        print("Error: SPEECHMATICS_API_KEY not set")
+        print("Please set it in your .env file")
 ```
 
 ## Expected Output
@@ -293,13 +309,15 @@ config = VoiceAgentConfigPreset._merge_configs(base_config, custom_config)
 
 ### Enable SMART_TURN Mode
 
-```bash
-# Install ML dependencies
-pip install certifi>=2025.10.5
-pip install onnxruntime>=1.19.0
-pip install transformers>=4.57.0
+SMART_TURN dependencies are already included in `requirements.txt`. If installing manually:
 
-# Or use bundle
+```bash
+# Install ML dependencies individually
+pip install certifi>=2025.10.5
+pip install onnxruntime>=1.19.0,<2
+pip install transformers>=4.57.0,<5
+
+# Or use the Voice SDK bundle
 pip install speechmatics-voice[smart]
 ```
 
@@ -346,10 +364,10 @@ Sentence-based segmentation is perfect for:
 
 ## Next Steps
 
-- **[Pipecat Integration](../../integrations/pipecat/)** - Build voice agents with Pipecat framework
-- **[Speaker Identification](../../integrations/pipecat/speaker_indentification/)** - Multi-speaker recognition
+- **[Pipecat Integration](../../integrations/pipecat/simple-voice-bot/)** - Build voice agents with Pipecat framework
 - **[Real-time Translation](../05-multilingual-translation/)** - Add multilingual support
 - **[Audio Intelligence](../04-audio-intelligence/)** - Sentiment and topic detection
+- **[Turn Detection](../07-turn-detection/)** - Basic RT SDK turn detection
 
 ## Troubleshooting
 
@@ -380,10 +398,11 @@ pip install pyaudio
 
 **"SMART_TURN not working"**
 ```bash
-# Ensure all ML dependencies are installed
-pip install certifi>=2025.10.5 onnxruntime>=1.19.0 transformers>=4.57.0
+# Dependencies should be installed from requirements.txt
+# If you skipped them, install manually:
+pip install certifi>=2025.10.5 onnxruntime>=1.19.0,<2 transformers>=4.57.0,<5
 
-# Or use the bundle
+# Or use the Voice SDK bundle
 pip install speechmatics-voice[smart]
 ```
 

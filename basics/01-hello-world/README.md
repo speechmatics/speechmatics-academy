@@ -99,7 +99,22 @@ if __name__ == "__main__":
 Hello, this is a sample audio transcription. Welcome to Speechmatics!
 ```
 
-## What's Happening
+## Key Features Demonstrated
+
+**Minimal Setup:**
+- Single API call for transcription
+- Automatic audio format detection
+- No configuration required
+
+**Async/Await Pattern:**
+- Non-blocking I/O for better performance
+- Proper resource management with context managers
+
+**Error Handling:**
+- Authentication error catching
+- Clear error messages
+
+## How the Code Works
 
 1. **Load Environment** - Load your API key from `.env` file using dotenv
 2. **Get API Key** - Retrieve API key from environment variables with validation

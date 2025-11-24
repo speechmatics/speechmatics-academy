@@ -195,6 +195,28 @@ DETECTED 3 TURNS
 3. This is working great! (1.52s)
 ```
 
+## Key Features Demonstrated
+
+**Turn Detection:**
+- Automatic end-of-utterance detection using silence thresholds
+- Configurable silence triggers (0.5s-1.5s)
+- Real-time event notifications with END_OF_UTTERANCE
+
+**Event-Driven Architecture:**
+- ADD_PARTIAL_TRANSCRIPT for real-time feedback
+- ADD_TRANSCRIPT for final transcriptions
+- END_OF_UTTERANCE for turn completion
+
+**Timing and Metrics:**
+- Track utterance start and end times
+- Calculate turn duration
+- Collect multiple turns with metadata
+
+**Use Case Optimization:**
+- Fast response for voice assistants (0.5-0.7s)
+- Natural pauses for dictation (1.0s+)
+- Balanced approach for conversations (0.7-0.9s)
+
 ## Use Cases
 
 ### Voice Assistants

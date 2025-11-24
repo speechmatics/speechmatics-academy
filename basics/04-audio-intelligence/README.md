@@ -43,6 +43,20 @@ cp ../.env.example .env
 python main.py
 ```
 
+## How It Works
+
+This example demonstrates audio intelligence by:
+
+1. **Create JobConfig** - Configure transcription with intelligence features
+2. **Enable Sentiment Analysis** - Detect emotional tone in speech
+3. **Enable Topic Detection** - Identify discussion topics automatically
+4. **Enable Summarization** - Generate bullet-point summaries
+5. **Submit Job** - Process audio with all intelligence features
+6. **Wait for Completion** - Job processes asynchronously
+7. **Extract Results** - Access transcript, sentiment, topics, and summary
+
+Audio intelligence runs alongside transcription, enriching your results with insights.
+
 ## Audio Intelligence Features
 
 ### 1. Sentiment Analysis
@@ -525,11 +539,55 @@ The summary format changes based on your config:
 - `summary_length="brief"` - Few sentences
 - `summary_length="detailed"` - Comprehensive breakdown with sections
 
+## Key Features Demonstrated
+
+**Sentiment Analysis:**
+- Segment-level emotion detection
+- Positive, negative, neutral classification
+- Confidence scores for each segment
+
+**Topic Detection:**
+- 10 standard topic categories
+- Automatic topic identification
+- Topic counts and distribution
+
+**Summarization:**
+- Configurable summary types (bullets/paragraphs)
+- Length control (brief/detailed)
+- Content type optimization (conversational/informational)
+
+**Job Management:**
+- Asynchronous batch processing
+- Job status tracking with wait_for_completion
+- Timeout handling for long files
+
+## Troubleshooting
+
+**"Job timed out"**
+- Increase timeout parameter in `wait_for_completion(timeout=600)`
+- Check job status manually using `get_job_status(job_id)`
+- Very large files may take several minutes
+
+**"No sentiment detected"**
+- Sentiment requires clear emotional cues in speech
+- Works best with conversational audio
+- May return neutral for factual/monotone content
+
+**"Summary too short/long"**
+- Adjust `summary_length` parameter ("brief" vs "detailed")
+- Brief: 1-2 sentences per key point
+- Detailed: Comprehensive multi-section breakdown
+
+**"Topics not relevant"**
+- Topics are from 10 standard categories
+- Best for general conversation, meetings, calls
+- May not match highly specialized domain content
+
 ## Next Steps
 
 - **[Multilingual & Translation](../05-multilingual-translation/)** - Work across languages
-- **[Working with Results](../06-working-with-results/)** - Parse and visualize intelligence data
-- **[Use Cases: Call Center Analytics](../../use-cases/call-center-analytics/)** - Production example
+- **[Turn Detection](../07-turn-detection/)** - Real-time turn detection for conversations
+- **[Voice Agent Turn Detection](../08-voice-agent-turn-detection/)** - Advanced presets for voice agents
 
 ## Resources
 

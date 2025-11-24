@@ -278,6 +278,25 @@ if __name__ == "__main__":
 - You're building interactive apps
 - You need partial results
 
+## Key Features Demonstrated
+
+**Batch Mode:**
+- File-based transcription with AsyncClient
+- Complete file processing with wait for results
+- Enhanced accuracy with OperatingPoint configuration
+- Processing time measurement
+
+**Real-time Mode:**
+- WebSocket streaming with live audio
+- Partial and final transcript events
+- Microphone integration with PyAudio
+- Event-driven architecture with decorators
+
+**Comparison:**
+- Performance tradeoffs (latency vs accuracy)
+- Use case decision matrix
+- Side-by-side code examples
+
 ## Expected Output
 
 ### Batch Output
@@ -328,7 +347,8 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 
 - **[Configuration Guide](../03-configuration-guide/)** - Learn all config options for both modes
 - **[Audio Intelligence](../04-audio-intelligence/)** - Add sentiment and insights
-- **[Production Patterns](../07-production-patterns/)** - Error handling and scaling
+- **[Turn Detection](../07-turn-detection/)** - Real-time turn detection for conversations
+- **[Voice Agent Turn Detection](../08-voice-agent-turn-detection/)** - Advanced presets for voice agents
 
 ## Troubleshooting
 

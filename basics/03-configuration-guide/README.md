@@ -46,6 +46,19 @@ cp ../.env.example .env
 python main.py
 ```
 
+## How It Works
+
+This example demonstrates how to configure Speechmatics transcription:
+
+1. **Create TranscriptionConfig** - Define all configuration parameters
+2. **Set Language & Diarization** - Configure speaker detection
+3. **Add Custom Vocabulary** - Improve accuracy for specific terms
+4. **Enable Entities** - Detect dates, numbers, currencies
+5. **Submit Transcription** - Send audio with configuration
+6. **Process Results** - Extract transcript and detected entities
+
+The configuration system is flexible - start with defaults and add only what you need.
+
 ## Configuration Options
 
 ### 1. Speaker Diarization
@@ -252,11 +265,33 @@ Detected Entities:
    • Enhanced accuracy mode
 ```
 
+## Key Features Demonstrated
+
+**Speaker Diarization:**
+- Automatic speaker detection and labeling
+- Support for multi-speaker scenarios
+- Optional max_speakers limit
+
+**Custom Vocabulary:**
+- Domain-specific term accuracy
+- Phonetic alternatives with sounds_like
+- Support for acronyms and product names
+
+**Entity Detection:**
+- Automatic formatting of dates, times, numbers
+- Currency detection and formatting
+- Named entity recognition
+
+**Quality Settings:**
+- Operating point configuration (Enhanced vs Standard)
+- Language and dialect selection
+- Output locale customization
+
 ## Next Steps
 
 - **[Audio Intelligence](../04-audio-intelligence/)** - Add sentiment analysis and topics
 - **[Multilingual & Translation](../05-multilingual-translation/)** - Work with multiple languages
-- **[Working with Results](../06-working-with-results/)** - Parse and format output
+- **[Turn Detection](../07-turn-detection/)** - Real-time turn detection for conversations
 
 ## Troubleshooting
 
