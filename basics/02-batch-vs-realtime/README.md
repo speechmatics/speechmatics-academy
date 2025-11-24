@@ -4,20 +4,20 @@
 
 This example shows both modes side-by-side so you understand which to use for your use case.
 
-## 🎯 What You'll Learn
+## What You'll Learn
 
 - The difference between batch and real-time transcription
 - When to use batch mode vs real-time mode
 - How to implement both approaches
 - Performance and cost tradeoffs
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **Python 3.8+** or **Node.js 16+**
 - **Microphone** (for real-time example)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Python
 
@@ -51,16 +51,16 @@ python batch_example.py
 python realtime_example.py
 ```
 
-## 🔄 Batch vs Real-time
+## Batch vs Real-time
 
 ### Batch Mode
 
 **Best for:**
-- ✅ Pre-recorded audio/video files
-- ✅ Processing large volumes of files
-- ✅ When you can wait for results (minutes)
-- ✅ Highest accuracy (post-processing applied)
-- ✅ Cost-effective for large files
+- Pre-recorded audio/video files
+- Processing large volumes of files
+- When you can wait for results (minutes)
+- Highest accuracy (post-processing applied)
+- Cost-effective for large files
 
 **How it works:**
 1. Upload entire audio file
@@ -77,11 +77,11 @@ python realtime_example.py
 ### Real-time Mode
 
 **Best for:**
-- ✅ Live audio streams
-- ✅ When you need immediate results (< 1 second)
-- ✅ Interactive applications
-- ✅ Microphone input
-- ✅ Live captioning
+- Live audio streams
+- When you need immediate results (< 1 second)
+- Interactive applications
+- Microphone input
+- Live captioning
 
 **How it works:**
 1. Open WebSocket connection
@@ -95,7 +95,7 @@ python realtime_example.py
 - Phone calls
 - Live events
 
-## 💡 Side-by-Side Comparison
+## Side-by-Side Comparison
 
 ### Batch Example
 
@@ -253,7 +253,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## 📊 Performance Comparison
+## Performance Comparison
 
 | Feature | Batch | Real-time |
 |---------|-------|-----------|
@@ -264,7 +264,7 @@ if __name__ == "__main__":
 | **Max File Size** | Large (hours) | Unlimited stream |
 | **Partial Results** | No | Yes |
 
-## 🎯 Decision Matrix
+## Decision Matrix
 
 **Use Batch if:**
 - You have a complete audio file
@@ -278,7 +278,7 @@ if __name__ == "__main__":
 - You're building interactive apps
 - You need partial results
 
-## 📤 Expected Output
+## Expected Output
 
 ### Batch Output
 ```
@@ -324,13 +324,13 @@ Connected! Start speaking (Ctrl+C to stop)...
 Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 ```
 
-## ⏭️ Next Steps
+## Next Steps
 
 - **[Configuration Guide](../03-configuration-guide/)** - Learn all config options for both modes
 - **[Audio Intelligence](../04-audio-intelligence/)** - Add sentiment and insights
 - **[Production Patterns](../07-production-patterns/)** - Error handling and scaling
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Batch: "Processing timeout"**
 - Check file size (very large files take longer)
@@ -346,7 +346,7 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 - Match audio streaming rate to real-time
 - Use proper audio format (16kHz, mono, PCM)
 
-## 📚 Resources
+## Resources
 
 - [Batch API Reference](https://docs.speechmatics.com/batch-api-ref)
 - [Real-time API Reference](https://docs.speechmatics.com/rt-api-ref)
@@ -358,4 +358,4 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 **Difficulty**: Beginner
 **API Modes**: Batch & Real-time
 
-[⬅️ Back to Basics](../README.md)
+[Back to Basics](../README.md)

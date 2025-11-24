@@ -4,19 +4,19 @@
 
 Get your first transcription working in under 5 minutes with minimal setup.
 
-## 🎯 What You'll Learn
+## What You'll Learn
 
 - How to make your first API call to Speechmatics
 - The minimum code required for transcription
 - How to get a basic transcript from an audio file
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **Python 3.8+**
 - **Audio file**: We'll use a sample WAV file (provided)
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Python
 
@@ -47,7 +47,7 @@ python main.py
 
 
 
-## 💡 How It Works
+## How It Works
 
 This is the complete code to transcribe audio:
 
@@ -93,13 +93,13 @@ if __name__ == "__main__":
 ```
 
 
-## 📤 Expected Output
+## Expected Output
 
 ```
 Hello, this is a sample audio transcription. Welcome to Speechmatics!
 ```
 
-## 🔍 What's Happening
+## What's Happening
 
 1. **Load Environment** - Load your API key from `.env` file using dotenv
 2. **Get API Key** - Retrieve API key from environment variables with validation
@@ -110,7 +110,7 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 
 The code uses async/await for better performance and proper resource management with context managers.
 
-## ⏭️ Next Steps
+## Next Steps
 
 Now that you have basic transcription working, explore:
 
@@ -118,7 +118,7 @@ Now that you have basic transcription working, explore:
 - **[Configuration Guide](../03-configuration-guide/)** - Add diarization, custom vocabulary, etc.
 - **[Audio Intelligence](../04-audio-intelligence/)** - Get sentiment, topics, and summaries
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Error: "Invalid API key"**
 - Check your `.env` file has the correct `SPEECHMATICS_API_KEY`
@@ -132,7 +132,7 @@ Now that you have basic transcription working, explore:
 - Check your audio file has audible speech
 - Verify the audio format is supported (WAV, MP3, M4A, etc.)
 
-## 📚 Resources
+## Resources
 
 - [Speechmatics Batch API Docs](https://docs.speechmatics.com/introduction/batch-guide)
 - [Supported Audio Formats](https://docs.speechmatics.com/introduction/audio-formats)
@@ -144,4 +144,4 @@ Now that you have basic transcription working, explore:
 **Difficulty**: Beginner
 **API Mode**: Batch
 
-[⬅️ Back to Basics](../README.md)
+[Back to Basics](../README.md)

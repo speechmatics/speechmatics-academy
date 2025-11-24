@@ -4,7 +4,7 @@
 
 Stop searching through docs - all config options explained with working examples in one place!
 
-## 🎯 What You'll Learn
+## What You'll Learn
 
 - All available configuration parameters
 - Speaker diarization setup
@@ -13,13 +13,13 @@ Stop searching through docs - all config options explained with working examples
 - Punctuation and formatting controls
 - Language and dialect selection
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **Python 3.8+**
 - Completed [Hello World](../01-hello-world/) example
 
-## 🚀 Quick Start
+## Quick Start
 
 **Step 1: Create and activate a virtual environment**
 
@@ -46,7 +46,7 @@ cp ../.env.example .env
 python main.py
 ```
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 ### 1. Speaker Diarization
 
@@ -148,7 +148,7 @@ config = TranscriptionConfig(
 - `standard` - Fast, good accuracy
 - `enhanced` - Slower, best accuracy
 
-## 💡 Complete Example
+## Complete Example
 
 Here's an example combining multiple options:
 
@@ -190,25 +190,25 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## 📊 Configuration Cheat Sheet
+## Configuration Cheat Sheet
 
 | Category                      | Feature              | Config Parameter             | Values                                              | Description                                                                 |
 |-------------------------------|----------------------|------------------------------|-----------------------------------------------------|-----------------------------------------------------------------------------|
-| 🔵 **Core Settings**          | Language             | `language`                   | `"en"`, `"es"`, `"fr"`, etc. (default: `"en"`)      | ISO 639-1 language code for transcription                                   |
-| 🔵 **Core Settings**          | Quality              | `operating_point`            | `OperatingPoint.STANDARD`, `ENHANCED` (default)     | Acoustic model to use - enhanced for best accuracy, standard for speed      |
-| 🔵 **Core Settings**          | Output Locale        | `output_locale`              | RFC-5646 code (e.g., `"en-US"`)                     | Language code for transcript output formatting                              |
-| 🔵 **Core Settings**          | Domain               | `domain`                     | `"medical"`, etc.                                   | Language pack optimized for specific domain                                 |
-| 🟢 **Speech Recognition**     | Speaker Labels       | `diarization`                | `"speaker"`, `"channel"`, `"channel_and_speaker"`   | Type of diarization - identifies different speakers or channels             |
-| 🟢 **Speech Recognition**     | Speaker Config       | `speaker_diarization_config` | Dict (e.g., `{"max_speakers": 4}`)                  | Advanced speaker settings like sensitivity and max speakers                 |
-| 🟢 **Speech Recognition**     | Channel Labels       | `channel_diarization_labels` | List of strings (e.g., `["Agent", "Customer"]`)     | Custom labels for audio channels                                            |
-| 🟢 **Speech Recognition**     | Custom Vocab         | `additional_vocab`           | List of dicts with `content`, `sounds_like`         | Additional vocabulary not in standard language pack                         |
-| 🟡 **Formatting**             | Entity Detection     | `enable_entities`            | `True`/`False`                                      | Detect and format dates, times, numbers, currencies, etc.                   |
-| 🟡 **Formatting**             | Punctuation          | `punctuation_overrides`      | Dict (e.g., `{"permitted_marks": [".", "?"]}`)      | Custom punctuation rules and permitted marks                                |
-| 🟣 **Real-time**              | Partial Results      | `enable_partials`            | `True`/`False`                                      | Receive partial transcription results before finalization                   |
-| 🟣 **Real-time**              | Max Delay            | `max_delay`                  | Float (seconds, e.g., `2.5`)                        | Maximum delay for transcript delivery (range: 0.7-4.0)                      |
-| 🟣 **Real-time**              | Max Delay Mode       | `max_delay_mode`             | `"fixed"` or `"flexible"`                           | Fixed strictly adheres to max_delay, flexible allows override for entities  |
+| **Core Settings**          | Language             | `language`                   | `"en"`, `"es"`, `"fr"`, etc. (default: `"en"`)      | ISO 639-1 language code for transcription                                   |
+| **Core Settings**          | Quality              | `operating_point`            | `OperatingPoint.STANDARD`, `ENHANCED` (default)     | Acoustic model to use - enhanced for best accuracy, standard for speed      |
+| **Core Settings**          | Output Locale        | `output_locale`              | RFC-5646 code (e.g., `"en-US"`)                     | Language code for transcript output formatting                              |
+| **Core Settings**          | Domain               | `domain`                     | `"medical"`, etc.                                   | Language pack optimized for specific domain                                 |
+| **Speech Recognition**     | Speaker Labels       | `diarization`                | `"speaker"`, `"channel"`, `"channel_and_speaker"`   | Type of diarization - identifies different speakers or channels             |
+| **Speech Recognition**     | Speaker Config       | `speaker_diarization_config` | Dict (e.g., `{"max_speakers": 4}`)                  | Advanced speaker settings like sensitivity and max speakers                 |
+| **Speech Recognition**     | Channel Labels       | `channel_diarization_labels` | List of strings (e.g., `["Agent", "Customer"]`)     | Custom labels for audio channels                                            |
+| **Speech Recognition**     | Custom Vocab         | `additional_vocab`           | List of dicts with `content`, `sounds_like`         | Additional vocabulary not in standard language pack                         |
+| **Formatting**             | Entity Detection     | `enable_entities`            | `True`/`False`                                      | Detect and format dates, times, numbers, currencies, etc.                   |
+| **Formatting**             | Punctuation          | `punctuation_overrides`      | Dict (e.g., `{"permitted_marks": [".", "?"]}`)      | Custom punctuation rules and permitted marks                                |
+| **Real-time**              | Partial Results      | `enable_partials`            | `True`/`False`                                      | Receive partial transcription results before finalization                   |
+| **Real-time**              | Max Delay            | `max_delay`                  | Float (seconds, e.g., `2.5`)                        | Maximum delay for transcript delivery (range: 0.7-4.0)                      |
+| **Real-time**              | Max Delay Mode       | `max_delay_mode`             | `"fixed"` or `"flexible"`                           | Fixed strictly adheres to max_delay, flexible allows override for entities  |
 
-## 📤 Expected Output
+## Expected Output
 
 ```
 ======================================================================
@@ -252,13 +252,13 @@ Detected Entities:
    • Enhanced accuracy mode
 ```
 
-## ⏭️ Next Steps
+## Next Steps
 
 - **[Audio Intelligence](../04-audio-intelligence/)** - Add sentiment analysis and topics
 - **[Multilingual & Translation](../05-multilingual-translation/)** - Work with multiple languages
 - **[Working with Results](../06-working-with-results/)** - Parse and format output
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **"max_speakers parameter invalid"**
 - Value must be between 2 and 20
@@ -273,7 +273,7 @@ Detected Entities:
 - Check you're using: `txt`, `json-v2`, `srt`, or `vtt`
 - Some formats only available in batch mode
 
-## 📚 Resources
+## Resources
 
 - [Configuration Reference](https://docs.speechmatics.com/speech-to-text/configuration)
 - [Supported Languages](https://docs.speechmatics.com/introduction/languages)
@@ -285,4 +285,4 @@ Detected Entities:
 **Difficulty**: Beginner
 **API Mode**: Batch (works with Real-time too)
 
-[⬅️ Back to Basics](../README.md)
+[Back to Basics](../README.md)

@@ -4,20 +4,20 @@
 
 Go beyond transcription to understand WHAT was said and HOW it was said!
 
-## 🎯 What You'll Learn
+## What You'll Learn
 
 - How to enable sentiment analysis (positive/negative/neutral)
 - Topic detection for content categorization
 - Automatic summarization of conversations
 - Combining intelligence features with transcription
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **Python 3.8+**
 - Completed [Configuration Guide](../03-configuration-guide/)
 
-## 🚀 Quick Start
+## Quick Start
 
 **Step 1: Create and activate a virtual environment**
 
@@ -43,7 +43,7 @@ cp ../.env.example .env
 python main.py
 ```
 
-## 🧠 Audio Intelligence Features
+## Audio Intelligence Features
 
 ### 1. Sentiment Analysis
 
@@ -202,7 +202,7 @@ Customer expressed satisfaction and requested follow-up documentation.
 - Content briefs
 - Executive summaries
 
-## 💡 Complete Example
+## Complete Example
 
 Combine all intelligence features:
 
@@ -257,7 +257,7 @@ async def analyze_audio():
 asyncio.run(analyze_audio())
 ```
 
-## 📊 Transcript Response Fields - Complete Reference
+## Transcript Response Fields - Complete Reference
 
 ### Core Fields (Always Present)
 
@@ -461,7 +461,7 @@ if result.summary:
 
 **Event types:** `music`, `laughter`, `applause`, etc.
 
-## 📤 Expected Output
+## Expected Output
 
 When you run the audio intelligence example, you'll see:
 
@@ -525,13 +525,13 @@ The summary format changes based on your config:
 - `summary_length="brief"` - Few sentences
 - `summary_length="detailed"` - Comprehensive breakdown with sections
 
-## ⏭️ Next Steps
+## Next Steps
 
 - **[Multilingual & Translation](../05-multilingual-translation/)** - Work across languages
 - **[Working with Results](../06-working-with-results/)** - Parse and visualize intelligence data
 - **[Use Cases: Call Center Analytics](../../use-cases/call-center-analytics/)** - Production example
 
-## 📚 Resources
+## Resources
 
 - [Sentiment Analysis Docs](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/sentiment-analysis)
 - [Topic Detection Docs](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/topics)
@@ -543,4 +543,4 @@ The summary format changes based on your config:
 **Difficulty**: Intermediate
 **API Mode**: Batch only
 
-[⬅️ Back to Basics](../README.md)
+[Back to Basics](../README.md)

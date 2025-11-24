@@ -1,10 +1,14 @@
-# Speechmatics Academy
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="logos/speechmatics-academy-white-2400x600.png">
+  <source media="(prefers-color-scheme: light)" srcset="logos/speechmatics-academy-black-2400x600.png">
+  <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="100%">
+</picture>
 
 **Production-ready examples, integrations, and templates for the Speechmatics Python SDK.**
 
 Comprehensive collection of working examples demonstrating real-world applications, third-party integrations, and production deployment patterns.
 
-**4 Examples • Python • Copy-Paste Ready**
+**11 Examples • Python • Copy-Paste Ready**
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
 
@@ -88,9 +92,8 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | `Batch` `RT` |  Beginner |
 | [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
 | [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `Batch` `RT` |  Intermediate |
-| [Working with Results](basics/06-working-with-results/) | Parse, format & export transcription results | `Batch` |  Intermediate |
-| [Real-time Speaker Identification](basics/08-speaker-identification/) | Recognize and tag specific speakers in real-time | `RT` |  Intermediate |
-| [Production Patterns](basics/07-production-patterns/) | Error handling, retries & best practices | `Batch` `RT` |   Advanced |
+| [Turn Detection](basics/07-turn-detection/) | Detect when speech ends using silence-based turn detection | `RT` |  Intermediate |
+| [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) | Intelligent turn detection with Voice SDK presets | `Voice` |  Intermediate |
 
 [Browse all basics examples →](basics/)
 
@@ -100,15 +103,12 @@ Fundamental examples for getting started with the Speechmatics SDK.
 
 Third-party framework and service integrations.
 
-| Integration | Example | Features | Languages | Time |
-|-------------|---------|----------|-----------|------|
-| **LiveKit** | [Voice Assistant](integrations/livekit/voice-assistant/) | Real-time, diarization, WebRTC | Python | x min |
-| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/simple-voice-bot/) | Conversational AI, interruptions | Python | x min |
-| **Pipecat AI** | [Multimodal Agent](integrations/pipecat/multimodal-agent/) | Voice + vision, context switching | Python | x min |
-| **Twilio** | [Phone Transcription](integrations/twilio/phone-transcription/) | Phone calls, real-time streaming | Python | x min |
-| **Twilio** | [Voicemail Analysis](integrations/twilio/voicemail-analysis/) | Batch processing, sentiment | Python | x min |
-| **FastAPI** | [Transcription API](integrations/web-frameworks/fastapi/) | REST API, async endpoints | Python | x min |
-| **Flask** | [Transcription Service](integrations/web-frameworks/flask/) | Web service, file uploads | Python | x min |
+| Integration | Example | Features | Languages |
+|-------------|---------|----------|-----------|
+| **LiveKit** | [Voice Assistant](integrations/livekit/voice-assistant/) | Real-time, diarization, WebRTC | Python |
+| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/simple-voice-bot/) | Conversational AI, interruptions | Python |
+| **FastAPI** | [Transcription API](integrations/web-frameworks/fastapi/) | REST API, async endpoints | Python |
+| **Flask** | [Transcription Service](integrations/web-frameworks/flask/) | Web service, file uploads | Python |
 
 [Browse all integrations →](integrations/)
 
@@ -118,16 +118,7 @@ Third-party framework and service integrations.
 
 Production-ready applications for specific industries.
 
-| Use Case | Description | Features | Languages | Time |
-|----------|-------------|----------|-----------|------|
-| [Call Center Analytics](use-cases/call-center-analytics/) | Analyze customer calls with sentiment, topics, summaries | Diarization, sentiment, topics, summarization | Python | x min |
-| [Meeting Transcription](use-cases/meeting-transcription/) | Auto-transcribe meetings with action items | Diarization, chapters, summaries | Python | x min |
-| [Podcast Processing](use-cases/podcast-processing/) | Generate transcripts, timestamps, searchable content | Batch processing, SRT captions | Python | x min |
-| [Court Reporting](use-cases/court-reporting/) | Legal transcription with high accuracy | Custom vocabulary, formatting | Python | x min |
-| [Medical Dictation](use-cases/medical-dictation/) | HIPAA-compliant medical transcription | Medical vocabulary, on-premise | Python | x min |
-| [Education Transcription](use-cases/education-transcription/) | Lecture transcripts with accessibility | Diarization, SRT, entities | Python | x min |
-
-[Browse all use cases →](use-cases/)
+_Use case examples coming soon! Check back for industry-specific implementations including call center analytics, meeting transcription, podcast processing, and more._
 
 ---
 
@@ -139,25 +130,25 @@ Find examples for the SDK package you installed:
 
 | Package | Description | Examples |
 |---------|-------------|----------|
-| **`speechmatics-batch`** | Async transcription of audio files | [Hello World](basics/01-hello-world/), [Audio Intelligence](basics/04-audio-intelligence/), [Working with Results](basics/06-working-with-results/), [Podcast Processing](use-cases/podcast-processing/), [Court Reporting](use-cases/court-reporting/), [FastAPI API](integrations/web-frameworks/fastapi/), [Flask Service](integrations/web-frameworks/flask/) |
-| **`speechmatics-rt`** | Real-time streaming transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Real-time Speaker Identification](basics/08-speaker-identification/), [Production Patterns](basics/07-production-patterns/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Twilio Phone](integrations/twilio/phone-transcription/), [FastAPI API](integrations/web-frameworks/fastapi/) |
-| **`speechmatics-voice`** | Voice agent with conversation management | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/), [Multimodal Agent](integrations/pipecat/multimodal-agent/), [Meeting Transcription](use-cases/meeting-transcription/) |
-| **`speechmatics-tts`** | Text-to-speech synthesis | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/), [Multimodal Agent](integrations/pipecat/multimodal-agent/) |
+| **`speechmatics-batch`** | Async transcription of audio files | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [FastAPI](integrations/web-frameworks/fastapi/), [Flask](integrations/web-frameworks/flask/) |
+| **`speechmatics-rt`** | Real-time streaming transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Multilingual & Translation](basics/05-multilingual-translation/), [Turn Detection](basics/07-turn-detection/), [FastAPI](integrations/web-frameworks/fastapi/) |
+| **`speechmatics-voice`** | Voice agent with conversation management | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/) |
+| **`speechmatics-tts`** | Text-to-speech synthesis | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/) |
 
 ### By Feature
 
 | Feature | Examples |
 |---------|----------|
-| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), Podcast Processing, Court Reporting |
-| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Speaker Identification](basics/08-speaker-identification/), LiveKit Integration, Discord Bot |
-| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), Call Center Analytics, Meeting Transcription |
-| **Speaker Identification** | [Real-time Speaker Identification](basics/08-speaker-identification/) |
-| **Custom Vocabulary** | [Configuration Guide](basics/03-configuration-guide/), Medical Dictation, Court Reporting |
-| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics, Voicemail Analysis |
-| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics |
-| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), Call Center Analytics, Meeting Transcription |
-| **Translation** | Translation, Education Transcription |
-| **Text-to-Speech** | Voice Assistant, Pipecat Voice Bot |
+| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/) |
+| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/) |
+| **Turn Detection** | [Turn Detection](basics/07-turn-detection/), [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) |
+| **Voice Agents** | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/) |
+| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [LiveKit Voice Assistant](integrations/livekit/voice-assistant/) |
+| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/) |
+| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/) |
+| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/) |
+| **Translation** | [Multilingual & Translation](basics/05-multilingual-translation/) |
+| **Text-to-Speech** | [LiveKit Voice Assistant](integrations/livekit/voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/) |
 
 ### By Language
 
@@ -165,34 +156,29 @@ Find examples for the SDK package you installed:
 
 ### By Difficulty
 
-**Beginner (5-15 min):**
-- [Hello World](basics/01-hello-world/) (5 min)
-- [Batch vs Real-time](basics/02-batch-vs-realtime/) (10 min)
-- [Configuration Guide](basics/03-configuration-guide/) (15 min)
-- Custom Vocabulary
-- FastAPI Integration
-- Flask Integration
+**Beginner:**
+- [Hello World](basics/01-hello-world/)
+- [Batch vs Real-time](basics/02-batch-vs-realtime/)
+- [Configuration Guide](basics/03-configuration-guide/)
 
-**Intermediate (15-45 min):**
+**Intermediate:**
 - [Audio Intelligence](basics/04-audio-intelligence/)
-- Translation
-- Speaker Diarization
-- Pipecat Voice Bot
-- Twilio Integration
-- Discord Bot
-- Most use cases
-
-**Advanced (45+ min):**
-- Multimodal Agent
-- Production deployments
-- Complex integrations
+- [Multilingual & Translation](basics/05-multilingual-translation/)
+- [Turn Detection](basics/07-turn-detection/)
+- [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/)
+- [LiveKit Voice Assistant](integrations/livekit/voice-assistant/)
+- [Pipecat Voice Bot](integrations/pipecat/simple-voice-bot/)
+- [FastAPI](integrations/web-frameworks/fastapi/)
+- [Flask](integrations/web-frameworks/flask/)
 
 ### By Integration
 
 | Integration | Examples | Documentation |
 |-------------|----------|---------------|
-| **LiveKit** | Voice Assistant | [livekit.io](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) |
-| **Pipecat AI** | Voice Bot, Multimodal Agent | [pipecat-ai](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) |
+| **LiveKit** | [Voice Assistant](integrations/livekit/voice-assistant/) | [livekit.io](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) |
+| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/simple-voice-bot/) | [pipecat-ai](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) |
+| **FastAPI** | [Transcription API](integrations/web-frameworks/fastapi/) | [fastapi.tiangolo.com](https://fastapi.tiangolo.com) |
+| **Flask** | [Transcription Service](integrations/web-frameworks/flask/) | [flask.palletsprojects.com](https://flask.palletsprojects.com) |
 
 
 ---

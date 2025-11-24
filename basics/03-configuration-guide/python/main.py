@@ -1,7 +1,6 @@
 """
-Configuration Guide - All Speechmatics Options
-
-Demonstrates all major configuration options in one comprehensive example.
+Configuration Guide 
+Demonstrates configuration options.
 Perfect reference for seeing what's possible!
 """
 
