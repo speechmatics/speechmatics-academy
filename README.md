@@ -135,11 +135,11 @@ Switching from another speech-to-text provider? Our migration guides help you tr
 
 | From | Guide | Features Covered | Status |
 |------|-------|------------------|--------|
-| **Deepgram** | [Migration Guide](guides/migrating-from/deepgram/) | Batch, Streaming, Diarization, Custom Vocabulary | Available |
-| **AssemblyAI** | [Migration Guide](guides/migrating-from/assemblyai/) | Transcription, Audio Intelligence, Real-time | Coming Soon |
-| **Google Cloud Speech** | [Migration Guide](guides/migrating-from/google-speech/) | Batch, Streaming, Multi-language | Coming Soon |
-| **AWS Transcribe** | [Migration Guide](guides/migrating-from/aws-transcribe/) | Batch Jobs, Streaming, Custom Vocabulary | Coming Soon |
-| **Azure Speech** | [Migration Guide](guides/migrating-from/azure-speech/) | REST API, WebSocket, Pronunciation | Coming Soon |
+| [**Deepgram**](guides/migration-guides/deepgram/) | [Migration Guide](guides/migration-guides/deepgram/) | Batch, Streaming, Diarization, Custom Vocabulary | Available |
+| **AssemblyAI** | [Migration Guide](guides/migration-guides/assemblyai/) | Transcription, Audio Intelligence, Real-time | Coming Soon |
+| **Google Cloud Speech** | [Migration Guide](guides/migration-guides/google-speech/) | Batch, Streaming, Multi-language | Coming Soon |
+| **AWS Transcribe** | [Migration Guide](guides/migration-guides/aws-transcribe/) | Batch Jobs, Streaming, Custom Vocabulary | Coming Soon |
+| **Azure Speech** | [Migration Guide](guides/migration-guides/azure-speech/) | REST API, WebSocket, Pronunciation | Coming Soon |
 
 Each migration guide includes:
 - **Feature Mapping** - Direct equivalent features comparison
@@ -148,7 +148,7 @@ Each migration guide includes:
 - **Advantages** - Benefits of switching to Speechmatics
 - **Working Examples** - Complete runnable code
 
-[Browse all migration guides](guides/migrating-from/)
+[Browse all migration guides](guides/migration-guides/)
 
 ---
 
