@@ -1,18 +1,23 @@
+<div align="center">
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="logos/speechmatics-academy-white-2400x600.png">
   <source media="(prefers-color-scheme: light)" srcset="logos/speechmatics-academy-black-2400x600.png">
   <img alt="Speechmatics Academy" src="logos/speechmatics-academy-black-2400x600.png" width="70%">
 </picture>
 
----
+<br/>
+
 
 **Working examples, integrations, and templates for the Speechmatics SDK's.**
 
 Comprehensive collection of code examples demonstrating real-world applications, third-party integrations, and best practices.
 
-**11 Examples • Python • Copy-Paste Ready**
+**Examples • Integrations • Use Cases • Copy-Paste Ready**
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
+
+</div>
 
 ---
 
@@ -20,6 +25,7 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 - [Quick Start](#quick-start)
 - [Example Categories](#example-categories)
+- [Migration Guides](#migration-guides)
 - [Finding Examples](#finding-examples)
 - [Example Structure](#example-structure)
 - [Contributing](#contributing)
@@ -65,9 +71,7 @@ cp ../.env.example .env
 python main.py
 ```
 
-### Option 2: CLI Tool (Fastest)
-
-### Option 3: Direct Copy
+### Option 2: Direct Copy
 
 Use [degit](https://github.com/Rich-Harris/degit) to copy individual examples:
 
@@ -94,7 +98,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | `Batch` `RT` |  Beginner |
 | [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
 | [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `Batch` `RT` |  Intermediate |
-| [Turn Detection](basics/07-turn-detection/) | Detect when speech ends using silence-based turn detection | `RT` |  Intermediate |
+| [Real Time Turn Detection](basics/07-turn-detection/) | Detect when speech ends using silence-based turn detection | `RT` |  Intermediate |
 | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) | Intelligent turn detection with Voice SDK presets | `Voice` |  Intermediate |
 
 [Browse all basics examples →](basics/)
@@ -121,6 +125,29 @@ Third-party framework and service integrations.
 Example applications for specific industries.
 
 _Use case examples coming soon! Check back for industry-specific implementations including call center analytics, meeting transcription, podcast processing, and more._
+
+---
+
+<h2 id="migration-guides">🔄 Migration Guides</h2>
+
+Switching from another speech-to-text provider? Our migration guides help you transition smoothly with feature mappings, code comparisons, and practical examples.
+
+| From | Guide | Features Covered | Status |
+|------|-------|------------------|--------|
+| **Deepgram** | [Migration Guide](guides/migrating-from/deepgram/) | Batch, Streaming, Diarization, Custom Vocabulary | Available |
+| **AssemblyAI** | [Migration Guide](guides/migrating-from/assemblyai/) | Transcription, Audio Intelligence, Real-time | Coming Soon |
+| **Google Cloud Speech** | [Migration Guide](guides/migrating-from/google-speech/) | Batch, Streaming, Multi-language | Coming Soon |
+| **AWS Transcribe** | [Migration Guide](guides/migrating-from/aws-transcribe/) | Batch Jobs, Streaming, Custom Vocabulary | Coming Soon |
+| **Azure Speech** | [Migration Guide](guides/migrating-from/azure-speech/) | REST API, WebSocket, Pronunciation | Coming Soon |
+
+Each migration guide includes:
+- **Feature Mapping** - Direct equivalent features comparison
+- **Code Comparison** - Side-by-side before/after examples
+- **Migration Checklist** - Step-by-step migration process
+- **Advantages** - Benefits of switching to Speechmatics
+- **Working Examples** - Complete runnable code
+
+[Browse all migration guides →](guides/migrating-from/) | [Migration Template](docs/MIGRATION_TEMPLATE.md)
 
 ---
 
@@ -295,11 +322,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- **Academy**: [github.com/speechmatics/speechmatics-academy](https://github.com/speechmatics/speechmatics-academy)
 - **SDK**: [github.com/speechmatics/speechmatics-python-sdk](https://github.com/speechmatics/speechmatics-python-sdk)
 - **Docs**: [docs.speechmatics.com](https://docs.speechmatics.com)
 - **Portal**: [portal.speechmatics.com](https://portal.speechmatics.com)
-- **Community**: [discord.gg/speechmatics](https://discord.gg/speechmatics)
 
 ---
 
