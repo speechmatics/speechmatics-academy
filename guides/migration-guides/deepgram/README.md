@@ -41,7 +41,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 <br/>
 
 <details id="real-time-streaming--voice-features">
-<summary><strong style="font-size: 1.25em;">Real-time Streaming & Voice Features</strong></summary>
+<summary><strong style="font-size: 1.25em;">Real-time Streaming & Voice Features</strong> • Click to explore RealTime and Voice Features</summary>
 
 > **Speechmatics Packages:** 
 `speechmatics-rt` for basic real-time streaming, `speechmatics-voice` for voice agent features (turn detection, segments, VAD events). Voice SDK is built on top of RT SDK.
@@ -51,7 +51,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Interim Results** | `interim_results=True` | `enable_partials=True` | `rt`, `voice` | Partial transcripts while processing |
 | **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Max delay before returning results |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
-| **Utterance End** | `utterance_end_ms=1000` | `conversation_config=`<br/>`ConversationConfig(...)` | `rt`, `voice` | Silence trigger |
+| **Utterance End** | `utterance_end_ms=1000` | `conversation_config=`<br/>`ConversationConfig(end_of_utterance_silence_trigger=1.0)` | `rt`, `voice` | Silence trigger |
 | **Force End Utterance** | Not available | `ClientMessageType.FORCE_END_OF_UTTERANCE` | `rt`, `voice` | Manually trigger end of utterance |
 | **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED`<br/>`AgentServerMessageType.SPEAKER_ENDED` | `voice` | Voice activity detection events |
 | **Diarization** | `diarize=True`, | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
@@ -138,7 +138,7 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 <br/>
 
 <details id="batch-transcription-features">
-<summary><strong style="font-size: 1.25em;">Batch Transcription Features</strong></summary>
+<summary><strong style="font-size: 1.25em;">Batch Transcription Features</strong> • Click to explore Batch Features</summary>
 
 > **Speechmatics Package:** `speechmatics-batch`
 
@@ -194,7 +194,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 <br/>
 
 <details id="output-formatting--filtering">
-<summary><strong style="font-size: 1.25em;">Output Formatting & Filtering</strong></summary>
+<summary><strong style="font-size: 1.25em;">Output Formatting & Filtering</strong> • Click to explore Formatting Options</summary>
 
 > **Speechmatics Packages:** `speechmatics-batch`, `speechmatics-rt` - formatting features available in both batch and real-time.
 >
@@ -259,7 +259,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 <br/>
 
 <details id="text-to-speech-tts">
-<summary><strong style="font-size: 1.25em;">Text-to-Speech (TTS)</strong></summary>
+<summary><strong style="font-size: 1.25em;">Text-to-Speech (TTS)</strong> • Click to explore TTS Features</summary>
 
 > **Speechmatics Package:** `speechmatics-tts`
 
