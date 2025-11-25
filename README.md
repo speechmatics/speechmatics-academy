@@ -1,5 +1,3 @@
-<div align="center">
-
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="logos/speechmatics-academy-white-2400x600.png">
   <source media="(prefers-color-scheme: light)" srcset="logos/speechmatics-academy-black-2400x600.png">
@@ -17,7 +15,7 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
 
-</div>
+
 
 ---
 
