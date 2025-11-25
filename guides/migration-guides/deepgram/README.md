@@ -51,17 +51,17 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Interim Results** | `interim_results=True` | `enable_partials=True` | `rt`, `voice` | Partial transcripts while processing |
 | **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Max delay before returning results |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
-| **Utterance End** | `utterance_end_ms=1000` | `conversation_config=ConversationConfig(end_of_utterance_silence_trigger=1.0)` | `rt`, `voice` | Silence trigger |
+| **Utterance End** | `utterance_end_ms=1000` | `conversation_config=`<br/>`ConversationConfig(end_of_utterance_silence_trigger=1.0)` | `rt`, `voice` | Silence trigger |
 | **Force End Utterance** | Not available | `ClientMessageType.FORCE_END_OF_UTTERANCE` | `rt`, `voice` | Manually trigger end of utterance |
-| **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED` / `SPEAKER_ENDED` | `voice` | Voice activity detection events |
-| **Diarization** | `diarize=True`, `diarize_version="latest"` | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
-| **Speaker Config** | Not available | `speaker_diarization_config=SpeakerDiarizationConfig(...)` | `rt`, `voice` | Fine-tune diarization |
-| **Known Speakers** | Not available | `known_speakers=[SpeakerIdentifier(label, speaker_identifiers)]` | `rt`, `voice` | Pre-register speaker voices |
+| **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED`<br/>`AgentServerMessageType.SPEAKER_ENDED` | `voice` | Voice activity detection events |
+| **Diarization** | `diarize=True`,<br/> `diarize_version="latest"` | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
+| **Speaker Config** | Not available | `speaker_diarization_config=` <br/>  `SpeakerDiarizationConfig(...)` | `rt`, `voice` | Fine-tune diarization |
+| **Known Speakers** | Not available | `known_speakers=`<br/>`[SpeakerIdentifier(label, speaker_identifiers)]` | `rt`, `voice` | Pre-register speaker voices |
 | **Speaker Focus** | Not available | `SpeakerFocusConfig(focus_speakers, ignore_speakers)` | `voice` | Focus on specific speakers |
 | **Multichannel** | `multichannel=True` | `diarization="channel"` or `"channel_and_speaker"` | `rt`, `voice` | Channel-based diarization |
 | **Channel Labels** | Not available | `channel_diarization_labels=["agent", "customer"]` | `rt`, `voice` | Label audio channels |
-| **Keywords/Keyterms** | `keywords=["term"]`, `keyterm=["term"]` | `additional_vocab=[{"content": "term"}]` | `rt`, `voice` | Boost specific terms |
-| **Translation** | Not available | `translation_config=TranslationConfig(target_languages=["es"], enable_partials=True)` | `rt` | Real-time translation |
+| **Keywords/Keyterms** | `keywords=["term"]`,<br/> `keyterm=["term"]` | `additional_vocab=[{"content": "term"}]` | `rt`, `voice` | Boost specific terms |
+| **Translation** | Not available | `translation_config=`<br/>`TranslationConfig(target_languages=["es"]` | `rt` | Real-time translation |
 | **Audio Events** | Not available | `audio_events_config=AudioEventsConfig(types=[...])` | `rt` | Detect laughter, applause, etc. |
 | **Domain** | Not available | `domain="medical"` | `rt`, `voice` | Domain-optimized language pack |
 
@@ -148,7 +148,7 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 | **Multichannel** | `multichannel=True` | `diarization="channel"` or `"channel_and_speaker"` | `batch` | Channel-based diarization |
 | **Sentiment** | `sentiment=True` | `sentiment_analysis_config=SentimentAnalysisConfig()` | `batch` | Sentiment analysis |
 | **Topic Detection** | `topics=True` | `topic_detection_config=TopicDetectionConfig(topics=[...])` | `batch` | Automatic topic extraction |
-| **Summarization** | `summarize=True` | `summarization_config=SummarizationConfig(content_type, summary_length, summary_type)` | `batch` | AI-powered summaries |
+| **Summarization** | `summarize=True` | `summarization_config=`<br/>`SummarizationConfig(content_type, summary_length, summary_type)` | `batch` | AI-powered summaries |
 | **Intent Recognition** | `intents=True` | Not available | - | Detect user intents |
 | **Entity Detection** | `detect_entities=True` | `enable_entities=True` | `batch` | Detect named entities |
 | **Utterances** | `utterances=True`, `utt_split=0.8` | Not available | - | Split into utterances |
@@ -158,11 +158,11 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 | **Auto Chapters** | Not available | `auto_chapters_config=AutoChaptersConfig()` | `batch` | Automatic chapter generation |
 | **Audio Events** | Not available | `audio_events_config=AudioEventsConfig(types=[...])` | `batch` | Detect laughter, applause, etc. |
 | **Translation** | Not available | `translation_config=TranslationConfig(target_languages=["es", "fr"])` | `batch` | Translate transcript |
-| **Language ID** | `detect_language=True` | `language_identification_config=LanguageIdentificationConfig(expected_languages=[...])` | `batch` | Identify spoken language |
+| **Language ID** | `detect_language=True` | `language_identification_config=`<br/>`LanguageIdentificationConfig(expected_languages=[...])` | `batch` | Identify spoken language |
 | **Domain** | Not available | `domain="medical"` | `batch` | Domain-optimized language pack |
 | **Output Locale** | Not available | `output_locale="en-US"` | `batch` | RFC-5646 locale for output |
 | **Output Format** | `?format=srt` | `get_transcript(job_id, format_type=FormatType.SRT)` | `batch` | JSON, TXT, SRT formats |
-| **Webhooks** | `callback="url"` | `notification_config=[NotificationConfig(url, contents, method)]` | `batch` | Job completion notifications |
+| **Webhooks** | `callback="url"` | `notification_config=`<br/>`[NotificationConfig(url, contents, method)]` | `batch` | Job completion notifications |
 | **Job Tracking** | `tag=["label"]` | `tracking=TrackingConfig(title, reference, tags)` | `batch` | Custom job metadata |
 | **Fetch from URL** | `url=...` | `fetch_data=FetchData(url, auth_headers)` | `batch` | Transcribe from URL |
 
@@ -208,7 +208,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 | **Punctuation Marks** | Not available | `punctuation_overrides={"permitted_marks": [".", ","]}` | `batch`, `rt` | Limit allowed punctuation marks |
 | **Output Locale** | Not available | `output_locale="en-GB"` | `batch`, `rt` | Regional spelling (en-GB, en-US, en-AU) |
 | **Profanity** | `profanity_filter=True` | Auto-tagged for en, it, es | `batch`, `rt` | Deepgram removes, Speechmatics tags as `$PROFANITY` |
-| **Disfluencies** | `filler_words=True` (include) | `transcript_filtering_config={"remove_disfluencies": True}` | `batch`, `rt` | Deepgram includes by opt-in; Speechmatics auto-tags, optionally removes (EN only) |
+| **Disfluencies** | `filler_words=True` (include) | `transcript_filtering_config=`<br/>`{"remove_disfluencies": True}` | `batch`, `rt` | Deepgram includes by opt-in; Speechmatics auto-tags, optionally removes (EN only) |
 | **Word Replacement** | `replace=["old:new"]` | `transcript_filtering_config={"replacements": [{"from": "old", "to": "new"}]}` | `batch`, `rt` | Find/replace with regex support |
 | **Redaction** | `redact=["pci", "ssn", "numbers"]` | `transcript_filtering_config={"replacements": [...]}` | `batch`, `rt` | Use replacements to redact sensitive data |
 | **Audio Filtering** | Not available | `audio_filtering_config={"volume_threshold": 3.4}` | `batch`, `rt` | Remove background speech by volume (0-100) |
