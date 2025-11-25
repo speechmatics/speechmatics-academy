@@ -148,7 +148,7 @@ Each migration guide includes:
 - **Advantages** - Benefits of switching to Speechmatics
 - **Working Examples** - Complete runnable code
 
-[Browse all migration guides →](guides/migrating-from/) | [Migration Template](docs/MIGRATION_TEMPLATE.md)
+[Browse all migration guides](guides/migrating-from/)
 
 ---
 
