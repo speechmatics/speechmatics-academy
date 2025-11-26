@@ -39,15 +39,54 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 ### Prerequisites
 
-This repository contains examples for the Speechmatics Python SDK. Install the SDK first:
+**1. Get your API Key**  [portal.speechmatics.com](https://portal.speechmatics.com/)
+
+
+**2. Install the SDK** for your use case:
 
 ```bash
-# Install the package you need
-pip install speechmatics-batch     # For batch transcription
-pip install speechmatics-rt        # For real-time streaming
-pip install speechmatics-voice     # For voice agents
-pip install speechmatics-tts       # For text 
+# Choose the package for your use case:
+
+# Batch transcription
+pip install speechmatics-batch
+
+# Real-time streaming
+pip install speechmatics-rt
+
+# Voice agents
+pip install speechmatics-voice
+
+# Text-to-speech
+pip install speechmatics-tts
 ```
+<details>
+<summary><strong>📦 Package Details</strong> • Click to see what's included in each package</summary>
+
+<br/>
+
+**speechmatics-batch** - Async batch transcription API
+- Upload audio files for processing
+- Get transcripts with timestamps, speakers, entities
+- Supports all audio intelligence features
+
+**speechmatics-rt** - Real-time WebSocket streaming
+- Stream audio for live transcription
+- Ultra-low latency (150ms p95)
+- Partial and final transcripts
+
+**speechmatics-voice** - Voice agent SDK
+- Build conversational AI applications
+- Speaker diarization and turn detection
+- Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
+
+**speechmatics-tts** - Text-to-speech
+- Convert text to natural-sounding speech
+- Multiple voices and languages
+- Streaming and batch modes
+
+</details>
+
+<br/>
 
 📚 [SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk) | [API Reference](https://docs.speechmatics.com)
 
@@ -61,6 +100,12 @@ cd speechmatics-academy
 # Navigate to an example
 cd basics/01-hello-world/python
 
+# Setup Virtual Environment
+python -m venv venv
+
+#
+venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
 
@@ -71,6 +116,9 @@ cp ../.env.example .env
 # Run the example
 python main.py
 ```
+
+> ⚠️ **Security Best Practice**: Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
+
 
 ### Option 2: Direct Copy
 

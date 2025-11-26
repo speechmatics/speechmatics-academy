@@ -192,7 +192,7 @@ async def main():
             enable_entities=True,  # Detect dates, times, numbers
 
             # Quality
-            operating_point=OperatingPoint.ENHANCED,
+            operating_point="enhanced",
         )
 
         # Transcribe with config
@@ -296,7 +296,7 @@ Detected Entities:
 ## Troubleshooting
 
 **"max_speakers parameter invalid"**
-- Value must be between 2 and 20
+- Value must be greater than 2 or equal to 2
 - Only works when `diarization="speaker"`
 
 **"Custom vocabulary not working"**

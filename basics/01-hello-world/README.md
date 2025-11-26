@@ -36,16 +36,32 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-**Step 2: Install dependencies and run**
+**Step 2: Install dependencies**
 
 ```bash
 pip install -r requirements.txt
-cp ../.env.example .env
-# Edit .env and add your SPEECHMATICS_API_KEY
-python main.py
 ```
 
+**Step 3: Configure your API key**
 
+```bash
+cp ../.env.example .env
+```
+
+Open the `.env` file and add your API key:
+
+```
+SPEECHMATICS_API_KEY=your_actual_api_key_here
+```
+
+> **Why `.env`?** Never commit API keys to version control. The `.env` file keeps secrets out of your code.
+
+
+**Step 4: Run the example**
+
+```bash
+python main.py
+```
 
 ## How It Works
 
@@ -84,7 +100,7 @@ async def main():
             result = await client.transcribe(str(audio_file))
             # Print the transcript
             print(result.transcript_text)
-       
+
     except (AuthenticationError, ValueError) as e:
         print(f"\nAuthentication Error: {e}")
 
@@ -138,9 +154,10 @@ Now that you have basic transcription working, explore:
 **Error: "Invalid API key"**
 - Check your `.env` file has the correct `SPEECHMATICS_API_KEY`
 - Verify your key at [portal.speechmatics.com](https://portal.speechmatics.com/)
+- Make sure there are no extra spaces or quotes around the key
 
 **Error: "File not found"**
-- Make sure `sample.wav` is in the same directory
+- Make sure `sample.wav` is in the `assets/` directory
 - Try using an absolute path: `/full/path/to/sample.wav`
 
 **No output / Empty transcript**

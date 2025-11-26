@@ -47,7 +47,7 @@ async def main():
             enable_entities=True,  # Detect dates, times, numbers, currencies
 
             # Quality settings
-            operating_point=OperatingPoint.ENHANCED,  # Best accuracy
+            operating_point="enhanced",  # Best accuracy or "standard" best for speed
         )
 
         print(" Configuration:")
