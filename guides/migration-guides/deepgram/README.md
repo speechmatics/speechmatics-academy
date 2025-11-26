@@ -51,7 +51,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Interim Results** | `interim_results=True` | `enable_partials=True` | `rt`, `voice` | Partial transcripts while processing |
 | **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Max delay before returning results |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
-| **Utterance End** | `utterance_end_ms=1000` | `conversation_config=`<br/>`ConversationConfig(end_of_utterance_silence_trigger=1.0)` | `rt`, `voice` | Silence trigger |
+| **Utterance End** | `utterance_end_ms=1000` |`end_of_utterance_silence_trigger=1.0` | `rt`, `voice` | Silence trigger |
 | **Force End Utterance** | Not available | `ClientMessageType.FORCE_END_OF_UTTERANCE` | `rt`, `voice` | Manually trigger end of utterance |
 | **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED`<br/>`AgentServerMessageType.SPEAKER_ENDED` | `voice` | Voice activity detection events |
 | **Diarization** | `diarize=True`, | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
