@@ -60,6 +60,7 @@ pip install speechmatics-voice
 pip install speechmatics-tts
 ```
 <details>
+
 <summary><strong>📦 Package Details</strong> • Click to see what's included in each package</summary>
 
 <br/>
@@ -100,11 +101,12 @@ cd speechmatics-academy
 # Navigate to an example
 cd basics/01-hello-world/python
 
-# Setup Virtual Environment
+# Setup virtual environment
 python -m venv venv
 
-#
+# Activate virtual environment (Windows)
 venv\Scripts\activate
+# On Mac/Linux: source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -340,7 +342,7 @@ All examples must meet these standards:
 
 ### Getting Help
 
-- **Discord**: [Join our community](https://discord.gg/speechmatics) - Fast responses from developers
+
 - **GitHub Issues**: [Report bugs or request examples](https://github.com/speechmatics/speechmatics-academy/issues)
 - **GitHub Discussions**: [Ask questions, share projects](https://github.com/speechmatics/speechmatics-academy/discussions)
 - **Email Support**: academy@speechmatics.com
