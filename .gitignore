@@ -63,7 +63,6 @@ $RECYCLE.BIN/
 
 # Output files from examples
 output/
-*.txt
 *.json
 *.srt
 *.vtt
