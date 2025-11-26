@@ -135,7 +135,7 @@ Switching from another speech-to-text provider? Our migration guides help you tr
 
 | From | Guide | Features Covered | Status |
 |------|-------|------------------|--------|
-| [**Deepgram**](guides/migration-guides/deepgram/) | [Migration Guide](guides/migration-guides/deepgram/) | Batch, Streaming, Diarization, Custom Vocabulary | Available |
+| **Deepgram** | [Migration Guide](guides/migration-guides/deepgram/) | Batch, Streaming, Diarization, Custom Vocabulary | Available |
 | **AssemblyAI** | [Migration Guide](guides/migration-guides/assemblyai/) | Transcription, Audio Intelligence, Real-time | Coming Soon |
 | **Google Cloud Speech** | [Migration Guide](guides/migration-guides/google-speech/) | Batch, Streaming, Multi-language | Coming Soon |
 | **AWS Transcribe** | [Migration Guide](guides/migration-guides/aws-transcribe/) | Batch Jobs, Streaming, Custom Vocabulary | Coming Soon |
