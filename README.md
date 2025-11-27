@@ -89,7 +89,7 @@ pip install speechmatics-tts
 
 <br/>
 
-📚 [SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk) | [API Reference](https://docs.speechmatics.com)
+📚 [SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk) | [API Reference](https://docs.speechmatics.com/api-ref/)
 
 ### Option 1: Clone and Run
 
@@ -120,7 +120,7 @@ python main.py
 ```
 
 > [!CAUTION]
-> **Security Best Practice**: Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
+> Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
 
 
 ### Option 2: Direct Copy
@@ -329,15 +329,16 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ### Quality Standards
 
-All examples must meet these standards:
-
-- ✅ Clean, readable, well-commented Python code
-- ✅ Follows SDK best practices
-- ✅ Includes proper error handling
-- ✅ No hardcoded secrets
-- ✅ Complete documentation
-- ✅ Tested end-to-end
-- ✅ Metadata in index.yaml
+> [!NOTE]
+> All examples must meet these standards:
+> 
+> - ✅ Clean, readable, well-commented Python code
+> - ✅ Follows SDK best practices
+> - ✅ Includes proper error handling
+> - ✅ No hardcoded secrets
+> - ✅ Complete documentation
+> - ✅ Tested end-to-end
+> - ✅ Metadata in index.yaml
 
 ---
 
