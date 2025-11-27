@@ -62,28 +62,28 @@ pip install speechmatics-tts
 <details>
 
 <summary><strong>📦 Package Details</strong> • Click to see what's included in each package</summary>
-
 <br/>
 
-**speechmatics-batch** - Async batch transcription API
-- Upload audio files for processing
-- Get transcripts with timestamps, speakers, entities
-- Supports all audio intelligence features
-
-**speechmatics-rt** - Real-time WebSocket streaming
-- Stream audio for live transcription
-- Ultra-low latency (150ms p95)
-- Partial and final transcripts
-
-**speechmatics-voice** - Voice agent SDK
-- Build conversational AI applications
-- Speaker diarization and turn detection
-- Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
-
-**speechmatics-tts** - Text-to-speech
-- Convert text to natural-sounding speech
-- Multiple voices and languages
-- Streaming and batch modes
+> [!NOTE]
+> **speechmatics-batch** - Async batch transcription API
+> - Upload audio files for processing
+> - Get transcripts with timestamps, speakers, entities
+> - Supports all audio intelligence features
+>
+> **speechmatics-rt** - Real-time WebSocket streaming
+> - Stream audio for live transcription
+> - Ultra-low latency (150ms p95)
+>- Partial and final transcripts
+>
+> **speechmatics-voice** - Voice agent SDK
+> - Build conversational AI applications
+> - Speaker diarization and turn detection
+> - Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
+>
+> **speechmatics-tts** - Text-to-speech
+> - Convert text to natural-sounding speech
+> - Multiple voices and languages
+> - Streaming and batch modes
 
 </details>
 
@@ -119,7 +119,8 @@ cp ../.env.example .env
 python main.py
 ```
 
-> ⚠️ **Security Best Practice**: Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
+> [!CAUTION]
+> **Security Best Practice**: Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
 
 
 ### Option 2: Direct Copy
