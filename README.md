@@ -62,28 +62,28 @@ pip install speechmatics-tts
 <details>
 
 <summary><strong>📦 Package Details</strong> • Click to see what's included in each package</summary>
+
 <br/>
 
-> [!NOTE]
-> **speechmatics-batch** - Async batch transcription API
-> - Upload audio files for processing
-> - Get transcripts with timestamps, speakers, entities
-> - Supports all audio intelligence features
->
-> **speechmatics-rt** - Real-time WebSocket streaming
-> - Stream audio for live transcription
-> - Ultra-low latency (150ms p95)
->- Partial and final transcripts
->
-> **speechmatics-voice** - Voice agent SDK
-> - Build conversational AI applications
-> - Speaker diarization and turn detection
-> - Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
->
-> **speechmatics-tts** - Text-to-speech
-> - Convert text to natural-sounding speech
-> - Multiple voices and languages
-> - Streaming and batch modes
+**speechmatics-batch** - Async batch transcription API
+- Upload audio files for processing
+- Get transcripts with timestamps, speakers, entities
+- Supports all audio intelligence features
+
+**speechmatics-rt** - Real-time WebSocket streaming
+- Stream audio for live transcription
+- Ultra-low latency (150ms p95)
+- Partial and final transcripts
+
+**speechmatics-voice** - Voice agent SDK
+- Build conversational AI applications
+- Speaker diarization and turn detection
+- Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
+
+**speechmatics-tts** - Text-to-speech
+- Convert text to natural-sounding speech
+- Multiple voices and languages
+- Streaming and batch modes
 
 </details>
 
@@ -192,12 +192,13 @@ Switching from another speech-to-text provider? Our migration guides help you tr
 | **AWS Transcribe** | Migration Guide | Batch Jobs, Streaming, Custom Vocabulary | Coming Soon |
 | **Azure Speech** | Migration Guide | REST API, WebSocket, Pronunciation | Coming Soon |
 
-Each migration guide includes:
-- **Feature Mapping** - Direct equivalent features comparison
-- **Code Comparison** - Side-by-side before/after examples
-- **Migration Checklist** - Step-by-step migration process
-- **Advantages** - Benefits of switching to Speechmatics
-- **Working Examples** - Complete runnable code
+> [!NOTE]
+> Each migration guide includes:
+> - **Feature Mapping** - Direct equivalent features comparison
+> - **Code Comparison** - Side-by-side before/after examples
+> - **Migration Checklist** - Step-by-step migration process
+> - **Advantages** - Benefits of switching to Speechmatics
+> - **Working Examples** - Complete runnable code
 
 [Browse all migration guides](guides/migration-guides/)
 
@@ -283,17 +284,18 @@ example-name/
 └── README.md               # Main documentation
 ```
 
-Each example includes:
-
-1. **What You'll Learn** - Key concepts covered
-2. **Prerequisites** - Required setup
-3. **Quick Start** - Step-by-step instructions
-4. **How It Works** - Step-by-step explanation
-5. **Key Features** - Demonstrated capabilities
-6. **Expected Output** - Sample results
-7. **Next Steps** - Related examples
-8. **Troubleshooting** - Common issues
-9. **Resources** - Relevant documentation
+> [!NOTE]
+> Each example includes:
+>
+> 1. **What You'll Learn** - Key concepts covered
+> 2. **Prerequisites** - Required setup
+> 3. **Quick Start** - Step-by-step instructions
+> 4. **How It Works** - Step-by-step explanation
+> 5. **Key Features** - Demonstrated capabilities
+> 6. **Expected Output** - Sample results
+> 7. **Next Steps** - Related examples
+> 8. **Troubleshooting** - Common issues
+> 9. **Resources** - Relevant documentation
 
 ---
 
