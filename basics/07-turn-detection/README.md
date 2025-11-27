@@ -51,12 +51,13 @@ Speak into your microphone and pause to trigger turn detection!
 
 ## How It Works
 
-Turn detection uses silence-based analysis to identify when a speaker has finished speaking:
-
-1. **Speech detected** - A countdown timer starts
-2. **More words arrive** - Timer resets
-3. **Silence threshold reached** - `EndOfUtterance` event triggers
-4. **New utterance begins** - Process repeats
+> [!NOTE]
+> Turn detection uses silence-based analysis to identify when a speaker has finished speaking:
+>
+> 1. **Speech detected** - A countdown timer starts
+> 2. **More words arrive** - Timer resets
+> 3. **Silence threshold reached** - `EndOfUtterance` event triggers
+> 4. **New utterance begins** - Process repeats
 
 ### Configuration
 
@@ -81,7 +82,8 @@ config = TranscriptionConfig(
 | Dictation | 0.8-1.2s | Longer pauses for natural dictation flow |
 | Custom | 0-2.0s | Adjust based on your application needs |
 
-**Note:** Setting to `0` disables turn detection entirely.
+>[!TIP]
+> Setting to `0` disables turn detection entirely.
 
 ## Event Handling
 
@@ -106,7 +108,8 @@ def handle_end_of_utterance(message):
     # }
 ```
 
-**Important:** Both `start_time` and `end_time` represent the same value - the timestamp when silence was detected. They do not represent the utterance duration.
+> [!Important]
+> Both `start_time` and `end_time` represent the same value - the timestamp when silence was detected. They do not represent the utterance duration.
 
 ### Calculating Utterance Duration
 

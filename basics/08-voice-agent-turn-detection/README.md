@@ -46,7 +46,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**Note**: The requirements include ML dependencies for SMART_TURN mode (certifi, onnxruntime, transformers).
+> [!IMPORTNAT]:
+> The requirements include ML dependencies for SMART_TURN mode (certifi, onnxruntime, transformers).
 
 **Step 3: Configure API key**
 
@@ -65,14 +66,15 @@ Select a preset from the menu (or press Enter for default), then speak into your
 
 ## How It Works
 
-This example demonstrates intelligent turn detection by:
-
-1. **Loading preset configurations** - Uses official SDK presets optimized for different use cases
-2. **Setting up Voice Agent Client** - Creates a client with the selected preset configuration
-3. **Registering event handlers** - Listens for partial segments, final segments, and turn endings
-4. **Streaming microphone audio** - Captures and sends audio in real-time
-5. **Displaying results** - Shows live transcription with speaker identification
-6. **Detecting turn endings** - Automatically identifies when the speaker has finished
+> [!NOTE]
+> This example demonstrates intelligent turn detection by:
+>
+> 1. **Loading preset configurations** - Uses official SDK presets optimized for different use cases
+> 2. **Setting up Voice Agent Client** - Creates a client with the selected preset configuration
+> 3. **Registering event handlers** - Listens for partial segments, final segments, and turn endings
+> 4. **Streaming microphone audio** - Captures and sends audio in real-time
+> 5. **Displaying results** - Shows live transcription with speaker identification
+> 6. **Detecting turn endings** - Automatically identifies when the speaker has finished
 
 ### Available Presets
 
@@ -428,8 +430,7 @@ pip install speechmatics-voice[smart]
 
 ## Resources
 
-- [Voice SDK Documentation](https://docs.speechmatics.com/voice-sdk)
-- [Turn Detection Guide](https://docs.speechmatics.com/features/turn-detection)
+
 - [Voice Agent Presets Reference](https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/voice)
 - [Real-time API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 
@@ -440,4 +441,5 @@ pip install speechmatics-voice[smart]
 **API Mode**: Voice Agent (Real-time)
 **Languages**: Python
 
-[Back to Basics](../README.md)
+[Back to Academy](../../README.md)
+
