@@ -14,7 +14,7 @@ This example shows both modes side-by-side so you understand which to use for yo
 ## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+** or **Node.js 16+**
+- **Python 3.8+**
 - **Microphone** (for real-time example)
 
 ## Quick Start
@@ -107,6 +107,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint, AuthenticationError
 
+# Load environment variables
 load_dotenv()
 
 async def main():
@@ -181,37 +182,45 @@ from speechmatics.rt import (
     AuthenticationError,
 )
 
+# Load environment variables
 load_dotenv()
 
 
 async def main():
     api_key = os.getenv("SPEECHMATICS_API_KEY")
 
+    # Store transcript parts for final output
     transcript_parts = []
 
+    # Configure audio format for microphone input
     audio_format = AudioFormat(
         encoding=AudioEncoding.PCM_S16LE,
         chunk_size=4096,
         sample_rate=16000,
     )
 
+    # Configure transcription with partials enabled
     transcription_config = TranscriptionConfig(
         language="en",
         enable_partials=True,
         operating_point=OperatingPoint.ENHANCED,
     )
 
+    # Initialize microphone
     mic = Microphone(
         sample_rate=audio_format.sample_rate,
         chunk_size=audio_format.chunk_size,
     )
 
+    # Start microphone capture
     if not mic.start():
         print("PyAudio not installed. Install: pip install pyaudio")
         return
 
     try:
+        # Initialize real-time client
         async with AsyncClient(api_key=api_key) as client:
+            # Handle final transcripts
             @client.on(ServerMessageType.ADD_TRANSCRIPT)
             def handle_final_transcript(message):
                 result = TranscriptResult.from_message(message)
@@ -220,6 +229,7 @@ async def main():
                     print(f"[final]: {transcript}")
                     transcript_parts.append(transcript)
 
+            # Handle partial transcripts (interim results)
             @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
             def handle_partial_transcript(message):
                 result = TranscriptResult.from_message(message)
@@ -230,11 +240,13 @@ async def main():
             try:
                 print("Connected! Start speaking (Ctrl+C to stop)...\n")
 
+                # Start transcription session
                 await client.start_session(
                     transcription_config=transcription_config,
                     audio_format=audio_format,
                 )
 
+                # Stream audio continuously
                 while True:
                     frame = await mic.read(audio_format.chunk_size)
                     await client.send_audio(frame)
@@ -242,6 +254,7 @@ async def main():
             except KeyboardInterrupt:
                 pass
             finally:
+                # Clean up microphone
                 mic.stop()
                 print(f"\n\nFull transcript: {' '.join(transcript_parts)}")
 
@@ -264,19 +277,21 @@ if __name__ == "__main__":
 | **Max File Size** | Large (hours) | Unlimited stream |
 | **Partial Results** | No | Yes |
 
+
 ## Decision Matrix
 
-**Use Batch if:**
-- You have a complete audio file
-- You can wait for results
-- You want highest accuracy
-- You're processing in bulk
-
-**Use Real-time if:**
-- You're streaming live audio
-- You need immediate feedback
-- You're building interactive apps
-- You need partial results
+> [!IMPORTANT]
+> **Use Batch if:**
+> - You have a complete audio file
+> - You can wait for results
+> - You want highest accuracy
+> - You're processing in bulk
+>
+> **Use Real-time if:**
+> - You're streaming live audio
+> - You need immediate feedback
+> - You're building interactive apps
+> - You need partial results
 
 ## Key Features Demonstrated
 

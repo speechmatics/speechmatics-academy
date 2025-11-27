@@ -168,7 +168,7 @@ Now that you have basic transcription working, explore:
 
 - [Speechmatics Batch API Docs](https://docs.speechmatics.com/introduction/batch-guide)
 - [Supported Audio Formats](https://docs.speechmatics.com/speech-to-text/batch/input#supported-file-types)
-- [API Reference](https://docs.speechmatics.com/batch-api-ref)
+- [API Reference](https://docs.speechmatics.com/api-ref/)
 
 ---
 
