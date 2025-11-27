@@ -205,10 +205,10 @@ Switching from another speech-to-text provider? Our migration guides help you tr
 ---
 
 <h2 id="finding-examples">🔍 Finding Examples</h2>
+Find examples for the SDK package you installed:
 
 ### By Package
 
-Find examples for the SDK package you installed:
 
 | Package | Description | Examples |
 |---------|-------------|----------|

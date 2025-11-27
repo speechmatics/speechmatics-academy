@@ -48,16 +48,17 @@ python main.py
 
 ## How It Works
 
-This example demonstrates how to configure Speechmatics transcription:
-
-1. **Create TranscriptionConfig** - Define all configuration parameters
-2. **Set Language & Diarization** - Configure speaker detection
-3. **Add Custom Vocabulary** - Improve accuracy for specific terms
-4. **Enable Entities** - Detect dates, numbers, currencies
-5. **Submit Transcription** - Send audio with configuration
-6. **Process Results** - Extract transcript and detected entities
-
-The configuration system is flexible - start with defaults and add only what you need.
+> [!NOTE]
+> This example demonstrates how to configure Speechmatics transcription:
+>
+> 1. **Create TranscriptionConfig** - Define all configuration parameters
+> 2. **Set Language & Diarization** - Configure speaker detection
+> 3. **Add Custom Vocabulary** - Improve accuracy for specific terms
+> 4. **Enable Entities** - Detect dates, numbers, currencies
+> 5. **Submit Transcription** - Send audio with configuration
+> 6. **Process Results** - Extract transcript and detected entities
+>
+> The configuration system is flexible - start with defaults and add only what you need.
 
 ## Configuration Options
 
@@ -103,7 +104,8 @@ config = TranscriptionConfig(
 - Industry-specific terms
 - Acronyms and abbreviations
 
-**Pro tip**: Use `sounds_like` to provide phonetic alternatives for better recognition!
+> [!TIP]
+> Use `sounds_like` to provide phonetic alternatives for better recognition!
 
 ### 3. Punctuation & Entities
 
@@ -310,9 +312,9 @@ Detected Entities:
 
 ## Resources
 
-- [Configuration Reference](https://docs.speechmatics.com/speech-to-text/configuration)
-- [Supported Languages](https://docs.speechmatics.com/introduction/languages)
-- [Output Formats](https://docs.speechmatics.com/speech-to-text/output-formats)
+- [Formating Reference](https://docs.speechmatics.com/speech-to-text/formatting)
+- [Supported Languages](https://docs.speechmatics.com/speech-to-text/languages)
+- [Output Formats](https://docs.speechmatics.com/text-to-speech/quickstart#output-formats)
 
 ---
 
@@ -320,4 +322,4 @@ Detected Entities:
 **Difficulty**: Beginner
 **API Mode**: Batch (works with Real-time too)
 
-[Back to Basics](../README.md)
+[Back to Academy](../README.md)
