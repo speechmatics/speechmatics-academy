@@ -45,17 +45,18 @@ python main.py
 
 ## How It Works
 
-This example demonstrates audio intelligence by:
-
-1. **Create JobConfig** - Configure transcription with intelligence features
-2. **Enable Sentiment Analysis** - Detect emotional tone in speech
-3. **Enable Topic Detection** - Identify discussion topics automatically
-4. **Enable Summarization** - Generate bullet-point summaries
-5. **Submit Job** - Process audio with all intelligence features
-6. **Wait for Completion** - Job processes asynchronously
-7. **Extract Results** - Access transcript, sentiment, topics, and summary
-
-Audio intelligence runs alongside transcription, enriching your results with insights.
+> [!NOTE]
+> This example demonstrates audio intelligence by:
+>
+> 1. **Create JobConfig** - Configure transcription with intelligence features
+> 2. **Enable Sentiment Analysis** - Detect emotional tone in speech
+> 3. **Enable Topic Detection** - Identify discussion topics automatically
+> 4. **Enable Summarization** - Generate bullet-point summaries
+> 5. **Submit Job** - Process audio with all intelligence features
+> 6. **Wait for Completion** - Job processes asynchronously
+> 7. **Extract Results** - Access transcript, sentiment, topics, and summary
+>
+> Audio intelligence runs alongside transcription, enriching your results with insights.
 
 ## Audio Intelligence Features
 
@@ -591,9 +592,9 @@ The summary format changes based on your config:
 
 ## Resources
 
-- [Sentiment Analysis Docs](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/sentiment-analysis)
-- [Topic Detection Docs](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/topics)
-- [Summarization Docs](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/summarization)
+- [Sentiment Analysis](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/sentiment-analysis)
+- [Topic Detection](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/topic-detection)
+- [Summarization](https://docs.speechmatics.com/speech-to-text/batch/speech-intelligence/summarization)
 
 ---
 
@@ -601,4 +602,4 @@ The summary format changes based on your config:
 **Difficulty**: Intermediate
 **API Mode**: Batch only
 
-[Back to Basics](../README.md)
+[Back to Academy](../../README.md)

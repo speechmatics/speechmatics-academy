@@ -64,14 +64,15 @@ Speak into your microphone and watch the real-time transcription and translation
 
 ## How It Works
 
-This example demonstrates real-time translation by:
-
-1. **Capturing microphone input** - Uses PyAudio to stream audio from your microphone
-2. **Configuring source language** - Sets English as the transcription language
-3. **Enabling translation** - Configures Spanish and Russian as target languages
-4. **Streaming to Speechmatics** - Sends audio chunks via WebSocket
-5. **Receiving real-time results** - Processes both transcription and translation events
-6. **Displaying results** - Shows English transcription and translations as they arrive
+> [!NOTE]
+> This example demonstrates real-time translation by:
+>
+> 1. **Capturing microphone input** - Uses PyAudio to stream audio from your microphone
+> 2. **Configuring source language** - Sets English as the transcription language
+> 3. **Enabling translation** - Configures Spanish and Russian as target languages
+> 4. **Streaming to Speechmatics** - Sends audio chunks via WebSocket
+> 5. **Receiving real-time results** - Processes both transcription and translation events
+> 6. **Displaying results** - Shows English transcription and translations as they arrive
 
 ### Code Walkthrough
 
@@ -343,4 +344,5 @@ pip install pyaudio
 **API Mode**: Real-time
 **Languages**: Python
 
-[Back to Basics](../README.md)
+[Back to Academy](../../README.md)
+

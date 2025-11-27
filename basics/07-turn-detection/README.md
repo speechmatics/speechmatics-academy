@@ -369,4 +369,5 @@ The Voice SDK provides a higher-level abstraction with intelligent segmentation 
 **Difficulty**: Intermediate
 **API Mode**: Real-time
 
-[Back to Basics](../README.md)
+[Back to Academy](../../README.md)
+
