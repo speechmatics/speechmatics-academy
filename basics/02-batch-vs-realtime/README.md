@@ -393,4 +393,4 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 **Difficulty**: Beginner
 **API Modes**: Batch & Real-time
 
-[Back to Basics](../README.md)
+[Back to Academy](../../README.md)
