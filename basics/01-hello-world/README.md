@@ -131,15 +131,15 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 - Clear error messages
 
 ## How the Code Works
-
-1. **Load Environment** - Load your API key from `.env` file using dotenv
-2. **Get API Key** - Retrieve API key from environment variables with validation
-3. **Locate Audio File** - Use Path to find the sample audio file
-4. **Create Async Client** - Initialize AsyncClient with your API key
-5. **Transcribe** - Send audio file to the API using `await client.transcribe()`
-6. **Get Results** - Access the transcript using `result.transcript_text`
-
-The code uses async/await for better performance and proper resource management with context managers.
+> [!NOTE]
+> 1. **Load Environment** - Load your API key from `.env` file using dotenv
+> 2. **Get API Key** - Retrieve API key from environment variables with validation
+> 3. **Locate Audio File** - Use Path to find the sample audio file
+> 4. **Create Async Client** - Initialize AsyncClient with your API key
+> 5. **Transcribe** - Send audio file to the API using `await client.transcribe()`
+> 6. **Get Results** - Access the transcript using `result.transcript_text`
+>
+> The code uses async/await for better performance and proper resource management with context managers.
 
 ## Next Steps
 
