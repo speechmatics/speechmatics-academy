@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2025-01-16"
-total_examples: 3
+last_updated: "2025-11-27"
+total_examples: 9
 
 # Example Categories
 categories:
@@ -40,6 +40,8 @@ features:
   - summarization
   - translation
   - text-to-speech
+  - turn-detection
+  - voice-agents
 
 # Examples Catalog
 examples:
@@ -90,8 +92,113 @@ examples:
     path: "basics/03-configuration-guide"
     readme: "basics/03-configuration-guide/README.md"
     tags: ["configuration", "diarization", "custom-vocabulary", "formatting", "entities"]
-    last_updated: "2025-01-16"
+    last_updated: "2025-11-27"
     estimated_time: "15 minutes"
+
+  - id: "audio-intelligence"
+    title: "Audio Intelligence - Extract Insights"
+    description: "Extract insights with sentiment analysis, topic detection, and automatic summarization."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "audio-intelligence"
+      - "sentiment-analysis"
+      - "topic-detection"
+      - "summarization"
+    integrations: []
+    path: "basics/04-audio-intelligence"
+    readme: "basics/04-audio-intelligence/README.md"
+    tags: ["sentiment", "topics", "summary", "insights", "analysis"]
+    last_updated: "2025-11-27"
+    estimated_time: "15 minutes"
+
+  - id: "multilingual-translation"
+    title: "Multilingual & Translation"
+    description: "Transcribe 50+ languages and translate audio content."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "realtime-transcription"
+      - "translation"
+    integrations: []
+    path: "basics/05-multilingual-translation"
+    readme: "basics/05-multilingual-translation/README.md"
+    tags: ["multilingual", "translation", "languages", "localization"]
+    last_updated: "2025-11-27"
+    estimated_time: "10 minutes"
+
+  - id: "turn-detection"
+    title: "Real Time Turn Detection"
+    description: "Detect when speech ends using silence-based turn detection for real-time applications."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "turn-detection"
+    integrations: []
+    path: "basics/07-turn-detection"
+    readme: "basics/07-turn-detection/README.md"
+    tags: ["realtime", "turn-detection", "silence", "conversation"]
+    last_updated: "2025-11-27"
+    estimated_time: "10 minutes"
+
+  - id: "voice-agent-turn-detection"
+    title: "Voice Agent Turn Detection"
+    description: "Intelligent turn detection with Voice SDK presets for voice agent applications."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+      - "turn-detection"
+    integrations: []
+    path: "basics/08-voice-agent-turn-detection"
+    readme: "basics/08-voice-agent-turn-detection/README.md"
+    tags: ["voice-agent", "turn-detection", "presets", "conversation"]
+    last_updated: "2025-11-27"
+    estimated_time: "15 minutes"
+
+  # === INTEGRATIONS ===
+
+  - id: "livekit-voice-assistant"
+    title: "LiveKit Voice Assistant"
+    description: "Real-time voice assistant with LiveKit WebRTC integration."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "voice-agents"
+      - "text-to-speech"
+    integrations: ["livekit"]
+    path: "integrations/livekit/voice-assistant"
+    readme: "integrations/livekit/voice-assistant/README.md"
+    tags: ["livekit", "webrtc", "voice-assistant", "realtime"]
+    last_updated: "2025-11-27"
+    estimated_time: "20 minutes"
+
+  - id: "pipecat-voice-bot"
+    title: "Pipecat Simple Voice Bot"
+    description: "Conversational AI voice bot with Pipecat framework integration."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "voice-agents"
+      - "text-to-speech"
+    integrations: ["pipecat"]
+    path: "integrations/pipecat/simple-voice-bot"
+    readme: "integrations/pipecat/simple-voice-bot/README.md"
+    tags: ["pipecat", "conversational-ai", "voice-bot", "interruptions"]
+    last_updated: "2025-11-27"
+    estimated_time: "20 minutes"
 
 # Integration Frameworks
 integration_frameworks:
