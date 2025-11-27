@@ -53,7 +53,7 @@ Open the `.env` file and add your API key:
 ```
 SPEECHMATICS_API_KEY=your_actual_api_key_here
 ```
-
+> [!IMPORTANT]
 > **Why `.env`?** Never commit API keys to version control. The `.env` file keeps secrets out of your code.
 
 
