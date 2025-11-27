@@ -153,7 +153,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Real Time Turn Detection](basics/07-turn-detection/) | Detect when speech ends using silence-based turn detection | `RT` |  Intermediate |
 | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) | Intelligent turn detection with Voice SDK presets | `Voice` |  Intermediate |
 
-[Browse all basics examples →](basics/)
+[Browse all basics examples](basics/)
 
 ---
 
@@ -168,7 +168,7 @@ Third-party framework and service integrations.
 | **FastAPI** | [Transcription API](integrations/web-frameworks/fastapi/) | REST API, async endpoints | Python |
 | **Flask** | [Transcription Service](integrations/web-frameworks/flask/) | Web service, file uploads | Python |
 
-[Browse all integrations →](integrations/)
+[Browse all integrations](integrations/)
 
 ---
 
