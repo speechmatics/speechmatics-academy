@@ -322,4 +322,4 @@ Detected Entities:
 **Difficulty**: Beginner
 **API Mode**: Batch (works with Real-time too)
 
-[Back to Academy](../README.md)
+[Back to Academy](../../README.md)
