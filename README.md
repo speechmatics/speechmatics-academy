@@ -89,7 +89,7 @@ pip install speechmatics-tts
 
 <br/>
 
-📚 [SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk) | [API Reference](https://docs.speechmatics.com/api-ref/)
+[SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk) | [API Reference](https://docs.speechmatics.com/api-ref/)
 
 ### Option 1: Clone and Run
 
@@ -139,7 +139,7 @@ cd my-project
 
 <h2 id="example-categories">📚 Example Categories</h2>
 
-### 🟢 Fundamentals
+### Fundamentals
 
 Fundamental examples for getting started with the Speechmatics SDK.
 
@@ -157,7 +157,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 
 ---
 
-### 🔌 Integrations
+### Integrations
 
 Third-party framework and service integrations.
 
@@ -172,7 +172,7 @@ Third-party framework and service integrations.
 
 ---
 
-### 🎯 Use Cases
+### Use Cases
 
 Example applications for specific industries.
 
@@ -332,13 +332,13 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 > [!NOTE]
 > All examples must meet these standards:
 > 
-> - ✅ Clean, readable, well-commented Python code
-> - ✅ Follows SDK best practices
-> - ✅ Includes proper error handling
-> - ✅ No hardcoded secrets
-> - ✅ Complete documentation
-> - ✅ Tested end-to-end
-> - ✅ Metadata in index.yaml
+> - Clean, readable, well-commented Python code
+> - Follows SDK best practices
+> - Includes proper error handling
+> - No hardcoded secrets
+> - Complete documentation
+> - Tested end-to-end
+> - Metadata in index.yaml
 
 ---
 
