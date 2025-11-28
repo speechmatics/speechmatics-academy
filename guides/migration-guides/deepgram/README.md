@@ -49,15 +49,15 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
 | **Interim Results** | `interim_results=True` | `enable_partials=True` | `rt`, `voice` | Partial transcripts while processing |
-| **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Max delay before returning results |
+| **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Duration engine waits to verify partial word accuracy before committing (0.7-4.0s) |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
-| **Utterance End** | `utterance_end_ms=1000` |`end_of_utterance_silence_trigger=1.0` | `rt`, `voice` | Silence trigger |
+| **Utterance End** | `utterance_end_ms=1000` |`end_of_utterance_silence_trigger=1.0` | `rt`, `voice` | Reference silence duration (0-2s); ADAPTIVE mode scales this based on speech patterns |
 | **Force End Utterance** | Not available | `use_forced_eou_message` | `voice` | Manually trigger end of utterance |
 | **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED`<br/>`AgentServerMessageType.SPEAKER_ENDED` | `voice` | Voice activity detection events |
 | **Diarization** | `diarize=True`, | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
 | **Speaker Config** | Not available | `speaker_diarization_config=` <br/>  `SpeakerDiarizationConfig(...)` | `rt`, `voice` | Fine-tune diarization |
 | **Known Speakers** | Not available | `known_speakers=`<br/>`[SpeakerIdentifier(label, speaker_identifiers)]` | `rt`, `voice` | Pre-register speaker voices |
-| **Speaker Focus** | Not available | `SpeakerFocusConfig(focus_speakers, ignore_speakers)` | `voice` | Focus on specific speakers |
+| **Speaker Focus** | Not available | `SpeakerFocusConfig(focus_speakers, ignore_speakers, focus_mode)` | `voice` | Focus on specific speakers; only focused speakers drive conversation flow |
 | **Multichannel** | `multichannel=True` | `diarization="channel"` or `"channel_and_speaker"` | `rt`, `voice` | Channel-based diarization |
 | **Channel Labels** | Not available | `channel_diarization_labels=["agent", "customer"]` | `rt`, `voice` | Label audio channels |
 | **Keywords/Keyterms** | `keywords=["term"]`,<br/> `keyterm=["term"]` | `additional_vocab=[{"content": "term"}]` | `rt`, `voice` | Boost specific terms |
@@ -68,12 +68,12 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 **Turn Detection (Voice SDK):**
 | Feature | Deepgram | Speechmatics | Notes |
 |---------|----------|--------------|-------|
-| **Fixed Delay** | Via settings | `EndOfUtteranceMode.FIXED` | Basic silence detection |
-| **Adaptive Delay** | Not available | `EndOfUtteranceMode.ADAPTIVE` | Content-aware timing |
-| **Smart Turn (ML)** | Not available | `EndOfUtteranceMode.SMART_TURN` | ML-based turn detection |
-| **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.finalize()` | Manual finalization |
-| **Silence Trigger** | Via settings | `end_of_utterance_silence_trigger` | Configurable silence duration |
-| **Presets** | Not available | `preset="scribe"`, `"low_latency"`, `"conversation_adaptive"` | Ready-to-use configurations |
+| **Fixed Delay** | Via settings | `EndOfUtteranceMode.FIXED` | Waits exactly the configured silence duration every time |
+| **Adaptive Delay** | Not available | `EndOfUtteranceMode.ADAPTIVE` | Scales wait time based on speech pace, filler words (um/uh), and punctuation |
+| **Smart Turn (ML)** | Not available | `EndOfUtteranceMode.SMART_TURN` | Uses ML model to predict semantic turn completions |
+| **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.force_end_of_utterance()` | Application controls turn endings (for Pipecat/LiveKit integration) |
+| **Silence Trigger** | Via settings | `end_of_utterance_silence_trigger` | Reference duration (0-2s); ADAPTIVE mode applies multipliers based on context |
+| **Presets** | Not available | `preset="scribe"`, `"low_latency"`, `"conversation_adaptive"` | Ready-to-use configurations optimized for specific use cases |
 
 **Server Message Types:**
 | Deepgram Event | Speechmatics Event | Package | Notes |
@@ -502,9 +502,7 @@ for word in response.results.channels[0].alternatives[0].words:
 config = TranscriptionConfig(
     language="en",
     diarization="speaker",
-    speaker_diarization_config={
-        "max_speakers": 4  # Optional: limit speaker count
-    }
+    # max_speakers is optional - see note below
 )
 
 result = await client.transcribe(audio_file, transcription_config=config)
@@ -517,7 +515,45 @@ for item in result.results:
 **Advantages:**
 - Higher accuracy in multi-speaker scenarios
 - Automatic speaker count detection
-- Optional `max_speakers` constraint for optimization
+- Fine-grained diarization controls via `speaker_diarization_config`
+
+> **Note on `max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels. Only use this when you're certain about the exact speaker count (e.g., a two-person interview). For most scenarios, omit this setting for automatic detection.
+
+---
+
+### Speaker Focus (Voice SDK Only)
+
+Speaker Focus allows you to designate primary speakers whose speech drives the conversation flow. This is useful for voice assistants where you want to focus on the user and ignore background speakers or the assistant's own voice.
+
+**Deepgram:** Not available
+
+**Speechmatics (Voice SDK):**
+```python
+from speechmatics.voice import VoiceAgentClient, VoiceAgentConfig, SpeakerFocusConfig, SpeakerFocusMode
+
+config = VoiceAgentConfig(
+    language="en",
+    enable_diarization=True,
+    speaker_focus_config=SpeakerFocusConfig(
+        focus_speakers=["S1"],           # Primary speaker(s) to focus on
+        ignore_speakers=["__ASSISTANT__"],  # Speakers to completely exclude
+        focus_mode=SpeakerFocusMode.RETAIN  # or IGNORE
+    )
+)
+
+async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
+    # Only S1 can drive conversation flow
+    # Other speakers' words only appear alongside focused speaker's speech
+    ...
+```
+
+**Focus Mode Options:**
+| Mode | Behavior |
+|------|----------|
+| `RETAIN` | Non-focused speakers' words are still emitted, but marked as passive. They only appear when a focused speaker is also speaking. |
+| `IGNORE` | Non-focused speakers are completely excluded from output. |
+
+**Key Behavior:** Only focused speakers can "drive" the conversation - their speech triggers VAD events, turn detection, and segment finalization. Non-focused speakers' words are processed but only emitted alongside active focused speaker content.
 
 ---
 
@@ -650,10 +686,11 @@ config = {
 - Phonetic hints (`sounds_like` in `additional_vocab`)
 - Real-time translation (`TranslationConfig`)
 - Force end of utterance (`ClientMessageType.FORCE_END_OF_UTTERANCE`)
-- Turn detection for voice agents (Voice SDK)
+- Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, and SMART_TURN modes
 - Comprehensive audio intelligence (sentiment + topics + summary together)
 - More granular speaker diarization controls (`SpeakerDiarizationConfig`)
 - Known speaker pre-registration (`speaker_diarization_config.speakers`)
+- Speaker Focus configuration - designate primary speakers, ignore others (e.g., assistant voice)
 - Voice SDK for conversational AI
 - Auto-disfluency tagging (automatic for English)
 - On-device and air-gapped deployment
