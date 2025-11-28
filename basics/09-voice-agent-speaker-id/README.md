@@ -175,6 +175,9 @@ By default, any speaker label wrapped in double underscores is automatically ign
 
 This prevents the assistant's TTS output from being transcribed back (feedback loop prevention).
 
+> [!IMPORTANT]
+> **Speaker identifiers are still required.** The auto-ignore only works when Speechmatics can identify the speaker AS `__ASSISTANT__`. You must first capture the assistant's voice and extract its speaker identifiers, then register them in `known_speakers` with a `__NAME__` label. Without speaker identifiers, the voice will just be labeled as `S1`, `S2`, etc.
+
 ## Expected Output
 
 ### Example 1: Extract Speaker ID
