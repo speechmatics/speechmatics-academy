@@ -100,7 +100,7 @@ python main.py
 ```mermaid
 flowchart LR
     subgraph Input
-        MIC[🎤 Local Microphone]
+        MIC[Local Microphone]
     end
 
     subgraph Processing
@@ -112,7 +112,7 @@ flowchart LR
 
     subgraph Output
         TTS[ElevenLabs TTS]
-        SPK[🔊 Local Speakers]
+        SPK[Local Speakers]
     end
 
     MIC --> STT
