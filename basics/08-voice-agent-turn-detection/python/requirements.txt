@@ -11,6 +11,9 @@ pyaudio>=0.2.14
 python-dotenv>=1.2.1
 typing_extensions>=4.0.0
 
+# Cross-platform keyboard input (for EXTERNAL mode)
+keyboard>=0.13.5
+
 # For SMART_TURN mode (ML-based turn detection)
 # Required for intelligent acoustic-based turn detection
 certifi>=2025.10.5

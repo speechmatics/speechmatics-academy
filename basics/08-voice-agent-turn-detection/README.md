@@ -46,7 +46,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> [!IMPORTNAT]:
+> [!IMPORTANT]
 > The requirements include ML dependencies for SMART_TURN mode (certifi, onnxruntime, transformers).
 
 **Step 3: Configure API key**
@@ -87,7 +87,7 @@ The Voice SDK includes 6 optimized presets:
 | **conversation_smart_turn** | SMART_TURN | Interviews | 1.0s + ML | ML-based prediction |
 | **scribe** | FIXED | Note-taking | 1.2s | Sentence-level segments |
 | **captions** | FIXED | Live captioning | 1.2s | Consistent formatting |
-| **external** | EXTERNAL | Push-to-talk | Manual | Custom control |
+| **external** | FIXED (2.0s) | Push-to-talk | Manual (Enter key) | Custom control |
 
 ### Code Walkthrough
 
@@ -188,7 +188,7 @@ Available Presets:
 3. conversation_smart_turn  - ML-based turn detection for conversations
 4. scribe                   - Optimized for note-taking and dictation
 5. captions                 - Consistent formatting for live captioning
-6. external                 - Manual turn control for custom logic
+6. external                 - Manual turn control (Press ENTER to trigger)
 ======================================================================
 
 Select preset number (or press Enter for conversation_adaptive): 2
@@ -256,15 +256,57 @@ Max Delay: 1.0s
 [END OF TURN]
 ```
 
-**Note:** SCRIBE emits **each sentence as a separate segment** before END_OF_TURN. This is designed for note-taking where you want sentence-level granularity.
+> [!NOTE]
+> SCRIBE emits **each sentence as a separate segment** before END_OF_TURN. This is designed for note-taking where you want sentence-level granularity.
+
+### Running - EXTERNAL (Manual Control)
+
+```
+======================================================================
+PRESET: EXTERNAL
+======================================================================
+Mode: fixed
+Operating Point: enhanced
+Silence Trigger: 2.0s
+Max Delay: 1.0s
+
+Press ENTER to trigger end-of-utterance manually.
+Press Ctrl+C to stop.
+======================================================================
+
+> Please transfer me to technical support.
+[ENTER KEY DETECTED - Triggering End of Utterance]
+
+[S1]: Please transfer me to technical support.
+[END OF TURN]
+
+> My internet connection keeps dropping every few minutes.
+[ENTER KEY DETECTED - Triggering End of Utterance]
+
+[S1]: My internet connection keeps dropping every few minutes.
+[END OF TURN]
+
+> I've already tried restarting the router twice.
+[ENTER KEY DETECTED - Triggering End of Utterance]
+
+[S1]: I've already tried restarting the router twice.
+[END OF TURN]
+
+^C
+
+Stopped. Captured 3 segments.
+```
+
+> [!TIP]
+> EXTERNAL mode gives you full control over when turns end. Press Enter after each utterance to trigger finalization immediately. This is ideal for push-to-talk interfaces or custom turn detection logic.
 
 ## Key Features Demonstrated
 
 **Turn Detection Modes:**
-- **FIXED**: Consistent silence threshold across all speakers
-- **ADAPTIVE**: Adjusts based on speech rate and pauses
-- **SMART_TURN**: ML prediction of semantic turn boundaries
-- **EXTERNAL**: Manual control via `client.finalize()`
+- **FIXED**: Uniform silence threshold for all speakers - always waits the exact configured duration
+- **ADAPTIVE**: Responds to speech characteristics including pace, pauses, and filler words - may finalize faster or slower than the reference value
+- **SMART_TURN**: Employs machine learning to predict semantic turn completions - builds on an open-source turn detection model
+- **EXTERNAL**: Manual control via Enter key (calls `client.force_end_of_utterance()`) - suitable for framework integrations like Pipecat/LiveKit
 
 **Segmentation Strategies:**
 - **Turn-based**: Single segment per complete utterance (most presets)
@@ -309,6 +351,42 @@ custom_config = VoiceAgentConfig(
 config = VoiceAgentConfigPreset._merge_configs(base_config, custom_config)
 ```
 
+### Using EXTERNAL Mode (Manual Turn Control)
+
+The EXTERNAL preset allows manual control over turn endings. This example uses FIXED mode with the maximum silence trigger (2s) to minimize auto-triggering, then uses `force_end_of_utterance()` when Enter is pressed:
+
+```python
+import keyboard  # Cross-platform keyboard input
+from speechmatics.voice import VoiceAgentConfig, EndOfUtteranceMode
+
+# Configure for manual control: FIXED mode with max silence trigger
+# Server allows 0-2 seconds for silence trigger
+config = VoiceAgentConfigPreset.load(
+    "external",
+    overlay_json=VoiceAgentConfig(
+        end_of_utterance_mode=EndOfUtteranceMode.FIXED,
+        end_of_utterance_silence_trigger=2.0,  # Max allowed by server
+    ).model_dump_json(exclude_unset=True)
+)
+
+async def check_for_enter_key(client: VoiceAgentClient):
+    """Background task to detect Enter key press."""
+    while True:
+        await asyncio.sleep(0.05)
+        if keyboard.is_pressed("enter"):
+            await client.force_end_of_utterance()  # Triggers immediate finalization
+            await asyncio.sleep(0.3)  # Debounce
+
+# Run as background task alongside audio streaming
+enter_task = asyncio.create_task(check_for_enter_key(client))
+```
+
+> [!NOTE]
+> This example uses the `keyboard` package for cross-platform keyboard input (Windows, Mac, Linux). Using FIXED mode ensures the SDK properly handles the server's END_OF_UTTERANCE response.
+
+> [!IMPORTANT]
+> The `end_of_utterance_silence_trigger` setting only applies to FIXED mode. The server allows values between 0 and 2 seconds. Setting to 0 disables automatic detection entirely.
+
 ### Enable SMART_TURN Mode
 
 SMART_TURN dependencies are already included in `requirements.txt`. If installing manually:
@@ -324,6 +402,37 @@ pip install speechmatics-voice[smart]
 ```
 
 ## Understanding Turn Detection Behavior
+
+### How Turn Detection Works Under the Hood
+
+The Voice SDK employs a multi-stage process to identify when a speaker has completed their turn:
+
+1. **Audio input** - VAD (Voice Activity Detection) continuously monitors for speech activity
+2. **Silence identification** - When speech stops, a timer begins counting down from the `silence_trigger` value
+3. **Multiplier adjustments** - The countdown duration is scaled based on detected speech patterns
+4. **Smart Turn evaluation (if enabled)** - An ML model predicts whether the utterance is semantically complete
+5. **Turn completion** - Once the adjusted countdown expires, the turn ends and segments are finalized
+
+> [!TIP]
+> Consider `silence_trigger` as your **starting reference**:
+> - **FIXED mode**: Waits exactly this specified duration every time
+> - **ADAPTIVE mode**: Treats this as an initial value, then scales it up or down based on conversational context
+
+### How Multipliers Adjust Wait Time
+
+The system analyzes speech patterns and applies **scaling factors** to the reference silence duration:
+
+| Condition | Typical Multiplier | Effect |
+|-----------|-------------------|--------|
+| Very slow speaking pace | 3.0x | Extends wait significantly |
+| Moderately slow pace | 2.0x | Doubles the wait time |
+| Ends with filler words (um, uh) | 2.5x | Allows more time (speaker likely formulating thoughts) |
+| Missing sentence-ending punctuation | 1.5x+ | Extends wait for completion |
+| Smart Turn: high confidence complete | 0.1x | Rapid finalization |
+| Smart Turn: likely incomplete | 1.7x | Extended wait |
+
+> [!NOTE]
+> This multiplier system enables ADAPTIVE mode's intelligent behavior - it naturally extends wait times for hesitant speakers or those using filler words, while quickly finalizing clearly completed sentences.
 
 ### Comparison: Sentence vs Turn Segmentation
 
@@ -363,6 +472,28 @@ Sentence-based segmentation is perfect for:
 | LOW_LATENCY | 0.5s | May split mid-sentence | Fast speakers, captions |
 | CONVERSATION_ADAPTIVE | 1.0s | Balances speed and accuracy | General conversation |
 | SCRIBE | 1.2s | Waits for complete thoughts | Dictation, notes |
+
+### VAD (Voice Activity Detection)
+
+The Voice SDK incorporates Silero VAD for detecting speech presence:
+
+- **Threshold**: Default 0.35 (increasing this value makes detection more strict, potentially missing quieter speech)
+- **Min Duration**: 150ms of sustained speech or silence required before confirming a state transition
+
+> [!TIP]
+> In environments with background noise (traffic, air conditioning, etc.), consider adjusting the VAD threshold. Higher thresholds reduce false positives from noise but may occasionally miss softer speech.
+
+### When to Use Each Mode
+
+| Mode | Best For | How It Works |
+|------|----------|--------------|
+| **FIXED** | Predictable timing, captions | Consistently waits the exact silence trigger duration |
+| **ADAPTIVE** | Voice assistants, conversations | Dynamically modifies wait time based on speech patterns (pace, filler words) |
+| **SMART_TURN** | Interviews, complex conversations | Leverages ML model to identify semantic turn boundaries |
+| **EXTERNAL** | Pipecat, LiveKit, custom VAD | Application code controls turn endings via `force_end_of_utterance()` |
+
+> [!NOTE]
+> **EXTERNAL mode** is intended for integration with frameworks such as Pipecat and LiveKit that implement their own voice activity detection. The SDK handles transcription while your application logic determines turn boundaries.
 
 ## Next Steps
 
@@ -421,7 +552,7 @@ pip install speechmatics-voice[smart]
 **"Not detecting turn endings"**
 - Ensure you're pausing for the silence threshold duration
 - Check silence threshold for your selected preset
-- EXTERNAL mode requires manual `await client.finalize()` call
+- EXTERNAL mode requires pressing Enter key to trigger turn endings
 
 **"Authentication failed" error**
 - Verify API key in `.env` file

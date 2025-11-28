@@ -82,8 +82,11 @@ config = TranscriptionConfig(
 | Dictation | 0.8-1.2s | Longer pauses for natural dictation flow |
 | Custom | 0-2.0s | Adjust based on your application needs |
 
->[!TIP]
+> [!TIP]
 > Setting to `0` disables turn detection entirely.
+
+> [!NOTE]
+> The silence threshold serves as a **reference point**. In FIXED mode, the system waits precisely this duration. In ADAPTIVE mode (Voice SDK), this reference is dynamically modified based on speech characteristics - speakers with slower pace receive extended wait times, while rapid speakers trigger faster finalization.
 
 ## Event Handling
 

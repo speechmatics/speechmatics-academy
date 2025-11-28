@@ -82,6 +82,9 @@ SPEAKER S1: Hello, how are you today?
 SPEAKER S2: I'm doing great, thanks for asking!
 ```
 
+> [!WARNING]
+> **About `max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, setting `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels - often producing unexpected results. Only use this when you're certain about the exact speaker count (e.g., a two-person interview with clearly distinct voices). For most scenarios, omit this setting to allow automatic speaker detection.
+
 ### 2. Custom Vocabulary
 
 **What it does**: Improves accuracy for domain-specific terms
@@ -163,6 +166,9 @@ config = TranscriptionConfig(
 - `standard` - Fast, good accuracy
 - `enhanced` - Slower, best accuracy
 
+> [!TIP]
+> For most use cases, stick with `enhanced`. The accuracy improvement is significant, and the latency difference is minimal for batch processing. Only use `standard` when processing large volumes where speed is critical.
+
 ## Complete Example
 
 Here's an example combining multiple options:
@@ -220,7 +226,7 @@ if __name__ == "__main__":
 | **Formatting**             | Entity Detection     | `enable_entities`            | `True`/`False`                                      | Detect and format dates, times, numbers, currencies, etc.                   |
 | **Formatting**             | Punctuation          | `punctuation_overrides`      | Dict (e.g., `{"permitted_marks": [".", "?"]}`)      | Custom punctuation rules and permitted marks                                |
 | **Real-time**              | Partial Results      | `enable_partials`            | `True`/`False`                                      | Receive partial transcription results before finalization                   |
-| **Real-time**              | Max Delay            | `max_delay`                  | Float (seconds, e.g., `2.5`)                        | Maximum delay for transcript delivery (range: 0.7-4.0)                      |
+| **Real-time**              | Max Delay            | `max_delay`                  | Float (seconds, e.g., `2.5`)                        | Duration the engine waits to verify partial word accuracy before committing to final output (range: 0.7-4.0) |
 | **Real-time**              | Max Delay Mode       | `max_delay_mode`             | `"fixed"` or `"flexible"`                           | Fixed strictly adheres to max_delay, flexible allows override for entities  |
 
 ## Expected Output

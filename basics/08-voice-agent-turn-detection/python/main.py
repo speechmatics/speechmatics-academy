@@ -7,23 +7,65 @@ Voice Agent Turn Detection - Preset Configurations
 import asyncio
 import os
 import sys
+
+import keyboard
 from dotenv import load_dotenv
 from speechmatics.rt import Microphone, AuthenticationError
 from speechmatics.voice import (
     VoiceAgentClient,
     VoiceAgentConfigPreset,
+    VoiceAgentConfig,
     AgentServerMessageType,
+    EndOfUtteranceMode,
 )
 
 
 load_dotenv()
 
 
+async def check_for_enter_key(client: VoiceAgentClient, preset_name: str):
+    """
+    Background task to check for Enter key press.
+    When Enter is pressed, trigger end-of-utterance via the SDK.
+
+    """
+    while True:
+        await asyncio.sleep(0.05)
+
+        if preset_name != "external":
+            continue
+
+        # Check if Enter key is pressed (cross-platform)
+        if keyboard.is_pressed("enter"):
+            print("\n[ENTER KEY DETECTED - Triggering End of Utterance]")
+            try:
+                # Send ForceEndOfUtterance to server - server will respond
+                # with final transcript and END_OF_UTTERANCE event
+                await client.force_end_of_utterance()
+            except Exception as e:
+                print(f"Error triggering EOD: {e}")
+            # Small delay to prevent multiple triggers from single key press
+            await asyncio.sleep(0.3)
+
+
 async def run_preset(preset_name: str):
     """Run a voice agent with the specified preset."""
 
     # Load preset configuration from SDK
-    config = VoiceAgentConfigPreset.load(preset_name)
+    if preset_name == "external":
+        # For external/manual control, use FIXED mode with max silence trigger (2s)
+        # This minimizes auto-triggering while allowing force_end_of_utterance()
+        # to work correctly (SDK only handles END_OF_UTTERANCE events in FIXED mode)
+        # Note: Server allows 0-2 seconds for silence trigger
+        config = VoiceAgentConfigPreset.load(
+            "external",
+            overlay_json=VoiceAgentConfig(
+                end_of_utterance_mode=EndOfUtteranceMode.FIXED,
+                end_of_utterance_silence_trigger=2.0,
+            ).model_dump_json(exclude_unset=True)
+        )
+    else:
+        config = VoiceAgentConfigPreset.load(preset_name)
 
     print("=" * 70)
     print(f"PRESET: {preset_name.upper()}")
@@ -33,7 +75,13 @@ async def run_preset(preset_name: str):
     print(f"Silence Trigger: {config.end_of_utterance_silence_trigger}s")
     print(f"Max Delay: {config.max_delay}s")
     print()
-    print("Speak into your microphone. Press Ctrl+C to stop.")
+
+    if preset_name == "external":
+        print("Press ENTER to trigger end-of-utterance manually.")
+        print("Press Ctrl+C to stop.")
+    else:
+        print("Speak into your microphone. Press Ctrl+C to stop.")
+
     print("=" * 70)
     print()
 
@@ -74,6 +122,12 @@ async def run_preset(preset_name: str):
         # Connect and stream
         await client.connect()
 
+        # Start the Enter key detection task for external preset
+        enter_key_task = asyncio.create_task(
+            check_for_enter_key(client, preset_name)
+        )
+
+        # Main audio streaming loop
         while True:
             audio_chunk = await mic.read(320)
             await client.send_audio(audio_chunk)
@@ -81,6 +135,14 @@ async def run_preset(preset_name: str):
     except KeyboardInterrupt:
         print(f"\n\nStopped. Captured {len(segments)} segments.")
     finally:
+        # Cancel the Enter key detection task
+        if 'enter_key_task' in locals():
+            enter_key_task.cancel()
+            try:
+                await enter_key_task
+            except asyncio.CancelledError:
+                pass
+
         mic.stop()
         try:
             await client.disconnect()
@@ -103,7 +165,7 @@ def show_presets():
         "conversation_smart_turn": "ML-based turn detection for conversations",
         "scribe": "Optimized for note-taking and dictation",
         "captions": "Consistent formatting for live captioning",
-        "external": "Manual turn control for custom logic",
+        "external": "Manual turn control for custom logic (Press ENTER to trigger EOD)",
     }
 
     for i, preset in enumerate(presets, 1):
