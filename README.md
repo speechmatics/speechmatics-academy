@@ -150,9 +150,9 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | `Batch` `RT` |  Beginner |
 | [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
 | [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `Batch` `RT` |  Intermediate |
-| [Real Time Turn Detection](basics/07-turn-detection/) | Detect when speech ends using silence-based turn detection | `RT` |  Intermediate |
-| [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) | Intelligent turn detection with Voice SDK presets | `Voice` |  Intermediate |
-| [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Extract speaker IDs and control which speakers drive conversation | `Voice` |  Intermediate |
+| [Basic Turn Detection](basics/07-turn-detection/) | Silence-based turn detection with Real-Time SDK | `RT` |  Intermediate |
+| [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) | Smart turn detection with Voice SDK presets | `Voice` |  Intermediate |
+| [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Extract speaker IDs and control which speakers drive conversation | `Voice` |  Intermediate |
 
 [Browse all basics examples](basics/)
 
@@ -164,8 +164,8 @@ Third-party framework and service integrations.
 
 | Integration | Example | Features | Languages |
 |-------------|---------|----------|-----------|
-| **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/) | WebRTC, diarization, passive filtering, [Agents Playground](https://agents-playground.livekit.io) | Python |
-| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | Local audio, diarization, echo cancellation | Python |
+| **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/) | WebRTC, VAD, diarization, focus speakers, passive filtering, [Agents Playground](https://agents-playground.livekit.io) | Python |
+| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | Local audio, VAD, diarization, focus speakers, passive filtering, interruptions | Python |
 | **FastAPI** | Transcription API | REST API, async endpoints | Coming Soon |
 | **Flask** | Transcription Service | Web service, file uploads | Coming Soon |
 
@@ -214,8 +214,8 @@ Find examples for the SDK package you installed:
 | Package | Description | Examples |
 |---------|-------------|----------|
 | **`speechmatics-batch`** | Async transcription of audio files | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/) |
-| **`speechmatics-rt`** | Real-time streaming transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Multilingual & Translation](basics/05-multilingual-translation/), [Turn Detection](basics/07-turn-detection/) |
-| **`speechmatics-voice`** | Voice agent with conversation management | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
+| **`speechmatics-rt`** | Real-time streaming transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/) |
+| **`speechmatics-voice`** | Voice agent with conversation management | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
 | **`speechmatics-tts`** | Text-to-speech synthesis | [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
 
 ### By Feature
@@ -223,11 +223,11 @@ Find examples for the SDK package you installed:
 | Feature | Examples |
 |---------|----------|
 | **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/) |
-| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
-| **Turn Detection** | [Turn Detection](basics/07-turn-detection/), [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/) |
-| **Voice Agents** | [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
-| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
-| **Speaker Identification** | [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) |
+| **Real-time Streaming** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
+| **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) |
+| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
+| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
+| **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) |
 | **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/) |
 | **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/) |
 | **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/) |
@@ -247,7 +247,7 @@ Find examples for the SDK package you installed:
 
 | Language | Examples | Status |
 |----------|----------|--------|
-| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Turn Detection](basics/07-turn-detection/), [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) | **Available** |
+| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) | **Available** |
 | **JavaScript** | - | Coming Soon |
 | **C#** | - | Coming Soon |
 
@@ -257,7 +257,7 @@ Find examples for the SDK package you installed:
 | Difficulty | Examples |
 |------------|----------|
 | **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/) |
-| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Turn Detection](basics/07-turn-detection/), [Voice Agent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice Agent Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
+| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
 
 
 
