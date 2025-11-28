@@ -241,6 +241,35 @@ This prevents the assistant from responding to background conversations or media
 | **Dev** | `python main.py dev` | Connects to LiveKit Cloud for testing |
 | **Production** | `python main.py start` | Production deployment |
 
+## Testing with the Agents Playground
+
+The [LiveKit Agents Playground](https://agents-playground.livekit.io) is a web-based interface for testing your voice assistant without building a custom frontend.
+
+**Step 1: Start your agent in dev mode**
+
+```bash
+python main.py dev
+```
+
+**Step 2: Open the Agents Playground**
+
+Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in your browser.
+
+**Step 3: Connect to your LiveKit Cloud project**
+
+1. Click **Connect** and sign in with your LiveKit Cloud account
+2. Select your project from the dropdown
+3. The playground will automatically connect to your running agent
+
+**Step 4: Start talking**
+
+- Click the microphone button to enable audio
+- Speak to Roxie and see real-time transcription
+- The playground supports audio, video, and text input
+
+> [!TIP]
+> The playground shows live transcription, audio visualization, and agent responses - perfect for debugging speaker diarization and passive filtering.
+
 ## Troubleshooting
 
 **Exception on Ctrl+C (Windows)**
