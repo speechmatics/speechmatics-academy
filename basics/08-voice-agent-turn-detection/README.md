@@ -87,7 +87,7 @@ The Voice SDK includes 6 optimized presets:
 | **conversation_smart_turn** | SMART_TURN | Interviews | 1.0s + ML | ML-based prediction |
 | **scribe** | FIXED | Note-taking | 1.2s | Sentence-level segments |
 | **captions** | FIXED | Live captioning | 1.2s | Consistent formatting |
-| **external** | FIXED (2.0s) | Push-to-talk | Manual (Enter key) | Custom control |
+| **external** | FIXED (2.0s) | Push-to-talk | Manual | Custom control |
 
 ### Code Walkthrough
 
@@ -298,7 +298,7 @@ Stopped. Captured 3 segments.
 ```
 
 > [!TIP]
-> EXTERNAL mode gives you full control over when turns end. Press Enter after each utterance to trigger finalization immediately. This is ideal for push-to-talk interfaces or custom turn detection logic.
+> EXTERNAL mode gives you full control over when turns end. Uses manual mode (Enter Key for demo) after each utterance to trigger finalization immediately. This is ideal for push-to-talk interfaces or custom turn detection logic.
 
 ## Key Features Demonstrated
 
@@ -381,11 +381,8 @@ async def check_for_enter_key(client: VoiceAgentClient):
 enter_task = asyncio.create_task(check_for_enter_key(client))
 ```
 
-> [!NOTE]
-> This example uses the `keyboard` package for cross-platform keyboard input (Windows, Mac, Linux). Using FIXED mode ensures the SDK properly handles the server's END_OF_UTTERANCE response.
-
 > [!IMPORTANT]
-> The `end_of_utterance_silence_trigger` setting only applies to FIXED mode. The server allows values between 0 and 2 seconds. Setting to 0 disables automatic detection entirely.
+> The `end_of_utterance_silence_trigger` setting only applies to FIXED mode. Using FIXED mode ensures the SDK properly handles the server's END_OF_UTTERANCE response. The server allows values between 0 and 2 seconds. Setting to 0 disables automatic detection entirely.
 
 ### Enable SMART_TURN Mode
 
