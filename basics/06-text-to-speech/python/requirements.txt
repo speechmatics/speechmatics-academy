@@ -1,0 +1,5 @@
+# Speechmatics TTS SDK
+speechmatics-tts>=0.1.2
+
+# Utilities
+python-dotenv>=1.2.1
