@@ -1,4 +1,4 @@
-# Voice Agent Speaker Focus
+# Voice Agent Speaker ID & Speaker Focus
 
 **Speaker identification and focus control using Speechmatics Voice SDK.**
 
@@ -155,7 +155,7 @@ client = VoiceAgentClient(
 | Mode | Behavior | Use Case |
 |------|----------|----------|
 | **IGNORE** | Non-focused speakers are completely excluded from output | Voice assistants (ignore TTS playback) |
-| **RETAIN** | Non-focused speakers appear as "passive", only alongside focused speaker | Multi-party meetings (track but prioritize one) |
+| **RETAIN** | Non-focused speakers wrapped in `<PASSIVE>` tags, only alongside focused speaker | Multi-party meetings (track but prioritize one) |
 
 > [!IMPORTANT]
 > Only focused speakers can "drive" the conversation. Their speech triggers:
@@ -188,7 +188,7 @@ Enter your name: Edgar
 Speak to extract voice identifier for 'Edgar'.
 IDs will be saved after your first turn. Press Ctrl+C to exit.
 
-[S1]: Testing voice identification feature.
+<S1>Testing voice identification feature.</S1>
 [END OF TURN]
 
 Requesting speaker IDs...
@@ -209,7 +209,7 @@ Loaded 1 speaker(s) from assets/speakers.json
 Focusing on: Edgar
 Other speakers will be completely ignored. Press Ctrl+C to exit.
 
-[Edgar]: Only my speech appears in the transcript.
+<Edgar>Only my speech appears in the transcript.</Edgar>
 [END OF TURN]
 ```
 
@@ -221,13 +221,13 @@ SPEAKER FOCUS (RETAIN MODE)
 ============================================================
 Loaded 1 speaker(s) from assets/speakers.json
 Focusing on: Edgar
-Other speakers will appear as (passive). Press Ctrl+C to exit.
+Other speakers will appear wrapped in <PASSIVE> tags. Press Ctrl+C to exit.
 
-[Edgar]: I'm the primary speaker.
+<Edgar>I'm the primary speaker.</Edgar>
 [END OF TURN]
 
-[Edgar]: Here's what I'm saying.
-[S2] (passive): And here's what they said.
+<Edgar>Here's what I'm saying.</Edgar>
+<PASSIVE><S1>And here's what they said.</S1></PASSIVE>
 [END OF TURN]
 ```
 

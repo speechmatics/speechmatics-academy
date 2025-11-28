@@ -79,9 +79,12 @@ async def run_session(client, on_complete=None, stop_event=None):
         for seg in message.get("segments", []):
             speaker = seg.get("speaker_id", "UU")
             text = seg.get("text", "")
-            # In RETAIN mode, non-focused speakers are marked as passive
-            passive = " (passive)" if not seg.get("is_active_speaker", True) else ""
-            print(f"[{speaker}]{passive}: {text}")
+            is_active = seg.get("is_active_speaker", True)
+            # XML-style output: passive speakers wrapped in <PASSIVE> tags
+            if is_active:
+                print(f"<{speaker}>{text}</{speaker}>")
+            else:
+                print(f"<PASSIVE><{speaker}>{text}</{speaker}></PASSIVE>")
 
     @client.on(AgentServerMessageType.END_OF_TURN)
     def on_turn_end(message):
@@ -217,7 +220,7 @@ async def example_speaker_focus_retain():
 
     focus_label = speakers[0].label
     print(f"Focusing on: {focus_label}")
-    print("Other speakers will appear as (passive). Press Ctrl+C to exit.\n")
+    print("Other speakers will appear wrapped in <PASSIVE> tags. Press Ctrl+C to exit.\n")
 
     client = create_client(
         known_speakers=speakers,
