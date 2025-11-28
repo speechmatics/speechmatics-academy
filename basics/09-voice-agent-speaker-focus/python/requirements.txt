@@ -1,0 +1,12 @@
+# Speechmatics Voice SDK
+speechmatics-voice>=0.1.27
+
+# Voice SDK dependencies
+websockets>=10.0
+
+# Microphone support
+pyaudio>=0.2.14
+
+# Utilities
+python-dotenv>=1.2.1
+typing_extensions>=4.0.0

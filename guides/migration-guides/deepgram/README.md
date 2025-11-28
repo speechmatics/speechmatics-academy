@@ -534,7 +534,7 @@ from speechmatics.voice import VoiceAgentClient, VoiceAgentConfig, SpeakerFocusC
 config = VoiceAgentConfig(
     language="en",
     enable_diarization=True,
-    speaker_focus_config=SpeakerFocusConfig(
+    speaker_config=SpeakerFocusConfig(
         focus_speakers=["S1"],           # Primary speaker(s) to focus on
         ignore_speakers=["__ASSISTANT__"],  # Speakers to completely exclude
         focus_mode=SpeakerFocusMode.RETAIN  # or IGNORE
