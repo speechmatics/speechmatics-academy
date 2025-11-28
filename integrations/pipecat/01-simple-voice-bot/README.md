@@ -20,6 +20,7 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 - Building a complete voice assistant pipeline
 - Using local audio transport (no cloud infrastructure needed)
 - Voice Activity Detection (VAD) for natural conversations
+- Filtering background audio and bot echo using speaker diarization
 
 ## Prerequisites
 
@@ -145,6 +146,7 @@ flowchart LR
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
 | **Speaker Focus** | Uses `focus_speakers=["S1"]` to ignore bot's own TTS output |
 | **Diarization** | Speaker identification distinguishes user from bot |
+| **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
 | **Interruptions** | User can interrupt the bot mid-response |
 
 ### Code Highlights
@@ -161,7 +163,7 @@ transport = LocalAudioTransport(
     )
 )
 
-# Speechmatics STT with speaker focus
+# Speechmatics STT with speaker focus and formatting
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     params=SpeechmaticsSTTService.InputParams(
@@ -170,6 +172,8 @@ stt = SpeechmaticsSTTService(
         # This ignores the bot's TTS output (labeled as S2)
         focus_speakers=["S1"],
         end_of_utterance_silence_trigger=0.5,
+        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     ),
 )
 
@@ -195,11 +199,14 @@ INFO     | Starting voice bot...
 INFO     | Speak first to register as the primary speaker (S1).
 INFO     | Press Ctrl+C to exit.
 
-You: "Hello, can you help me?"
-Bot: "Of course! I'd be happy to help. What would you like to know?"
+You: "Hello there!"
+Roxie: "Hey there! Roxie here, ready to make you laugh. What's on your mind?"
 
 You: "Tell me a joke"
-Bot: "Why don't scientists trust atoms? Because they make up everything!"
+Roxie: "So I told my wife she was drawing her eyebrows too high... She looked surprised!"
+
+You: "That's terrible"
+Roxie: "Um... yeah, I know. But you still laughed a little, didn't you?"
 
 ^C
 INFO     | Voice bot stopped.
@@ -221,7 +228,44 @@ tts = ElevenLabsTTSService(
 
 ### Customize the Agent Prompt
 
-Edit `assets/agent.md` to change the bot's personality and capabilities.
+Edit `assets/agent.md` to change the bot's personality and capabilities. The default prompt configures Roxie as a standup comedian with:
+
+- Witty banter and snappy responses
+- Natural hesitations (um, uh) for realistic speech
+- Multi-speaker awareness (active listener in group conversations)
+- Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
+
+### Speaker Diarization & Background Filtering
+
+The STT is configured to identify speakers and filter background audio:
+
+```python
+stt = SpeechmaticsSTTService(
+    api_key=os.getenv("SPEECHMATICS_API_KEY"),
+    params=SpeechmaticsSTTService.InputParams(
+        enable_diarization=True,
+        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+        focus_speakers=["S1"],
+    ),
+)
+```
+
+| Parameter | Purpose |
+|-----------|---------|
+| `enable_diarization` | Identify different speakers in the audio |
+| `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
+| `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
+| `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
+
+**How it works:**
+1. The user speaks first and is assigned `S1` (the primary user)
+2. The bot's TTS output is labeled as S2 and filtered out
+3. Other speakers (TV, radio, people nearby) are marked as passive
+4. The agent prompt (`assets/agent.md`) instructs the LLM to ignore `<PASSIVE>` content
+5. In multi-speaker scenarios, Roxie acts as an active listener and only joins when invited
+
+This prevents the bot from hearing its own voice and responding to background audio.
 
 ### Adjust VAD Sensitivity
 
