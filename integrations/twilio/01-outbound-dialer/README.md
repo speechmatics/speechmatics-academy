@@ -23,7 +23,7 @@ This example shows how to programmatically initiate outbound calls. The assistan
 - **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
 - **Twilio Account**: Get one from [twilio.com](https://www.twilio.com/)
-- **Twilio Phone Number**: Purchase a phone number in the Twilio Console
+- **Twilio Phone Number**: Get a free trial number or purchase one in the Twilio Console
 - **Python 3.10+**
 - **ngrok** (for local development)
 
