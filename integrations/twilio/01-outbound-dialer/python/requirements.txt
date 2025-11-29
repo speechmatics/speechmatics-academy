@@ -1,0 +1,24 @@
+# Speechmatics SDK (STT)
+speechmatics-voice>=0.1.27
+
+# ElevenLabs (Streaming TTS)
+elevenlabs>=1.0.0
+
+# Twilio SDK (REST API + TwiML)
+twilio>=9.0.0
+
+# Web Framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+
+# LLM
+openai>=1.12.0
+
+# HTTP Client (for dial.py CLI)
+requests>=2.31.0
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Note: audioop is deprecated in Python 3.11+ and removed in 3.13+
+# For Python 3.13+, install: pip install audioop-lts
