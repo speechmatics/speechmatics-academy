@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Simple Voice Assistant - LiveKit Agents + Speechmatics Integration
+Telephony Voice Assistant - LiveKit SIP + Twilio + Speechmatics Integration
 
-A conversational voice assistant using:
+A conversational voice assistant for phone calls using:
+- LiveKit SIP (Telephony via Twilio)
 - Speechmatics STT (Speech-to-Text)
 - OpenAI LLM (Language Model)
-- ElevenLabs TTS (Text-to-Speech)
-- LiveKit WebRTC (Real-time Communication)
+- Speechmatics TTS (Text-to-Speech)
 
 """
 
@@ -15,7 +15,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions
-from livekit.plugins import openai, silero, speechmatics, elevenlabs
+from livekit.plugins import openai, silero, speechmatics
 
 load_dotenv()
 
@@ -29,7 +29,7 @@ def load_agent_prompt() -> str:
 
 
 class VoiceAssistant(Agent):
-    """Voice assistant agent with Speechmatics STT."""
+    """Voice assistant agent with Speechmatics STT and TTS for telephony."""
 
     def __init__(self) -> None:
         super().__init__(instructions=load_agent_prompt())
@@ -37,30 +37,26 @@ class VoiceAssistant(Agent):
 
 async def entrypoint(ctx: agents.JobContext):
     """
-    Main entrypoint for the voice assistant.
+    Main entrypoint for the telephony voice assistant.
 
     Pipeline flow:
-    1. LiveKit Room -> WebRTC audio input from user
+    1. Twilio Phone Call -> LiveKit SIP -> LiveKit Room
     2. Speechmatics STT -> Transcribes speech to text
     3. OpenAI LLM -> Generates response
-    4. ElevenLabs TTS -> Converts response to speech
-    5. LiveKit Room -> WebRTC audio output to user
+    4. Speechmatics TTS -> Converts response to speech
+    5. LiveKit Room -> LiveKit SIP -> Twilio -> Phone Call
     """
     await ctx.connect()
 
     # Speech-to-Text: Speechmatics
-    stt = speechmatics.STT(
-        enable_diarization=True,
-        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-        focus_speakers=["S1"],
-    )
+    stt = speechmatics.STT()
 
     # Language Model: OpenAI
     llm = openai.LLM(model="gpt-4o-mini")
 
-    # Text-to-Speech: ElevenLabs
-    tts = elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM")  # Rachel
+    # Text-to-Speech: Speechmatics
+    # Available voices: sarah (UK female), theo (UK male), megan (US female)
+    tts = speechmatics.TTS(voice="megan")
 
     # Voice Activity Detection: Silero
     vad = silero.VAD.load()

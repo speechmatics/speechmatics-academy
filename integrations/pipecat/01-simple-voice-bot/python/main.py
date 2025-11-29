@@ -34,7 +34,6 @@ from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransp
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
 
-# Load environment variables
 load_dotenv()
 
 
@@ -66,9 +65,7 @@ async def main():
     agent_prompt = load_agent_prompt()
 
     async with aiohttp.ClientSession() as session:
-        # =====================================================================
         # Local Audio Transport (Microphone + Speakers)
-        # =====================================================================
         transport = LocalAudioTransport(
             LocalAudioTransportParams(
                 audio_in_enabled=True,
@@ -79,45 +76,32 @@ async def main():
             )
         )
 
-        # =====================================================================
         # Speech-to-Text: Speechmatics
-        # =====================================================================
         stt = SpeechmaticsSTTService(
             api_key=os.getenv("SPEECHMATICS_API_KEY"),
             params=SpeechmaticsSTTService.InputParams(
-                # Enable speaker diarization to identify different speakers
                 enable_diarization=True,
-                # Focus only on S1 (first speaker = user) and ignore all others
-                # This prevents the bot from hearing its own TTS output (labeled as S2)
                 focus_speakers=["S1"],
-                # End of utterance detection - how long to wait for silence
                 end_of_utterance_silence_trigger=0.5,
                 speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
                 speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-                
             ),
         )
 
-        # =====================================================================
         # Text-to-Speech: ElevenLabs
-        # =====================================================================
         tts = ElevenLabsTTSService(
             aiohttp_session=session,
             api_key=os.getenv("ELEVENLABS_API_KEY"),
-            voice_id="21m00Tcm4TlvDq8ikWAM",  # Rachel - default voice
+            voice_id="21m00Tcm4TlvDq8ikWAM",  # Rachel
         )
 
-        # =====================================================================
         # Language Model: OpenAI
-        # =====================================================================
         llm = OpenAILLMService(
             api_key=os.getenv("OPENAI_API_KEY"),
             model="gpt-4o-mini",
         )
 
-        # =====================================================================
         # Conversation Context
-        # =====================================================================
         messages = [
             {
                 "role": "system",
@@ -127,40 +111,32 @@ async def main():
             },
         ]
 
-        # Create OpenAI LLM context for conversation tracking
         context = OpenAILLMContext(messages)
-
-        # Aggregators connect transcriptions to LLM and track responses
         user_aggregator = LLMUserContextAggregator(context)
         assistant_aggregator = LLMAssistantContextAggregator(context)
 
-        # =====================================================================
         # Build Pipeline
-        # =====================================================================
         pipeline = Pipeline(
             [
-                transport.input(),        # 1. Audio input from microphone
-                stt,                       # 2. Speech-to-text (Speechmatics)
-                user_aggregator,           # 3. Build user message for LLM
-                llm,                       # 4. Generate response (OpenAI)
-                tts,                       # 5. Text-to-speech (ElevenLabs)
-                transport.output(),        # 6. Audio output to speakers
-                assistant_aggregator,      # 7. Track assistant responses
+                transport.input(),
+                stt,
+                user_aggregator,
+                llm,
+                tts,
+                transport.output(),
+                assistant_aggregator,
             ]
         )
 
         task = PipelineTask(
             pipeline,
             params=PipelineParams(
-                allow_interruptions=True,  # Allow user to interrupt bot
+                allow_interruptions=True,
                 enable_metrics=True,
             ),
         )
 
         runner = PipelineRunner()
-
-        # Run pipeline - user speaks first to register as S1
-        # This ensures the bot's TTS output is labeled as S2 and ignored
         await runner.run(task)
 
 
