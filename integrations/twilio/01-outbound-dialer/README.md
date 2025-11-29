@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="../logo/twillio.png" alt="Twilio" width="200">
+
 # Outbound Dialer - Twilio + Speechmatics
 
 **Make your AI voice assistant call any phone number using the Twilio REST API.**
