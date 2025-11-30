@@ -170,8 +170,7 @@ Third-party framework and service integrations.
 | <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Telephony with Twilio](integrations/livekit/02-telephony-twilio/) | Phone calls via SIP, LiveKit Agents, Krisp noise cancellation, LLM, TTS | Python |
 | <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | Local audio, VAD, diarization, focus speakers, passive filtering, LLM, TTS, interruptions | Python |
 | <img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"> | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | REST API, outbound calls, Media Streams, Speechmatics STT, ElevenLabs TTS | Python |
-| **FastAPI** | Transcription API | REST API, async endpoints | Coming Soon |
-| **Flask** | Transcription Service | Web service, file uploads | Coming Soon |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vapi/logo/vapi-dark.png"><img alt="VAPI" src="integrations/vapi/logo/vapi-dark.png" height="28"></picture> | [Voice Assistant](integrations/vapi/01-voice-assistant/) | Voice AI platform, Speechmatics STT, diarization, custom vocabulary, LLM, TTS | Python |
 
 [Browse all integrations](integrations/)
 
@@ -229,7 +228,7 @@ Find examples for the SDK package you installed:
 | **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/) |
 | **Real-time** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
 | **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) |
-| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) |
+| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) |
 | **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-diarization-deep-dive/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
 | **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) |
 | **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/) |
@@ -245,14 +244,13 @@ Find examples for the SDK package you installed:
 | **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/) | [LiveKit Docs](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) | **Available** |
 | **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | [Pipecat Docs](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) | **Available** |
 | **Twilio** | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams) | **Available** |
-| **FastAPI** | Transcription API | [fastapi.tiangolo.com](https://fastapi.tiangolo.com) | Coming Soon |
-| **Flask** | Transcription Service | [flask.palletsprojects.com](https://flask.palletsprojects.com) | Coming Soon |
+| **VAPI** | [Voice Assistant](integrations/vapi/01-voice-assistant/) | [docs.vapi.ai](https://docs.vapi.ai/) | **Available** |
 
 ### By Language
 
 | Language | Examples | Status |
 |----------|----------|--------|
-| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-diarization-deep-dive/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) | **Available** |
+| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-diarization-deep-dive/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) | **Available** |
 | **JavaScript** | - | Coming Soon |
 | **C#** | - | Coming Soon |
 
@@ -261,7 +259,7 @@ Find examples for the SDK package you installed:
 
 | Difficulty | Examples |
 |------------|----------|
-| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-diarization-deep-dive/) |
+| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-diarization-deep-dive/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) |
 | **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) |
 
 

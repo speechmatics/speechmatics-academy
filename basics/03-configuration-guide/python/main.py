@@ -101,10 +101,10 @@ async def main():
         print(" Configuration demo complete!")
         print()
         print(" This example showed:")
-        print("   • Speaker diarization")
-        print("   • Custom vocabulary with phonetic alternatives (sounds_like)")
-        print("   • Entity detection (dates, times, numbers, etc.)")
-        print("   • Enhanced accuracy mode")
+        print("   Speaker diarization")
+        print("   Custom vocabulary with phonetic alternatives (sounds_like)")
+        print("   Entity detection (dates, times, numbers, etc.)")
+        print("   Enhanced accuracy mode")
 
     except (AuthenticationError, ValueError) as e:
         print(f"\nAuthentication Error: {e}")
