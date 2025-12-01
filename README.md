@@ -180,7 +180,13 @@ Third-party framework and service integrations.
 
 Example applications for specific industries.
 
-_Use case examples coming soon! Check back for industry-specific implementations including call center analytics, meeting transcription, podcast processing, and more._
+| Industry | Example | Features | API Mode |
+|----------|---------|----------|----------|
+| **Healthcare** | [Medical Transcription](use-cases/01-medical-transcription-realtime/) | Real-time, custom medical vocabulary, HIPAA compliance | Real-Time |
+| **Media** | [Video Captioning](use-cases/02-video-captioning/) | SRT generation, timestamp sync, batch processing | Batch |
+| **Contact Center** | [Call Analytics](use-cases/03-call-center-analytics/) | Sentiment analysis, topic detection, summarization, diarization | Batch |
+
+[Browse all use cases](use-cases/)
 
 ---
 
@@ -225,15 +231,15 @@ Find examples for the SDK package you installed:
 
 | Feature | Examples |
 |---------|----------|
-| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/) |
-| **Real-time** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
+| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/) |
+| **Real-time** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/) |
 | **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) |
 | **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) |
-| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/) |
+| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) |
-| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/) |
-| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/) |
-| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/) |
+| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
+| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
+| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Translation** | [Multilingual & Translation](basics/05-multilingual-translation/) |
 | **Text-to-Speech** | [Text-to-Speech](basics/06-text-to-speech/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/) |
 
@@ -250,7 +256,7 @@ Find examples for the SDK package you installed:
 
 | Language | Examples | Status |
 |----------|----------|--------|
-| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) | **Available** |
+| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/) | **Available** |
 | **JavaScript** | - | Coming Soon |
 | **C#** | - | Coming Soon |
 
@@ -259,8 +265,8 @@ Find examples for the SDK package you installed:
 
 | Difficulty | Examples |
 |------------|----------|
-| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/) |
-| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) |
+| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/) |
+| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Medical Transcription](use-cases/01-medical-transcription-realtime/) |
 
 
 
