@@ -180,11 +180,11 @@ Third-party framework and service integrations.
 
 Example applications for specific industries.
 
-| Industry | Example | Features | API Mode |
-|----------|---------|----------|----------|
-| **Healthcare** | [Medical Transcription](use-cases/01-medical-transcription-realtime/) | Real-time, custom medical vocabulary, HIPAA compliance | Real-Time |
-| **Media** | [Video Captioning](use-cases/02-video-captioning/) | SRT generation, timestamp sync, batch processing | Batch |
-| **Contact Center** | [Call Analytics](use-cases/03-call-center-analytics/) | Sentiment analysis, topic detection, summarization, diarization | Batch |
+| Industry | Example | Features |
+|----------|---------|----------|
+| **Healthcare** | [Medical Transcription](use-cases/01-medical-transcription-realtime/) | Real-time, custom medical vocabulary, HIPAA compliance |
+| **Media** | [Video Captioning](use-cases/02-video-captioning/) | SRT generation, timestamp sync, batch processing |
+| **Contact Center** | [Call Analytics](use-cases/03-call-center-analytics/) | Sentiment analysis, topic detection, summarization, diarization |
 
 [Browse all use cases](use-cases/)
 
