@@ -2,4 +2,4 @@
 speechmatics-rt>=0.5.0
 
 # Environment management
-python-dotenv>=1.0.0
+python-dotenv>=1.2.1
