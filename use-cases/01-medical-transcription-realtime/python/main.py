@@ -11,7 +11,6 @@ from speechmatics.rt import (
     AsyncClient,
     AuthenticationError,
     TranscriptionConfig,
-    TranscriptResult,
     ServerMessageType,
 )
 
@@ -63,17 +62,17 @@ async def main():
             @client.on(ServerMessageType.ADD_TRANSCRIPT)
             def handle_transcript(msg):
                 """Handle final transcripts."""
-                result = TranscriptResult.from_message(msg)
-                if result.transcript.strip():
-                    transcripts.append(result.transcript)
-                    print(f"  {result.transcript}")
+                text = msg["metadata"]["transcript"]
+                if text.strip():
+                    transcripts.append(text)
+                    print(f"Final: {text}")
 
             @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
             def handle_partial(msg):
                 """Handle partial transcripts (real-time feedback)."""
-                result = TranscriptResult.from_message(msg)
-                if result.transcript.strip():
-                    print(f"  > {result.transcript}", end="\r")
+                text = msg["metadata"]["transcript"]
+                if text.strip():
+                    print(f"Partial: {text}")
 
             # Transcribe the audio file
             with open(audio_file, "rb") as f:
@@ -91,6 +90,8 @@ async def main():
 
     except (AuthenticationError, ValueError) as e:
         print(f"\nAuthentication Error: {e}")
+    except Exception as e:
+        print(f"\nError: {type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":

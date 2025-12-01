@@ -64,7 +64,6 @@ from speechmatics.rt import (
     AsyncClient,
     AuthenticationError,
     TranscriptionConfig,
-    TranscriptResult,
     ServerMessageType,
 )
 
@@ -85,8 +84,11 @@ try:
     async with AsyncClient() as client:  # Auto-reads SPEECHMATICS_API_KEY from env
         @client.on(ServerMessageType.ADD_TRANSCRIPT)
         def handle_transcript(msg):
-            result = TranscriptResult.from_message(msg)
-            print(result.transcript)
+            print(f"Final: {msg['metadata']['transcript']}")
+
+        @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
+        def handle_partial(msg):
+            print(f"Partial: {msg['metadata']['transcript']}")
 
         with open(audio_file, "rb") as f:
             await client.transcribe(f, transcription_config=config)
@@ -112,11 +114,45 @@ MEDICAL TRANSCRIPTION (Real-Time)
 ================================================================================
 Processing: sample.wav
 
-  Good morning. What brings you in today?
-  I've been experiencing some chest pain and shortness of breath.
-  How long have you been experiencing these symptoms?
-  About two weeks. I was diagnosed with hypertension last year.
-  I'm going to order an electrocardiogram and possibly an echocardiogram.
+================================================================================
+MEDICAL TRANSCRIPTION (Real-Time)
+================================================================================
+Processing: sample.wav
+
+Partial: Good
+Partial: Good morning
+Partial: Good morning, Mr. Ramirez
+Partial: Good morning, Mr. Ramirez
+Partial: Good morning, Mr. Ramirez de
+Partial: Good morning, Mr. Ramirez. Based on
+Partial: Good morning, Mr. Ramirez. Based on your recent
+Partial: Good morning, Mr. Ramirez. Based on your recent
+Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the
+Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms
+Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms, you
+Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms you reported
+Final: Good morning,
+Partial: Mr. Ramirez. Based on your recent vitals and the symptoms you reported
+Final: Mr.
+Partial: Ramirez. Based on your recent vitals and the symptoms you reported. I'm
+Partial: Ramirez. Based on your recent vitals and the symptoms you reported, I'm concerned about
+Final: Ramirez.
+Partial: Based on your recent vitals and the symptoms you reported, I'm concerned about
+Final: Based on
+Partial: your recent vitals and the symptoms you reported, I'm concerned about possible
+Final: your
+Partial: recent vitals and the symptoms you reported, I'm concerned about possible
+Final: recent
+Partial: vitals and the symptoms you reported, I'm concerned about possible
+Final: vitals and the
+Partial: symptoms you reported, I'm concerned about possible cardiovascular involvement
+Final: symptoms
+Partial: you reported, I'm concerned about possible cardiovascular involvement
+Final: you
+Partial: reported, I'm concerned about possible cardiovascular involvement.
+Partial: reported, I'm concerned about possible cardiovascular involvement.
+Final: reported,
+Partial: I'm concerned about possible cardiovascular involvement. Given your
 
 ================================================================================
 Transcript saved to: .../assets/transcript.txt
