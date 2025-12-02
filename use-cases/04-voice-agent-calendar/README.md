@@ -219,10 +219,10 @@ The LLM sometimes sends past dates. `parse_date()` auto-corrects:
 
 ```python
 # LLM sends "2023-12-02" (past year)
-# → Corrected to "2025-12-02" (current year)
+# Corrected to "2025-12-02" (current year)
 
 # If still in past (e.g., January when it's December)
-# → Corrected to next year
+# Corrected to next year
 ```
 
 ### 3. Custom Vocabulary
