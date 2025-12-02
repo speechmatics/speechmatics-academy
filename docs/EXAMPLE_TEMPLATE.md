@@ -288,5 +288,5 @@ Before submitting your example:
 - Check existing examples for reference
 - Ask in [Community Discussions](https://github.com/speechmatics/community/discussions/categories/academy)
 
-[Back to Academy](../../README.md)
+[Back to Academy](../README.md)
 

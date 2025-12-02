@@ -249,3 +249,7 @@ Contributors are recognized in:
 - README acknowledgments
 
 Thank you for contributing to Speechmatics Academy! 
+
+---
+
+[Back to Academy](../README.md)
