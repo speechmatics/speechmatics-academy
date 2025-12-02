@@ -182,7 +182,7 @@ Third-party framework and service integrations.
 | <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | Local audio, VAD, diarization, focus speakers, passive filtering, LLM, TTS, interruptions | Python |
 | <img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"> | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | REST API, outbound calls, Media Streams, Speechmatics STT, ElevenLabs TTS | Python |
 | <div align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vapi/logo/vapi-dark.png"><img alt="VAPI" src="integrations/vapi/logo/vapi-dark.png" height="50"></picture></div> | [Voice Assistant](integrations/vapi/01-voice-assistant/) | Voice AI platform, Speechmatics STT, diarization, custom vocabulary, LLM, TTS | Python |
-| **Vercel AI** | Coming Soon | Vercel AI SDK integration | TypeScript |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vercel/logo/vercel-logotype-dark.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vercel/logo/vercel-logotype-light.png"><img alt="Vercel AI" src="integrations/vercel/logo/vercel-logotype-light.png" height="20"></picture> | Coming Soon | Vercel AI SDK integration | TypeScript |
 
 [Browse all integrations](integrations/)
 
