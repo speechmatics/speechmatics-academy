@@ -34,7 +34,7 @@ async def main():
             result = await client.transcribe(str(audio_file))
             # Print the transcript
             print(result.transcript_text)
-       
+
     except (AuthenticationError, ValueError) as e:
         print(f"\nAuthentication Error: {e}")
 

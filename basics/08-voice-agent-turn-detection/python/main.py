@@ -146,7 +146,7 @@ async def run_preset(preset_name: str):
         mic.stop()
         try:
             await client.disconnect()
-        except:
+        except Exception:
             pass
 
     return segments

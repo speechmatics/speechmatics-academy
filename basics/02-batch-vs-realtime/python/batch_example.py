@@ -7,6 +7,7 @@ from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint,
 
 load_dotenv()
 
+
 async def main():
     api_key = os.getenv("SPEECHMATICS_API_KEY")
 

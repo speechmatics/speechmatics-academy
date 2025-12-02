@@ -113,7 +113,6 @@ async def run_session(client, on_complete=None, stop_event=None):
 
 
 async def example_extract_speaker_id():
-
     """
     Example 1: Extract speaker voice identifiers.
 
