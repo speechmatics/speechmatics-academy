@@ -380,12 +380,6 @@ integration_frameworks:
   - id: "vapi"
     title: "VAPI"
     url: "https://vapi.ai"
-  - id: "fastapi"
-    title: "FastAPI"
-    url: "https://fastapi.tiangolo.com"
-  - id: "flask"
-    title: "Flask"
-    url: "https://flask.palletsprojects.com"
 
 
 # Metadata for CLI Tool

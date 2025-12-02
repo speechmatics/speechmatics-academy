@@ -84,11 +84,17 @@ Use GitHub-flavored callouts for important information:
 > [!NOTE]
 > Useful information users should know.
 
+> [!TIP]
+> Helpful advice for doing things better.
+
 > [!IMPORTANT]
 > Key information users need to know.
 
-> [!TIP]
-> Helpful advice for doing things better.
+> [!WARNING]
+> Urgent info that needs immediate user attention.
+
+> [!CAUTION]
+> Advises about risks or negative outcomes.
 ```
 
 ### Step 5: Test Thoroughly
