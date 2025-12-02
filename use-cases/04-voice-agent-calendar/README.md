@@ -436,7 +436,7 @@ additional_vocab=[
 ---
 
 **Time to Complete**: 30 minutes
-**Difficulty**: Intermediate
+**Difficulty**: Advanced
 **API Mode**: LiveKit Voice Agent
 **Languages**: Python
 

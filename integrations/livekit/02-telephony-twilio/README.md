@@ -1,5 +1,11 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../logo/LK_wordmark_darkbg.png">
+  <source media="(prefers-color-scheme: light)" srcset="../logo/LK_wordmark_lightbg.png">
+  <img alt="LiveKit" src="../logo/LK_wordmark_lightbg.png" width="300">
+</picture>
+
 # Telephony Voice Assistant - Twilio + LiveKit + Speechmatics
 
 **Build a conversational voice assistant for phone calls using LiveKit SIP with Twilio and Speechmatics speech recognition and text-to-speech.**

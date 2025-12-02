@@ -324,7 +324,7 @@ call = twilio_client.calls.create(
 ---
 
 **Time to Complete**: 15 minutes
-**Difficulty**: Intermediate
+**Difficulty**: Advanced
 **Integration**: Twilio
 
 [Back to Academy](../../../README.md)

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 Outbound Dialer - Make your AI assistant call any phone number.
-Pipeline: Twilio REST API -> Speechmatics STT -> OpenAI -> ElevenLabs TTS -> Twilio
 """
 
 import asyncio

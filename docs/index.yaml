@@ -270,7 +270,7 @@ examples:
     title: "Twilio Outbound Dialer"
     description: "Outbound phone calls with Twilio REST API, Media Streams, and Speechmatics STT."
     category: "integrations"
-    difficulty: "intermediate"
+    difficulty: "advanced"
     languages: ["python"]
     features:
       - "voice-agents"
@@ -355,7 +355,7 @@ examples:
     title: "AI Receptionist"
     description: "LiveKit voice agent with Twilio SIP, Google Calendar booking, and function calling."
     category: "use-cases"
-    difficulty: "intermediate"
+    difficulty: "advanced"
     languages: ["python"]
     features:
       - "voice-agents"
