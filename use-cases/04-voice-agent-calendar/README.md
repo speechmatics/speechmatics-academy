@@ -7,6 +7,7 @@ Learn how to build a production-ready AI receptionist using LiveKit, Speechmatic
 ## What You'll Learn
 
 - Building voice agents with LiveKit Agents framework
+- Twilio + LiveKit SIP integration for telephony
 - LLM function calling for calendar operations
 - Google Calendar API integration (check, book, cancel, reschedule)
 - Custom vocabulary for business-specific terms
@@ -17,6 +18,7 @@ Learn how to build a production-ready AI receptionist using LiveKit, Speechmatic
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **LiveKit Cloud Account**: Sign up at [livekit.io](https://livekit.io/)
+- **Twilio Account**: For phone number and SIP trunking at [twilio.com](https://www.twilio.com/)
 - **Google Cloud Account**: For Calendar API access
 - **Python 3.9+**
 
@@ -79,12 +81,13 @@ python main.py dev
 
 ```mermaid
 flowchart LR
-    A[Phone Call] --> B[LiveKit SIP]
-    B --> C[Voice Agent]
-    C --> D[Speechmatics STT]
-    C --> E[OpenAI LLM]
-    C --> F[Speechmatics TTS]
-    E --> G[Google Calendar API]
+    A[Phone Call] --> B[Twilio SIP Trunk]
+    B --> C[LiveKit SIP]
+    C --> D[Voice Agent]
+    D --> E[Speechmatics STT]
+    D --> F[OpenAI LLM]
+    D --> G[Speechmatics TTS]
+    F --> H[Google Calendar API]
 ```
 
 ## Available Functions
@@ -123,7 +126,7 @@ stt = speechmatics.STT(
     ],
 )
 
-llm = openai.LLM(model="gpt-5.1")
+llm = openai.LLM(model="gpt-4o")
 tts = speechmatics.TTS(voice="megan")
 
 receptionist = Agent(
@@ -276,6 +279,64 @@ TIMEZONE=Europe/London
 APPOINTMENT_DURATION_MINUTES=60
 ```
 
+## Twilio + LiveKit SIP Setup
+
+To receive phone calls, you need to connect Twilio to LiveKit via SIP trunking.
+
+### 1. Create LiveKit Inbound Trunk
+
+1. Go to [LiveKit Cloud Console](https://cloud.livekit.io/)
+2. Navigate to **Telephony Configuration** → **SIP Trunks**
+3. Click **Create SIP Trunk**
+4. Configure:
+   - **Trunk name**: Give it a name (e.g., "Twilio Inbound")
+   - **Trunk direction**: Select **Inbound**
+   - **Numbers**: Enter your Twilio phone number (e.g., `+14155551234`)
+   - **Allowed addresses**: Leave as `0.0.0.0/0` to allow all IPs
+5. Click **Create** and copy the SIP URI (e.g., `sip:xxxxx.sip.livekit.cloud`)
+
+### 2. Create Twilio Elastic SIP Trunk
+
+1. Go to [Twilio Console](https://console.twilio.com/)
+2. Navigate to **Elastic SIP Trunking** → **Trunks**
+3. Click **Create new SIP Trunk**
+4. Give it a name (e.g., "LiveKit Voice Assistant")
+
+### 3. Configure Twilio Origination (Inbound Calls)
+
+Point Twilio to your LiveKit SIP endpoint:
+
+1. In your Twilio SIP trunk, go to **Origination**
+2. Add an Origination URI:
+   - **Origination SIP URI**: Paste the LiveKit SIP URI from Step 1
+   - **Priority**: `1`
+   - **Weight**: `1`
+   - **Enabled**: Yes
+3. Save the configuration
+
+### 4. Associate Phone Number in Twilio
+
+1. In your Twilio SIP trunk, go to **Phone Numbers**
+2. Click **Add a Phone Number**
+3. Select your Twilio phone number
+4. Save the configuration
+
+### 5. Create LiveKit Dispatch Rule
+
+Route incoming calls to your agent:
+
+1. Go to [LiveKit Cloud Console](https://cloud.livekit.io/)
+2. Navigate to **Telephony Configuration** → **Dispatch Rules**
+3. Click **Create Dispatch Rule**
+4. Configure:
+   - **Trunk**: Select the inbound trunk you created in Step 1
+   - **Rule Type**: **Individual** (creates a room per call)
+   - **Room Prefix**: `call-` (or any prefix you prefer)
+5. Save the configuration
+
+> [!TIP]
+> Test your setup by calling your Twilio phone number. You should see a new room created in LiveKit with the prefix you configured.
+
 ## Expected Output
 
 ### Example Conversation
@@ -365,9 +426,11 @@ additional_vocab=[
 
 ## Resources
 
-- [Google Calendar API](https://developers.google.com/calendar/api)
 - [LiveKit Agents Documentation](https://docs.livekit.io/agents/)
+- [LiveKit SIP Telephony](https://docs.livekit.io/sip/)
+- [Twilio Elastic SIP Trunking](https://www.twilio.com/docs/sip-trunking)
 - [Speechmatics LiveKit Plugin](https://docs.livekit.io/agents/plugins/speechmatics/)
+- [Google Calendar API](https://developers.google.com/calendar/api)
 - [OpenAI Function Calling](https://platform.openai.com/docs/guides/function-calling)
 
 ---
