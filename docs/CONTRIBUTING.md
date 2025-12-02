@@ -4,7 +4,7 @@ Thank you for your interest in contributing to Speechmatics Academy! This docume
 
 ## Ways to Contribute
 
-1. **Add New Examples** - Create production-ready examples
+1. **Add New Examples** - Create examples
 2. **Improve Existing Examples** - Fix bugs, add features, improve docs
 3. **Add Language Implementations** - Add TypeScript to Python-only examples (or vice versa)
 4. **Fix Documentation** - Improve README files, fix typos, clarify instructions
@@ -14,7 +14,7 @@ Thank you for your interest in contributing to Speechmatics Academy! This docume
 
 1. **Check existing examples** - Make sure your idea isn't already covered
 2. **Open a discussion** - Share your idea in [Community Discussions](https://github.com/speechmatics/community/discussions/categories/academy)
-3. **Follow the template** - Use [EXAMPLE_TEMPLATE.md](docs/EXAMPLE_TEMPLATE.md)
+3. **Follow the template** - Use [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md)
 
 ## Adding a New Example
 
@@ -24,7 +24,7 @@ Examples are organized into three categories:
 
 - **basics/** - Fundamental SDK features (5-15 minutes)
 - **integrations/** - Third-party framework integrations (15-30 minutes)
-- **use-cases/** - Production-ready applications (30+ minutes)
+- **use-cases/** - Industry-specific examples (30+ minutes)
 
 ### Step 2: Create Directory Structure
 
@@ -38,7 +38,7 @@ mkdir -p category/your-example-name/{python,typescript,assets}
 
 ### Step 3: Implement the Example
 
-Follow the structure in [EXAMPLE_TEMPLATE.md](docs/EXAMPLE_TEMPLATE.md):
+Follow the structure in [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md):
 
 ```
 your-example-name/
@@ -248,4 +248,4 @@ Contributors are recognized in:
 - Release notes
 - README acknowledgments
 
-Thank you for contributing to Speechmatics Academy! 🎉
+Thank you for contributing to Speechmatics Academy! 

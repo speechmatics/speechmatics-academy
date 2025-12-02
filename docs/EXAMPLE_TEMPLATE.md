@@ -286,5 +286,4 @@ Before submitting your example:
 ## Need Help?
 
 - Check existing examples for reference
-- Ask in [GitHub Discussions](https://github.com/speechmatics/speechmatics-academy/discussions)
-- Join [Discord Community](https://discord.gg/speechmatics)
+- Ask in [Community Discussions](https://github.com/speechmatics/community/discussions/categories/academy)
