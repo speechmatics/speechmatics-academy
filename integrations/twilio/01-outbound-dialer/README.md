@@ -23,9 +23,35 @@ This example shows how to programmatically initiate outbound calls. The assistan
 - **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
 - **Twilio Account**: Get one from [twilio.com](https://www.twilio.com/)
-- **Twilio Phone Number**: Get a free trial number or purchase one in the Twilio Console
+- **Twilio Phone Number**: See [Twilio Setup](#twilio-setup) below
 - **Python 3.10+**
 - **ngrok** (for local development)
+
+## Twilio Setup
+
+### Step 1: Create a Twilio Account
+
+1. Go to [twilio.com](https://www.twilio.com/) and sign up for a free account
+2. Verify your email and phone number
+
+### Step 2: Get a Phone Number
+
+1. Go to [Twilio Console](https://console.twilio.com/)
+2. Navigate to **Phone Numbers** > **Manage** > **Buy a number**
+3. Select your country and click **Search**
+4. Choose a number with **Voice** capability
+5. Click **Buy** (free trial accounts get a free number)
+
+> [!TIP]
+> Trial accounts can only call verified phone numbers. To call any number, upgrade your account.
+
+### Step 3: Get Your Credentials
+
+1. Go to [Twilio Console Dashboard](https://console.twilio.com/)
+2. Find your credentials in the **Account Info** section:
+   - **Account SID**: Starts with `AC...`
+   - **Auth Token**: Click to reveal (keep this secret!)
+3. Your phone number is in **Phone Numbers** > **Manage** > **Active numbers**
 
 ## Quick Start
 
