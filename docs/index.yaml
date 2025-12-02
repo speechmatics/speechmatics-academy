@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2025-11-27"
-total_examples: 9
+last_updated: "2025-12-02"
+total_examples: 19
 
 # Example Categories
 categories:
@@ -33,6 +33,8 @@ features:
   - batch-transcription
   - realtime-transcription
   - speaker-diarization
+  - speaker-identification
+  - channel-diarization
   - custom-vocabulary
   - audio-intelligence
   - sentiment-analysis
@@ -59,7 +61,7 @@ examples:
     path: "basics/01-hello-world"
     readme: "basics/01-hello-world/README.md"
     tags: ["getting-started", "quickstart", "beginner", "batch"]
-    last_updated: "2025-01-16"
+    last_updated: "2025-11-27"
     estimated_time: "5 minutes"
 
   - id: "batch-vs-realtime"
@@ -75,7 +77,7 @@ examples:
     path: "basics/02-batch-vs-realtime"
     readme: "basics/02-batch-vs-realtime/README.md"
     tags: ["batch", "realtime", "streaming", "comparison"]
-    last_updated: "2025-01-16"
+    last_updated: "2025-11-27"
     estimated_time: "10 minutes"
 
   - id: "configuration-guide"
@@ -131,8 +133,23 @@ examples:
     last_updated: "2025-11-27"
     estimated_time: "10 minutes"
 
+  - id: "text-to-speech"
+    title: "Text-to-Speech"
+    description: "Convert text to natural-sounding speech using Speechmatics TTS."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "text-to-speech"
+    integrations: []
+    path: "basics/06-text-to-speech"
+    readme: "basics/06-text-to-speech/README.md"
+    tags: ["tts", "text-to-speech", "synthesis", "audio-generation"]
+    last_updated: "2025-11-28"
+    estimated_time: "10 minutes"
+
   - id: "turn-detection"
-    title: "Real Time Turn Detection"
+    title: "Basic Turn Detection"
     description: "Detect when speech ends using silence-based turn detection for real-time applications."
     category: "basics"
     difficulty: "intermediate"
@@ -144,11 +161,11 @@ examples:
     path: "basics/07-turn-detection"
     readme: "basics/07-turn-detection/README.md"
     tags: ["realtime", "turn-detection", "silence", "conversation"]
-    last_updated: "2025-11-27"
+    last_updated: "2025-11-28"
     estimated_time: "10 minutes"
 
   - id: "voice-agent-turn-detection"
-    title: "Voice Agent Turn Detection"
+    title: "Intelligent Turn Detection"
     description: "Intelligent turn detection with Voice SDK presets for voice agent applications."
     category: "basics"
     difficulty: "intermediate"
@@ -159,15 +176,49 @@ examples:
     integrations: []
     path: "basics/08-voice-agent-turn-detection"
     readme: "basics/08-voice-agent-turn-detection/README.md"
-    tags: ["voice-agent", "turn-detection", "presets", "conversation"]
-    last_updated: "2025-11-27"
+    tags: ["voice-agent", "turn-detection", "presets", "conversation", "smart-turn"]
+    last_updated: "2025-11-28"
     estimated_time: "15 minutes"
+
+  - id: "voice-agent-speaker-id"
+    title: "Speaker ID & Speaker Focus"
+    description: "Extract speaker IDs and control which speakers drive conversation in voice agents."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+      - "speaker-diarization"
+      - "speaker-identification"
+    integrations: []
+    path: "basics/09-voice-agent-speaker-id"
+    readme: "basics/09-voice-agent-speaker-id/README.md"
+    tags: ["voice-agent", "speaker-id", "speaker-focus", "diarization"]
+    last_updated: "2025-11-28"
+    estimated_time: "15 minutes"
+
+  - id: "channel-diarization"
+    title: "Channel Diarization"
+    description: "Multi-channel transcription with speaker attribution based on audio channels."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "channel-diarization"
+      - "speaker-diarization"
+    integrations: []
+    path: "basics/10-channel-diarization"
+    readme: "basics/10-channel-diarization/README.md"
+    tags: ["channel", "diarization", "multi-channel", "stereo"]
+    last_updated: "2025-11-30"
+    estimated_time: "10 minutes"
 
   # === INTEGRATIONS ===
 
   - id: "livekit-voice-assistant"
     title: "LiveKit Voice Assistant"
-    description: "Real-time voice assistant with LiveKit WebRTC integration."
+    description: "Real-time voice assistant with LiveKit WebRTC integration, VAD, diarization, and focus speakers."
     category: "integrations"
     difficulty: "intermediate"
     languages: ["python"]
@@ -175,30 +226,145 @@ examples:
       - "realtime-transcription"
       - "speaker-diarization"
       - "voice-agents"
-      - "text-to-speech"
     integrations: ["livekit"]
-    path: "integrations/livekit/voice-assistant"
-    readme: "integrations/livekit/voice-assistant/README.md"
-    tags: ["livekit", "webrtc", "voice-assistant", "realtime"]
-    last_updated: "2025-11-27"
+    path: "integrations/livekit/01-simple-voice-assistant"
+    readme: "integrations/livekit/01-simple-voice-assistant/README.md"
+    tags: ["livekit", "webrtc", "voice-assistant", "realtime", "vad"]
+    last_updated: "2025-11-28"
     estimated_time: "20 minutes"
 
-  - id: "pipecat-voice-bot"
-    title: "Pipecat Simple Voice Bot"
-    description: "Conversational AI voice bot with Pipecat framework integration."
+  - id: "livekit-telephony-twilio"
+    title: "LiveKit Telephony with Twilio"
+    description: "Phone calls via SIP with LiveKit Agents, Twilio, and Krisp noise cancellation."
     category: "integrations"
     difficulty: "intermediate"
     languages: ["python"]
     features:
       - "realtime-transcription"
       - "voice-agents"
-      - "text-to-speech"
+    integrations: ["livekit", "twilio"]
+    path: "integrations/livekit/02-telephony-twilio"
+    readme: "integrations/livekit/02-telephony-twilio/README.md"
+    tags: ["livekit", "twilio", "telephony", "sip", "phone", "krisp"]
+    last_updated: "2025-11-29"
+    estimated_time: "25 minutes"
+
+  - id: "pipecat-voice-bot"
+    title: "Pipecat Simple Voice Bot"
+    description: "Conversational AI voice bot with Pipecat framework, VAD, diarization, and interruption handling."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "voice-agents"
     integrations: ["pipecat"]
-    path: "integrations/pipecat/simple-voice-bot"
-    readme: "integrations/pipecat/simple-voice-bot/README.md"
-    tags: ["pipecat", "conversational-ai", "voice-bot", "interruptions"]
-    last_updated: "2025-11-27"
+    path: "integrations/pipecat/01-simple-voice-bot"
+    readme: "integrations/pipecat/01-simple-voice-bot/README.md"
+    tags: ["pipecat", "conversational-ai", "voice-bot", "interruptions", "vad"]
+    last_updated: "2025-11-28"
     estimated_time: "20 minutes"
+
+  - id: "twilio-outbound-dialer"
+    title: "Twilio Outbound Dialer"
+    description: "Outbound phone calls with Twilio REST API, Media Streams, and Speechmatics STT."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+    integrations: ["twilio"]
+    path: "integrations/twilio/01-outbound-dialer"
+    readme: "integrations/twilio/01-outbound-dialer/README.md"
+    tags: ["twilio", "outbound", "dialer", "phone", "media-streams"]
+    last_updated: "2025-11-29"
+    estimated_time: "20 minutes"
+
+  - id: "vapi-voice-assistant"
+    title: "VAPI Voice Assistant"
+    description: "Voice AI assistant with VAPI platform, custom vocabulary, and Speechmatics STT."
+    category: "integrations"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "custom-vocabulary"
+      - "voice-agents"
+    integrations: ["vapi"]
+    path: "integrations/vapi/01-voice-assistant"
+    readme: "integrations/vapi/01-voice-assistant/README.md"
+    tags: ["vapi", "voice-assistant", "custom-vocabulary", "platform"]
+    last_updated: "2025-11-30"
+    estimated_time: "15 minutes"
+
+  # === USE CASES ===
+
+  - id: "medical-transcription-realtime"
+    title: "Medical Transcription"
+    description: "Real-time medical transcription with custom medical vocabulary and HIPAA compliance considerations."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "custom-vocabulary"
+    integrations: []
+    path: "use-cases/01-medical-transcription-realtime"
+    readme: "use-cases/01-medical-transcription-realtime/README.md"
+    tags: ["medical", "healthcare", "hipaa", "realtime", "custom-vocabulary"]
+    last_updated: "2025-12-01"
+    estimated_time: "20 minutes"
+
+  - id: "video-captioning"
+    title: "Video Captioning"
+    description: "Generate SRT captions for video content with timestamp synchronization and batch processing."
+    category: "use-cases"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "use-cases/02-video-captioning"
+    readme: "use-cases/02-video-captioning/README.md"
+    tags: ["video", "captions", "srt", "subtitles", "batch"]
+    last_updated: "2025-12-01"
+    estimated_time: "15 minutes"
+
+  - id: "call-center-analytics"
+    title: "Call Center Analytics"
+    description: "Analyze call center recordings with sentiment analysis, topic detection, summarization, and diarization."
+    category: "use-cases"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "audio-intelligence"
+      - "sentiment-analysis"
+      - "topic-detection"
+      - "summarization"
+      - "speaker-diarization"
+    integrations: []
+    path: "use-cases/03-call-center-analytics"
+    readme: "use-cases/03-call-center-analytics/README.md"
+    tags: ["call-center", "analytics", "sentiment", "topics", "summary", "diarization"]
+    last_updated: "2025-12-01"
+    estimated_time: "20 minutes"
+
+  - id: "voice-agent-calendar"
+    title: "AI Receptionist"
+    description: "LiveKit voice agent with Twilio SIP, Google Calendar booking, and function calling."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+    integrations: ["livekit", "twilio"]
+    path: "use-cases/04-voice-agent-calendar"
+    readme: "use-cases/04-voice-agent-calendar/README.md"
+    tags: ["voice-agent", "calendar", "booking", "receptionist", "function-calling"]
+    last_updated: "2025-12-02"
+    estimated_time: "30 minutes"
 
 # Integration Frameworks
 integration_frameworks:
@@ -211,6 +377,9 @@ integration_frameworks:
   - id: "twilio"
     title: "Twilio"
     url: "https://www.twilio.com"
+  - id: "vapi"
+    title: "VAPI"
+    url: "https://vapi.ai"
   - id: "fastapi"
     title: "FastAPI"
     url: "https://fastapi.tiangolo.com"
