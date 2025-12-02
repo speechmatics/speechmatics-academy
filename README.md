@@ -36,6 +36,7 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 - [What is Speechmatics?](#what-is-speechmatics)
 - [Quick Start](#quick-start)
+- [Theory](#theory)
 - [Example Categories](#example-categories)
 - [Migration Guides](#migration-guides)
 - [Finding Examples](#finding-examples)
@@ -146,6 +147,20 @@ npm install -g degit
 degit speechmatics/speechmatics-academy/basics/01-hello-world my-project
 cd my-project
 ```
+---
+
+<h2 id="theory">📖 Theory</h2>
+
+New to speech recognition? Start here to understand the core concepts before diving into code.
+
+| Topic | Description | Learn More |
+|-------|-------------|------------|
+| **Introduction to ASR** | How automatic speech recognition converts audio to text using acoustic and language models | Coming Soon |
+| **Introduction to LLMs** | Understanding large language models and their role in voice AI applications | Coming Soon |
+| **Prompt Engineering** | Crafting effective prompts for voice agents and conversational AI | Coming Soon |
+| **Choosing the Right Model** | Comparing model types, capabilities, and when to use each | Coming Soon |
+
+
 ---
 
 <h2 id="example-categories">📚 Example Categories</h2>
