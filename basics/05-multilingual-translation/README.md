@@ -339,10 +339,18 @@ pip install pyaudio
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
 **API Mode**: Real-time
 **Languages**: Python
 
-[Back to Academy](../../README.md)
+[Back to Basics](../) | [Back to Academy](../../README.md)
 

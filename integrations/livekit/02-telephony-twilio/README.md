@@ -317,8 +317,16 @@ This enables Krisp AI noise cancellation, which filters out background noise fro
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 30 minutes
 **Difficulty**: Intermediate
 **Integration**: LiveKit + Twilio SIP
 
-[Back to Academy](../../../README.md)
+[Back to Integrations](../../) | [Back to Academy](../../../README.md)

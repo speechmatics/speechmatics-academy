@@ -435,9 +435,17 @@ additional_vocab=[
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 30 minutes
 **Difficulty**: Advanced
 **API Mode**: LiveKit Voice Agent
 **Languages**: Python
 
-[Back to Use Cases](../README.md) | [Back to Academy](../../README.md)
+[Back to Use Cases](../) | [Back to Academy](../../README.md)

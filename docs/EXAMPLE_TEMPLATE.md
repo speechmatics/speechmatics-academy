@@ -148,12 +148,26 @@ python main.py
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: X minutes
 **Difficulty**: Beginner | Intermediate | Advanced
 **API Mode**: Batch | Real-time | Voice Agent
 
-[Back to Academy](../../README.md)
+[Back to SECTION](../) | [Back to Academy](../../README.md)
 ```
+
+> [!NOTE]
+> Replace `SECTION` with the appropriate section name:
+> - **Basics**: `[Back to Basics](../) | [Back to Academy](../../README.md)`
+> - **Use Cases**: `[Back to Use Cases](../) | [Back to Academy](../../README.md)`
+> - **Integrations**: `[Back to Integrations](../../) | [Back to Academy](../../../README.md)`
 
 ## GitHub-Flavored Callouts
 
@@ -335,8 +349,9 @@ Before submitting your example:
 - [ ] Error handling is demonstrated
 - [ ] No hardcoded API keys or secrets
 - [ ] Metadata added to docs/index.yaml
+- [ ] Feedback section included with GitHub links
 - [ ] Footer includes Time/Difficulty/API Mode
-- [ ] "Back to Academy" link is correct
+- [ ] Footer includes section link and "Back to Academy" link
 
 ## Best Practices
 

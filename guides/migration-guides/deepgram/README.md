@@ -517,7 +517,8 @@ for item in result.results:
 - Automatic speaker count detection
 - Fine-grained diarization controls via `speaker_diarization_config`
 
-> **Note on `max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels. Only use this when you're certain about the exact speaker count (e.g., a two-person interview). For most scenarios, omit this setting for automatic detection.
+> [!NOTE] 
+>`max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels. Only use this when you're certain about the exact speaker count (e.g., a two-person interview). For most scenarios, omit this setting for automatic detection.
 
 ---
 
@@ -831,9 +832,7 @@ print(asyncio.run(transcribe_audio()))
 ```
 
 **See complete working examples in:**
-- [Batch Transcription](./examples/batch/)
-- [Real-time Streaming](./examples/streaming/)
-- [Speaker Diarization](./examples/diarization/)
+- [Real-time Streaming](./examples/Real-time/)
 
 ---
 
@@ -858,9 +857,9 @@ print(asyncio.run(transcribe_audio()))
 
 ## Feedback
 
-Help us improve this migration guide:
+Help us improve this guide:
 - Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
-- Have suggestions? [Open a discussion](https://github.com/speechmatics/speechmatics-academy/discussions)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
 
 ---
 
@@ -868,4 +867,4 @@ Help us improve this migration guide:
 **Difficulty**: Intermediate
 **Languages**: Python
 
-[Back to Migration Guides](../README.md) | [Back to Academy Home](../../../README.md)
+[Back to Academy Home](../../../README.md)

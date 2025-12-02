@@ -323,8 +323,16 @@ call = twilio_client.calls.create(
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 15 minutes
 **Difficulty**: Advanced
 **Integration**: Twilio
 
-[Back to Academy](../../../README.md)
+[Back to Integrations](../../) | [Back to Academy](../../../README.md)

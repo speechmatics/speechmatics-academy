@@ -558,9 +558,16 @@ pip install speechmatics-voice[smart]
 
 ## Resources
 
-
 - [Voice Agent Presets Reference](https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/voice)
 - [Real-time API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
+
+---
+
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
 
 ---
 
@@ -569,5 +576,5 @@ pip install speechmatics-voice[smart]
 **API Mode**: Voice Agent (Real-time)
 **Languages**: Python
 
-[Back to Academy](../../README.md)
+[Back to Basics](../) | [Back to Academy](../../README.md)
 

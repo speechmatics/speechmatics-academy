@@ -184,8 +184,16 @@ ffmpeg -i sample.mp4 -vf subtitles=sample.srt output_with_subs.mp4
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 10 minutes
 **Difficulty**: Beginner
 **API Mode**: Batch
 
-[Back to Academy](../../README.md)
+[Back to Use Cases](../) | [Back to Academy](../../README.md)

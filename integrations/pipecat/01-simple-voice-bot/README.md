@@ -312,8 +312,16 @@ vad_analyzer=SileroVADAnalyzer(
 
 ---
 
+## Feedback
+
+Help us improve this guide:
+- Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
+- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+
+---
+
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
 **Integration**: Pipecat AI
 
-[Back to Academy](../../../README.md)
+[Back to Integrations](../../) | [Back to Academy](../../../README.md)
