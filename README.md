@@ -24,7 +24,11 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 ## What is Speechmatics?
 
-[Speechmatics](https://www.speechmatics.com/) is a leading Speech Intelligence platform providing highly accurate speech-to-text (STT) and text-to-speech (TTS) APIs. Whether you're building voice assistants, transcription services, call center analytics, or accessibility tools, Speechmatics provides the foundation for accurate, scalable speech AI.
+[Speechmatics](https://www.speechmatics.com/) is a leading Automatic Speech Recognition (ASR) platform providing highly accurate speech-to-text (STT) and text-to-speech (TTS) APIs. Whether you're building real-time voice assistants, conversational voice AI agents, transcription services, or call center tools, Speechmatics provides the foundation for accurate, scalable speech AI.
+
+**Flexible Deployment** — Cloud SaaS, on-premise, air-gapped environments, or on-device edge deployment.
+
+**Advanced Features** — Domain-specific models, custom dictionaries, speaker diarization, speaker identification, and speaker focus for multi-speaker scenarios and much more.
 
 ---
 
