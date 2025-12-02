@@ -16,14 +16,21 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 **Examples • Integrations • Use Cases • Copy-Paste Ready**
 
-[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing)
+[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing) • [Portal](https://portal.speechmatics.com/)  • [Documentation](https://docs.speechmatics.com/)  
 
 </div>
 
 ---
 
+## What is Speechmatics?
+
+[Speechmatics](https://www.speechmatics.com/) is a leading Speech Intelligence platform providing highly accurate speech-to-text (STT) and text-to-speech (TTS) APIs. Whether you're building voice assistants, transcription services, call center analytics, or accessibility tools, Speechmatics provides the foundation for accurate, scalable speech AI.
+
+---
+
 ## 📋 Table of Contents
 
+- [What is Speechmatics?](#what-is-speechmatics)
 - [Quick Start](#quick-start)
 - [Example Categories](#example-categories)
 - [Migration Guides](#migration-guides)
