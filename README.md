@@ -260,9 +260,9 @@ Find examples for the SDK package you installed:
 
 | Integration | Examples | Documentation | Status |
 |-------------|----------|---------------|--------|
-| **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/) | [LiveKit Docs](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) | **Available** |
+| **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/), [AI Receptionist](use-cases/04-voice-agent-calendar/) | [LiveKit Docs](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) | **Available** |
 | **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | [Pipecat Docs](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) | **Available** |
-| **Twilio** | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams) | **Available** |
+| **Twilio** | [Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/), [AI Receptionist](use-cases/04-voice-agent-calendar/) | [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams) | **Available** |
 | **VAPI** | [Voice Assistant](integrations/vapi/01-voice-assistant/) | [docs.vapi.ai](https://docs.vapi.ai/) | **Available** |
 
 ### By Language
