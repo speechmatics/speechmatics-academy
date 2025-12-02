@@ -294,15 +294,14 @@ Every example follows a consistent structure:
 ```
 example-name/
 ├── python/
-│   ├── main.py             # Primary implementation
-│   ├── requirements.txt    # Dependencies
-│   ├── config.py           # Configuration (optional)
-│   └── README.md           # Python-specific notes
-├── .env.example            # Environment template
-├── assets/                 # Screenshots, samples
-│   ├── demo.mp4
-│   └── sample.wav
-└── README.md               # Main documentation
+│   ├── main.py             # Primary Python implementation
+│   ├── requirements.txt    # Python dependencies
+│   └── .gitignore          # Ignore venv/, __pycache__/, .env
+├── assets/                 # Sample files, images, etc.
+│   ├── sample.wav          # Sample audio (if needed)
+│   └── agent.md            # Agent prompt (for voice agents)
+├── .env.example            # Environment variables template
+└── README.md               # Main documentation (REQUIRED)
 ```
 
 > [!NOTE]
