@@ -158,11 +158,11 @@ Fundamental examples for getting started with the Speechmatics SDK.
 |---------|-------------|----------|------------|
 | [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | `Batch` |  Beginner |
 | [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | `Batch` `RT` |  Beginner |
-| [Configuration Guide](basics/03-configuration-guide/) | Common configuration options | `Batch` `RT` |  Beginner |
+| [Configuration Guide](basics/03-configuration-guide/) | Common configuration options | `Batch` |  Beginner |
 | [Text-to-Speech](basics/06-text-to-speech/) | Convert text to natural-sounding speech | `TTS` |  Beginner |
-| [Channel Diarization](basics/10-channel-diarization/) | Multi-channel transcription with speaker attribution | `RT` |  Beginner |
+| [Channel Diarization](basics/10-channel-diarization/) | Multi-channel transcription with speaker attribution | `Voice` `RT` |  Beginner |
 | [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
-| [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `Batch` `RT` |  Intermediate |
+| [Multilingual & Translation](basics/05-multilingual-translation/) | Transcribe 50+ languages and translate | `RT` |  Intermediate |
 | [Basic Turn Detection](basics/07-turn-detection/) | Silence-based turn detection with Real-Time SDK | `RT` |  Intermediate |
 | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) | Smart turn detection with Voice SDK presets | `Voice` |  Intermediate |
 | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Extract speaker IDs and control which speakers drive conversation | `Voice` |  Intermediate |
