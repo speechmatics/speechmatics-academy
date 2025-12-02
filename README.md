@@ -329,11 +329,6 @@ We welcome contributions! There are many ways to help:
 5. **Test thoroughly** 
 6. **Submit PR** with clear description
 
-**Helpful Guides:**
-- [Creating Examples](docs/guides/creating-examples.md) - Step-by-step guide
-- [Testing Examples](docs/guides/testing-examples.md) - Testing best practices
-- [Example Checklist](docs/EXAMPLE_CHECKLIST.md) - Pre-submission checklist
-
 See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ### Quality Standards
