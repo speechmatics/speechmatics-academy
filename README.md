@@ -153,13 +153,15 @@ cd my-project
 
 New to speech recognition? Start here to understand the core concepts before diving into code.
 
-| Topic | Description | Learn More |
-|-------|-------------|------------|
-| **Introduction to ASR** | How automatic speech recognition converts audio to text using acoustic and language models | Coming Soon |
-| **Introduction to LLMs** | Understanding large language models and their role in voice AI applications | Coming Soon |
-| **Prompt Engineering** | Crafting effective prompts for voice agents and conversational AI | Coming Soon |
-| **Choosing the Right Model** | Comparing model types, capabilities, and when to use each | Coming Soon |
+| Topic | Description |
+|-------|-------------|
+| **Introduction to ASR** | How automatic speech recognition converts audio to text using acoustic and language models |
+| **Introduction to LLMs** | Understanding large language models and their role in voice AI applications |
+| **Prompt Engineering** | Crafting effective prompts for voice agents and conversational AI |
+| **Choosing the Right Model** | Comparing model types, capabilities, and when to use each |
 
+> [!NOTE]
+> Theory guides are coming soon. In the meantime, check out the **"How It Works"** sections in each example.
 
 ---
 
