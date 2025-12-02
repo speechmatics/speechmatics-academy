@@ -357,8 +357,8 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 
 - **GitHub Issues**: [Report bugs or request examples](https://github.com/speechmatics/speechmatics-academy/issues)
-- **GitHub Discussions**: [Ask questions, share projects](https://github.com/speechmatics/speechmatics-academy/discussions)
-- **Email Support**: academy@speechmatics.com
+- **GitHub Community Discussions**: [Ask questions, share projects](https://github.com/speechmatics/community/discussions/categories/academy)
+- **Email Support**: devrel@speechmatics.com
 
 ### Resources
 
@@ -370,11 +370,7 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 ### Documentation
 
 - **[Example Template](docs/EXAMPLE_TEMPLATE.md)** - Template for new examples
-- **[Example Checklist](docs/EXAMPLE_CHECKLIST.md)** - Quality standards
 - **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute
-- **[Creating Examples](docs/guides/creating-examples.md)** - Step-by-step guide
-- **[Testing Examples](docs/guides/testing-examples.md)** - Testing guide
-- **[Multi-Language Support](docs/guides/multi-language-support.md)** - Language guide
 
 ---
 
