@@ -158,7 +158,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 |---------|-------------|----------|------------|
 | [Hello World](basics/01-hello-world/) | The absolute simplest transcription example | `Batch` |  Beginner |
 | [Batch vs Real-time](basics/02-batch-vs-realtime/) | Learn the difference between API modes | `Batch` `RT` |  Beginner |
-| [Configuration Guide](basics/03-configuration-guide/) | All configuration options in one place | `Batch` `RT` |  Beginner |
+| [Configuration Guide](basics/03-configuration-guide/) | Common configuration options | `Batch` `RT` |  Beginner |
 | [Text-to-Speech](basics/06-text-to-speech/) | Convert text to natural-sounding speech | `TTS` |  Beginner |
 | [Channel Diarization](basics/10-channel-diarization/) | Multi-channel transcription with speaker attribution | `RT` |  Beginner |
 | [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |

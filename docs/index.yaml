@@ -81,8 +81,8 @@ examples:
     estimated_time: "10 minutes"
 
   - id: "configuration-guide"
-    title: "Configuration Guide - All Options in One Place"
-    description: "Comprehensive guide to all Speechmatics configuration options including diarization, custom vocabulary, and output formats."
+    title: "Configuration Guide - Common Configuration Options"
+    description: "Guide to common Speechmatics configuration options including diarization, custom vocabulary, and output formats."
     category: "basics"
     difficulty: "beginner"
     languages: ["python"]

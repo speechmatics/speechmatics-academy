@@ -1,12 +1,12 @@
-# Configuration Guide - All Options in One Place
+# Configuration Guide - Common Configuration Options
 
-**Comprehensive guide to all Speechmatics configuration options including diarization, custom vocabulary, and output formats.**
+**Guide to common Speechmatics configuration options including diarization, custom vocabulary, and output formats.**
 
-Stop searching through docs - all config options explained with working examples in one place!
+Stop searching through docs - common config options explained with working examples in one place!
 
 ## What You'll Learn
 
-- All available configuration parameters
+- Common configuration parameters
 - Speaker diarization setup
 - Custom vocabulary for accuracy
 - Output format options
