@@ -52,7 +52,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Duration engine waits to verify partial word accuracy before committing (0.7-4.0s) |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
 | **Utterance End** | `utterance_end_ms=1000` |`end_of_utterance_silence_trigger=1.0` | `rt`, `voice` | Reference silence duration (0-2s); ADAPTIVE mode scales this based on speech patterns |
-| **Force End Utterance** | Not available | `use_forced_eou_message` | `voice` | Manually trigger end of utterance |
+| **Force End Utterance** | Not available | `client.finalize(end_of_turn=True)` | `voice` | Manually trigger end of utterance |
 | **VAD Events** | `vad_events=True` (Beta) | `AgentServerMessageType.SPEAKER_STARTED`<br/>`AgentServerMessageType.SPEAKER_ENDED` | `voice` | Voice activity detection events |
 | **Diarization** | `diarize=True`, | `diarization="speaker"` | `rt`, `voice` | Speaker identification |
 | **Speaker Config** | Not available | `speaker_diarization_config=` <br/>  `SpeakerDiarizationConfig(...)` | `rt`, `voice` | Fine-tune diarization |
@@ -71,9 +71,9 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Fixed Delay** | Via settings | `EndOfUtteranceMode.FIXED` | Waits exactly the configured silence duration every time |
 | **Adaptive Delay** | Not available | `EndOfUtteranceMode.ADAPTIVE` | Scales wait time based on speech pace, filler words (um/uh), and punctuation |
 | **Smart Turn (ML)** | Not available | `EndOfUtteranceMode.SMART_TURN` | Uses ML model to predict semantic turn completions |
-| **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.force_end_of_utterance()` | Application controls turn endings (for Pipecat/LiveKit integration) |
+| **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.finalize(end_of_turn=True)` | Application controls turn endings (for Pipecat/LiveKit integration) |
 | **Silence Trigger** | Via settings | `end_of_utterance_silence_trigger` | Reference duration (0-2s); ADAPTIVE mode applies multipliers based on context |
-| **Presets** | Not available | `preset="scribe"`, `"low_latency"`, `"conversation_adaptive"` | Ready-to-use configurations optimized for specific use cases |
+| **Presets** | Not available | `preset="low_latency"`, `"conversation_adaptive"`, `"conversation_smart_turn"`, `"scribe"`, `"captions"`, `"external"` | Ready-to-use configurations optimized for specific use cases |
 
 **Server Message Types:**
 | Deepgram Event | Speechmatics Event | Package | Notes |
@@ -686,8 +686,8 @@ config = {
 ### Speechmatics Only
 - Phonetic hints (`sounds_like` in `additional_vocab`)
 - Real-time translation (`TranslationConfig`)
-- Force end of utterance (`ClientMessageType.FORCE_END_OF_UTTERANCE`)
-- Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, and SMART_TURN modes
+- Force end of utterance (`client.finalize(end_of_turn=True)`)
+- Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, SMART_TURN, and EXTERNAL modes
 - Comprehensive audio intelligence (sentiment + topics + summary together)
 - More granular speaker diarization controls (`SpeakerDiarizationConfig`)
 - Known speaker pre-registration (`speaker_diarization_config.speakers`)
