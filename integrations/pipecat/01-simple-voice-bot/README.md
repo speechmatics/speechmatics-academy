@@ -27,7 +27,7 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
-- **Python 3.10+**
+- **Python 3.10+** (Python 3.12 recommended)
 - **PortAudio**: Required for local audio (see installation below)
 
 ## Quick Start
@@ -53,6 +53,9 @@ sudo apt-get install portaudio19-dev
 
 **Step 2: Create and activate a virtual environment**
 
+> [!IMPORTANT]
+> **macOS Users**: Pipecat requires Python 3.10+. Your system Python may be older (e.g., Python 3.9.6). You must use Python 3.10+ when creating the virtual environment.
+
 **On Windows:**
 ```bash
 cd python
@@ -63,15 +66,33 @@ venv\Scripts\activate
 **On Mac/Linux:**
 ```bash
 cd python
-python3 -m venv venv
+
+# First, check your Python version
+python3 --version
+
+# If Python is below 3.10, install Python 3.12 via Homebrew (macOS)
+brew install python@3.12
+
+# Create venv with Python 3.12 explicitly
+python3.12 -m venv venv
 source venv/bin/activate
+
+# Verify the venv is using the correct Python
+python --version  # Should show Python 3.12.x
 ```
 
 **Step 3: Install dependencies**
 
 ```bash
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+> [!NOTE]
+> **Dependency Conflicts**: If you see numpy/numba conflicts like `numba requires numpy<2.3`, fix with:
+> ```bash
+> pip install "numpy>=1.24,<2.3"
+> ```
 
 **Step 4: Configure your API keys**
 
@@ -89,6 +110,9 @@ ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 
 > [!IMPORTANT]
 > **Why `.env`?** Never commit API keys to version control. The `.env` file keeps secrets out of your code.
+
+> [!NOTE]
+> **Missing `.env.example` after download?** If you downloaded the repo as a ZIP file, dotfiles (files starting with `.`) may not appear in Finder or may be excluded. Use `git clone` instead, or run `ls -la ..` in terminal to verify the file exists. See [Troubleshooting](#dotfiles-missing-after-zip-download) for more details.
 
 **Step 5: Run the example**
 
@@ -277,6 +301,85 @@ vad_analyzer=SileroVADAnalyzer(
 
 ## Troubleshooting
 
+### macOS-Specific Issues
+
+#### Wrong Python Version in Virtual Environment
+
+**Symptom:** `pip install` shows errors like:
+```
+ERROR: Ignored the following versions that require a different python version: 0.0.37 Requires-Python >=3.10 ...
+ERROR: No matching distribution found for pipecat-ai
+```
+
+**Cause:** Your virtual environment was created with Python 3.9 (macOS system Python), but Pipecat requires Python 3.10+.
+
+**Fix:**
+```bash
+# Check your current Python version
+python3 --version
+
+# If below 3.10, install Python 3.12 via Homebrew
+brew install python@3.12
+
+# Recreate the virtual environment with Python 3.12
+deactivate
+rm -rf venv
+python3.12 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+#### NLTK SSL Certificate Error
+
+**Symptom:**
+```
+[nltk_data] Error loading punkt_tab: <urlopen error [SSL:
+[nltk_data]     CERTIFICATE_VERIFY_FAILED] certificate verify failed
+```
+
+**Fix:**
+```bash
+# Install certifi and download NLTK data with SSL workaround
+pip install certifi
+python3 -c "import ssl; ssl._create_default_https_context = ssl._create_unverified_context; import nltk; nltk.download('punkt_tab')"
+```
+
+#### Dotfiles Missing After ZIP Download
+
+**Symptom:** `.env.example` is missing after downloading the repo as a ZIP from GitHub.
+
+**Cause:** macOS Finder hides dotfiles by default, and some ZIP extraction methods may exclude them.
+
+**Fix options:**
+
+1. **Check if it's just hidden:**
+   ```bash
+   ls -la ..  # List all files including hidden ones
+   ```
+
+2. **Use `git clone` instead of ZIP download:**
+   ```bash
+   git clone https://github.com/speechmatics/speechmatics-academy.git
+   ```
+
+3. **Show hidden files in Finder:**
+   ```bash
+   defaults write com.apple.finder AppleShowAllFiles YES
+   killall Finder
+   ```
+
+4. **Create the file manually** if truly missing:
+   ```bash
+   cat > .env << 'EOF'
+   SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
+   ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+   EOF
+   ```
+
+### General Issues
+
 **Error: "No module named 'pyaudio'"**
 - Install PortAudio first (see Step 1)
 - On Windows, try: `pip install pipwin && pipwin install pyaudio`
@@ -284,6 +387,18 @@ vad_analyzer=SileroVADAnalyzer(
 **Error: "Invalid API key"**
 - Verify all API keys in your `.env` file
 - Check each service's portal for key validity
+
+**Error: numpy/numba dependency conflict**
+
+**Symptom:**
+```
+numba 0.61.2 requires numpy<2.3,>=1.24, but you have numpy 2.3.5 which is incompatible.
+```
+
+**Fix:**
+```bash
+pip install "numpy>=1.24,<2.3"
+```
 
 **No audio input detected**
 - Check your microphone is selected as default input device
