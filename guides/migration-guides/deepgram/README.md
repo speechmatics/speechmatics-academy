@@ -4,8 +4,8 @@
 
 Switching from Deepgram? This guide shows you equivalent features and code patterns to help you migrate smoothly.
 
-> 💰 **Migration Incentive**: Get **$200 free credit** with code `SWITCH200` when switching from Deepgram!
-> [Learn more](https://www.speechmatics.com/how-we-compare/deepgram-alternative)
+> [!NOTE]
+> **Migration Incentive**: Get **$200 free credit** with code `SWITCH200` when switching from Deepgram! [Learn more](https://www.speechmatics.com/how-we-compare/deepgram-alternative)
 
 ---
 
@@ -43,8 +43,8 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 <details id="real-time-streaming--voice-features">
 <summary><strong style="font-size: 1.25em;">Real-time Streaming & Voice Features</strong> • Click to explore RealTime and Voice Features</summary>
 
-> **Speechmatics Packages:** 
-`speechmatics-rt` for basic real-time streaming, `speechmatics-voice` for voice agent features (turn detection, segments, VAD events). Voice SDK is built on top of RT SDK.
+> [!NOTE]
+> **Speechmatics Packages:** `speechmatics-rt` for basic real-time streaming, `speechmatics-voice` for voice agent features (turn detection, segments, VAD events). Voice SDK is built on top of RT SDK.
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
@@ -140,6 +140,7 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 <details id="batch-transcription-features">
 <summary><strong style="font-size: 1.25em;">Batch Transcription Features</strong> • Click to explore Batch Features</summary>
 
+> [!NOTE]
 > **Speechmatics Package:** `speechmatics-batch`
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
@@ -196,9 +197,10 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 <details id="output-formatting--filtering">
 <summary><strong style="font-size: 1.25em;">Output Formatting & Filtering</strong> • Click to explore Formatting Options</summary>
 
+> [!NOTE]
 > **Speechmatics Packages:** `speechmatics-batch`, `speechmatics-rt` - formatting features available in both batch and real-time.
 >
-> **Note:** Parameters like `punctuation_overrides`, `transcript_filtering_config`, and `audio_filtering_config` accept `dict` objects. The SDK passes these directly to the API - refer to [API documentation](https://docs.speechmatics.com/speech-to-text/formatting#punctuation) for valid keys.
+> Parameters like `punctuation_overrides`, `transcript_filtering_config`, and `audio_filtering_config` accept `dict` objects. The SDK passes these directly to the API - refer to [API documentation](https://docs.speechmatics.com/speech-to-text/formatting#punctuation) for valid keys.
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
@@ -261,6 +263,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 <details id="text-to-speech-tts">
 <summary><strong style="font-size: 1.25em;">Text-to-Speech (TTS)</strong> • Click to explore TTS Features</summary>
 
+> [!NOTE]
 > **Speechmatics Package:** `speechmatics-tts`
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
