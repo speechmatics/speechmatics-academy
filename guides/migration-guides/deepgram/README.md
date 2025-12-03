@@ -831,7 +831,8 @@ print(asyncio.run(transcribe_audio()))
 ```
 
 **See complete working examples in:**
-- [Real-time Streaming](./examples/Real-time/)
+- [Batch vs Real-time](../../../basics/02-batch-vs-realtime/) - Understand API modes
+- [Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/) - Voice SDK with presets
 
 ---
 
