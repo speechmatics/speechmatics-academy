@@ -278,10 +278,10 @@ translation_config = TranslationConfig(
 
 ## Next Steps
 
-- **[Working with Results](../06-working-with-results/)** - Parse and export translation output
-- **[Production Patterns](../07-production-patterns/)** - Scale multilingual processing
-- **[Use Cases: Education](../../use-cases/education-transcription/)** - Accessibility example
-- **[Use Cases: Call Center](../../use-cases/call-center-analytics/)** - Multilingual call analysis
+- **[Text-to-Speech](../06-text-to-speech/)** - Convert translated text back to speech
+- **[Audio Intelligence](../04-audio-intelligence/)** - Extract insights from transcribed content
+- **[Video Captioning](../../use-cases/02-video-captioning/)** - Generate subtitles with translation
+- **[Call Center Analytics](../../use-cases/03-call-center-analytics/)** - Analyze multilingual customer calls
 
 ## Troubleshooting
 

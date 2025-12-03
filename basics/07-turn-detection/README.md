@@ -339,8 +339,6 @@ The Voice SDK provides a higher-level abstraction with intelligent segmentation 
 
 - **[Voice Agent Turn Detection](../08-voice-agent-turn-detection/)** - Advanced turn detection modes
 - **[Real-time Translation](../05-multilingual-translation/)** - Combine with translation
-- **[Working with Results](../06-working-with-results/)** - Export utterances
-- **[Use Cases](../../use-cases/)** - See production applications
 
 ## Troubleshooting
 

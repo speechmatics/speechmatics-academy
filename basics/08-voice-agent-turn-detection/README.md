@@ -494,7 +494,7 @@ The Voice SDK incorporates Silero VAD for detecting speech presence:
 
 ## Next Steps
 
-- **[Pipecat Integration](../../integrations/pipecat/simple-voice-bot/)** - Build voice agents with Pipecat framework
+- **[Pipecat Integration](../../integrations/pipecat/01-simple-voice-bot/)** - Build voice agents with Pipecat framework
 - **[Real-time Translation](../05-multilingual-translation/)** - Add multilingual support
 - **[Audio Intelligence](../04-audio-intelligence/)** - Sentiment and topic detection
 - **[Turn Detection](../07-turn-detection/)** - Basic RT SDK turn detection
