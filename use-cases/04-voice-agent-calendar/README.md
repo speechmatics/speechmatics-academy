@@ -266,9 +266,9 @@ additional_vocab=[
 ### 4. Share Calendar
 
 1. Open [Google Calendar](https://calendar.google.com/)
-2. Calendar settings → Share with specific people
-3. Add service account email (`name@project.iam.gserviceaccount.com`)
-4. Set "Make changes to events"
+2. In **My calendars**, hover over your calendar (or create a new calendar if you prefer), click the three-dot menu (**⋮**) and choose **Settings and sharing**
+3. Under **Share with specific people or groups**, click **Add people and groups**, then add the service account email (`name@project.iam.gserviceaccount.com`)
+4. Set the permission so the service account can make changes to events (e.g., **Make changes to events**)
 
 ### 5. Configure Environment
 
@@ -279,6 +279,8 @@ TIMEZONE=Europe/London
 APPOINTMENT_DURATION_MINUTES=60
 ```
 
+If you created a different calendar (for example, a dedicated "AI Receptionist" calendar), open its **Settings and sharing** page in Google Calendar and, under **Integrate calendar**, copy the **Calendar ID** value and use that for `GOOGLE_CALENDAR_ID` in your `.env` file.
+
 ## Twilio + LiveKit SIP Setup
 
 To receive phone calls, you need to connect Twilio to LiveKit via SIP trunking.
@@ -286,7 +288,7 @@ To receive phone calls, you need to connect Twilio to LiveKit via SIP trunking.
 ### 1. Create LiveKit Inbound Trunk
 
 1. Go to [LiveKit Cloud Console](https://cloud.livekit.io/)
-2. Navigate to **Telephony Configuration** → **SIP Trunks**
+2. Navigate to **Telephony** → **SIP Trunks**
 3. Click **Create SIP Trunk**
 4. Configure:
    - **Trunk name**: Give it a name (e.g., "Twilio Inbound")
@@ -336,6 +338,18 @@ Route incoming calls to your agent:
 
 > [!TIP]
 > Test your setup by calling your Twilio phone number. You should see a new room created in LiveKit with the prefix you configured.
+
+### 6. Configure LiveKit Environment
+
+Add your LiveKit settings to the `.env` file, similar to the Google Calendar configuration:
+
+```bash
+LIVEKIT_URL=wss://your-project-id.livekit.cloud
+LIVEKIT_API_KEY=your_livekit_api_key
+LIVEKIT_API_SECRET=your_livekit_api_secret
+```
+
+If you're using **LiveKit Cloud**, you can copy these values directly from the [LiveKit Cloud Console](https://cloud.livekit.io/): go to your project, open **API Keys**, click or create a key, click **Reveal secret**, and copy the suggested environment variables shown in the UI.
 
 ## Expected Output
 

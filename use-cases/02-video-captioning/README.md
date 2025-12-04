@@ -42,7 +42,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 cp ../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
-python media_captions.py
+python main.py
 ```
 
 Place your video file as `sample.mp4` in the `assets/` folder before running.
