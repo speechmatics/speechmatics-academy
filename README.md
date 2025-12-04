@@ -79,7 +79,7 @@ pip install speechmatics-tts
 
 **speechmatics-batch** - Async batch transcription API
 - Upload audio files for processing
-- Get transcripts with timestamps, speakers, entities
+- Get transcripts with highly accurate timestamps, speakers, entities
 - Supports all audio intelligence features
 
 **speechmatics-rt** - Real-time WebSocket streaming
@@ -94,7 +94,7 @@ pip install speechmatics-tts
 
 **speechmatics-tts** - Text-to-speech
 - Convert text to natural-sounding speech
-- Multiple voices and languages
+- Multiple voices
 - Streaming and batch modes
 
 </details>
