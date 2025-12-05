@@ -1,0 +1,9 @@
+# Speechmatics SDKs
+speechmatics-voice>=0.1.27   # Voice Agent SDK (speaker diarization)
+speechmatics-rt>=0.5.1       # Real-Time SDK (multi-channel diarization)
+
+# Environment management
+python-dotenv>=1.2.1
+
+# Microphone support (optional, for real-time examples)
+pyaudio>=0.2.14

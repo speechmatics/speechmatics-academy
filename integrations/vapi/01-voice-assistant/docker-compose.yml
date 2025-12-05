@@ -1,0 +1,15 @@
+# VAPI Voice Assistant - Docker Compose
+#
+# Usage:
+#   docker compose run --rm vapi python main.py           # Create assistant
+#   docker compose run --rm vapi python main.py list      # List assistants
+#   docker compose run --rm vapi python main.py get ID    # Get assistant details
+
+services:
+  vapi:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - ./python:/app
+    working_dir: /app

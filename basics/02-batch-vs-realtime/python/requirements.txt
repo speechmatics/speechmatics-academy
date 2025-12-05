@@ -1,0 +1,9 @@
+# Speechmatics SDKs
+speechmatics-batch>=0.4.4
+speechmatics-rt>=0.5.1
+
+# Utilities
+python-dotenv>=1.0.0
+
+# Audio input (for microphone support in real-time example)
+pyaudio>=0.2.11

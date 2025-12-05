@@ -1,0 +1,5 @@
+# Pipecat AI Framework with local audio, OpenAI, ElevenLabs, and Speechmatics
+pipecat-ai[local,openai,elevenlabs,speechmatics,silero]>=0.0.90
+
+# Environment variables
+python-dotenv>=1.2.0
