@@ -15,7 +15,7 @@
 A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (OpenAI), and text-to-speech (ElevenLabs) using the Pipecat AI framework - accessible via any web browser using WebRTC.
 
 > [!TIP]
-> **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly (macOS/Linux only).
+> **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly.
 
 ## What You'll Learn
 

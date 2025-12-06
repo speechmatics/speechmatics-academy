@@ -84,7 +84,7 @@ pip install speechmatics-tts
 
 **speechmatics-rt** - Real-time WebSocket streaming
 - Stream audio for live transcription
-- Ultra-low latency (150ms p95)
+- Ultra-low latency
 - Partial and final transcripts
 
 **speechmatics-voice** - Voice agent SDK
