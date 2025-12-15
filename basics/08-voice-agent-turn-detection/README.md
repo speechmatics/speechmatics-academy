@@ -584,7 +584,7 @@ sudo usermod -aG input $USER
 ## Resources
 
 - [Voice Agent Presets Reference](https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/voice)
-- [Real-time API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
+- [Realtime API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 
 ---
 

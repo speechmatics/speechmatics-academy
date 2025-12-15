@@ -343,7 +343,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 | Deployment | Speechmatics | Deepgram |
 |------------|--------------|----------|
 | **SaaS/Cloud** | ✅ | ✅ |
-| **On-Premise** | ✅ | Limited |
+| **On-Premises** | ✅ | Limited |
 | **On-Device** | ✅ | ❌ |
 | **Air-Gapped** | ✅ | ❌ |
 
@@ -865,7 +865,7 @@ print(asyncio.run(transcribe_audio()))
 
 ### Official Documentation
 - [Batch API Reference](https://docs.speechmatics.com/api-ref/batch/create-a-new-job)
-- [Real-time API Reference](https://docs.speechmatics.com/rt-api-ref)
+- [Realtime API Reference](https://docs.speechmatics.com/rt-api-ref)
 - [Python SDK GitHub](https://github.com/speechmatics/speechmatics-python-sdk)
 
 ---

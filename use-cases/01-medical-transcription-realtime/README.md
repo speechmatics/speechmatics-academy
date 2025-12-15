@@ -2,7 +2,7 @@
 
 **Live transcription for clinical notes, patient interviews, and telemedicine with custom medical vocabulary.**
 
-Supports on-premise deployment for HIPAA compliance.
+Supports on-premises deployment for HIPAA compliance.
 
 ## What You'll Learn
 
@@ -50,7 +50,7 @@ Place your medical recording as `sample.wav` in the `assets/` folder before runn
 ## How It Works
 
 > [!NOTE]
-> This example uses the Real-Time API for live transcription:
+> This example uses the Realtime API for live transcription:
 >
 > 1. **Connect** - Establish WebSocket connection
 > 2. **Stream** - Send audio chunks in real-time
@@ -210,14 +210,14 @@ additional_vocab=[
 
 **Cloud Deployment**: Speechmatics Cloud is HIPAA-compliant. Organizations with a Business Associate Agreement (BAA) can process PHI in the cloud. Contact Speechmatics for BAA arrangements.
 
-**On-Premise Deployment**: For organizations requiring data residency or additional control, set in `.env`:
+**On-Premises Deployment**: For organizations requiring data residency or additional control, set in `.env`:
 ```
 SPEECHMATICS_ONPREMISE_URL=https://speechmatics.yourhospital.local
 ```
 
 **Best Practices:**
 - Ensure BAA is in place before processing PHI in cloud
-- Use on-premise for strict data residency requirements
+- Use on-premises for strict data residency requirements
 - Encrypt data at rest and in transit
 - Never commit audio with PHI to version control
 
@@ -246,7 +246,7 @@ SPEECHMATICS_ONPREMISE_URL=https://speechmatics.yourhospital.local
 
 ## Resources
 
-- [Real-Time API Documentation](https://docs.speechmatics.com/introduction/rt-guide)
+- [Realtime API Documentation](https://docs.speechmatics.com/introduction/rt-guide)
 - [Custom Vocabulary Guide](https://docs.speechmatics.com/features/custom-dictionary)
 - [HIPAA Compliance](https://docs.speechmatics.com/security)
 

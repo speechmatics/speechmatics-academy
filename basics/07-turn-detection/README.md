@@ -377,7 +377,7 @@ pip install pyaudio
 ## Resources
 
 - [Turn Detection Docs](https://docs.speechmatics.com/speech-to-text/realtime/turn-detection)
-- [Real-time API Guide](https://docs.speechmatics.com/introduction/realtime-guide)
+- [Realtime API Guide](https://docs.speechmatics.com/introduction/realtime-guide)
 - [WebSocket API Reference](https://docs.speechmatics.com/rt-api-ref)
 
 ---

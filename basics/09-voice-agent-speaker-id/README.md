@@ -342,7 +342,7 @@ pip install pyaudio
 
 - [Voice SDK Documentation](https://github.com/speechmatics/speechmatics-python-sdk/tree/main/sdk/voice)
 - [Speaker Diarization Guide](https://docs.speechmatics.com/speech-to-text/features/diarization)
-- [Real-time API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
+- [Realtime API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 
 ---
 

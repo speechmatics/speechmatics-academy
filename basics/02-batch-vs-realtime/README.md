@@ -389,7 +389,7 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 ## Resources
 
 - [Batch API Reference](https://docs.speechmatics.com/api-ref/batch/get-the-transcript-for-a-transcription-job)
-- [Real-time API Reference](https://docs.speechmatics.com/rt-api-ref)
+- [Realtime API Reference](https://docs.speechmatics.com/rt-api-ref)
 - [When to Use Which Mode](https://docs.speechmatics.com/speech-to-text/)
 
 ---

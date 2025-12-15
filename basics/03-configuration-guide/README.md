@@ -61,7 +61,7 @@ python main.py
 > The configuration system is flexible - start with defaults and add only what you need.
 
 > [!TIP]
-> **For latency-sensitive applications**, consider using the **Real-time API** (`speechmatics-rt`) instead of batch. Real-time streaming provides sub-second latency with results as you speak, making it ideal for live captioning, voice agents, and interactive applications. See [Batch vs Real-time](../02-batch-vs-realtime/) for a comparison.
+> **For latency-sensitive applications**, consider using the **Realtime API** (`speechmatics-rt`) instead of batch. Real-time streaming provides sub-second latency with results as you speak, making it ideal for live captioning, voice agents, and interactive applications. See [Batch vs Real-time](../02-batch-vs-realtime/) for a comparison.
 
 ## Configuration Options
 
