@@ -310,7 +310,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 
 | Metric | Speechmatics | Deepgram |
 |--------|--------------|----------|
-| **Word Error Rate (WER)** | 4.11% | 4.96% |
+| **Word Error Rate (WER)** | 6.8%| 16.5% |
 | **Medical Keyword Recall** | 96% | - |
 | **Noisy Environments** | Excellent | Standard |
 | **Accent Recognition** | Market-leading | Standard |
