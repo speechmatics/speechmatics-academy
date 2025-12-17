@@ -46,9 +46,9 @@ SYSTEM_PROMPT = AGENT_PROMPT_FILE.read_text() if AGENT_PROMPT_FILE.exists() else
 WEBHOOK_BASE_URL = None
 
 # Speechmatics Voice Agent preset
-# - "low_latency": optimized for fast turn detection
+# - "fast": optimized for fast turn detection
 # - overlay_json: override audio format for Twilio's mulaw 8kHz
-SPEECHMATICS_PRESET = "low_latency"
+SPEECHMATICS_PRESET = "fast"
 
 
 # =============================================================================

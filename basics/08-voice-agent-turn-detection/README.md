@@ -78,16 +78,17 @@ Select a preset from the menu (or press Enter for default), then speak into your
 
 ### Available Presets
 
-The Voice SDK includes 6 optimized presets:
+The Voice SDK includes 7 optimized presets:
 
 | Preset | Mode | Use Case | Silence Trigger | Key Feature |
 |--------|------|----------|-----------------|-------------|
-| **low_latency** | FIXED | Real-time captions | 0.5s | Quick finalization |
-| **conversation_adaptive** | ADAPTIVE | Voice assistants | 1.0s | Adapts to speech patterns |
-| **conversation_smart_turn** | SMART_TURN | Interviews | 1.0s + ML | ML-based prediction |
-| **scribe** | FIXED | Note-taking | 1.2s | Sentence-level segments |
-| **captions** | FIXED | Live captioning | 1.2s | Consistent formatting |
-| **external** | FIXED (2.0s) | Push-to-talk | Manual | Custom control |
+| **fast** | FIXED | Real-time captions | 0.25s | Quick finalization |
+| **fixed** | FIXED | General conversation | 0.5s | Fixed silence threshold |
+| **adaptive** | ADAPTIVE | Voice assistants | 0.7s | Adapts to speech patterns |
+| **smart_turn** | SMART_TURN | Interviews | 0.8s + ML | ML-based prediction |
+| **scribe** | ADAPTIVE | Note-taking | 1.0s | Sentence-level segments |
+| **captions** | FIXED | Live captioning | 0.5s | Consistent formatting |
+| **external** | EXTERNAL | Push-to-talk | Manual | Custom control |
 
 ### Code Walkthrough
 
@@ -97,7 +98,7 @@ The Voice SDK includes 6 optimized presets:
 from speechmatics.voice import VoiceAgentConfigPreset
 
 # Load preset from SDK (includes all optimized settings)
-config = VoiceAgentConfigPreset.load("conversation_adaptive")
+config = VoiceAgentConfigPreset.load("adaptive")
 
 # Preset includes:
 # - end_of_utterance_mode (ADAPTIVE)
@@ -183,26 +184,27 @@ except (AuthenticationError, ValueError) as e:
 ```
 Available Presets:
 ======================================================================
-1. low_latency              - Quick finalization, best for real-time captions
-2. conversation_adaptive    - Adapts to speech patterns, best for voice assistants
-3. conversation_smart_turn  - ML-based turn detection for conversations
-4. scribe                   - Optimized for note-taking and dictation
-5. captions                 - Consistent formatting for live captioning
-6. external                 - Manual turn control (Press ENTER to trigger)
+1. fast                     - Quick finalization, best for real-time captions
+2. fixed                    - Fixed silence threshold, general conversational use
+3. adaptive                 - Adapts to speech patterns, best for voice assistants
+4. smart_turn               - ML-based turn detection for conversations
+5. scribe                   - Optimized for note-taking and dictation
+6. captions                 - Consistent formatting for live captioning
+7. external                 - Manual turn control (Press ENTER to trigger)
 ======================================================================
 
-Select preset number (or press Enter for conversation_adaptive): 2
+Select preset number (or press Enter for adaptive): 3
 ```
 
-### Running - CONVERSATION_ADAPTIVE
+### Running - ADAPTIVE
 
 ```
 ======================================================================
-PRESET: CONVERSATION_ADAPTIVE
+PRESET: ADAPTIVE
 ======================================================================
 Mode: adaptive
 Operating Point: enhanced
-Silence Trigger: 1.0s
+Silence Trigger: 0.7s
 Max Delay: 0.7s
 
 Speak into your microphone. Press Ctrl+C to stop.
@@ -327,20 +329,20 @@ Stopped. Captured 3 segments.
 
 ```python
 # Quick finalization for real-time captions
-config = VoiceAgentConfigPreset.load("low_latency")
+config = VoiceAgentConfigPreset.load("fast")
 
 # Note-taking with sentence-level segments
 config = VoiceAgentConfigPreset.load("scribe")
 
 # ML-based turn detection for interviews
-config = VoiceAgentConfigPreset.load("conversation_smart_turn")
+config = VoiceAgentConfigPreset.load("smart_turn")
 ```
 
 ### Custom Overlay on Presets
 
 ```python
 # Start with a preset and customize
-base_config = VoiceAgentConfigPreset.load("conversation_adaptive")
+base_config = VoiceAgentConfigPreset.load("adaptive")
 
 custom_config = VoiceAgentConfig(
     language="es",  # Change to Spanish
@@ -466,9 +468,10 @@ Sentence-based segmentation is perfect for:
 
 | Preset | Threshold | Effect | Best For |
 |--------|-----------|--------|----------|
-| LOW_LATENCY | 0.5s | May split mid-sentence | Fast speakers, captions |
-| CONVERSATION_ADAPTIVE | 1.0s | Balances speed and accuracy | General conversation |
-| SCRIBE | 1.2s | Waits for complete thoughts | Dictation, notes |
+| FAST | 0.25s | May split mid-sentence | Fast speakers, captions |
+| FIXED | 0.5s | Consistent timing | General conversation |
+| ADAPTIVE | 0.7s | Balances speed and accuracy | Voice assistants |
+| SCRIBE | 1.0s | Waits for complete thoughts | Dictation, notes |
 
 ### VAD (Voice Activity Detection)
 
@@ -543,8 +546,8 @@ pip install speechmatics-voice[smart]
 
 **"Too many short segments with FIXED mode"**
 - Speaker may have slow speech or frequent pauses
-- Try **CONVERSATION_ADAPTIVE** instead of LOW_LATENCY
-- Or use **SCRIBE** for longer silence threshold (1.2s)
+- Try **ADAPTIVE** instead of FAST
+- Or use **SCRIBE** for longer silence threshold (1.0s)
 
 **"Not detecting turn endings"**
 - Ensure you're pausing for the silence threshold duration

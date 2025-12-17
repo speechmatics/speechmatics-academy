@@ -72,7 +72,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Smart Turn (ML)** | Not available | `EndOfUtteranceMode.SMART_TURN` | Uses ML model to predict semantic turn completions |
 | **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.finalize(end_of_turn=True)` | Application controls turn endings (for Pipecat/LiveKit integration) |
 | **Silence Trigger** | Via settings | `end_of_utterance_silence_trigger` | Reference duration (0-2s); ADAPTIVE mode applies multipliers based on context |
-| **Presets** | Not available | `preset="low_latency"`, `"conversation_adaptive"`, `"conversation_smart_turn"`, `"scribe"`, `"captions"`, `"external"` | Ready-to-use configurations optimized for specific use cases |
+| **Presets** | Not available | `preset="fast"`, `"fixed"`, `"adaptive"`, `"smart_turn"`, `"scribe"`, `"captions"`, `"external"` | Ready-to-use configurations optimized for specific use cases |
 
 **Server Message Types:**
 | Deepgram Event | Speechmatics Event | Package | Notes |

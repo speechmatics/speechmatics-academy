@@ -160,9 +160,10 @@ def show_presets():
     print("=" * 70)
 
     descriptions = {
-        "low_latency": "Quick finalization, best for real-time captions",
-        "conversation_adaptive": "Adapts to speech patterns, best for voice assistants",
-        "conversation_smart_turn": "ML-based turn detection for conversations",
+        "fast": "Quick finalization, best for real-time captions",
+        "fixed": "Fixed silence threshold, general conversational use",
+        "adaptive": "Adapts to speech patterns, best for voice assistants",
+        "smart_turn": "ML-based turn detection for conversations",
         "scribe": "Optimized for note-taking and dictation",
         "captions": "Consistent formatting for live captioning",
         "external": "Manual turn control for custom logic (Press ENTER to trigger EOD)",
@@ -192,21 +193,21 @@ async def main():
     print()
 
     try:
-        choice = input("Select preset number (or press Enter for conversation_adaptive): ").strip()
+        choice = input("Select preset number (or press Enter for adaptive): ").strip()
 
         if not choice:
-            preset_name = "conversation_adaptive"
+            preset_name = "adaptive"
         else:
             preset_idx = int(choice) - 1
             if 0 <= preset_idx < len(available_presets):
                 preset_name = available_presets[preset_idx]
             else:
-                print(f"Invalid choice. Using conversation_adaptive.")
-                preset_name = "conversation_adaptive"
+                print(f"Invalid choice. Using adaptive.")
+                preset_name = "adaptive"
 
     except (ValueError, KeyboardInterrupt):
-        print("\nUsing default: conversation_adaptive")
-        preset_name = "conversation_adaptive"
+        print("\nUsing default: adaptive")
+        preset_name = "adaptive"
 
     print()
 

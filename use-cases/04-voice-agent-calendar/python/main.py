@@ -63,7 +63,7 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
     # Language Model: OpenAI with function calling
-    llm = openai.LLM(model="gpt-5.1")
+    llm = openai.LLM(model="gpt-4o")
 
     # Text-to-Speech: Speechmatics
     tts = speechmatics.TTS(voice="megan")
