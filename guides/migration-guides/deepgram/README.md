@@ -69,7 +69,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 |---------|----------|--------------|-------|
 | **Fixed Delay** | Via settings | `EndOfUtteranceMode.FIXED` | Waits exactly the configured silence duration every time |
 | **Adaptive Delay** | Not available | `EndOfUtteranceMode.ADAPTIVE` | Scales wait time based on speech pace, filler words (um/uh), and punctuation |
-| **Smart Turn (ML)** | Not available | `EndOfUtteranceMode.SMART_TURN` | Uses ML model to predict semantic turn completions |
+| **Smart Turn (ML)** | Not available | `smart_turn_config=SmartTurnConfig(enabled=True)` | Uses ML model to predict semantic turn completions (with ADAPTIVE mode) |
 | **External Control** | Not available | `EndOfUtteranceMode.EXTERNAL` + `client.finalize(end_of_turn=True)` | Application controls turn endings (for Pipecat/LiveKit integration) |
 | **Silence Trigger** | Via settings | `end_of_utterance_silence_trigger` | Reference duration (0-2s); ADAPTIVE mode applies multipliers based on context |
 | **Presets** | Not available | `preset="fast"`, `"fixed"`, `"adaptive"`, `"smart_turn"`, `"scribe"`, `"captions"`, `"external"` | Ready-to-use configurations optimized for specific use cases |
@@ -685,7 +685,7 @@ config = {
 ### Speechmatics Only
 - Phonetic hints (`sounds_like` in `additional_vocab`)
 - Real-time translation (`TranslationConfig`)
-- Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, SMART_TURN, and EXTERNAL modes
+- Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, and EXTERNAL modes, plus Smart Turn ML
 - Comprehensive audio intelligence (sentiment + topics + summary together)
 - More granular speaker diarization controls (`SpeakerDiarizationConfig`)
 - Known speaker pre-registration (`speaker_diarization_config.speakers`)

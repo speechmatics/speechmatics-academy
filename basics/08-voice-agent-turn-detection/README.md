@@ -7,7 +7,7 @@ Learn how to use optimized preset configurations for different conversational AI
 ## What You'll Learn
 
 - How to use official Voice SDK presets
-- Different turn detection modes (FIXED, ADAPTIVE, SMART_TURN, EXTERNAL)
+- Different turn detection modes (FIXED, ADAPTIVE, EXTERNAL) and Smart Turn ML
 - How silence thresholds affect turn endings
 - Sentence-based vs turn-based segmentation
 - Real-time event handling with the Voice Agent client
@@ -47,7 +47,7 @@ pip install -r requirements.txt
 ```
 
 > [!IMPORTANT]
-> The requirements include ML dependencies for SMART_TURN mode (certifi, onnxruntime, transformers).
+> The requirements include ML dependencies for Smart Turn detection (certifi, onnxruntime, transformers).
 
 **Step 3: Configure API key**
 
@@ -85,8 +85,8 @@ The Voice SDK includes 7 optimized presets:
 | **fast** | FIXED | Real-time captions | 0.25s | Quick finalization |
 | **fixed** | FIXED | General conversation | 0.5s | Fixed silence threshold |
 | **adaptive** | ADAPTIVE | Voice assistants | 0.7s | Adapts to speech patterns |
-| **smart_turn** | SMART_TURN | Interviews | 0.8s + ML | ML-based prediction |
-| **scribe** | ADAPTIVE | Note-taking | 1.0s | Sentence-level segments |
+| **smart_turn** | ADAPTIVE | Interviews | 0.8s | ML-based prediction (Smart Turn enabled) |
+| **scribe** | ADAPTIVE | Note-taking | 1.0s | Sentence-level segments (Smart Turn enabled) |
 | **captions** | FIXED | Live captioning | 0.5s | Consistent formatting |
 | **external** | EXTERNAL | Push-to-talk | Manual | Custom control |
 
@@ -307,7 +307,7 @@ Stopped. Captured 3 segments.
 **Turn Detection Modes:**
 - **FIXED**: Uniform silence threshold for all speakers - always waits the exact configured duration
 - **ADAPTIVE**: Responds to speech characteristics including pace, pauses, and filler words - may finalize faster or slower than the reference value
-- **SMART_TURN**: Employs machine learning to predict semantic turn completions - builds on an open-source turn detection model
+- **ADAPTIVE + Smart Turn**: Uses ADAPTIVE mode with ML model to predict semantic turn completions - builds on an open-source turn detection model
 - **EXTERNAL**: Manual control via Enter key (calls `client.force_end_of_utterance()`) - suitable for framework integrations like Pipecat/LiveKit
 
 **Segmentation Strategies:**
@@ -386,9 +386,9 @@ enter_task = asyncio.create_task(check_for_enter_key(client))
 > [!IMPORTANT]
 > The `end_of_utterance_silence_trigger` setting only applies to FIXED mode. Using FIXED mode ensures the SDK properly handles the server's END_OF_UTTERANCE response. The server allows values between 0 and 2 seconds. Setting to 0 disables automatic detection entirely.
 
-### Enable SMART_TURN Mode
+### Enable Smart Turn Detection
 
-SMART_TURN dependencies are already included in `requirements.txt`. If installing manually:
+Smart Turn dependencies are already included in `requirements.txt`. If installing manually:
 
 ```bash
 # Install ML dependencies individually
@@ -489,7 +489,7 @@ The Voice SDK incorporates Silero VAD for detecting speech presence:
 |------|----------|--------------|
 | **FIXED** | Predictable timing, captions | Consistently waits the exact silence trigger duration |
 | **ADAPTIVE** | Voice assistants, conversations | Dynamically modifies wait time based on speech patterns (pace, filler words) |
-| **SMART_TURN** | Interviews, complex conversations | Leverages ML model to identify semantic turn boundaries |
+| **ADAPTIVE + Smart Turn** | Interviews, complex conversations | ADAPTIVE mode enhanced with ML model to identify semantic turn boundaries |
 | **EXTERNAL** | Pipecat, LiveKit, custom VAD | Application code controls turn endings via `force_end_of_utterance()` |
 
 > [!NOTE]
@@ -529,7 +529,7 @@ sudo apt-get install portaudio19-dev
 pip install pyaudio
 ```
 
-**"SMART_TURN not working"**
+**"Smart Turn not working"**
 ```bash
 # Dependencies should be installed from requirements.txt
 # If you skipped them, install manually:
