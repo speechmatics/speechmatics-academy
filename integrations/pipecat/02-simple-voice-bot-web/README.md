@@ -22,8 +22,9 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 - How to integrate Speechmatics STT with Pipecat AI
 - Building a browser-based voice assistant with WebRTC
 - Using the Pipecat runner framework for web deployment
-- Voice Activity Detection (VAD) for natural conversations
+- Turn detection modes for natural conversations
 - Filtering background audio and bot echo using speaker diarization
+- Real-time transcripts in the browser using RTVI
 
 ## Prerequisites
 
@@ -91,6 +92,35 @@ wsl --install
 
 **Step 2: Set up in WSL2**
 
+<details>
+<summary><strong>Option A: Using uv (Recommended)</strong></summary>
+
+```bash
+# Copy example to WSL native filesystem (avoids path issues)
+# Replace YOUR_PATH with your actual Windows path to speechmatics-academy
+mkdir -p ~/projects
+cp -r /mnt/c/YOUR_PATH/integrations/pipecat/02-simple-voice-bot-web ~/projects/
+cd ~/projects/02-simple-voice-bot-web
+
+# Install uv if not already installed
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Sync dependencies (uses pyproject.toml)
+uv sync
+
+# Copy and configure your .env file
+cp /mnt/c/YOUR_PATH/02-simple-voice-bot-web/.env.example .env
+nano .env  # Add your API keys, then Ctrl+O to save, Ctrl+X to exit
+
+# Run
+uv run python python/main.py
+```
+
+</details>
+
+<details>
+<summary><strong>Option B: Using pip</strong></summary>
+
 ```bash
 # Copy example to WSL native filesystem (avoids path issues)
 # Replace YOUR_PATH with your actual Windows path to speechmatics-academy
@@ -112,6 +142,8 @@ nano ../.env  # Add your API keys, then Ctrl+O to save, Ctrl+X to exit
 python main.py
 ```
 
+</details>
+
 **Step 3: Connect via browser**
 
 Open [http://localhost:7860/client](http://localhost:7860/client) in your Windows browser and click **Connect**.
@@ -126,9 +158,10 @@ flowchart LR
 
     subgraph Server
         WEBRTC[WebRTC Transport]
-        STT[Speechmatics STT<br/>focus_speakers S1]
+        STT[Speechmatics STT<br/>ADAPTIVE mode]
         UA[User Aggregator]
         LLM[OpenAI LLM]
+        RTVI[RTVI Processor]
         AA[Assistant Aggregator]
         TTS[ElevenLabs TTS]
     end
@@ -137,7 +170,9 @@ flowchart LR
     WEBRTC --> STT
     STT -->|S1 only| UA
     UA --> LLM
-    LLM --> TTS
+    LLM --> RTVI
+    RTVI -->|transcripts| CLIENT
+    RTVI --> TTS
     TTS --> WEBRTC
     TTS --> AA
 ```
@@ -147,11 +182,12 @@ flowchart LR
 ### Pipeline Components
 
 1. **WebRTC Transport** - Handles browser audio via WebRTC peer connection
-2. **Speechmatics STT** - Transcribes speech to text in real-time with diarization
+2. **Speechmatics STT** - Transcribes speech to text in real-time with diarization and turn detection
 3. **User Aggregator** - Builds conversation context for the LLM
 4. **OpenAI LLM** - Generates intelligent responses
-5. **ElevenLabs TTS** - Converts text responses to natural speech
-6. **Assistant Aggregator** - Tracks assistant responses for context
+5. **RTVI Processor** - Sends real-time transcripts and bot state to the browser UI
+6. **ElevenLabs TTS** - Converts text responses to natural speech
+7. **Assistant Aggregator** - Tracks assistant responses for context
 
 ### Key Features
 
@@ -159,7 +195,8 @@ flowchart LR
 |---------|-------------|
 | **Browser-Based** | Works from any browser - no local audio setup needed |
 | **WebRTC** | Low-latency peer-to-peer audio streaming |
-| **VAD** | Silero Voice Activity Detection for natural turn-taking |
+| **ADAPTIVE Turn Detection** | Speechmatics handles turn detection - no external VAD needed |
+| **Live Transcripts** | RTVI sends real-time transcripts to the browser UI |
 | **Speaker Focus** | Uses `focus_speakers=["S1"]` to ignore background audio |
 | **Diarization** | Speaker identification distinguishes user from others |
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
@@ -168,31 +205,36 @@ flowchart LR
 ### Code Highlights
 
 ```python
-# Speechmatics STT with speaker focus and diarization
+# Speechmatics STT with ADAPTIVE turn detection and diarization
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    enable_diarization=True,
-    focus_speakers=["S1"],
-    end_of_utterance_silence_trigger=0.5,
-    speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-    speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+    params=SpeechmaticsSTTService.InputParams(
+        enable_speaker_diarization=True,
+        focus_speakers=["S1"],
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
+        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+    ),
 )
 
-# WebRTC transport with VAD
+# RTVI for sending transcripts to the browser UI
+rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
+
+# WebRTC transport (no VAD needed with ADAPTIVE mode)
 transport_params = {
     "webrtc": lambda: TransportParams(
         audio_in_enabled=True,
         audio_out_enabled=True,
-        vad_analyzer=SileroVADAnalyzer(params=VADParams(min_volume=0.6)),
     ),
 }
 
-# Pipeline: browser -> STT -> LLM -> TTS -> browser
+# Pipeline: browser -> STT -> LLM -> RTVI -> TTS -> browser
 pipeline = Pipeline([
     transport.input(),
     stt,
     context_aggregator.user(),
     llm,
+    rtvi,
     tts,
     transport.output(),
     context_aggregator.assistant(),
@@ -202,7 +244,6 @@ pipeline = Pipeline([
 ## Expected Output
 
 ```
-INFO     | Loading Silero VAD model...
 INFO     | Loading pipeline components...
 INFO     | All components loaded!
 INFO     | Started server process
@@ -211,6 +252,7 @@ INFO     | Uvicorn running on http://0.0.0.0:7860
 # After clicking Connect in browser:
 INFO     | Client connected
 INFO     | Starting bot
+INFO     | RTVI client ready
 
 Roxie: "Hey there! Roxie here, ready to make you laugh. What's on your mind?"
 
@@ -240,6 +282,38 @@ Edit `assets/agent.md` to change the bot's personality and capabilities. The def
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
+### Turn Detection Modes
+
+Speechmatics provides three turn detection modes that control how the system determines when a user has finished speaking:
+
+| Mode | Description | External VAD |
+|------|-------------|--------------|
+| `EXTERNAL` | Default. Relies on Pipecat's VAD (e.g., Silero) for turn detection | Required |
+| `ADAPTIVE` | Speechmatics handles turn detection using silence-based detection | Must be disabled |
+| `SMART_TURN` | Speechmatics uses ML-based smart turn detection | Must be disabled |
+
+> [!IMPORTANT]
+> **VAD Compatibility:** When using `ADAPTIVE` or `SMART_TURN` mode, you must disable Pipecat's external VAD (e.g., Silero). If both are enabled, you'll see warnings in the logs when an external VAD call is received. This example uses `ADAPTIVE` mode without external VAD.
+
+```python
+# ADAPTIVE mode - Speechmatics handles turn detection
+stt = SpeechmaticsSTTService(
+    api_key=os.getenv("SPEECHMATICS_API_KEY"),
+    params=SpeechmaticsSTTService.InputParams(
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
+    ),
+)
+
+# No VAD in transport params when using ADAPTIVE/SMART_TURN
+transport_params = {
+    "webrtc": lambda: TransportParams(
+        audio_in_enabled=True,
+        audio_out_enabled=True,
+        # vad_analyzer=...  # Don't set this with ADAPTIVE/SMART_TURN
+    ),
+}
+```
+
 ### Speaker Diarization & Background Filtering
 
 The STT is configured to identify speakers and filter background audio:
@@ -247,27 +321,21 @@ The STT is configured to identify speakers and filter background audio:
 ```python
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    enable_diarization=True,
-    speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-    speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-    focus_speakers=["S1"],
+    params=SpeechmaticsSTTService.InputParams(
+        enable_speaker_diarization=True,
+        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+        focus_speakers=["S1"],
+    ),
 )
 ```
 
 | Parameter | Purpose |
 |-----------|---------|
-| `enable_diarization` | Identify different speakers in the audio |
+| `enable_speaker_diarization` | Identify different speakers in the audio |
 | `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
 | `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
 | `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
-
-### Adjust VAD Sensitivity
-
-```python
-vad_analyzer=SileroVADAnalyzer(
-    params=VADParams(min_volume=0.6)  # Lower = more sensitive
-)
-```
 
 ## Troubleshooting
 

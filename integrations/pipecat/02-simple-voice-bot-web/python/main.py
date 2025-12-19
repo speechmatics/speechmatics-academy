@@ -19,17 +19,14 @@ from pathlib import Path
 from dotenv import load_dotenv
 from loguru import logger
 
-logger.info("Loading Silero VAD model...")
-from pipecat.audio.vad.silero import SileroVADAnalyzer
-
 logger.info("Loading pipeline components...")
-from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
+from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIObserver, RTVIProcessor
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
@@ -70,11 +67,13 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     # Speech-to-Text: Speechmatics with diarization
     stt = SpeechmaticsSTTService(
         api_key=os.getenv("SPEECHMATICS_API_KEY"),
-        enable_diarization=True,
-        focus_speakers=["S1"],
-        end_of_utterance_silence_trigger=0.5,
-        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+        params=SpeechmaticsSTTService.InputParams(
+            enable_speaker_diarization=True,
+            focus_speakers=["S1"],
+            turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
+            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+            speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+        ),
     )
 
     # Text-to-Speech: ElevenLabs
@@ -102,6 +101,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     context = LLMContext(messages)
     context_aggregator = LLMContextAggregatorPair(context)
 
+    # RTVI for sending transcripts to the UI
+    rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
+
     # Build Pipeline
     pipeline = Pipeline(
         [
@@ -109,6 +111,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
             stt,
             context_aggregator.user(),
             llm,
+            rtvi,
             tts,
             transport.output(),
             context_aggregator.assistant(),
@@ -120,7 +123,13 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         params=PipelineParams(
             enable_metrics=True,
         ),
+        observers=[RTVIObserver(rtvi)],
     )
+
+    @rtvi.event_handler("on_client_ready")
+    async def on_client_ready(rtvi):
+        logger.info("RTVI client ready")
+        await rtvi.set_bot_ready()
 
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
@@ -140,11 +149,11 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
+    # No VAD needed - Speechmatics ADAPTIVE mode handles turn detection
     transport_params = {
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(min_volume=0.6)),
         ),
     }
 

@@ -1,0 +1,19 @@
+[project]
+name = "simple"
+version = "0.1.0"
+description = "Simple Pipecat Agent"
+readme = "README.md"
+requires-python = ">=3.12,<=3.13"
+
+dependencies = [
+    "pipecat-ai[daily,elevenlabs,local,local-smart-turn-v3,openai,runner,silero,speechmatics,webrtc,websocket]>=0.0.98",
+    "python-dotenv>=1.2.1",
+]
+
+[tool.uv.sources]
+pipecat-ai = { git = "https://github.com/speechmatics/pipecat.git", branch = "speechmatics-stt" }
+
+[tool.uv]
+override-dependencies = [
+    "pipecat-ai[daily,elevenlabs,local,local-smart-turn-v3,openai,runner,silero,speechmatics,webrtc,websocket]>=0.0.0",
+]
