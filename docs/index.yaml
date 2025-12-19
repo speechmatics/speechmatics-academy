@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2025-12-02"
-total_examples: 19
+last_updated: "2025-12-19"
+total_examples: 20
 
 # Example Categories
 categories:
@@ -365,6 +365,23 @@ examples:
     tags: ["voice-agent", "calendar", "booking", "receptionist", "function-calling"]
     last_updated: "2025-12-02"
     estimated_time: "30 minutes"
+
+  - id: "santa-voice-agent"
+    title: "Santa Voice Agent"
+    description: "Magical voice agent where adults can call Santa Claus using LiveKit, Speechmatics STT, ElevenLabs TTS, and Twilio SIP telephony."
+    category: "use-cases"
+    difficulty: "advanced"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+      - "custom-vocabulary"
+      - "realtime-transcription"
+    integrations: ["livekit", "twilio", "elevenlabs"]
+    path: "use-cases/05-santa-voice-agent"
+    readme: "use-cases/05-santa-voice-agent/README.md"
+    tags: ["voice-agent", "santa", "christmas", "elevenlabs", "tts", "character-voice", "telephony"]
+    last_updated: "2025-12-19"
+    estimated_time: "20 minutes"
 
 # Integration Frameworks
 integration_frameworks:
