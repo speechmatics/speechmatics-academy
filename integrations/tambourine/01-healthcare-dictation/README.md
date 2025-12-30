@@ -3,7 +3,7 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../logo/icon.png">
   <source media="(prefers-color-scheme: light)" srcset="../logo/icon.png">
-  <img alt="Tambourine" src="../logo/icon.png" width="300">
+  <img alt="Tambourine" src="../logo/icon.png" width="80">
 </picture>
 
 # Healthcare Medical Dictation with Tambourine
