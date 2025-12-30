@@ -200,6 +200,7 @@ Third-party framework and service integrations.
 | <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Simple Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/) | Browser-based WebRTC, VAD, diarization, focus speakers, passive filtering, LLM, TTS | Python |
 | <img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"> | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | REST API, outbound calls, Media Streams, Speechmatics STT, ElevenLabs TTS | Python |
 | <div align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vapi/logo/vapi-dark.png"><img alt="VAPI" src="integrations/vapi/logo/vapi-dark.png" height="50"></picture></div> | [Voice Assistant](integrations/vapi/01-voice-assistant/) | Voice AI platform, Speechmatics STT, diarization, custom vocabulary, LLM, TTS | Python |
+| <div align="center"><img src="integrations/tambourine/logo/icon.png" alt="Tambourine" height="50"></div> | [Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/) | Desktop dictation, medical terminology, LLM formatting, clinical documentation | Config |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vercel/logo/vercel-logotype-dark.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vercel/logo/vercel-logotype-light.png"><img alt="Vercel AI" src="integrations/vercel/logo/vercel-logotype-light.png" height="20"></picture> | Coming Soon | Vercel AI SDK integration | TypeScript |
 
 [Browse all integrations](integrations/)
@@ -283,6 +284,7 @@ Find examples for the SDK package you installed:
 | **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Simple Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/) | [Pipecat Docs](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) | **Available** |
 | **Twilio** | [Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/) | [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams) | **Available** |
 | **VAPI** | [Voice Assistant](integrations/vapi/01-voice-assistant/) | [docs.vapi.ai](https://docs.vapi.ai/) | **Available** |
+| **Tambourine** | [Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/) | [GitHub](https://github.com/nicobailey/tambourine-voice) | **Available** |
 
 ### By Language
 
@@ -297,7 +299,7 @@ Find examples for the SDK package you installed:
 
 | Difficulty | Examples |
 |------------|----------|
-| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/) |
+| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Tambourine Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Medical Transcription](use-cases/01-medical-transcription-realtime/) |
 | **Advanced** | [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/) |
 

@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2025-12-19"
-total_examples: 20
+last_updated: "2025-12-30"
+total_examples: 21
 
 # Example Categories
 categories:
@@ -298,6 +298,22 @@ examples:
     last_updated: "2025-11-30"
     estimated_time: "15 minutes"
 
+  - id: "tambourine-healthcare-dictation"
+    title: "Tambourine Healthcare Dictation"
+    description: "AI-powered medical dictation with real-time transcription, intelligent formatting, and clinical terminology support using the Tambourine desktop app."
+    category: "integrations"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "turn-detection"
+    integrations: ["tambourine"]
+    path: "integrations/tambourine/01-healthcare-dictation"
+    readme: "integrations/tambourine/01-healthcare-dictation/README.md"
+    tags: ["tambourine", "dictation", "healthcare", "medical", "desktop-app", "pipecat"]
+    last_updated: "2025-12-30"
+    estimated_time: "15 minutes"
+
   # === USE CASES ===
 
   - id: "medical-transcription-realtime"
@@ -391,6 +407,9 @@ integration_frameworks:
   - id: "pipecat"
     title: "Pipecat AI"
     url: "https://github.com/pipecat-ai/pipecat"
+  - id: "tambourine"
+    title: "Tambourine Voice"
+    url: "https://github.com/nicobailey/tambourine-voice"
   - id: "twilio"
     title: "Twilio"
     url: "https://www.twilio.com"
