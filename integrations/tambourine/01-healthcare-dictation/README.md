@@ -328,8 +328,8 @@ Configure hotkeys in Tambourine Settings:
 | Action | Default Hotkey | Recommended for Dictation |
 |--------|----------------|---------------------------|
 | Toggle Recording | `Ctrl+Alt+Space` | Keep default |
-| Hold-to-Record | `Ctrl+Alt+`` ` | Useful for quick notes |
-| Paste Last | `Ctrl+Alt+.` | Re-insert previous transcription |
+| Hold-to-Record | `Ctrl+Alt+Backquote` | Useful for quick notes |
+| Paste Last | `Ctrl+Alt+Period` | Re-insert previous transcription |
 
 > [!NOTE]
 > If the default hotkeys conflict with other applications, remap them in Settings > Hotkeys.
