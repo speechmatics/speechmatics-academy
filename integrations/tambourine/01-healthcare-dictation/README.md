@@ -31,11 +31,11 @@ Tambourine is an open-source desktop dictation app that uses Speechmatics for ac
 
 ### Step 1: Install Tambourine
 
-Download the latest release from [github.com/nicobailey/tambourine-voice](https://github.com/nicobailey/tambourine-voice/releases).
+Download the latest release from [github.com/kstonekuan/tambourine-voice](https://github.com/kstonekuan/tambourine-voice/releases).
 
 Or build from source:
 ```bash
-git clone https://github.com/nicobailey/tambourine-voice
+git clone https://github.com/kstonekuan/tambourine-voice
 cd tambourine-voice
 ```
 
@@ -368,7 +368,7 @@ Configure hotkeys in Tambourine Settings:
 
 ## Resources
 
-- [Tambourine GitHub](https://github.com/nicobailey/tambourine-voice)
+- [Tambourine GitHub](https://github.com/kstonekuan/tambourine-voice)
 - [Speechmatics Documentation](https://docs.speechmatics.com/)
 - [Speechmatics Portal](https://portal.speechmatics.com/)
 
