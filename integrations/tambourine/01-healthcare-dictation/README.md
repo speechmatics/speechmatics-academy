@@ -31,7 +31,7 @@ Tambourine is an open-source desktop dictation app that uses Speechmatics for ac
 
 ### Step 1: Install Tambourine
 
-Download the latest release from [github.com/kstonekuan/tambourine-voice](https://github.com/kstonekuan/tambourine-voice/releases).
+Download the latest release from [github.com/kstonekuan/tambourine-voice](https://github.com/kstonekuan/tambourine-voice).
 
 Or build from source:
 ```bash
