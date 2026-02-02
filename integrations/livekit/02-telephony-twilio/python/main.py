@@ -49,7 +49,9 @@ async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
     # Speech-to-Text: Speechmatics
-    stt = speechmatics.STT()
+    stt = speechmatics.STT(
+        turn_detection_mode=speechmatics.TurnDetectionMode.EXTERNAL,
+    )
 
     # Language Model: OpenAI
     llm = openai.LLM(model="gpt-4o-mini")
@@ -62,12 +64,7 @@ async def entrypoint(ctx: agents.JobContext):
     vad = silero.VAD.load()
 
     # Create Agent Session
-    session = AgentSession(
-        stt=stt,
-        llm=llm,
-        tts=tts,
-        vad=vad,
-    )
+    session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad, turn_detection="vad")
 
     # Start Session
     await session.start(
@@ -75,6 +72,12 @@ async def entrypoint(ctx: agents.JobContext):
         agent=VoiceAssistant(),
         room_input_options=RoomInputOptions(),
     )
+
+    # Trigger end of turn from the VAD
+    @session.on("user_state_changed")
+    def on_user_state(state):
+        if state.new_state == "listening" and state.old_state == "speaking":
+            stt.finalize()
 
     # Send Initial Greeting
     await session.generate_reply(

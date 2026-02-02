@@ -40,6 +40,7 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 **Step 1: Create and activate a virtual environment**
 
 **On Windows:**
+
 ```bash
 cd python
 python -m venv venv
@@ -47,6 +48,7 @@ venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
+
 ```bash
 cd python
 python3 -m venv venv
@@ -67,6 +69,7 @@ pip install -r requirements.txt
 The [LiveKit CLI](https://docs.livekit.io/home/cli/) simplifies credential management:
 
 **Install the CLI:**
+
 ```bash
 # macOS
 brew install livekit-cli
@@ -79,12 +82,14 @@ curl -sSL https://get.livekit.io/cli | bash
 ```
 
 **Authenticate and load credentials:**
+
 ```bash
 lk cloud auth        # Opens browser to authenticate with LiveKit Cloud
 lk app env -w        # Writes LiveKit credentials to .env.local
 ```
 
 Then add your other API keys to `.env.local`:
+
 ```
 SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
@@ -122,11 +127,13 @@ LIVEKIT_API_SECRET=your_livekit_api_secret_here
 **Step 4: Run the agent**
 
 For local development with console mode:
+
 ```bash
 python main.py console
 ```
 
 For development server (connects to LiveKit Cloud):
+
 ```bash
 python main.py dev
 ```
@@ -170,15 +177,15 @@ flowchart LR
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **WebRTC** | Real-time audio streaming via LiveKit infrastructure |
-| **Diarization** | Speaker identification to distinguish different speakers |
-| **Focus Speakers** | Filter to only respond to the primary user (S1) |
+| Feature               | Description                                                       |
+| --------------------- | ----------------------------------------------------------------- |
+| **WebRTC**            | Real-time audio streaming via LiveKit infrastructure              |
+| **Diarization**       | Speaker identification to distinguish different speakers          |
+| **Focus Speakers**    | Filter to only respond to the primary user (S1)                   |
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
-| **VAD** | Silero Voice Activity Detection for natural turn-taking |
-| **Auto Greeting** | Agent greets user when session starts |
-| **Cloud Ready** | Deploy to LiveKit Cloud for production |
+| **VAD**               | Silero Voice Activity Detection for natural turn-taking           |
+| **Auto Greeting**     | Agent greets user when session starts                             |
+| **Cloud Ready**       | Deploy to LiveKit Cloud for production                            |
 
 ### Code Highlights
 
@@ -195,6 +202,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=speechmatics.STT(
+            turn_detection_mode=speechmatics.TurnDetectionMode.EXTERNAL,
             enable_diarization=True,
             speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
             speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
@@ -203,9 +211,16 @@ async def entrypoint(ctx: agents.JobContext):
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM"),
         vad=silero.VAD.load(),
+        turn_detection="vad"
     )
 
     await session.start(room=ctx.room, agent=VoiceAssistant())
+
+    @session.on("user_state_changed")
+    def on_user_state(state):
+        if state.new_state == "listening" and state.old_state == "speaking":
+            session.stt.finalize()
+
     await session.generate_reply(instructions="Say hello...")
 ```
 
@@ -251,35 +266,44 @@ The STT is configured to identify speakers and filter background audio:
 
 ```python
 stt = speechmatics.STT(
+    turn_detection_mode=speechmatics.TurnDetectionMode.EXTERNAL,
     enable_diarization=True,
     speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
     speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     focus_speakers=["S1"],
 )
+
+@session.on("user_state_changed")
+def on_user_state(state):
+    if state.new_state == "listening" and state.old_state == "speaking":
+        stt.finalize()
 ```
 
-| Parameter | Purpose |
-|-----------|---------|
-| `enable_diarization` | Identify different speakers in the audio |
-| `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
+| Parameter                | Purpose                                                        |
+| ------------------------ | -------------------------------------------------------------- |
+| `turn_detection_mode`    | Use external turn detection (VAD) with Silero VAD              |
+| `enable_diarization`     | Identify different speakers in the audio                       |
+| `speaker_active_format`  | Format for the focused speaker: `<S1>Hello</S1>`               |
 | `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
-| `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
+| `focus_speakers`         | Only treat S1 (first speaker) as active; others are passive    |
 
 **How it works:**
+
 1. The first person to speak is assigned `S1` (the primary user)
 2. Other speakers (TV, radio, people nearby) are marked as passive
 3. The agent prompt (`assets/agent.md`) instructs the LLM to ignore `<PASSIVE>` content
 4. In multi-speaker scenarios, Roxie acts as an active listener and only joins when invited
+5. Silero VAD will emit a `user_state_changed` event and this is then used to finalize the current turn
 
 This prevents the assistant from responding to background conversations or media playing nearby.
 
 ## Running Modes
 
-| Mode | Command | Description |
-|------|---------|-------------|
-| **Console** | `python main.py console` | Local testing with microphone |
-| **Dev** | `python main.py dev` | Connects to LiveKit Cloud for testing |
-| **Production** | `python main.py start` | Production deployment |
+| Mode           | Command                  | Description                           |
+| -------------- | ------------------------ | ------------------------------------- |
+| **Console**    | `python main.py console` | Local testing with microphone         |
+| **Dev**        | `python main.py dev`     | Connects to LiveKit Cloud for testing |
+| **Production** | `python main.py start`   | Production deployment                 |
 
 ## Testing with the Agents Playground
 
@@ -313,23 +337,28 @@ Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in yo
 ## Troubleshooting
 
 **Exception on Ctrl+C (Windows)**
+
 - You may see a `KeyboardInterrupt` exception from the threading module when stopping the agent
 - This is a cosmetic issue in the LiveKit Agents CLI on Windows
 - The agent stops correctly despite the error message
 
 **Error: "Invalid API key"**
+
 - Verify all API keys in your `.env` file
 - Check each service's portal for key validity
 
 **Agent doesn't connect**
+
 - Check `LIVEKIT_URL`, `LIVEKIT_API_KEY`, and `LIVEKIT_API_SECRET`
 - Verify your LiveKit Cloud project is active
 
 **No audio input detected**
+
 - Check your microphone permissions in the browser
 - Ensure the LiveKit room is properly connected
 
 **Agent doesn't respond**
+
 - Check OpenAI API key is valid
 - Verify you have API credits available
 
@@ -351,6 +380,7 @@ Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in yo
 ## Feedback
 
 Help us improve this guide:
+
 - Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
 - Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
 

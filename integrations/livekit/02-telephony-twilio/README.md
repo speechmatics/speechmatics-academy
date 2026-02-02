@@ -38,6 +38,7 @@ A complete voice assistant that handles inbound phone calls using LiveKit's SIP 
 **Step 1: Create and activate a virtual environment**
 
 **On Windows:**
+
 ```bash
 cd python
 python -m venv venv
@@ -45,6 +46,7 @@ venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
+
 ```bash
 cd python
 python3 -m venv venv
@@ -140,15 +142,15 @@ flowchart LR
 
 ### Key Components
 
-| Component | Description |
-|-----------|-------------|
-| **LiveKit Agents** | Framework for building real-time voice AI applications |
-| **LiveKit SIP** | Bridges PSTN calls to LiveKit rooms via SIP |
-| **Twilio Elastic SIP** | Routes phone calls to LiveKit's SIP endpoint |
-| **Speechmatics STT** | Real-time speech-to-text transcription |
-| **OpenAI GPT-4o-mini** | Language model for generating responses |
-| **Speechmatics TTS** | Text-to-speech for natural voice output |
-| **Silero VAD** | Voice Activity Detection for turn-taking |
+| Component              | Description                                            |
+| ---------------------- | ------------------------------------------------------ |
+| **LiveKit Agents**     | Framework for building real-time voice AI applications |
+| **LiveKit SIP**        | Bridges PSTN calls to LiveKit rooms via SIP            |
+| **Twilio Elastic SIP** | Routes phone calls to LiveKit's SIP endpoint           |
+| **Speechmatics STT**   | Real-time speech-to-text transcription                 |
+| **OpenAI GPT-4o-mini** | Language model for generating responses                |
+| **Speechmatics TTS**   | Text-to-speech for natural voice output                |
+| **Silero VAD**         | Voice Activity Detection for turn-taking               |
 
 ### Code Highlights
 
@@ -164,13 +166,20 @@ async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
     session = AgentSession(
-        stt=speechmatics.STT(),
+        stt=speechmatics.STT(turn_detection_mode=speechmatics.TurnDetectionMode.EXTERNAL),
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=speechmatics.TTS(),
         vad=silero.VAD.load(),
+        turn_detection="vad"
     )
 
     await session.start(room=ctx.room, agent=VoiceAssistant())
+
+    @session.on("user_state_changed")
+    def on_user_state(state):
+        if state.new_state == "listening" and state.old_state == "speaking":
+            session.stt.finalize()
+
     await session.generate_reply(instructions="Say hello...")
 ```
 
@@ -252,9 +261,7 @@ For better call quality, enable Krisp noise cancellation in your LiveKit dispatc
       "roomPrefix": "call-"
     }
   },
-  "trunkIds": [
-    "ST_yourTrunkId"
-  ],
+  "trunkIds": ["ST_yourTrunkId"],
   "name": "Your Rule Name",
   "roomConfig": {
     "krispEnabled": true
@@ -266,38 +273,42 @@ This enables Krisp AI noise cancellation, which filters out background noise fro
 
 ## Running Modes
 
-| Mode | Command | Description |
-|------|---------|-------------|
-| **Dev** | `python main.py dev` | Connects to LiveKit Cloud for testing |
-| **Console** | `python main.py console` | Local testing with microphone (no phone) |
-| **Production** | `python main.py start` | Production deployment |
+| Mode           | Command                  | Description                              |
+| -------------- | ------------------------ | ---------------------------------------- |
+| **Dev**        | `python main.py dev`     | Connects to LiveKit Cloud for testing    |
+| **Console**    | `python main.py console` | Local testing with microphone (no phone) |
+| **Production** | `python main.py start`   | Production deployment                    |
 
 ## Comparison: LiveKit SIP vs Direct Twilio Media Streams
 
-| Feature | LiveKit SIP (This Sample) | Direct Twilio (01-voice-assistant) |
-|---------|--------------------------|-------------------------------------|
-| **Infrastructure** | LiveKit Cloud handles SIP | Your server handles WebSocket |
-| **Scaling** | Built-in via LiveKit | Manual server scaling |
-| **Audio Format** | Handled by LiveKit | Manual mulaw conversion |
-| **Setup Complexity** | SIP trunk configuration | Webhook + ngrok setup |
-| **Best For** | Production deployments | Learning/prototyping |
+| Feature              | LiveKit SIP (This Sample) | Direct Twilio (01-voice-assistant) |
+| -------------------- | ------------------------- | ---------------------------------- |
+| **Infrastructure**   | LiveKit Cloud handles SIP | Your server handles WebSocket      |
+| **Scaling**          | Built-in via LiveKit      | Manual server scaling              |
+| **Audio Format**     | Handled by LiveKit        | Manual mulaw conversion            |
+| **Setup Complexity** | SIP trunk configuration   | Webhook + ngrok setup              |
+| **Best For**         | Production deployments    | Learning/prototyping               |
 
 ## Troubleshooting
 
 **Error: "Invalid API key"**
+
 - Verify all API keys in your `.env` file
 - Check each service's portal for key validity
 
 **Calls not connecting**
+
 - Verify Twilio SIP trunk origination URI is correct
 - Check LiveKit dispatch rules are configured
 - Ensure LiveKit API credentials are valid
 
 **Agent doesn't respond**
+
 - Check OpenAI API key is valid
 - Verify you have API credits available
 
 **No audio heard by caller**
+
 - Check Speechmatics API key
 - Verify TTS is generating audio in logs
 
@@ -320,6 +331,7 @@ This enables Krisp AI noise cancellation, which filters out background noise fro
 ## Feedback
 
 Help us improve this guide:
+
 - Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
 - Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
 
