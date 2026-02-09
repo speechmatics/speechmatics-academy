@@ -12,7 +12,13 @@
 
 </div>
 
-A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (OpenAI), and text-to-speech (ElevenLabs) using the Pipecat AI framework - accessible via any web browser using WebRTC.
+A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (Groq), and text-to-speech (Cartesia) using the Pipecat AI framework - accessible via any web browser using WebRTC.
+
+This example is optimized for low latency:
+
+- Speechmatics STT uses `EXTERNAL` turn detection mode (default) to minimize end-of-utterance delay
+- Groq is used for fast LLM responses
+- Cartesia is used for fast streaming TTS
 
 > [!TIP]
 > **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly.
@@ -24,14 +30,15 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 - Using the Pipecat runner framework for web deployment
 - Turn detection modes for natural conversations
 - Filtering background audio and bot echo using speaker diarization
-- Real-time transcripts in the browser using RTVI
+- Running a low-latency WebRTC pipeline with the Pipecat runner
+- Measuring latency per component (STT / LLM / TTS) in the browser
 
 ## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
-- **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
-- **Python 3.10+** (Python 3.12 recommended)
+- **Groq API Key**: Get one from [console.groq.com](https://console.groq.com/)
+- **Cartesia API Key**: Get one from [cartesia.ai](https://cartesia.ai/)
+- **Python 3.12+** (Python 3.12-3.13 supported)
 - **macOS, Linux, or WSL2** (Windows native not supported for WebRTC)
 
 ## Quick Start
@@ -66,19 +73,30 @@ Open the `.env` file and add your API keys:
 
 ```
 SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
+CARTESIA_API_KEY=your_cartesia_api_key_here
+SPEECHMATICS_RT_URL=wss://eu2.rt.speechmatics.com/v2
+```
+
+`SPEECHMATICS_RT_URL` controls which Speechmatics realtime endpoint is used. The default is the EU endpoint; set it to the US endpoint as needed
+
+```
+SPEECHMATICS_RT_URL=wss://us.rt.speechmatics.com/v2
+
+Having the closest endpoint will reduce latency.
 ```
 
 **Step 4: Run the bot**
 
 ```bash
-python main.py
+uv run python main.py
 ```
 
 **Step 5: Connect via browser**
 
 Open [http://localhost:7860/client](http://localhost:7860/client) and click **Connect**.
+
+To inspect performance, open the **Metrics** tab in the UI to see per-component timings (e.g. STT and LLM TTFB, TTS processing/TTFB).
 
 ### Windows WSL2 Setup
 
@@ -158,21 +176,20 @@ flowchart LR
 
     subgraph Server
         WEBRTC[WebRTC Transport]
-        STT[Speechmatics STT<br/>ADAPTIVE mode]
+        STT[Speechmatics STT<br/>EXTERNAL mode]
+        VAD[Silero VAD]
         UA[User Aggregator]
-        LLM[OpenAI LLM]
-        RTVI[RTVI Processor]
         AA[Assistant Aggregator]
-        TTS[ElevenLabs TTS]
+        LLM[Groq LLM]
+        TTS[Cartesia TTS]
     end
 
     CLIENT <-->|WebRTC| WEBRTC
     WEBRTC --> STT
+    WEBRTC --> VAD
     STT -->|S1 only| UA
     UA --> LLM
-    LLM --> RTVI
-    RTVI -->|transcripts| CLIENT
-    RTVI --> TTS
+    LLM --> TTS
     TTS --> WEBRTC
     TTS --> AA
 ```
@@ -184,10 +201,9 @@ flowchart LR
 1. **WebRTC Transport** - Handles browser audio via WebRTC peer connection
 2. **Speechmatics STT** - Transcribes speech to text in real-time with diarization and turn detection
 3. **User Aggregator** - Builds conversation context for the LLM
-4. **OpenAI LLM** - Generates intelligent responses
-5. **RTVI Processor** - Sends real-time transcripts and bot state to the browser UI
-6. **ElevenLabs TTS** - Converts text responses to natural speech
-7. **Assistant Aggregator** - Tracks assistant responses for context
+4. **Groq LLM** - Generates intelligent responses
+5. **Cartesia TTS** - Converts text responses to natural speech
+6. **Assistant Aggregator** - Tracks assistant responses for context
 
 ### Key Features
 
@@ -195,8 +211,7 @@ flowchart LR
 |---------|-------------|
 | **Browser-Based** | Works from any browser - no local audio setup needed |
 | **WebRTC** | Low-latency peer-to-peer audio streaming |
-| **ADAPTIVE Turn Detection** | Speechmatics handles turn detection - no external VAD needed |
-| **Live Transcripts** | RTVI sends real-time transcripts to the browser UI |
+| **EXTERNAL Turn Detection** | Pipecat handles turn detection using external VAD (e.g., Silero) |
 | **Speaker Focus** | Uses `focus_speakers=["S1"]` to ignore background audio |
 | **Diarization** | Speaker identification distinguishes user from others |
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
@@ -205,36 +220,33 @@ flowchart LR
 ### Code Highlights
 
 ```python
-# Speechmatics STT with ADAPTIVE turn detection and diarization
+# Speechmatics STT with EXTERNAL turn detection and diarization
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     params=SpeechmaticsSTTService.InputParams(
         enable_speaker_diarization=True,
         focus_speakers=["S1"],
-        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     ),
 )
 
-# RTVI for sending transcripts to the browser UI
-rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
-
-# WebRTC transport (no VAD needed with ADAPTIVE mode)
+# WebRTC transport with external VAD
 transport_params = {
     "webrtc": lambda: TransportParams(
         audio_in_enabled=True,
         audio_out_enabled=True,
+        vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
     ),
 }
 
-# Pipeline: browser -> STT -> LLM -> RTVI -> TTS -> browser
+# Pipeline: browser -> STT -> LLM -> TTS -> browser
 pipeline = Pipeline([
     transport.input(),
     stt,
     context_aggregator.user(),
     llm,
-    rtvi,
     tts,
     transport.output(),
     context_aggregator.assistant(),
@@ -252,13 +264,22 @@ INFO     | Uvicorn running on http://0.0.0.0:7860
 # After clicking Connect in browser:
 INFO     | Client connected
 INFO     | Starting bot
-INFO     | RTVI client ready
 
 Roxie: "Hey there! Roxie here, ready to make you laugh. What's on your mind?"
 
 You: "Tell me a joke"
 Roxie: "So I told my wife she was drawing her eyebrows too high... She looked surprised!"
 ```
+
+## Measuring Latency
+
+After connecting in the browser, open the **Metrics** tab in the web UI.
+
+Use it to inspect per-component timings and validate latency improvements:
+
+- **Speech-to-Text (Speechmatics)**
+- **LLM (Groq)**
+- **Text-to-Speech (Cartesia)**
 
 ## Customization
 
@@ -267,9 +288,9 @@ Roxie: "So I told my wife she was drawing her eyebrows too high... She looked su
 Edit the `voice_id` in `main.py`:
 
 ```python
-tts = ElevenLabsTTSService(
-    api_key=os.getenv("ELEVENLABS_API_KEY"),
-    voice_id="your_voice_id_here",  # Find voices at elevenlabs.io
+tts = CartesiaTTSService(
+    api_key=os.getenv("CARTESIA_API_KEY"),
+    voice_id="your_voice_id_here",
 )
 ```
 
@@ -293,23 +314,23 @@ Speechmatics provides three turn detection modes that control how the system det
 | `SMART_TURN` | Speechmatics uses ML-based smart turn detection | Must be disabled |
 
 > [!IMPORTANT]
-> **VAD Compatibility:** When using `ADAPTIVE` or `SMART_TURN` mode, you must disable Pipecat's external VAD (e.g., Silero). If both are enabled, you'll see warnings in the logs when an external VAD call is received. This example uses `ADAPTIVE` mode without external VAD.
+> **VAD Compatibility:** When using `ADAPTIVE` or `SMART_TURN` mode, you must disable Pipecat's external VAD (e.g., Silero). If both are enabled, you'll see warnings in the logs when an external VAD call is received. This example uses `EXTERNAL` mode with external VAD.
 
 ```python
-# ADAPTIVE mode - Speechmatics handles turn detection
+# EXTERNAL mode - Pipecat handles turn detection using external VAD
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     params=SpeechmaticsSTTService.InputParams(
-        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
     ),
 )
 
-# No VAD in transport params when using ADAPTIVE/SMART_TURN
+# External VAD in transport params when using EXTERNAL mode
 transport_params = {
     "webrtc": lambda: TransportParams(
         audio_in_enabled=True,
         audio_out_enabled=True,
-        # vad_analyzer=...  # Don't set this with ADAPTIVE/SMART_TURN
+        vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
     ),
 }
 ```
@@ -344,9 +365,9 @@ stt = SpeechmaticsSTTService(
 - Check the terminal for any error messages about API keys
 - Try refreshing the browser and connecting again
 
-**Error: "No module named 'fastapi'"**
+**Error: "No module named 'pipecat_ai_small_webrtc_prebuilt'"**
 ```bash
-pip install fastapi uvicorn pipecat-ai-small-webrtc-prebuilt
+pip install pipecat-ai-small-webrtc-prebuilt
 ```
 
 **Error: "Invalid API key"**
@@ -394,8 +415,8 @@ Files copied from Windows are read-only. Create a new one:
 rm .env
 cat > .env << 'EOF'
 SPEECHMATICS_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here
-ELEVENLABS_API_KEY=your_key_here
+GROQ_API_KEY=your_key_here
+CARTESIA_API_KEY=your_key_here
 EOF
 ```
 
@@ -413,8 +434,8 @@ EOF
 - [Pipecat SmallWebRTC Transport](https://docs.pipecat.ai/server/services/transport/small-webrtc)
 - [Speechmatics Pipecat Integration](https://docs.pipecat.ai/server/services/stt/speechmatics)
 - [Speechmatics API Docs](https://docs.speechmatics.com/)
-- [ElevenLabs API Docs](https://elevenlabs.io/docs)
-- [OpenAI API Docs](https://platform.openai.com/docs)
+- [Groq API Docs](https://console.groq.com/docs)
+- [Cartesia API Docs](https://docs.cartesia.ai/)
 
 ---
 
