@@ -2,37 +2,55 @@
 """
 Simple Voice Bot - Web Client Version
 
-A conversational voice bot with browser-based audio using:
-- Speechmatics STT (Speech-to-Text) with diarization
-- OpenAI LLM (Language Model)
-- ElevenLabs TTS (Text-to-Speech)
-- FastAPI + WebRTC (Browser audio)
+A conversational voice bot with browser-based audio using.
+Bot is built for speed using Speechmatics 'EXTERNAL' mode to force finalise.
 
-Run with: python main.py
+:
+- Speechmatics STT (Speech-to-Text) with diarization
+- Groq LLM (Language Model)
+- Cartesia TTS (Text-to-Speech)
+
+Run with: uv run main.py
 Then open: http://localhost:7860/client
 """
 
 import os
-from datetime import datetime
 from pathlib import Path
+from datetime import datetime
 
 from dotenv import load_dotenv
 from loguru import logger
 
-logger.info("Loading pipeline components...")
+print("Starting Pipecat bot...")
+print("Loading models and imports (20 seconds, first run only)\n")
+
+logger.info("Loading Local Smart Turn Analyzer V3 and Silero VAD...")
+from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
+from pipecat.audio.vad.silero import SileroVADAnalyzer
+
+from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
+
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.llm_context import LLMContext
-from pipecat.processors.aggregators.llm_response_universal import LLMContextAggregatorPair
-from pipecat.processors.frameworks.rtvi import RTVIConfig, RTVIObserver, RTVIProcessor
+from pipecat.processors.aggregators.llm_response_universal import (
+    LLMContextAggregatorPair,
+    LLMUserAggregatorParams,
+)
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
-from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
-from pipecat.services.openai.llm import OpenAILLMService
+from pipecat.services.cartesia.tts import CartesiaTTSService
+from pipecat.services.groq.llm import GroqLLMService
 from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transports.base_transport import BaseTransport, TransportParams
+from pipecat.transports.daily.transport import DailyParams
+from pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy import (
+TurnAnalyzerUserTurnStopStrategy,
+)
+from pipecat.turns.user_turn_strategies import UserTurnStrategies
+
 
 logger.info("All components loaded!")
 
@@ -55,10 +73,10 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     1. WebRTC Audio -> Audio input from browser
     2. Speechmatics STT -> Transcribes speech to text (with diarization)
     3. User Aggregator -> Builds user message for LLM
-    4. OpenAI LLM -> Generates response
-    5. ElevenLabs TTS -> Converts response to speech
+    4. Groq LLM -> Generates response
+    5. Cartesia TTS -> Converts response to speech
     6. WebRTC Audio -> Audio output to browser
-    7. Assistant Aggregator -> Tracks assistant responses
+
     """
     logger.info("Starting bot")
 
@@ -68,24 +86,27 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     stt = SpeechmaticsSTTService(
         api_key=os.getenv("SPEECHMATICS_API_KEY"),
         params=SpeechmaticsSTTService.InputParams(
+            # Turn detection mode - EXTERNAL means handled by Pipecat
+            turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
+            # Diarization settings
             enable_speaker_diarization=True,
             focus_speakers=["S1"],
-            turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.ADAPTIVE,
-            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>", 
             speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
         ),
     )
 
-    # Text-to-Speech: ElevenLabs
-    tts = ElevenLabsTTSService(
-        api_key=os.getenv("ELEVENLABS_API_KEY"),
-        voice_id="21m00Tcm4TlvDq8ikWAM",  # Rachel
+    # Text-to-Speech: Cartesia
+    tts = CartesiaTTSService(
+        api_key=os.getenv("CARTESIA_API_KEY"),
+        voice_id="71a7ad14-091c-4e8e-a314-022ece01c121",
+        model="sonic-3",
     )
 
-    # Language Model: OpenAI
-    llm = OpenAILLMService(
-        api_key=os.getenv("OPENAI_API_KEY"),
-        model="gpt-4o-mini",
+    # Language Model: Groq
+    llm = GroqLLMService(
+        api_key=os.getenv("GROQ_API_KEY"),
+        model="openai/gpt-oss-120b",
     )
 
     # Conversation Context
@@ -98,23 +119,31 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         },
     ]
 
+    # context aggregator
     context = LLMContext(messages)
-    context_aggregator = LLMContextAggregatorPair(context)
-
-    # RTVI for sending transcripts to the UI
-    rtvi = RTVIProcessor(config=RTVIConfig(config=[]))
+    user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
+        context,
+        user_params=LLMUserAggregatorParams(
+            user_turn_strategies=UserTurnStrategies(
+                stop=[
+                    TurnAnalyzerUserTurnStopStrategy(
+                        turn_analyzer=LocalSmartTurnAnalyzerV3()
+                    )
+                ]
+            ),
+        ),
+    )
 
     # Build Pipeline
     pipeline = Pipeline(
         [
             transport.input(),
             stt,
-            context_aggregator.user(),
+            user_aggregator,
             llm,
-            rtvi,
             tts,
             transport.output(),
-            context_aggregator.assistant(),
+            assistant_aggregator,
         ]
     )
 
@@ -122,20 +151,16 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         pipeline,
         params=PipelineParams(
             enable_metrics=True,
+            enable_usage_metrics=True,
         ),
-        observers=[RTVIObserver(rtvi)],
     )
-
-    @rtvi.event_handler("on_client_ready")
-    async def on_client_ready(rtvi):
-        logger.info("RTVI client ready")
-        await rtvi.set_bot_ready()
 
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         logger.info("Client connected")
-        # Kick off the conversation
-        messages.append({"role": "system", "content": "Say hello and briefly introduce yourself."})
+        messages.append(
+            {"role": "system", "content": "Say hello and briefly introduce yourself."}
+        )
         await task.queue_frames([LLMRunFrame()])
 
     @transport.event_handler("on_client_disconnected")
@@ -149,11 +174,21 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
-    # No VAD needed - Speechmatics ADAPTIVE mode handles turn detection
+
     transport_params = {
+        "daily": lambda: DailyParams(
+            audio_in_enabled=True,
+            audio_out_enabled=True,
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
+            # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
+
+        ),
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
+            # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
+
         ),
     }
 

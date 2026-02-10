@@ -1,6 +1,4 @@
-pipecat-ai[webrtc,speechmatics,openai,elevenlabs]
+pipecat-ai[daily,cartesia,local-smart-turn-v3,silero,speechmatics,webrtc,groq,runner]>=0.0.101
 pipecat-ai-small-webrtc-prebuilt
-fastapi
-uvicorn
-python-dotenv
+python-dotenv>=1.2.1
 loguru
