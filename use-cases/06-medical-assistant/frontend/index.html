@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Assistant - Clinical Transcription</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Demo Banner -->
+    <div class="demo-banner">
+        <span class="material-symbols-outlined">info</span>
+        DEMO APPLICATION — For demonstration purposes only. Not for clinical use.
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-symbols-outlined">medical_services</span>
+                </div>
+                <h1>Medical Assistant</h1>
+            </div>
+            <div class="patient-input">
+                <span class="material-symbols-outlined">person_search</span>
+                <input type="text" id="patientName" placeholder="Enter patient name...">
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="language-badge">
+                <span>EN + AR</span>
+            </div>
+            <div class="recording-timer" id="recordingTimer">
+                <span class="material-symbols-outlined timer-icon">radio_button_checked</span>
+                <span class="timer-display">00:00:00</span>
+            </div>
+            <div class="time-saved" id="timeSaved">
+                <span class="material-symbols-outlined">bolt</span>
+                <span class="time-saved-value">0 min saved</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Panel: Transcription -->
+        <section class="transcript-panel">
+            <div class="panel-header">
+                <div class="panel-title-group">
+                    <h2>Live Transcription</h2>
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Connecting...</span>
+                    </div>
+                </div>
+                <button class="icon-btn" title="Settings">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+            </div>
+
+            <!-- Recording Controls -->
+            <div class="recording-controls">
+                <button class="btn btn-primary" id="recordBtn">
+                    <span class="material-symbols-outlined">mic</span>
+                    <span class="btn-text">Record</span>
+                </button>
+                <button class="btn btn-ghost" id="pauseBtn" disabled>
+                    <span class="material-symbols-outlined">pause</span>
+                </button>
+                <button class="btn btn-ghost" id="stopBtn" disabled>
+                    <span class="material-symbols-outlined">stop</span>
+                </button>
+                <button class="btn btn-ghost btn-danger" id="resetBtn">
+                    <span class="material-symbols-outlined">restart_alt</span>
+                </button>
+            </div>
+
+            <!-- Audio Visualizer -->
+            <div class="audio-visualizer" id="audioVisualizer">
+                <canvas id="visualizerCanvas"></canvas>
+            </div>
+
+            <!-- Transcript Display -->
+            <div class="transcript-container" id="transcriptContainer">
+                <div class="transcript-content" id="transcriptContent" dir="auto">
+                    <p class="transcript-placeholder">Transcript will appear here...</p>
+                </div>
+                <div class="partial-transcript" id="partialTranscript" dir="auto"></div>
+            </div>
+
+            <!-- Demo Mode -->
+            <div class="demo-controls">
+                <button class="btn btn-outline" id="demoBtn">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    <span>Run Demo</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Center Panel: Patient Form -->
+        <section class="form-panel">
+            <div class="panel-header">
+                <h2>Patient Form</h2>
+                <div class="completeness-score" id="completenessScore">
+                    <div class="completeness-bar">
+                        <div class="completeness-fill" id="completenessFill" style="width: 0%"></div>
+                    </div>
+                    <span class="completeness-text" id="completenessText">0%</span>
+                </div>
+            </div>
+
+            <form class="medical-form" id="medicalForm">
+                <!-- Vitals Grid -->
+                <div class="form-section">
+                    <h3 class="section-title">Recent Vitals</h3>
+                    <div class="vitals-grid">
+                        <div class="vital-item" data-field="vitals.blood_pressure">
+                            <span class="vital-label">BP</span>
+                            <input type="text" id="vitalBP" placeholder="--/--">
+                            <span class="vital-unit">mmHg</span>
+                        </div>
+                        <div class="vital-item" data-field="vitals.pulse">
+                            <span class="vital-label">HR</span>
+                            <input type="number" id="vitalPulse" placeholder="--">
+                            <span class="vital-unit">bpm</span>
+                        </div>
+                        <div class="vital-item" data-field="vitals.temperature">
+                            <span class="vital-label">Temp</span>
+                            <input type="number" step="0.1" id="vitalTemp" placeholder="--">
+                            <span class="vital-unit">°C</span>
+                        </div>
+                        <div class="vital-item" data-field="vitals.respiratory_rate">
+                            <span class="vital-label">Resp</span>
+                            <input type="number" id="vitalRespRate" placeholder="--">
+                            <span class="vital-unit">/min</span>
+                        </div>
+                        <div class="vital-item" data-field="vitals.spo2">
+                            <span class="vital-label">SpO2</span>
+                            <input type="number" id="vitalSpO2" placeholder="--">
+                            <span class="vital-unit">%</span>
+                        </div>
+                        <div class="vital-item" data-field="vitals.rhythm">
+                            <span class="vital-label">Rhythm</span>
+                            <input type="text" id="vitalRhythm" placeholder="--">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Symptoms -->
+                <div class="form-section" data-field="symptoms">
+                    <label class="section-title">Symptoms Detected</label>
+                    <div class="symptoms-container">
+                        <div class="symptoms-tags" id="symptomsTags"></div>
+                        <input type="text" id="symptomsInput" placeholder="Add symptom...">
+                    </div>
+                </div>
+
+                <!-- Physical Examination -->
+                <div class="form-section" data-field="physical_examination">
+                    <label class="section-title">Physical Examination</label>
+                    <textarea id="physicalExam" rows="4" placeholder="Enter findings..."></textarea>
+                </div>
+
+                <!-- Other Details -->
+                <div class="form-section" data-field="other_details">
+                    <label class="section-title">History of Present Illness</label>
+                    <textarea id="otherDetails" rows="4" placeholder="Enter history..."></textarea>
+                </div>
+
+                <!-- Action -->
+                <div class="form-section" data-field="action">
+                    <label class="section-title">Recommended Action</label>
+                    <select id="actionSelect">
+                        <option value="">Select action...</option>
+                        <option value="Follow-up">Follow-up</option>
+                        <option value="Referral">Referral</option>
+                        <option value="Admit">Admit</option>
+                        <option value="Discharge">Discharge</option>
+                        <option value="Observation">Observation</option>
+                    </select>
+                </div>
+
+                <!-- Discharge -->
+                <div class="form-section checkbox-section" data-field="discharge_recommended">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="dischargeRecommended">
+                        <span class="checkbox-custom"></span>
+                        <span>Discharge Recommended</span>
+                    </label>
+                </div>
+            </form>
+        </section>
+
+        <!-- Right Panel: AI Assistant -->
+        <section class="suggestions-panel">
+            <!-- AI Shimmer Progress Bar -->
+            <div class="ai-shimmer-bar" id="aiShimmerBar">
+                <div class="shimmer-fill"></div>
+            </div>
+
+            <!-- SOAP Note Card -->
+            <div class="suggestion-group soap-group expanded" data-group="soap">
+                <button class="suggestion-group-header" type="button">
+                    <span class="group-icon material-symbols-outlined">sticky_note_2</span>
+                    <span class="group-title">SOAP Notes</span>
+                    <span class="material-symbols-outlined chevron">chevron_right</span>
+                </button>
+                <div class="suggestion-group-content soap-content">
+                    <button class="btn btn-primary btn-block" id="generateSoapBtn">
+                        <span class="material-symbols-outlined">stars</span>
+                        <span>Generate Note</span>
+                    </button>
+                    <div class="soap-note-output" id="soapNoteContent"></div>
+                </div>
+            </div>
+
+            <!-- ICD-10 Codes -->
+            <div class="suggestion-group icd-group expanded" data-group="icd">
+                <button class="suggestion-group-header" type="button">
+                    <span class="group-icon material-symbols-outlined">medical_information</span>
+                    <span class="group-title">Suggested ICD-10 Codes</span>
+                    <span class="beta-badge">BETA</span>
+                    <span class="material-symbols-outlined chevron">chevron_right</span>
+                </button>
+                <div class="suggestion-group-content" id="icdCodesContent">
+                    <p class="icd-placeholder">Codes will appear after recording...</p>
+                </div>
+            </div>
+
+            <!-- Expandable Sections -->
+            <div class="suggestions-list">
+                <div class="suggestion-group expanded" data-group="questions">
+                    <button class="suggestion-group-header" type="button">
+                        <span class="group-icon material-symbols-outlined">help</span>
+                        <span class="group-title">Questions to Ask</span>
+                        <span class="material-symbols-outlined chevron">chevron_right</span>
+                    </button>
+                    <div class="suggestion-group-content" id="questionsContent"></div>
+                </div>
+
+                <div class="suggestion-group expanded" data-group="diagnoses">
+                    <button class="suggestion-group-header" type="button">
+                        <span class="group-icon material-symbols-outlined">diagnosis</span>
+                        <span class="group-title">Potential Diagnoses</span>
+                        <span class="material-symbols-outlined chevron">chevron_right</span>
+                    </button>
+                    <div class="suggestion-group-content" id="diagnosesContent"></div>
+                </div>
+
+                <div class="suggestion-group expanded" data-group="tests">
+                    <button class="suggestion-group-header" type="button">
+                        <span class="group-icon material-symbols-outlined">biotech</span>
+                        <span class="group-title">Recommended Tests</span>
+                        <span class="material-symbols-outlined chevron">chevron_right</span>
+                    </button>
+                    <div class="suggestion-group-content" id="testsContent"></div>
+                </div>
+
+                <div class="suggestion-group expanded" data-group="medications">
+                    <button class="suggestion-group-header" type="button">
+                        <span class="group-icon material-symbols-outlined">prescriptions</span>
+                        <span class="group-title">Medications</span>
+                        <span class="material-symbols-outlined chevron">chevron_right</span>
+                    </button>
+                    <div class="suggestion-group-content" id="medicationsContent"></div>
+                </div>
+
+                <div class="suggestion-group expanded" data-group="referrals">
+                    <button class="suggestion-group-header" type="button">
+                        <span class="group-icon material-symbols-outlined">moving</span>
+                        <span class="group-title">Referrals</span>
+                        <span class="material-symbols-outlined chevron">chevron_right</span>
+                    </button>
+                    <div class="suggestion-group-content" id="referralsContent"></div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Floating Live Reasoning Stream -->
+    <div class="reasoning-stream" id="reasoningStream">
+        <div class="reasoning-header">
+            <span class="reasoning-dot"></span>
+            <span class="reasoning-title">Live Reasoning Stream</span>
+            <button class="reasoning-close" id="reasoningClose" title="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="reasoning-content" id="reasoningContent"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Powered by <a href="https://www.speechmatics.com/" target="_blank">Speechmatics</a></p>
+    </footer>
+
+    <script src="/js/audio.js"></script>
+    <script src="/js/websocket.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

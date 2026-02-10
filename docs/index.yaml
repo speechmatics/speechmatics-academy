@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2025-12-30"
-total_examples: 21
+total_examples: 22
 
 # Example Categories
 categories:
@@ -398,6 +398,23 @@ examples:
     tags: ["voice-agent", "santa", "christmas", "elevenlabs", "tts", "character-voice", "telephony"]
     last_updated: "2025-12-19"
     estimated_time: "20 minutes"
+
+  - id: "medical-assistant"
+    title: "Medical Assistant"
+    description: "Live bilingual (Arabic + English) medical transcription with speaker diarization, AI form extraction, clinical decision support, and SOAP note generation."
+    category: "use-cases"
+    difficulty: "advanced"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "custom-vocabulary"
+    integrations: ["openai"]
+    path: "use-cases/06-medical-assistant"
+    readme: "use-cases/06-medical-assistant/README.md"
+    tags: ["medical", "healthcare", "bilingual", "arabic", "diarization", "soap", "icd-10", "form-extraction", "clinical"]
+    last_updated: "2026-02-10"
+    estimated_time: "15 minutes"
 
 # Integration Frameworks
 integration_frameworks:
