@@ -102,9 +102,13 @@ async def health_check():
 class TranscriptionManager:
     """Manages WebSocket connection and transcription session"""
 
-    def __init__(self, websocket: WebSocket, language: str):
+    def __init__(self, websocket: WebSocket, language: str,
+                 speaker_sensitivity: float = 0.7,
+                 prefer_current_speaker: bool = True):
         self.websocket = websocket
         self.language = language
+        self.speaker_sensitivity = speaker_sensitivity
+        self.prefer_current_speaker = prefer_current_speaker
         self.settings = get_settings()
 
         # Session state
@@ -289,7 +293,9 @@ class TranscriptionManager:
         """Start transcription session"""
         service = TranscriptionService(
             api_key=self.settings.speechmatics_api_key,
-            language=self.language
+            language=self.language,
+            speaker_sensitivity=self.speaker_sensitivity,
+            prefer_current_speaker=self.prefer_current_speaker,
         )
 
         self.session = TranscriptionSession(
@@ -315,7 +321,9 @@ class TranscriptionManager:
             "connected",
             language=self.language,
             session_id=self.session_state.session_id,
-            diarization_enabled=True
+            diarization_enabled=True,
+            speaker_sensitivity=self.speaker_sensitivity,
+            prefer_current_speaker=self.prefer_current_speaker,
         )
 
     async def send_audio(self, audio_data: bytes):
@@ -619,6 +627,8 @@ async def transcription_websocket(websocket: WebSocket, language: str = "ar_en")
                     msg_type = data.get("type")
 
                     if msg_type == "start":
+                        manager.speaker_sensitivity = data.get("speaker_sensitivity", 0.7)
+                        manager.prefer_current_speaker = data.get("prefer_current_speaker", True)
                         await manager.start()
 
                     elif msg_type == "stop":

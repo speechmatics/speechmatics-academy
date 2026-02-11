@@ -64,10 +64,14 @@ class TranscriptionService:
     # Preview RT API endpoint (supports bilingual ar_en)
     RT_URL = "wss://preview.rt.speechmatics.com/v2"
 
-    def __init__(self, api_key: str, language: str = "ar_en"):
+    def __init__(self, api_key: str, language: str = "ar_en",
+                 speaker_sensitivity: float = 0.7,
+                 prefer_current_speaker: bool = True):
         self.api_key = api_key
         # ar_en = bilingual Arabic + English support
         self.language = language
+        self.speaker_sensitivity = speaker_sensitivity
+        self.prefer_current_speaker = prefer_current_speaker
 
     def _get_medical_vocab(self) -> list:
         """Get appropriate medical vocabulary based on language"""
@@ -100,6 +104,8 @@ class TranscriptionService:
             config.diarization = "speaker"
             config.speaker_diarization_config = SpeakerDiarizationConfig(
                 max_speakers=2,  # Doctor + Patient
+                speaker_sensitivity=self.speaker_sensitivity,
+                prefer_current_speaker=self.prefer_current_speaker,
             )
 
         # Enable medical domain for improved clinical vocabulary recognition
