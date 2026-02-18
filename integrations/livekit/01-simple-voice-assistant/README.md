@@ -19,6 +19,7 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 - How to integrate Speechmatics STT with LiveKit Agents
 - Building a complete voice assistant with WebRTC
 - Using LiveKit's agent framework for real-time conversations
+- Configuring turn detection modes for natural conversations
 - Voice Activity Detection (VAD) for natural turn-taking
 - Filtering background audio using speaker diarization and focus speakers
 
@@ -31,9 +32,6 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 - **Python 3.10+**
 
 ## Quick Start
-
-> [!TIP]
-> **Using a remote VM?** Console mode requires local microphone access. If you're running on a remote server, use `python main.py dev` and connect via the [LiveKit Agents Playground](https://agents-playground.livekit.io) instead. See [Testing with the Agents Playground](#testing-with-the-agents-playground) for details.
 
 ### Python
 
@@ -61,41 +59,6 @@ pip install -r requirements.txt
 
 **Step 3: Configure your API keys**
 
-<details>
-<summary><strong>Option A: Using LiveKit CLI (Recommended)</strong></summary>
-
-The [LiveKit CLI](https://docs.livekit.io/home/cli/) simplifies credential management:
-
-**Install the CLI:**
-```bash
-# macOS
-brew install livekit-cli
-
-# Windows
-winget install LiveKit.LiveKitCLI
-
-# Linux
-curl -sSL https://get.livekit.io/cli | bash
-```
-
-**Authenticate and load credentials:**
-```bash
-lk cloud auth        # Opens browser to authenticate with LiveKit Cloud
-lk app env -w        # Writes LiveKit credentials to .env.local
-```
-
-Then add your other API keys to `.env.local`:
-```
-SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-ELEVEN_API_KEY=your_elevenlabs_api_key_here
-```
-
-</details>
-
-<details open>
-<summary><strong>Option B: Manual Configuration</strong></summary>
-
 ```bash
 cp ../.env.example .env
 ```
@@ -110,8 +73,6 @@ LIVEKIT_URL=wss://your-project.livekit.cloud
 LIVEKIT_API_KEY=your_livekit_api_key_here
 LIVEKIT_API_SECRET=your_livekit_api_secret_here
 ```
-
-</details>
 
 > [!NOTE]
 > LiveKit's ElevenLabs plugin uses `ELEVEN_API_KEY` (not `ELEVENLABS_API_KEY`).
@@ -173,6 +134,7 @@ flowchart LR
 | Feature | Description |
 |---------|-------------|
 | **WebRTC** | Real-time audio streaming via LiveKit infrastructure |
+| **Turn Detection** | ML-based turn detection (SMART_TURN) for natural conversation flow |
 | **Diarization** | Speaker identification to distinguish different speakers |
 | **Focus Speakers** | Filter to only respond to the primary user (S1) |
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
@@ -185,6 +147,7 @@ flowchart LR
 ```python
 from livekit.agents import AgentSession, Agent
 from livekit.plugins import speechmatics, openai, elevenlabs, silero
+from livekit.plugins.speechmatics import TurnDetectionMode
 
 class VoiceAssistant(Agent):
     def __init__(self) -> None:
@@ -195,6 +158,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     session = AgentSession(
         stt=speechmatics.STT(
+            turn_detection_mode=TurnDetectionMode.SMART_TURN,
             enable_diarization=True,
             speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
             speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
@@ -272,6 +236,24 @@ stt = speechmatics.STT(
 4. In multi-speaker scenarios, Roxie acts as an active listener and only joins when invited
 
 This prevents the assistant from responding to background conversations or media playing nearby.
+
+### Turn Detection Modes
+
+Control how the agent detects when you've finished speaking:
+
+```python
+from livekit.plugins.speechmatics import TurnDetectionMode
+
+stt = speechmatics.STT(
+    turn_detection_mode=TurnDetectionMode.SMART_TURN,  # or ADAPTIVE, FIXED
+)
+```
+
+| Mode | Description | Best For |
+|------|-------------|----------|
+| `SMART_TURN` | ML-based turn detection for natural conversation flow | Default choice, handles hesitations well |
+| `ADAPTIVE` | VAD + hesitation/speed analysis, works with all languages | Multilingual applications |
+| `FIXED` | Simple VAD-only detection, lowest latency | Speed-critical applications |
 
 ## Running Modes
 
