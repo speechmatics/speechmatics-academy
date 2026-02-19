@@ -33,6 +33,9 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 
 ## Quick Start
 
+> [!TIP]
+> **Using a remote VM?** Console mode requires local microphone access. If you're running on a remote server, use `python main.py dev` and connect via the [LiveKit Agents Playground](https://agents-playground.livekit.io) instead. See [Testing with the Agents Playground](#testing-with-the-agents-playground) for details.
+
 ### Python
 
 **Step 1: Create and activate a virtual environment**
@@ -59,6 +62,41 @@ pip install -r requirements.txt
 
 **Step 3: Configure your API keys**
 
+<details>
+<summary><strong>Option A: Using LiveKit CLI (Recommended)</strong></summary>
+
+The [LiveKit CLI](https://docs.livekit.io/home/cli/) simplifies credential management:
+
+**Install the CLI:**
+```bash
+# macOS
+brew install livekit-cli
+
+# Windows
+winget install LiveKit.LiveKitCLI
+
+# Linux
+curl -sSL https://get.livekit.io/cli | bash
+```
+
+**Authenticate and load credentials:**
+```bash
+lk cloud auth        # Opens browser to authenticate with LiveKit Cloud
+lk app env -w        # Writes LiveKit credentials to .env.local
+```
+
+Then add your other API keys to `.env.local`:
+```
+SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
+ELEVEN_API_KEY=your_elevenlabs_api_key_here
+```
+
+</details>
+
+<details open>
+<summary><strong>Option B: Manual Configuration</strong></summary>
+
 ```bash
 cp ../.env.example .env
 ```
@@ -73,6 +111,8 @@ LIVEKIT_URL=wss://your-project.livekit.cloud
 LIVEKIT_API_KEY=your_livekit_api_key_here
 LIVEKIT_API_SECRET=your_livekit_api_secret_here
 ```
+
+</details>
 
 > [!NOTE]
 > LiveKit's ElevenLabs plugin uses `ELEVEN_API_KEY` (not `ELEVENLABS_API_KEY`).
