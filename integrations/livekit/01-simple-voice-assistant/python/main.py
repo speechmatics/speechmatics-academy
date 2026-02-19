@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions
 from livekit.plugins import openai, silero, speechmatics, elevenlabs
+from livekit.plugins.speechmatics import TurnDetectionMode
 
 load_dotenv()
 
@@ -49,7 +50,9 @@ async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
     # Speech-to-Text: Speechmatics
+    # Turn detection options: SMART_TURN (ML-based), ADAPTIVE (VAD + hesitation), FIXED (VAD only)
     stt = speechmatics.STT(
+        turn_detection_mode=TurnDetectionMode.SMART_TURN,
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
