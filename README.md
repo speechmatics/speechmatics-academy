@@ -16,7 +16,7 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 **Examples • Integrations • Use Cases • Copy-Paste Ready**
 
-[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing) • [Portal](https://portal.speechmatics.com/)  • [Documentation](https://docs.speechmatics.com/)  
+[Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing) • [Portal](https://portal.speechmatics.com/)  • [Documentation](https://docs.speechmatics.com/) • [Discord Community](https://discord.gg/speechmatics)
 
 </div>
 
@@ -386,6 +386,7 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 - **GitHub Issues**: [Report bugs or request examples](https://github.com/speechmatics/speechmatics-academy/issues)
 - **GitHub Community Discussions**: [Ask questions, share projects](https://github.com/speechmatics/community/discussions/categories/academy)
+- **Discord Community**: [Join our Discord](https://discord.gg/speechmatics)
 - **Email Support**: devrel@speechmatics.com
 
 ### Resources

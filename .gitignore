@@ -92,3 +92,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+integrations/livekit/01-simple-voice-assistant/python/.models/
