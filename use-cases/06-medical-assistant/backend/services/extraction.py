@@ -220,63 +220,6 @@ Return a JSON object with the extracted information."""
         normalized = re.sub(r'\s*/\s*', '/', normalized)
         return normalized.strip()
 
-    async def extract_incremental(
-        self,
-        new_text: str,
-        existing_data: MedicalFormData,
-        language: str = "en"
-    ) -> MedicalFormData:
-        """Extract and merge new information with existing data"""
-        if not new_text.strip():
-            return existing_data
-
-        # Extract from new text
-        new_data = await self.extract(new_text, language)
-
-        # Merge: new data takes precedence for non-None values
-        merged = MedicalFormData(
-            physical_examination=new_data.physical_examination or existing_data.physical_examination,
-            other_details=self._merge_text(existing_data.other_details, new_data.other_details),
-            symptoms=self._merge_lists(existing_data.symptoms, new_data.symptoms),
-            action=new_data.action or existing_data.action,
-            review_after=new_data.review_after or existing_data.review_after,
-            discharge_recommended=new_data.discharge_recommended if new_data.discharge_recommended is not None else existing_data.discharge_recommended,
-            vitals=self._merge_vitals(existing_data.vitals, new_data.vitals),
-        )
-
-        return merged
-
-    def _merge_text(self, existing: Optional[str], new: Optional[str]) -> Optional[str]:
-        """Merge text fields"""
-        if not existing:
-            return new
-        if not new:
-            return existing
-        return f"{existing} {new}"
-
-    def _merge_lists(self, existing: Optional[list], new: Optional[list]) -> Optional[list]:
-        """Merge lists, removing duplicates"""
-        if not existing:
-            return new
-        if not new:
-            return existing
-        return list(set(existing + new))
-
-    def _merge_vitals(self, existing: Optional[VitalsData], new: Optional[VitalsData]) -> Optional[VitalsData]:
-        """Merge vitals data"""
-        if not existing:
-            return new
-        if not new:
-            return existing
-
-        return VitalsData(
-            blood_pressure=new.blood_pressure or existing.blood_pressure,
-            pulse=new.pulse or existing.pulse,
-            temperature=new.temperature or existing.temperature,
-            respiratory_rate=new.respiratory_rate or existing.respiratory_rate,
-            spo2=new.spo2 or existing.spo2,
-            rhythm=new.rhythm or existing.rhythm,
-        )
 
 
 class SuggestionsService:

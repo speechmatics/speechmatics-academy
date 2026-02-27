@@ -22,6 +22,7 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 - Configuring turn detection modes for natural conversations
 - Voice Activity Detection (VAD) for natural turn-taking
 - Filtering background audio using speaker diarization and focus speakers
+- **Speaker identification** — enroll and recognize returning users by name across sessions
 
 ## Prerequisites
 
@@ -180,37 +181,71 @@ flowchart LR
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
 | **Auto Greeting** | Agent greets user when session starts |
+| **Speaker Identification** | Enroll and recognize returning users by voiceprint across sessions |
 | **Cloud Ready** | Deploy to LiveKit Cloud for production |
+
+### Speaker Identification
+
+The assistant automatically captures voiceprints during conversation and saves them to `speakers.json`. On subsequent sessions, returning speakers are recognized by name.
+
+**How enrollment works:**
+
+1. **First session** — speakers are labeled generically (`S1`, `S2`) by diarization
+2. **Background capture** — voiceprints are automatically captured via `GET_SPEAKERS` every 30 seconds and saved to `speakers.json`
+3. **Assign a name** — edit `"label": "S1"` to `"label": "Edgar"` (or any name) in `speakers.json`
+4. **Next session** — the saved voiceprint is loaded as a `known_speaker` and Speechmatics recognizes the returning user by name
+
+**`speakers.json` format:**
+```json
+[
+  {
+    "label": "Edgar",
+    "speaker_identifiers": ["<voiceprint-hash>"]
+  }
+]
+```
 
 ### Code Highlights
 
 ```python
 from livekit.agents import AgentSession, Agent
 from livekit.plugins import speechmatics, openai, elevenlabs, silero
-from livekit.plugins.speechmatics import TurnDetectionMode
+from livekit.plugins.speechmatics import TurnDetectionMode, SpeakerIdentifier
 
-class VoiceAssistant(Agent):
-    def __init__(self) -> None:
-        super().__init__(instructions="You are Roxie, a hilarious standup comedian...")
+# Load previously enrolled speakers from speakers.json
+known_speakers = load_known_speakers()  # returns list[SpeakerIdentifier]
 
 async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
+    stt = speechmatics.STT(
+        turn_detection_mode=TurnDetectionMode.SMART_TURN,
+        enable_diarization=True,
+        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
+        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
+        focus_speakers=["S1"],
+        known_speakers=known_speakers,  # Recognize returning users
+    )
+
     session = AgentSession(
-        stt=speechmatics.STT(
-            turn_detection_mode=TurnDetectionMode.SMART_TURN,
-            enable_diarization=True,
-            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-            speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-            focus_speakers=["S1"],
-        ),
+        stt=stt,
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM"),
         vad=silero.VAD.load(),
     )
 
     await session.start(room=ctx.room, agent=VoiceAssistant())
-    await session.generate_reply(instructions="Say hello...")
+
+    # Capture voiceprints in background and save to speakers.json
+    async def capture_voiceprints():
+        await asyncio.sleep(15)
+        while True:
+            result = await stt.get_speaker_ids()
+            if result:
+                save_speakers(result)
+            await asyncio.sleep(30)
+
+    asyncio.create_task(capture_voiceprints())
 ```
 
 ## Expected Output
@@ -358,7 +393,7 @@ Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in yo
 ## Next Steps
 
 - **[Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/)** - Learn about turn detection presets
-- **[Voice Agent Speaker ID](../../../basics/09-voice-agent-speaker-id/)** - Advanced speaker identification
+- **[Voice Agent Speaker ID](../../../basics/09-voice-agent-speaker-id/)** - Speaker identification with the Voice SDK directly
 
 ## Resources
 

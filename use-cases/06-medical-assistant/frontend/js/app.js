@@ -239,13 +239,6 @@ class MedicalAssistantApp {
             // Keep isDemoMode = true so SOAP generation uses demo websocket
         };
 
-        // End of utterance - speaker finished talking, reset for new segment
-        this.ws.onEndOfUtterance = (endTime) => {
-            console.log('Turn complete at', endTime, '- next transcript will be new segment');
-            this.currentSpeakerRole = null;
-            this.currentSegmentElement = null;
-        };
-
         // AI processing indicator
         this.ws.onAiProcessing = (status, reasoning) => {
             this.handleAiProcessing(status, reasoning);
@@ -528,7 +521,7 @@ class MedicalAssistantApp {
 
     // ==================== TRANSCRIPT DISPLAY ====================
 
-    // Track current speaker for grouping (reset by end_of_utterance from Speechmatics)
+    // Track current speaker for grouping
     currentSpeakerRole = null;
     currentSegmentElement = null;
 
@@ -586,7 +579,7 @@ class MedicalAssistantApp {
         const timestamp = this.formatTimestamp(data.start_time || 0);
 
         // Check if same speaker as current segment - append to existing
-        // (currentSpeakerRole is reset by end_of_utterance event from Speechmatics)
+        // Same speaker — append to existing segment
         if (this.currentSpeakerRole === data.speaker_role && this.currentSegmentElement) {
             // Append text to existing segment
             const textEl = this.currentSegmentElement.querySelector('.segment-text');
@@ -995,7 +988,7 @@ class MedicalAssistantApp {
 
         // Reset ICD codes
         if (this.elements.icdCodesContent) {
-            this.elements.icdCodesContent.innerHTML = '<p class="icd-placeholder">Codes will appear after recording...</p>';
+            this.elements.icdCodesContent.innerHTML = '<p class="icd-placeholder">Click "Generate Note" to suggest ICD-10 codes</p>';
         }
     }
 }

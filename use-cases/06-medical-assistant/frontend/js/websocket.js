@@ -22,7 +22,6 @@ class TranscriptionWebSocket {
         this.onError = null;
         this.onStatusChange = null;
         this.onDemoComplete = null;
-        this.onEndOfUtterance = null;
         this.onAiProcessing = null;
         this.onReasoning = null;
     }
@@ -196,13 +195,6 @@ class TranscriptionWebSocket {
                     console.log('Demo complete');
                     if (this.onDemoComplete) {
                         this.onDemoComplete();
-                    }
-                    break;
-
-                case 'end_of_utterance':
-                    console.log('End of utterance at', data.end_time);
-                    if (this.onEndOfUtterance) {
-                        this.onEndOfUtterance(data.end_time);
                     }
                     break;
 

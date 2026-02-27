@@ -2,16 +2,17 @@
 
 **Live bilingual (Arabic + English) medical transcription with speaker diarization, AI form extraction, clinical decision support, and SOAP note generation.**
 
-Combines Speechmatics Real-Time API for speech-to-text with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
+Combines Speechmatics Voice Agent SDK for speech-to-text with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
 
 ## What You'll Learn
 
 - Real-time bilingual transcription with `ar_en` (Arabic + English) language pack
 - Speaker diarization to identify Doctor vs Patient in clinical conversations
+- Diarization tuning with `speaker_sensitivity` and `prefer_current_speaker`
 - Medical domain configuration with custom vocabulary (English + Arabic terms)
-- Turn detection using end-of-utterance events for transcript grouping
+- ADAPTIVE preset with `emit_sentences=True` — adaptive end-of-utterance detection with sentence-level finals
 - Streaming audio from browser microphone via AudioWorklet API
-- Building a WebSocket pipeline: Browser → FastAPI → Speechmatics RT API
+- Building a WebSocket pipeline: Browser → FastAPI → Speechmatics Voice Agent SDK
 - Combining speech-to-text output with LLM-based entity extraction
 
 ## Prerequisites
@@ -71,7 +72,7 @@ Open **http://localhost:7860** in your browser.
 >
 > 1. **Capture** — Browser records microphone audio via AudioWorklet (16kHz, mono, PCM 16-bit)
 > 2. **Stream** — Audio chunks are sent over WebSocket to the FastAPI backend
-> 3. **Transcribe** — Backend streams audio to Speechmatics RT API with speaker diarization
+> 3. **Transcribe** — Backend streams audio to Speechmatics Voice Agent SDK with speaker diarization
 > 4. **Extract** — Final transcripts are forwarded to GPT-4o for medical entity extraction
 > 5. **Display** — Structured data populates the form, suggestions panel, SOAP notes, and ICD-10 codes
 
@@ -85,7 +86,7 @@ flowchart LR
     end
 
     subgraph FastAPI Server
-        WS_SERVER[WebSocket Handler] --> SM[Speechmatics RT API]
+        WS_SERVER[WebSocket Handler] --> SM[Speechmatics Voice Agent SDK]
         WS_SERVER --> GPT_EXTRACT[GPT-4o Extract]
         WS_SERVER --> GPT_SUGGEST[GPT-4o Suggest]
         WS_SERVER --> GPT_SOAP[GPT-4o SOAP + ICD]
@@ -99,49 +100,48 @@ flowchart LR
 ### Speechmatics Configuration
 
 ```python
-from speechmatics.rt import (
-    AsyncClient,
-    TranscriptionConfig,
-    AudioFormat,
-    AudioEncoding,
-    OperatingPoint,
-    SpeakerDiarizationConfig,
-    ConversationConfig,
+from speechmatics.voice import (
+    VoiceAgentClient,
+    VoiceAgentConfig,
+    VoiceAgentConfigPreset,
+    AdditionalVocabEntry,
+    SpeechSegmentConfig,
 )
 
-config = TranscriptionConfig(
-    language="ar_en",                         # Bilingual Arabic + English
-    operating_point=OperatingPoint.ENHANCED,   # Maximum accuracy for medical terms
-    enable_partials=True,                      # Show text as it's spoken
-    max_delay=2.0,                             # Low-latency streaming
-    enable_entities=True,                      # Structured entity recognition
+# ADAPTIVE preset — automatic end-of-utterance with adaptive silence detection.
+# We override emit_sentences=True so finals stream as sentences complete
+# (needed to drive LLM extraction), rather than accumulating until finalize().
+config = VoiceAgentConfigPreset.ADAPTIVE(VoiceAgentConfig(
+    language="ar_en",                          # Bilingual Arabic + English
     domain="medical",                          # Medical-optimized language pack
+    enable_entities=True,                      # Structured entity recognition
+    enable_diarization=True,                   # Required when setting max_speakers
+    speaker_sensitivity=0.7,                   # Above default 0.5 — clear speaker turns
+    prefer_current_speaker=True,               # Reduce false switches mid-sentence
+    max_speakers=2,                            # Doctor + Patient
     additional_vocab=[
-        {"content": "hypertension", "sounds_like": ["high per tension"]},
-        {"content": "tachycardia", "sounds_like": ["tacky cardia"]},
-        {"content": "SpO2", "sounds_like": ["S P O 2", "spo two"]},
-        {"content": "echocardiogram", "sounds_like": ["echo cardio gram"]},
+        AdditionalVocabEntry(content="hypertension", sounds_like=["high per tension"]),
+        AdditionalVocabEntry(content="tachycardia", sounds_like=["tacky cardia"]),
+        AdditionalVocabEntry(content="SpO2", sounds_like=["S P O 2", "spo two"]),
+        AdditionalVocabEntry(content="echocardiogram", sounds_like=["echo cardio gram"]),
         # Arabic medical terms
-        {"content": "ضغط الدم", "sounds_like": ["daght al dam"]},
-        {"content": "نبض القلب", "sounds_like": ["nabd al qalb"]},
+        AdditionalVocabEntry(content="ضغط الدم", sounds_like=["daght al dam"]),
+        AdditionalVocabEntry(content="نبض القلب", sounds_like=["nabd al qalb"]),
     ],
-    conversation_config=ConversationConfig(
-        end_of_utterance_silence_trigger=0.8,  # Turn detection at 800ms silence
-    ),
-)
+    speech_segment_config=SpeechSegmentConfig(emit_sentences=True),
+))
 
-# Speaker diarization for Doctor vs Patient
-config.diarization = "speaker"
-config.speaker_diarization_config = SpeakerDiarizationConfig(max_speakers=2)
-
-audio_format = AudioFormat(
-    encoding=AudioEncoding.PCM_S16LE,
-    sample_rate=16000,
+client = VoiceAgentClient(
+    api_key="YOUR_API_KEY",
+    url="wss://preview.rt.speechmatics.com/v2",
+    config=config,
 )
 ```
 
 > [!TIP]
-> **For medical transcription**, always use `domain="medical"` and `operating_point=OperatingPoint.ENHANCED`. The medical domain includes a specialized language pack optimized for clinical terminology, drug names, and medical procedures.
+> **For medical transcription**, always use `domain="medical"`. The medical domain includes a specialized language pack optimized for clinical terminology, drug names, and medical procedures.
+>
+> **ADAPTIVE preset** (`VoiceAgentConfigPreset.ADAPTIVE`) uses adaptive silence detection (0.7s base, adjusts to speech patterns like rate and disfluencies) plus VAD for automatic end-of-utterance. We override with `SpeechSegmentConfig(emit_sentences=True)` so finals stream as sentences complete — essential for driving real-time LLM extraction.
 
 ### Speaker Role Inference
 
@@ -198,14 +198,14 @@ ICD-10 CODES:
 
 ## Key Features Demonstrated
 
-**Speechmatics Real-Time Features:**
+**Speechmatics Voice Agent SDK Features:**
 - Bilingual `ar_en` transcription (Arabic + English in single stream)
-- Speaker diarization with `max_speakers=2`
+- Speaker diarization with `max_speakers=2`, `speaker_sensitivity=0.7`, `prefer_current_speaker=True`
 - Medical domain with `domain="medical"`
 - Custom vocabulary with `sounds_like` phonetic hints
 - Partial transcripts for live typing indicators
-- Turn detection via `end_of_utterance_silence_trigger`
-- Enhanced operating point for maximum accuracy
+- `VoiceAgentConfigPreset.ADAPTIVE` with `emit_sentences=True` — adaptive end-of-utterance with sentence-level finals
+- `SpeechSegmentConfig` overlay to override default ADAPTIVE behavior
 
 **Full-Stack Application:**
 - FastAPI WebSocket backend with session management
@@ -216,15 +216,20 @@ ICD-10 CODES:
 
 ## Configuration Options
 
+**`VoiceAgentConfig` parameters (overlay on ADAPTIVE preset):**
+
 | Parameter | Default | Options | Description |
 |-----------|---------|---------|-------------|
 | `language` | `ar_en` | `en`, `ar`, `ar_en` | Transcription language |
-| `operating_point` | `ENHANCED` | `ENHANCED`, `STANDARD` | Accuracy vs speed tradeoff |
 | `domain` | `medical` | `medical`, (none) | Medical vocabulary optimization |
+| `enable_diarization` | `True` | `True`, `False` | Required when setting `max_speakers` |
 | `max_speakers` | `2` | `1`–`20` | Maximum speakers for diarization |
-| `end_of_utterance_silence_trigger` | `0.8` | `0.1`–`10.0` | Silence duration (seconds) to trigger turn end |
-| `enable_partials` | `True` | `True`, `False` | Show real-time partial transcripts |
-| `max_delay` | `2.0` | `0.5`–`10.0` | Maximum delay for transcript delivery |
+| `speaker_sensitivity` | `0.7` | `0.0`–`1.0` | Speaker detection sensitivity (higher = more sensitive) |
+| `prefer_current_speaker` | `True` | `True`, `False` | Prefer current speaker to reduce false switches |
+| `enable_entities` | `True` | `True`, `False` | Structured entity recognition |
+| `speech_segment_config` | `emit_sentences=True` | `SpeechSegmentConfig(...)` | Overrides ADAPTIVE default to stream sentence-level finals |
+
+**Managed by ADAPTIVE preset** (no need to set manually): `end_of_utterance_mode=ADAPTIVE`, `end_of_utterance_silence_trigger=0.7`, `vad_config.enabled=True`, `use_forced_eou=True`, `operating_point=ENHANCED`, `max_delay=2.0`. The engine automatically detects turn boundaries using adaptive silence timing that adjusts to speech patterns.
 
 > [!WARNING]
 > The `max_speakers` parameter should match your use case. For clinical consultations, `2` (doctor + patient) is typical. Setting too high can reduce diarization accuracy.
@@ -238,7 +243,7 @@ medical-assistant/
 │   ├── main.py                  # FastAPI app, WebSocket endpoints, session management
 │   └── services/
 │       ├── __init__.py
-│       ├── transcription.py     # Speechmatics RT API client and session management
+│       ├── transcription.py     # Speechmatics Voice Agent SDK client and session management
 │       └── extraction.py        # GPT-4o extraction, suggestions, SOAP, ICD-10
 ├── frontend/
 │   ├── index.html               # Three-panel layout (transcript, form, suggestions)
@@ -260,7 +265,7 @@ medical-assistant/
 
 | Message | Description |
 |---------|-------------|
-| `{ type: "start" }` | Start transcription session |
+| `{ type: "start", speaker_sensitivity?: 0.7, prefer_current_speaker?: true }` | Start transcription session (optional diarization overrides) |
 | `{ type: "stop" }` | Stop transcription and trigger final extraction |
 | `{ type: "pause" }` / `{ type: "resume" }` | Pause/resume audio processing |
 | `{ type: "reset" }` | Clear transcript buffer and form data |
@@ -280,7 +285,7 @@ medical-assistant/
 | `icd_codes_update` | Suggested ICD-10 diagnostic codes with confidence |
 | `ai_processing` | Processing indicator start/stop |
 | `reasoning` | Live reasoning stream messages |
-| `end_of_utterance` | Turn detection event from Speechmatics |
+| `connected` | Session started — echoes `diarization_enabled`, `speaker_sensitivity`, `prefer_current_speaker` |
 
 ## Next Steps
 
@@ -307,7 +312,7 @@ medical-assistant/
 
 **"Poor accuracy on medical terms"**
 - Add domain-specific terms to `additional_vocab` in `transcription.py`
-- Ensure `domain="medical"` and `operating_point=OperatingPoint.ENHANCED` are set
+- Ensure `domain="medical"` is set in `VoiceAgentConfig`
 
 **"Demo mode works but live recording doesn't"**
 - Demo mode doesn't require a Speechmatics API key (uses simulated transcripts)
@@ -318,7 +323,8 @@ medical-assistant/
 - [Speechmatics Real-Time API Documentation](https://docs.speechmatics.com/introduction/rt-guide)
 - [Custom Vocabulary Guide](https://docs.speechmatics.com/features/custom-dictionary)
 - [Speaker Diarization](https://docs.speechmatics.com/features/diarization)
-- [Medical Domain](https://docs.speechmatics.com/speech-to-text/languages#healthcare-transcription)
+- [Medical Domain](https://docs.speechmatics.com/features/language-packs)
+- [OpenAI GPT-4o API Reference](https://platform.openai.com/docs/guides/text-generation)
 
 ---
 

@@ -1,24 +1,73 @@
 #!/usr/bin/env python3
 """
-Simple Voice Assistant - LiveKit Agents + Speechmatics Integration
+Voice Assistant with Speaker Identification - LiveKit Agents + Speechmatics
 
-A conversational voice assistant using:
-- Speechmatics STT (Speech-to-Text)
-- OpenAI LLM (Language Model)
-- ElevenLabs TTS (Text-to-Speech)
-- LiveKit WebRTC (Real-time Communication)
+Speechmatics handles speaker identification natively via voiceprints:
+1. First session: speakers labeled S1, S2 by diarization
+2. Voiceprints auto-captured via GET_SPEAKERS and saved to speakers.json
+3. Next session: returning speakers recognized by their saved voiceprint
 
+To assign a name, edit the "label" field in speakers.json after first run.
+
+Usage:
+    python main.py console
 """
 
+import asyncio
+import json
+import re
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions
 from livekit.plugins import openai, silero, speechmatics, elevenlabs
-from livekit.plugins.speechmatics import TurnDetectionMode
+from livekit.plugins.speechmatics import TurnDetectionMode, SpeakerIdentifier
 
-load_dotenv()
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+SPEAKERS_FILE = Path(__file__).parent / "speakers.json"
+RESERVED_LABEL = re.compile(r"^S\d+$")
+
+
+def load_known_speakers() -> list[SpeakerIdentifier]:
+    """Load previously enrolled speakers from disk."""
+    if not SPEAKERS_FILE.exists():
+        return []
+
+    with open(SPEAKERS_FILE) as f:
+        data = json.load(f)
+
+    return [
+        SpeakerIdentifier(label=entry["label"], speaker_identifiers=entry["speaker_identifiers"])
+        for entry in data
+        if entry.get("label") and entry.get("speaker_identifiers")
+        and not RESERVED_LABEL.match(entry["label"])
+    ]
+
+
+def save_speakers(raw_speakers: list[Any]) -> None:
+    """Persist speakers from GET_SPEAKERS result to disk.
+
+    Reserved labels like S1/S2 are renamed to Speaker_1/Speaker_2 so
+    they can be loaded as known_speakers without server rejection.
+    Edit the label field to assign a real name.
+    """
+    data = []
+    for speaker in raw_speakers:
+        if isinstance(speaker, dict):
+            label, ids = speaker.get("label", ""), speaker.get("speaker_identifiers", [])
+        else:
+            label, ids = speaker.label, speaker.speaker_identifiers
+        if label and ids:
+            if RESERVED_LABEL.match(label):
+                label = f"Speaker_{label[1:]}"
+            data.append({"label": label, "speaker_identifiers": ids})
+
+    if data:
+        with open(SPEAKERS_FILE, "w") as f:
+            json.dump(data, f, indent=2)
 
 
 def load_agent_prompt() -> str:
@@ -30,63 +79,59 @@ def load_agent_prompt() -> str:
 
 
 class VoiceAssistant(Agent):
-    """Voice assistant agent with Speechmatics STT."""
-
     def __init__(self) -> None:
         super().__init__(instructions=load_agent_prompt())
 
 
 async def entrypoint(ctx: agents.JobContext):
-    """
-    Main entrypoint for the voice assistant.
-
-    Pipeline flow:
-    1. LiveKit Room -> WebRTC audio input from user
-    2. Speechmatics STT -> Transcribes speech to text
-    3. OpenAI LLM -> Generates response
-    4. ElevenLabs TTS -> Converts response to speech
-    5. LiveKit Room -> WebRTC audio output to user
-    """
     await ctx.connect()
 
-    # Speech-to-Text: Speechmatics
-    # Turn detection options: SMART_TURN (ML-based), ADAPTIVE (VAD + hesitation), FIXED (VAD only)
+    known_speakers = load_known_speakers()
+
     stt = speechmatics.STT(
         turn_detection_mode=TurnDetectionMode.SMART_TURN,
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
         focus_speakers=["S1"],
+        known_speakers=known_speakers,
     )
 
-    # Language Model: OpenAI
     llm = openai.LLM(model="gpt-4o-mini")
-
-    # Text-to-Speech: ElevenLabs
-    tts = elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM")  # Rachel
-
-    # Voice Activity Detection: Silero
+    tts = elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM")
     vad = silero.VAD.load()
 
-    # Create Agent Session
-    session = AgentSession(
-        stt=stt,
-        llm=llm,
-        tts=tts,
-        vad=vad,
-    )
+    session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad)
 
-    # Start Session
     await session.start(
         room=ctx.room,
         agent=VoiceAssistant(),
         room_input_options=RoomInputOptions(),
     )
 
-    # Send Initial Greeting
-    await session.generate_reply(
-        instructions="Say a short hello and ask how you can help."
-    )
+    if known_speakers:
+        names = ", ".join(s.label for s in known_speakers)
+        await session.generate_reply(
+            instructions=f"Greet the user. You recognize: {names}. Welcome them back by name. Be brief."
+        )
+    else:
+        await session.generate_reply(
+            instructions="Say a short hello and ask how you can help."
+        )
+
+    # Capture voiceprints in background and save immediately
+    async def capture_voiceprints():
+        await asyncio.sleep(15)
+        while True:
+            try:
+                result = await stt.get_speaker_ids()
+                if result:
+                    save_speakers(result)
+            except Exception:
+                pass
+            await asyncio.sleep(30)
+
+    asyncio.create_task(capture_voiceprints())
 
 
 if __name__ == "__main__":

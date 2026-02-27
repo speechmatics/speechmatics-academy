@@ -49,7 +49,7 @@ from backend.services.transcription import TranscriptionService, TranscriptionSe
 from backend.services.extraction import (
     ExtractionService, MedicalFormData, SuggestionsService, AISuggestions,
     SpeakerRoleInference, SpeakerRole, DiarizedUtterance,
-    SOAPService, SOAPNote, ICDCode
+    SOAPService,
 )
 
 
@@ -102,13 +102,9 @@ async def health_check():
 class TranscriptionManager:
     """Manages WebSocket connection and transcription session"""
 
-    def __init__(self, websocket: WebSocket, language: str,
-                 speaker_sensitivity: float = 0.7,
-                 prefer_current_speaker: bool = True):
+    def __init__(self, websocket: WebSocket, language: str):
         self.websocket = websocket
         self.language = language
-        self.speaker_sensitivity = speaker_sensitivity
-        self.prefer_current_speaker = prefer_current_speaker
         self.settings = get_settings()
 
         # Session state
@@ -285,17 +281,12 @@ class TranscriptionManager:
         """Handle transcription error"""
         await self.send_message("error", message=error)
 
-    async def on_end_of_utterance(self, end_time: float):
-        """Handle end of utterance (speaker finished talking)"""
-        await self.send_message("end_of_utterance", end_time=end_time)
-
-    async def start(self):
+    async def start(self, **diarization_overrides):
         """Start transcription session"""
         service = TranscriptionService(
             api_key=self.settings.speechmatics_api_key,
             language=self.language,
-            speaker_sensitivity=self.speaker_sensitivity,
-            prefer_current_speaker=self.prefer_current_speaker,
+            **diarization_overrides,
         )
 
         self.session = TranscriptionSession(
@@ -303,8 +294,6 @@ class TranscriptionManager:
             on_partial=self.on_partial_transcript,
             on_final=self.on_final_transcript,
             on_error=self.on_error,
-            on_end_of_utterance=self.on_end_of_utterance,
-            enable_diarization=True,  # Enable speaker diarization
         )
 
         # Update session state
@@ -312,18 +301,13 @@ class TranscriptionManager:
         self.session_state.is_paused = False
         self.session_state.started_at = datetime.now()
 
-        # Start session in background
-        asyncio.create_task(self.session.start())
-
-        # Give it time to connect
-        await asyncio.sleep(0.5)
+        # Connect — Voice Agent SDK's connect() returns when session is established
+        await self.session.start()
         await self.send_message(
             "connected",
             language=self.language,
             session_id=self.session_state.session_id,
-            diarization_enabled=True,
-            speaker_sensitivity=self.speaker_sensitivity,
-            prefer_current_speaker=self.prefer_current_speaker,
+            **service.diarization_settings,
         )
 
     async def send_audio(self, audio_data: bytes):
@@ -627,9 +611,12 @@ async def transcription_websocket(websocket: WebSocket, language: str = "ar_en")
                     msg_type = data.get("type")
 
                     if msg_type == "start":
-                        manager.speaker_sensitivity = data.get("speaker_sensitivity", 0.7)
-                        manager.prefer_current_speaker = data.get("prefer_current_speaker", True)
-                        await manager.start()
+                        overrides = {}
+                        if "speaker_sensitivity" in data:
+                            overrides["speaker_sensitivity"] = data["speaker_sensitivity"]
+                        if "prefer_current_speaker" in data:
+                            overrides["prefer_current_speaker"] = data["prefer_current_speaker"]
+                        await manager.start(**overrides)
 
                     elif msg_type == "stop":
                         await manager.stop()
