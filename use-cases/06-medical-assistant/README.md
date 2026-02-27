@@ -4,6 +4,9 @@
 
 Combines Speechmatics Voice Agent SDK for speech-to-text with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
 
+> [!WARNING]
+> **Preview API Required.** This application uses the Speechmatics Voice Agent SDK preview endpoint (`wss://preview.rt.speechmatics.com/v2`). You must have preview mode enabled on your Speechmatics API key. Activate in your [portal settings](https://portal.speechmatics.com/) to ensure preview access is active.
+
 ## What You'll Learn
 
 - Real-time bilingual transcription with `ar_en` (Arabic + English) language pack
@@ -11,6 +14,8 @@ Combines Speechmatics Voice Agent SDK for speech-to-text with OpenAI GPT-4o for 
 - Diarization tuning with `speaker_sensitivity` and `prefer_current_speaker`
 - Medical domain configuration with custom vocabulary (English + Arabic terms)
 - ADAPTIVE preset with `emit_sentences=True` — adaptive end-of-utterance detection with sentence-level finals
+- `OperatingPoint.ENHANCED` for highest accuracy transcription
+- `advanced_engine_control` for audio filtering pass-through to TranscriptionConfig
 - Streaming audio from browser microphone via AudioWorklet API
 - Building a WebSocket pipeline: Browser → FastAPI → Speechmatics Voice Agent SDK
 - Combining speech-to-text output with LLM-based entity extraction
@@ -106,6 +111,7 @@ from speechmatics.voice import (
     VoiceAgentConfigPreset,
     AdditionalVocabEntry,
     SpeechSegmentConfig,
+    OperatingPoint,
 )
 
 # ADAPTIVE preset — automatic end-of-utterance with adaptive silence detection.
@@ -114,21 +120,27 @@ from speechmatics.voice import (
 config = VoiceAgentConfigPreset.ADAPTIVE(VoiceAgentConfig(
     language="ar_en",                          # Bilingual Arabic + English
     domain="medical",                          # Medical-optimized language pack
+    operating_point=OperatingPoint.ENHANCED,   # Highest accuracy transcription
     enable_entities=True,                      # Structured entity recognition
     enable_diarization=True,                   # Required when setting max_speakers
     speaker_sensitivity=0.7,                   # Above default 0.5 — clear speaker turns
     prefer_current_speaker=True,               # Reduce false switches mid-sentence
     max_speakers=2,                            # Doctor + Patient
     additional_vocab=[
-        AdditionalVocabEntry(content="hypertension", sounds_like=["high per tension"]),
-        AdditionalVocabEntry(content="tachycardia", sounds_like=["tacky cardia"]),
-        AdditionalVocabEntry(content="SpO2", sounds_like=["S P O 2", "spo two"]),
+        AdditionalVocabEntry(content="hypertension", sounds_like=["high per tension", "hyper tension"]),
+        AdditionalVocabEntry(content="tachycardia", sounds_like=["tacky cardia", "taki cardia"]),
+        AdditionalVocabEntry(content="SpO2", sounds_like=["S P O 2", "spo two", "oxygen saturation"]),
         AdditionalVocabEntry(content="echocardiogram", sounds_like=["echo cardio gram"]),
         # Arabic medical terms
         AdditionalVocabEntry(content="ضغط الدم", sounds_like=["daght al dam"]),
         AdditionalVocabEntry(content="نبض القلب", sounds_like=["nabd al qalb"]),
     ],
     speech_segment_config=SpeechSegmentConfig(emit_sentences=True),
+    advanced_engine_control={                  # Pass-through to TranscriptionConfig
+        "audio_filtering_config": {
+            "volume_threshold": 3.4,           # Filter low-volume background noise
+        },
+    },
 ))
 
 client = VoiceAgentClient(
@@ -202,10 +214,12 @@ ICD-10 CODES:
 - Bilingual `ar_en` transcription (Arabic + English in single stream)
 - Speaker diarization with `max_speakers=2`, `speaker_sensitivity=0.7`, `prefer_current_speaker=True`
 - Medical domain with `domain="medical"`
+- `OperatingPoint.ENHANCED` for highest accuracy transcription
 - Custom vocabulary with `sounds_like` phonetic hints
 - Partial transcripts for live typing indicators
 - `VoiceAgentConfigPreset.ADAPTIVE` with `emit_sentences=True` — adaptive end-of-utterance with sentence-level finals
 - `SpeechSegmentConfig` overlay to override default ADAPTIVE behavior
+- `advanced_engine_control` pass-through for audio filtering (`volume_threshold: 3.4`)
 
 **Full-Stack Application:**
 - FastAPI WebSocket backend with session management
@@ -227,9 +241,11 @@ ICD-10 CODES:
 | `speaker_sensitivity` | `0.7` | `0.0`–`1.0` | Speaker detection sensitivity (higher = more sensitive) |
 | `prefer_current_speaker` | `True` | `True`, `False` | Prefer current speaker to reduce false switches |
 | `enable_entities` | `True` | `True`, `False` | Structured entity recognition |
+| `operating_point` | `ENHANCED` | `OperatingPoint.ENHANCED`, `OperatingPoint.STANDARD` | Highest accuracy transcription model |
 | `speech_segment_config` | `emit_sentences=True` | `SpeechSegmentConfig(...)` | Overrides ADAPTIVE default to stream sentence-level finals |
+| `advanced_engine_control` | `audio_filtering_config` | `dict` | Pass-through to `TranscriptionConfig` — sets `volume_threshold: 3.4` to filter background noise |
 
-**Managed by ADAPTIVE preset** (no need to set manually): `end_of_utterance_mode=ADAPTIVE`, `end_of_utterance_silence_trigger=0.7`, `vad_config.enabled=True`, `use_forced_eou=True`, `operating_point=ENHANCED`, `max_delay=2.0`. The engine automatically detects turn boundaries using adaptive silence timing that adjusts to speech patterns.
+**Managed by ADAPTIVE preset** (no need to set manually): `end_of_utterance_mode=ADAPTIVE`, `end_of_utterance_silence_trigger=0.7`, `vad_config.enabled=True`, `use_forced_eou=True`, `max_delay=2.0`. The engine automatically detects turn boundaries using adaptive silence timing that adjusts to speech patterns.
 
 > [!WARNING]
 > The `max_speakers` parameter should match your use case. For clinical consultations, `2` (doctor + patient) is typical. Setting too high can reduce diarization accuracy.
@@ -269,14 +285,17 @@ medical-assistant/
 | `{ type: "stop" }` | Stop transcription and trigger final extraction |
 | `{ type: "pause" }` / `{ type: "resume" }` | Pause/resume audio processing |
 | `{ type: "reset" }` | Clear transcript buffer and form data |
+| `{ type: "set_patient", name: "..." }` | Set patient name for the session |
 | `{ type: "generate_soap" }` | Request SOAP note + ICD-10 code generation |
 | `{ type: "start_demo" }` | Start demo mode (simulated encounter) |
+| `{ type: "ping" }` | Keepalive heartbeat (server responds with `pong`) |
 | Binary data | Raw PCM audio chunks (16-bit LE, 16kHz) |
 
 **Server → Client:**
 
 | Message | Description |
 |---------|-------------|
+| `connected` | Session started — echoes `diarization_enabled`, `speaker_sensitivity`, `prefer_current_speaker` |
 | `partial` | Real-time partial transcript with speaker info |
 | `final` | Confirmed transcript segment with diarization |
 | `form_update` | Extracted medical form data (vitals, symptoms, etc.) |
@@ -285,7 +304,12 @@ medical-assistant/
 | `icd_codes_update` | Suggested ICD-10 diagnostic codes with confidence |
 | `ai_processing` | Processing indicator start/stop |
 | `reasoning` | Live reasoning stream messages |
-| `connected` | Session started — echoes `diarization_enabled`, `speaker_sensitivity`, `prefer_current_speaker` |
+| `demo_complete` | Demo mode finished playing all simulated segments |
+| `error` | Server-side error message |
+| `reset_complete` | Transcript buffer cleared |
+| `pong` | Heartbeat response to client `ping` |
+| `patient_set` | Confirms patient name was set |
+| `paused` / `resumed` | Confirms transcription pause/resume state |
 
 ## Next Steps
 
