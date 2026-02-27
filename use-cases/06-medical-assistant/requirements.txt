@@ -1,5 +1,5 @@
-# Speechmatics Voice Agent SDK (includes speechmatics-rt)
-speechmatics-voice>=0.2.8
+# Speechmatics RT SDK (real-time transcription with bilingual ar_en support)
+speechmatics-rt>=0.5.0
 
 # Web framework
 fastapi>=0.109.0

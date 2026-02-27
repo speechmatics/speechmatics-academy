@@ -94,3 +94,5 @@ dmypy.json
 .pyre/
 
 integrations/livekit/01-simple-voice-assistant/python/.models/
+
+use-cases/06-medical-assistant/.models/

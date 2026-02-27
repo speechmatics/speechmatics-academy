@@ -10,7 +10,7 @@ from typing import Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from pydantic_settings import BaseSettings
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -84,8 +84,16 @@ if frontend_path.exists():
 
 @app.get("/")
 async def serve_index():
-    """Serve the main HTML page"""
-    return FileResponse(frontend_path / "index.html")
+    """Serve index.html with cache-busting query strings on JS/CSS imports"""
+    import time
+    cache_bust = str(int(time.time()))
+    html = (frontend_path / "index.html").read_text(encoding="utf-8")
+    # Append cache-bust param so browser always fetches latest JS/CSS
+    html = html.replace('href="/css/style.css"', f'href="/css/style.css?v={cache_bust}"')
+    html = html.replace('src="/js/audio.js"', f'src="/js/audio.js?v={cache_bust}"')
+    html = html.replace('src="/js/websocket.js"', f'src="/js/websocket.js?v={cache_bust}"')
+    html = html.replace('src="/js/app.js"', f'src="/js/app.js?v={cache_bust}"')
+    return HTMLResponse(content=html, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 @app.get("/health")
@@ -301,7 +309,7 @@ class TranscriptionManager:
         self.session_state.is_paused = False
         self.session_state.started_at = datetime.now()
 
-        # Connect — Voice Agent SDK's connect() returns when session is established
+        # Connect — RT SDK's start_session() returns when session is established
         await self.session.start()
         await self.send_message(
             "connected",
@@ -355,8 +363,27 @@ class TranscriptionManager:
                 data=self.current_suggestions.model_dump()
             )
 
-    def reset(self):
-        """Reset transcript buffer and form data"""
+    async def reset(self):
+        """Reset transcript buffer, form data, and stop any active session"""
+        # Cancel any in-flight extraction/suggestion tasks to prevent
+        # late results from repopulating the cleared UI
+        self._pending_extraction = False
+        self._pending_suggestions = False
+        if self._extraction_task and not self._extraction_task.done():
+            self._extraction_task.cancel()
+        if self._suggestions_task and not self._suggestions_task.done():
+            self._suggestions_task.cancel()
+        self._extraction_task = None
+        self._suggestions_task = None
+
+        # Stop transcription session if active (no final extraction)
+        if self.session:
+            try:
+                await self.session.stop()
+            except Exception as e:
+                print(f"Error stopping session during reset: {e}")
+            self.session = None
+
         self.transcript_buffer = []
         self.diarized_utterances = []
         self.speaker_history = {}
@@ -628,7 +655,7 @@ async def transcription_websocket(websocket: WebSocket, language: str = "ar_en")
                         await manager.resume()
 
                     elif msg_type == "reset":
-                        manager.reset()
+                        await manager.reset()
                         await manager.send_message("reset_complete")
 
                     elif msg_type == "set_patient":

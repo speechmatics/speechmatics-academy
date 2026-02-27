@@ -15,6 +15,8 @@ class MedicalAssistantApp {
         this.isRecording = false;
         this.isPaused = false;
         this.isDemoMode = false;
+        this.isWebSocketConnected = false;
+        this.isAudioReady = false;
         this.currentLanguage = 'ar_en';  // Bilingual: Arabic + English
         this.transcriptSegments = [];
 
@@ -100,7 +102,7 @@ class MedicalAssistantApp {
         // Initialize audio
         try {
             await this.audio.initialize();
-            this.elements.recordBtn.disabled = false;
+            this.isAudioReady = true;
 
             // Connect analyser to visualizer
             this.visualizer.setAnalyser(this.audio.getAnalyser());
@@ -109,7 +111,7 @@ class MedicalAssistantApp {
             this.showError('Microphone access denied. Please allow microphone access to use transcription.');
         }
 
-        // Connect to WebSocket
+        // Connect to WebSocket (record button enabled via updateConnectionStatus callback)
         try {
             await this.ws.connect(this.currentLanguage);
         } catch (error) {
@@ -413,10 +415,19 @@ class MedicalAssistantApp {
     }
 
     resetAll() {
-        // Stop recording if active
+        // Stop audio capture locally WITHOUT sending "stop" to backend
+        // (sending "stop" triggers final GPT-4o extraction whose results would
+        // flash on screen after the UI is cleared — race condition)
         if (this.isRecording) {
-            this.stopRecording();
+            this.audio.stop();
+            if (this.visualizer) this.visualizer.stop();
+            this.isRecording = false;
+            this.isPaused = false;
+            this.updateRecordingUI();
         }
+
+        // Disconnect demo WebSocket to cancel any in-flight GPT-4o calls
+        this.demoWs.disconnect();
 
         // Reset timer
         this.resetTimer();
@@ -440,7 +451,8 @@ class MedicalAssistantApp {
         // Clear new features (time saved, completeness, SOAP, ICD)
         this.clearNewFeatures();
 
-        // Reset WebSocket buffer
+        // Send reset to backend — stops transcription session, cancels pending
+        // extraction tasks, and clears all buffers (no final extraction triggered)
         this.ws.resetTranscript();
     }
 
@@ -533,9 +545,9 @@ class MedicalAssistantApp {
 
     showDiarizedPartial(data) {
         const roleLabel = data.speaker_role === 'doctor' ? 'DOCTOR' :
-                         data.speaker_role === 'patient' ? 'PATIENT' : 'SPEAKER';
+                         data.speaker_role === 'patient' ? 'PATIENT' : 'UNKNOWN';
         const initials = data.speaker_role === 'doctor' ? 'DR' :
-                        data.speaker_role === 'patient' ? 'PT' : 'SP';
+                        data.speaker_role === 'patient' ? 'PT' : '?';
 
         // Show typing indicator (3 bouncing dots) instead of partial text
         this.elements.partialTranscript.innerHTML = `
@@ -573,9 +585,9 @@ class MedicalAssistantApp {
         });
 
         const roleLabel = data.speaker_role === 'doctor' ? 'DOCTOR' :
-                         data.speaker_role === 'patient' ? 'PATIENT' : 'SPEAKER';
+                         data.speaker_role === 'patient' ? 'PATIENT' : 'UNKNOWN';
         const initials = data.speaker_role === 'doctor' ? 'DR' :
-                        data.speaker_role === 'patient' ? 'PT' : 'SP';
+                        data.speaker_role === 'patient' ? 'PT' : '?';
         const timestamp = this.formatTimestamp(data.start_time || 0);
 
         // Check if same speaker as current segment - append to existing
@@ -808,6 +820,12 @@ class MedicalAssistantApp {
         };
 
         textEl.textContent = statusTexts[status] || status;
+
+        // Track connection state and enable/disable record button
+        this.isWebSocketConnected = (status === 'connected');
+        if (!this.isRecording) {
+            this.elements.recordBtn.disabled = !(this.isAudioReady && this.isWebSocketConnected);
+        }
     }
 
     updateRecordingUI() {
@@ -830,8 +848,8 @@ class MedicalAssistantApp {
                 pauseBtn.title = 'Pause';
             }
         } else {
-            // Idle state - enable record, disable pause/stop
-            recordBtn.disabled = false;
+            // Idle state - only enable record when both audio and WebSocket are ready
+            recordBtn.disabled = !(this.isAudioReady && this.isWebSocketConnected);
             pauseBtn.disabled = true;
             stopBtn.disabled = true;
             pauseIcon.textContent = 'pause';
