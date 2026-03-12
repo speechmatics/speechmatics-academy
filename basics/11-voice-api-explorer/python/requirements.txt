@@ -1,0 +1,10 @@
+# Speechmatics Voice API Explorer
+
+# WebSocket client
+websockets>=12.0
+
+# Microphone input
+pyaudio>=0.2.14
+
+# Environment variables
+python-dotenv>=1.0.0
