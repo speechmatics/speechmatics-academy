@@ -35,7 +35,7 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 ## Quick Start
 
 <details>
-<summary><b>Python</b></summary>
+<summary><b>Python - Click to expand setup and usage instructions</b></summary>
 
 <br>
 
@@ -61,7 +61,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-> [!NOTE]
 > **PyAudio installation** requires the PortAudio system library:
 > - **Windows:** `pip install pyaudio` works out of the box
 > - **Mac:** `brew install portaudio && pip install pyaudio`
@@ -102,7 +101,7 @@ By default, the demo records from your microphone - select a demo, speak, press 
 </details>
 <br>
 <details>
-<summary><b>JavaScript (Node.js)</b></summary>
+<summary><b>JavaScript (Node.js) - Click to expand setup and usage instructions</b></summary>
 
 <br>
 
@@ -113,7 +112,6 @@ cd javascript
 npm install
 ```
 
-> [!NOTE]
 > **Microphone recording:**
 > - **Windows:** Works out of the box - uses native Windows MCI audio APIs (no extra install needed). A small `.mic_recorder.exe` is compiled on first use via .NET Framework.
 > - **Mac:** `brew install sox`
