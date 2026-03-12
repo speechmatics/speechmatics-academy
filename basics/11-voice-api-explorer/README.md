@@ -27,13 +27,17 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 ## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+**
+- **Python 3.9+** or **Node.js 18+**
 - **Microphone**: Any working input device (built-in or USB) - used by default
-- **PyAudio**: Installed automatically with `pip install -r requirements.txt` (see platform notes below)
+- **PyAudio** (Python): Installed automatically with `pip install -r requirements.txt` (see platform notes below)
+- **SoX** (JavaScript, Mac/Linux only): Required for microphone recording on Mac/Linux (see platform notes below). Windows uses native audio APIs - no extra install needed.
 
 ## Quick Start
 
-### Python
+<details>
+<summary><b>Python</b></summary>
+
+<br>
 
 **Step 1: Create and activate a virtual environment**
 
@@ -95,10 +99,92 @@ python main.py --debug --audio path/to/file.wav voice
 
 By default, the demo records from your microphone - select a demo, speak, press Enter to stop, and the recorded audio is sent to the API. Use `--audio` to provide a pre-recorded 16-bit mono WAV file instead.
 
+</details>
+<br>
+<details>
+<summary><b>JavaScript (Node.js)</b></summary>
+
+<br>
+
+**Step 1: Install dependencies**
+
+```bash
+cd javascript
+npm install
+```
+
+> [!NOTE]
+> **Microphone recording:**
+> - **Windows:** Works out of the box - uses native Windows MCI audio APIs (no extra install needed). A small `.mic_recorder.exe` is compiled on first use via .NET Framework.
+> - **Mac:** `brew install sox`
+> - **Linux (Debian/Ubuntu):** `sudo apt install sox`
+>
+> On Mac/Linux, microphone recording uses [SoX](https://sox.sourceforge.net/) via `node-record-lpcm16`. If SoX is not installed, you can still use `--audio` to provide a WAV file instead.
+
+**Step 2: Configure your API key**
+
+```bash
+cp ../.env.example ../.env
+# Edit ../.env and add your SPEECHMATICS_API_KEY
+```
+
+**Step 3: Run the demo**
+
+```bash
+# Interactive menu - records from your microphone by default
+node main.js
+
+# Or run a specific demo
+node main.js rt              # RT mode transcription
+node main.js rt-translate    # RT mode with translation
+node main.js voice           # Voice mode (adaptive)
+node main.js profiles        # Compare all profiles
+node main.js advanced        # Speaker focus, ForceEOU
+node main.js messages        # Message control
+node main.js all             # Run everything
+
+# Use a WAV file instead of the microphone
+node main.js --audio path/to/file.wav rt
+
+# Debug mode
+node main.js --debug rt
+node main.js --debug --audio path/to/file.wav voice
+```
+
+</details>
+
+## Project Structure
+
+Both implementations split the code into three files with the same responsibilities:
+
+| File | Purpose |
+|------|---------|
+| **`main.py` / `main.js`** | CLI entry point - argument parsing, interactive menu, audio input handling, and demo orchestration |
+| **`demos.py` / `demos.js`** | All six demo functions, each configuring and running a specific API scenario |
+| **`core.py` / `core.js`** | Shared infrastructure - constants, audio utilities (mic recording, WAV parsing), WebSocket session runner, and ANSI-coloured message formatter |
+
+```
+11-voice-api-explorer/
+├── python/
+│   ├── main.py              # CLI entry point
+│   ├── demos.py             # 6 demo functions
+│   ├── core.py              # Session runner, audio utils, message formatter
+│   └── requirements.txt
+├── javascript/
+│   ├── main.js              # CLI entry point
+│   ├── demos.js             # 6 demo functions
+│   ├── core.js              # Session runner, audio utils, message formatter
+│   └── package.json
+├── assets/
+│   └── sample_mono.wav      # Sample audio for testing
+├── .env.example
+└── README.md
+```
+
 ## How It Works
 
 > [!NOTE]
-> This demo connects directly to the Voice API WebSocket using raw `websockets` - no SDK wrapper - to demonstrate the full protocol:
+> This demo connects directly to the Voice API WebSocket using raw `websockets` (Python) or `ws` (Node.js) - no SDK wrapper - to demonstrate the full protocol:
 >
 > 1. **Record** - capture audio from your microphone (or load a WAV file via `--audio`)
 > 2. **Connect** - open a WebSocket to `/v2` (RT) or `/v2/agent/{profile}` (Voice) with Bearer token auth
@@ -168,7 +254,7 @@ Input: *"Today I went to the shop and I bought a couple of different things. One
 | **External** | 1 | Entire utterance until `ForceEndOfUtterance` was sent by the client |
 
 > [!TIP]
-> Run `python main.py profiles` to see this comparison live with your own audio.
+> Run `python main.py profiles` (or `node main.js profiles`) to see this comparison live with your own audio.
 
 ## Demos
 
@@ -372,7 +458,7 @@ Choice [1-7]: 1
 
 ## Audio Input
 
-**Microphone (default):** The demo records from your default input device at 16 kHz mono using PyAudio. Select a demo, speak, then press Enter - the recorded buffer is replayed to the API for each session.
+**Microphone (default):** The demo records from your default input device using PyAudio (Python) or native APIs (Node.js on Windows) / SoX (Node.js on Mac/Linux). Select a demo, speak, then press Enter - the recorded buffer is replayed to the API for each session.
 
 **WAV file (`--audio`):** Pass `--audio path/to/file.wav` to use a pre-recorded file instead. The file must be 16-bit mono WAV (any sample rate; 16 kHz recommended).
 
@@ -392,6 +478,8 @@ Pass `--debug` to see the full protocol exchange - useful for troubleshooting co
 
 ```bash
 python main.py --debug voice
+# or
+node main.js --debug voice
 ```
 
 Debug mode outputs:
@@ -400,7 +488,9 @@ Debug mode outputs:
 - **Raw JSON for every message** - complete server responses, not just formatted summaries
 
 > [!TIP]
-> Combine `--debug` with `--audio` for reproducible bug reports: `python main.py --debug --audio ../assets/sample_mono.wav rt`
+> Combine `--debug` with `--audio` for reproducible bug reports:
+> - Python: `python main.py --debug --audio ../assets/sample_mono.wav rt`
+> - Node.js: `node main.js --debug --audio ../assets/sample_mono.wav rt`
 
 ## Next Steps
 
@@ -438,6 +528,11 @@ Debug mode outputs:
 - You may have sent `translation_config` or `audio_events_config` in Voice mode, which is not supported
 - Check for unsupported `transcription_config` fields (see Voice Mode Restrictions above)
 
+**"Microphone recording requires SoX" (Node.js on Mac/Linux)**
+- Install SoX: Mac `brew install sox`, Linux `sudo apt install sox`
+- Or use `--audio path/to/file.wav` to skip the microphone
+- On Windows, mic recording uses native APIs and does not require SoX
+
 **"UpdateSpeakerFocus returns Error"**
 - `enable_diarization` must be `true` in the initial `StartRecognition` config
 
@@ -447,6 +542,7 @@ Debug mode outputs:
 - [Voice API Documentation](https://docs-git-voiceagentapipreview-speechmatics.vercel.app/private/voice-agent-api)
 - [Voice SDK Documentation](https://docs.speechmatics.com/voice-agents/voice-sdk)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)
+- [Speechmatics JavaScript SDK](https://github.com/speechmatics/speechmatics-js-sdk)
 
 ---
 
