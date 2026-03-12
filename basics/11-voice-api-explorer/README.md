@@ -12,12 +12,12 @@
 > - **Missing capabilities** - what would make your product better
 > - **Production blockers** - what would stop you using this in production
 
-The Voice API is a unified WebSocket endpoint for real-time transcription and voice agent capabilities. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across six interactive scenarios.
+The Voice API is a unified WebSocket endpoint for real-time transcription and voice agent capabilities. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across five interactive scenarios.
 
 ## What You'll Learn
 
 - How to connect to the Voice API WebSocket with authentication
-- **RT mode** (`/v2`): real-time transcription with partials, finals, confidence, and translation
+- **RT mode** (`/v2`): real-time transcription with partials, finals, and confidence
 - **Voice mode** (`/v2/agent/{profile}`): segments, turns, speaker tracking, and session metrics
 - All **four voice profiles**: `agile`, `adaptive`, `smart`, `external`
 - **Mid-session control**: `ForceEndOfUtterance`, `UpdateSpeakerFocus`, `GetSpeakers`
@@ -81,7 +81,6 @@ python main.py
 
 # Or run a specific demo
 python main.py rt              # RT mode transcription
-python main.py rt-translate    # RT mode with translation
 python main.py voice           # Voice mode (adaptive)
 python main.py profiles        # Compare all profiles
 python main.py advanced        # Speaker focus, ForceEOU
@@ -134,7 +133,6 @@ node main.js
 
 # Or run a specific demo
 node main.js rt              # RT mode transcription
-node main.js rt-translate    # RT mode with translation
 node main.js voice           # Voice mode (adaptive)
 node main.js profiles        # Compare all profiles
 node main.js advanced        # Speaker focus, ForceEOU
@@ -158,19 +156,19 @@ Both implementations split the code into three files with the same responsibilit
 | File | Purpose |
 |------|---------|
 | **`main.py` / `main.js`** | CLI entry point - argument parsing, interactive menu, audio input handling, and demo orchestration |
-| **`demos.py` / `demos.js`** | All six demo functions, each configuring and running a specific API scenario |
+| **`demos.py` / `demos.js`** | All five demo functions, each configuring and running a specific API scenario |
 | **`core.py` / `core.js`** | Shared infrastructure - constants, audio utilities (mic recording, WAV parsing), WebSocket session runner, and ANSI-coloured message formatter |
 
 ```
 11-voice-api-explorer/
 ├── python/
 │   ├── main.py              # CLI entry point
-│   ├── demos.py             # 6 demo functions
+│   ├── demos.py             # 5 demo functions
 │   ├── core.py              # Session runner, audio utils, message formatter
 │   └── requirements.txt
 ├── javascript/
 │   ├── main.js              # CLI entry point
-│   ├── demos.js             # 6 demo functions
+│   ├── demos.js             # 5 demo functions
 │   ├── core.js              # Session runner, audio utils, message formatter
 │   └── package.json
 ├── assets/
@@ -262,28 +260,19 @@ Streams audio via `/v2` and displays partial and final transcription results wit
 
 **Messages shown:** `RecognitionStarted`, `AddPartialTranscript`, `AddTranscript`, `EndOfUtterance`, `EndOfTranscript`
 
-### Demo 2: RT Mode - Translation (`rt-translate`)
-
-Same as Demo 1, plus real-time translation to French and Russian.
-
-**Messages shown:** `AddPartialTranslation`, `AddTranslation`
-
-> [!IMPORTANT]
-> Translation is only available in RT mode. Sending `translation_config` in Voice mode will cause an `Error` and close the connection.
-
-### Demo 3: Voice Mode - Adaptive (`voice`)
+### Demo 2: Voice Mode - Adaptive (`voice`)
 
 Connects to `/v2/agent/adaptive` and demonstrates the segment-based output format with speaker tracking and session metrics.
 
 **Messages shown:** `AddPartialSegment`, `AddSegment` (with annotations like `has_partial`, `has_final`, `fast_speaker`), `SpeakerStarted`, `SpeakerEnded`, `StartOfTurn`, `EndOfTurn`, `SessionMetrics`, `SpeakerMetrics`
 
-### Demo 4: Profile Comparison (`profiles`)
+### Demo 3: Profile Comparison (`profiles`)
 
 Runs the same audio through all four voice profiles to show how each handles turn detection differently.
 
 For the `external` profile, the demo sends `ForceEndOfUtterance` to manually trigger utterance boundaries.
 
-### Demo 5: Advanced Features (`advanced`)
+### Demo 4: Advanced Features (`advanced`)
 
 Demonstrates mid-session control with `enable_diarization`:
 
@@ -292,7 +281,7 @@ Demonstrates mid-session control with `enable_diarization`:
 3. **ForceEndOfUtterance** - immediately finalise the current utterance
 4. **UpdateSpeakerFocus** with `focus_mode: "ignore"` - non-focused speakers dropped entirely
 
-### Demo 6: Message Control (`messages`)
+### Demo 5: Message Control (`messages`)
 
 Shows how `message_control` in `StartRecognition` lets you customise which messages are forwarded:
 
@@ -319,10 +308,6 @@ Shows how `message_control` in `StartRecognition` lets you customise which messa
         "type": "raw",
         "encoding": "pcm_s16le",
         "sample_rate": 16000
-    },
-    "translation_config": {
-        "target_languages": ["es", "fr"],
-        "enable_partials": true
     },
     "message_control": {
         "include": ["AudioAdded", "SpeechStarted", "SpeechEnded"],
@@ -382,8 +367,6 @@ The following `transcription_config` fields are **not available** in Voice mode 
 |---------|-------------|
 | `AddPartialTranscript` | Interim transcription with word-level results. |
 | `AddTranscript` | Finalised transcription with confidence and punctuation. |
-| `AddPartialTranslation` | Interim translation result. |
-| `AddTranslation` | Finalised translation. |
 | `AudioEventStarted` | Audio event detected (e.g. music). |
 | `AudioEventEnded` | Audio event ended. |
 
@@ -402,7 +385,6 @@ The following `transcription_config` fields are **not available** in Voice mode 
 
 **RT Mode (Real-Time Transcription):**
 - Partial and final transcription with word-level confidence
-- Real-time translation to multiple languages
 - Utterance boundary detection
 
 **Voice Mode (Voice Agent):**
@@ -422,13 +404,12 @@ The following `transcription_config` fields are **not available** in Voice mode 
 ```
 Select a demo:
   1) rt             - RT mode transcription
-  2) rt-translate   - RT mode with translation
-  3) voice          - Voice mode (adaptive)
-  4) profiles       - Compare all voice profiles
-  5) advanced       - Speaker focus & ForceEOU
-  6) messages       - Message control
-  7) all            - Run all demos
-Choice [1-7]: 1
+  2) voice          - Voice mode (adaptive)
+  3) profiles       - Compare all voice profiles
+  4) advanced       - Speaker focus & ForceEOU
+  5) messages       - Message control
+  6) all            - Run all demos
+Choice [1-6]: 1
 
   Recording... speak now, then press Enter to stop.
 

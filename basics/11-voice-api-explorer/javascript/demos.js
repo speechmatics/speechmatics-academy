@@ -50,50 +50,11 @@ async function demoRtBasic(apiKey, server, pcm, sr) {
 }
 
 // =============================================================================
-// DEMO 2: RT Mode - Translation
-// =============================================================================
-
-async function demoRtTranslate(apiKey, server, pcm, sr) {
-  header("Demo 2: RT Mode - Real-Time Translation");
-  console.log("  Mode:     RT (no profile)");
-  console.log("  Endpoint: /v2");
-  console.log(
-    "  Shows:    translation_config, AddPartialTranslation, AddTranslation",
-  );
-  console.log(
-    "  Note:     Translation is RT-mode only. Not supported in Voice mode.",
-  );
-  console.log();
-
-  const config = {
-    transcription_config: {
-      language: "en",
-      enable_partials: true,
-    },
-    translation_config: {
-      target_languages: ["ru", "fr"],
-      enable_partials: true,
-    },
-    audio_format: audioFormatBlock(sr),
-  };
-
-  await runSession({
-    apiKey,
-    server,
-    wsPath: "/v2",
-    config,
-    pcm,
-    sampleRate: sr,
-    onMessage: (msg) => printMsg(msg),
-  });
-}
-
-// =============================================================================
-// DEMO 3: Voice Mode - Single Profile (adaptive)
+// DEMO 2: Voice Mode - Single Profile (adaptive)
 // =============================================================================
 
 async function demoVoiceSingle(apiKey, server, pcm, sr) {
-  header("Demo 3: Voice Mode - Adaptive Profile");
+  header("Demo 2: Voice Mode - Adaptive Profile");
   console.log("  Mode:     Voice");
   console.log("  Endpoint: /v2/agent/adaptive");
   console.log(
@@ -123,11 +84,11 @@ async function demoVoiceSingle(apiKey, server, pcm, sr) {
 }
 
 // =============================================================================
-// DEMO 4: Voice Mode - Profile Comparison
+// DEMO 3: Voice Mode - Profile Comparison
 // =============================================================================
 
 async function demoVoiceProfiles(apiKey, server, pcm, sr) {
-  header("Demo 4: Voice Mode - Profile Comparison");
+  header("Demo 3: Voice Mode - Profile Comparison");
   console.log(
     "  Runs the same audio through all four profiles to compare behaviour.",
   );
@@ -186,11 +147,11 @@ async function demoVoiceProfiles(apiKey, server, pcm, sr) {
 }
 
 // =============================================================================
-// DEMO 5: Voice Mode - Advanced Features
+// DEMO 4: Voice Mode - Advanced Features
 // =============================================================================
 
 async function demoVoiceAdvanced(apiKey, server, pcm, sr) {
-  header("Demo 5: Voice Mode - Advanced Features");
+  header("Demo 4: Voice Mode - Advanced Features");
   console.log(
     "  Features: enable_diarization, UpdateSpeakerFocus, GetSpeakers,",
   );
@@ -265,11 +226,11 @@ async function demoVoiceAdvanced(apiKey, server, pcm, sr) {
 }
 
 // =============================================================================
-// DEMO 6: Message Control - Include/Exclude
+// DEMO 5: Message Control - Include/Exclude
 // =============================================================================
 
 async function demoMessageControl(apiKey, server, pcm, sr) {
-  header("Demo 6: Message Control - Include/Exclude");
+  header("Demo 5: Message Control - Include/Exclude");
 
   // --- Part A: Include optional messages ---
   subheader("Part A: Include optional messages");
@@ -332,7 +293,6 @@ async function demoMessageControl(apiKey, server, pcm, sr) {
 
 module.exports = {
   demoRtBasic,
-  demoRtTranslate,
   demoVoiceSingle,
   demoVoiceProfiles,
   demoVoiceAdvanced,

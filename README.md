@@ -183,7 +183,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Basic Turn Detection](basics/07-turn-detection/) | Silence-based turn detection with Real-Time SDK | `RT` |  Intermediate |
 | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) | Smart turn detection with Voice SDK presets | `Voice` |  Intermediate |
 | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Extract speaker IDs and control which speakers drive conversation | `Voice` |  Intermediate |
-| [Voice API Explorer](basics/11-voice-api-explorer/) | Explore every Voice API WebSocket feature — RT and Voice modes, all profiles, message control | `WebSocket` |  Intermediate |
+| [Voice API Explorer](basics/11-voice-api-explorer/) | Explore every Voice API WebSocket feature - RT and Voice modes, all profiles, message control | `WebSocket` |  Intermediate |
 
 [Browse all basics examples](basics/)
 
@@ -275,7 +275,7 @@ Find examples for the SDK package you installed:
 | **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
-| **Translation** | [Multilingual & Translation](basics/05-multilingual-translation/), [Voice API Explorer](basics/11-voice-api-explorer/) |
+| **Translation** | [Multilingual & Translation](basics/05-multilingual-translation/) |
 | **Text-to-Speech** | [Text-to-Speech](basics/06-text-to-speech/) |
 
 ### By Integration

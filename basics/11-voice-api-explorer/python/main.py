@@ -10,7 +10,6 @@ replay your recording through each API mode and profile.
 Usage:
     python main.py                     # Interactive menu (mic input)
     python main.py rt                  # RT mode transcription
-    python main.py rt-translate        # RT mode with translation
     python main.py voice               # Voice mode (adaptive profile)
     python main.py profiles            # Compare all voice profiles
     python main.py advanced            # Speaker focus, ForceEOU, GetSpeakers
@@ -33,7 +32,6 @@ import core
 from core import DEFAULT_SERVER, record_audio, read_wav
 from demos import (
     demo_rt_basic,
-    demo_rt_translate,
     demo_voice_single,
     demo_voice_profiles,
     demo_voice_advanced,
@@ -46,7 +44,6 @@ from demos import (
 
 DEMOS = {
     "rt": ("RT Mode — Transcription", demo_rt_basic),
-    "rt-translate": ("RT Mode — Translation", demo_rt_translate),
     "voice": ("Voice Mode — Adaptive Profile", demo_voice_single),
     "profiles": ("Voice Mode — Profile Comparison", demo_voice_profiles),
     "advanced": ("Voice Mode — Advanced Features", demo_voice_advanced),
@@ -108,7 +105,6 @@ def main():
         epilog="""
 Available demos:
   rt            RT mode basic transcription (partials, finals, confidence)
-  rt-translate  RT mode with real-time translation (Spanish, French)
   voice         Voice mode with adaptive profile (segments, turns, metrics)
   profiles      Compare all voice profiles (agile, adaptive, smart, external)
   advanced      Speaker focus, ForceEOU, GetSpeakers, diarization

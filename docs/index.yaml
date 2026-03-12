@@ -418,21 +418,20 @@ examples:
 
   - id: "voice-api-explorer"
     title: "Voice API Explorer"
-    description: "Comprehensive demo of the unified Voice API WebSocket endpoint — RT and Voice modes, all profiles, speaker focus, message control, translation, and mid-session commands."
+    description: "Comprehensive demo of the unified Voice API WebSocket endpoint - RT and Voice modes, all profiles, speaker focus, message control, and mid-session commands."
     category: "basics"
     difficulty: "intermediate"
-    languages: ["python"]
+    languages: ["python", "javascript"]
     features:
       - "realtime-transcription"
       - "voice-agents"
       - "speaker-diarization"
       - "speaker-identification"
-      - "translation"
       - "turn-detection"
     integrations: []
     path: "basics/11-voice-api-explorer"
     readme: "basics/11-voice-api-explorer/README.md"
-    tags: ["voice-api", "websocket", "realtime", "voice-agent", "profiles", "speaker-focus", "message-control", "translation", "force-eou", "diarization"]
+    tags: ["voice-api", "websocket", "realtime", "voice-agent", "profiles", "speaker-focus", "message-control", "force-eou", "diarization"]
     last_updated: "2026-03-12"
     estimated_time: "20 minutes"
 

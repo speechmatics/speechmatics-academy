@@ -10,7 +10,6 @@
  * Usage:
  *     node main.js                     # Interactive menu (mic input)
  *     node main.js rt                  # RT mode transcription
- *     node main.js rt-translate        # RT mode with translation
  *     node main.js voice               # Voice mode (adaptive profile)
  *     node main.js profiles            # Compare all voice profiles
  *     node main.js advanced            # Speaker focus, ForceEOU, GetSpeakers
@@ -35,7 +34,6 @@ const {
 
 const {
   demoRtBasic,
-  demoRtTranslate,
   demoVoiceSingle,
   demoVoiceProfiles,
   demoVoiceAdvanced,
@@ -48,7 +46,6 @@ const {
 
 const DEMOS = new Map([
   ["rt", ["RT Mode - Transcription", demoRtBasic]],
-  ["rt-translate", ["RT Mode - Translation", demoRtTranslate]],
   ["voice", ["Voice Mode - Adaptive Profile", demoVoiceSingle]],
   ["profiles", ["Voice Mode - Profile Comparison", demoVoiceProfiles]],
   ["advanced", ["Voice Mode - Advanced Features", demoVoiceAdvanced]],
@@ -145,7 +142,6 @@ Usage:
 
 Available demos:
   rt            RT mode basic transcription (partials, finals, confidence)
-  rt-translate  RT mode with real-time translation (Russian, French)
   voice         Voice mode with adaptive profile (segments, turns, metrics)
   profiles      Compare all voice profiles (agile, adaptive, smart, external)
   advanced      Speaker focus, ForceEOU, GetSpeakers, diarization

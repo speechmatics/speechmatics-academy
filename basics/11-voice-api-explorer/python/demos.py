@@ -51,50 +51,13 @@ async def demo_rt_basic(api_key, server, pcm, sr):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# DEMO 2: RT Mode — Translation
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-async def demo_rt_translate(api_key, server, pcm, sr):
-    """RT mode with real-time translation to Spanish and French."""
-    header("Demo 2: RT Mode — Real-Time Translation")
-    print("  Mode:     RT (no profile)")
-    print("  Endpoint: /v2")
-    print("  Shows:    translation_config, AddPartialTranslation, AddTranslation")
-    print("  Note:     Translation is RT-mode only. Not supported in Voice mode.")
-    print()
-
-    config = {
-        "transcription_config": {
-            "language": "en",
-            "enable_partials": True,
-        },
-        "translation_config": {
-            "target_languages": ["ru", "fr"],
-            "enable_partials": True,
-        },
-        "audio_format": audio_format_block(sr),
-    }
-
-    await run_session(
-        api_key=api_key,
-        server=server,
-        path="/v2",
-        config=config,
-        pcm=pcm,
-        sample_rate=sr,
-        on_message=print_msg,
-    )
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# DEMO 3: Voice Mode — Single Profile (adaptive)
+# DEMO 2: Voice Mode — Single Profile (adaptive)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 async def demo_voice_single(api_key, server, pcm, sr):
     """Voice mode with the adaptive profile — the most versatile option."""
-    header("Demo 3: Voice Mode — Adaptive Profile")
+    header("Demo 2: Voice Mode — Adaptive Profile")
     print("  Mode:     Voice")
     print("  Endpoint: /v2/agent/adaptive")
     print("  Shows:    AddPartialSegment, AddSegment, SpeakerStarted/Ended,")
@@ -120,13 +83,13 @@ async def demo_voice_single(api_key, server, pcm, sr):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# DEMO 4: Voice Mode — Profile Comparison
+# DEMO 3: Voice Mode — Profile Comparison
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 async def demo_voice_profiles(api_key, server, pcm, sr):
     """Compare all four voice profiles with the same audio."""
-    header("Demo 4: Voice Mode — Profile Comparison")
+    header("Demo 3: Voice Mode — Profile Comparison")
     print("  Runs the same audio through all four profiles to compare behaviour.")
     print("  Profiles are selected via URL path: /v2/agent/{profile}")
     print("  Versioning is also supported, e.g. /v2/agent/adaptive:latest")
@@ -180,13 +143,13 @@ async def demo_voice_profiles(api_key, server, pcm, sr):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# DEMO 5: Voice Mode — Advanced Features
+# DEMO 4: Voice Mode — Advanced Features
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 async def demo_voice_advanced(api_key, server, pcm, sr):
     """Speaker focus, ForceEndOfUtterance, GetSpeakers, and diarization."""
-    header("Demo 5: Voice Mode — Advanced Features")
+    header("Demo 4: Voice Mode — Advanced Features")
     print("  Features: enable_diarization, UpdateSpeakerFocus, GetSpeakers,")
     print("            ForceEndOfUtterance, SpeakersResult, focus_mode")
     print()
@@ -257,13 +220,13 @@ async def demo_voice_advanced(api_key, server, pcm, sr):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# DEMO 6: Message Control — Include/Exclude
+# DEMO 5: Message Control — Include/Exclude
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
 async def demo_message_control(api_key, server, pcm, sr):
     """Demonstrate message_control to opt in/out of optional message types."""
-    header("Demo 6: Message Control — Include/Exclude")
+    header("Demo 5: Message Control — Include/Exclude")
 
     # ── Part A: Include optional messages ──
     subheader("Part A: Include optional messages")
