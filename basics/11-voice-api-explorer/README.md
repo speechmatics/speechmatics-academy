@@ -12,7 +12,7 @@
 > - **Missing capabilities** - what would make your product better
 > - **Production blockers** - what would stop you using this in production
 
-The Voice API is a WebSocket proxy that sits in front of the Speechmatics RT and Voice SDKs. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across six interactive scenarios.
+The Voice API is a unified WebSocket endpoint for real-time transcription and voice agent capabilities. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across six interactive scenarios.
 
 ## What You'll Learn
 
