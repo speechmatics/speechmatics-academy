@@ -7,10 +7,13 @@ Shows how to stream audio to Speechmatics for real-time transcription
 import asyncio
 import os
 from pathlib import Path
-from speechmatics.rt import AsyncClient, ServerMessageType, TranscriptResult, AudioFormat, TranscriptionConfig
+
 from dotenv import load_dotenv
 
+from speechmatics.rt import AsyncClient, AudioFormat, ServerMessageType, TranscriptionConfig, TranscriptResult
+
 load_dotenv()
+
 
 async def main():
     """Stream audio to Speechmatics for real-time transcription"""
@@ -24,7 +27,6 @@ async def main():
     audio_file_path = Path(__file__).parent.parent / "assets" / "sample.wav"
 
     async with AsyncClient(api_key=api_key) as client:
-
         # Define event handlers using decorators
         @client.on(ServerMessageType.RECOGNITION_STARTED)
         def on_session_started(message):
@@ -56,7 +58,7 @@ async def main():
             operating_point="enhanced",  # Equivalent to nova-2
             diarization="speaker",
             enable_entities=True,  # Equivalent to smart_format
-            enable_partials=True  # Enable interim results
+            enable_partials=True,  # Enable interim results
         )
 
         # Configure audio format (use defaults to auto-detect WAV file format)
@@ -66,16 +68,13 @@ async def main():
         print("Starting Speechmatics streaming...")
         try:
             with open(audio_file_path, "rb") as audio_file:
-                await client.transcribe(
-                    audio_file,
-                    transcription_config=config,
-                    audio_format=audio_format
-                )
+                await client.transcribe(audio_file, transcription_config=config, audio_format=audio_format)
 
         except FileNotFoundError:
             print(f"Error: Audio file '{audio_file_path}' not found")
         except Exception as e:
             print(f"Error during streaming: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

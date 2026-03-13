@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 from typing import Optional
 from zoneinfo import ZoneInfo
 
-from livekit.agents import RunContext, function_tool
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
+from livekit.agents import RunContext, function_tool
 
 # Configuration
 TIMEZONE = os.getenv("TIMEZONE", "Europe/London")
@@ -27,9 +27,7 @@ def get_calendar():
         creds_file = os.getenv("GOOGLE_SERVICE_ACCOUNT_FILE", "credentials.json")
         if not os.path.exists(creds_file):
             return None
-        creds = Credentials.from_service_account_file(
-            creds_file, scopes=["https://www.googleapis.com/auth/calendar"]
-        )
+        creds = Credentials.from_service_account_file(creds_file, scopes=["https://www.googleapis.com/auth/calendar"])
         _calendar_service = build("calendar", "v3", credentials=creds)
     return _calendar_service
 
@@ -61,11 +59,11 @@ def parse_time(time_str: str) -> datetime:
 
 def is_slot_available(calendar, start: datetime, end: datetime) -> bool:
     """Check if a time slot is available."""
-    result = calendar.freebusy().query(body={
-        "timeMin": start.isoformat(),
-        "timeMax": end.isoformat(),
-        "items": [{"id": CALENDAR_ID}]
-    }).execute()
+    result = (
+        calendar.freebusy()
+        .query(body={"timeMin": start.isoformat(), "timeMax": end.isoformat(), "items": [{"id": CALENDAR_ID}]})
+        .execute()
+    )
     return not result["calendars"][CALENDAR_ID]["busy"]
 
 
@@ -82,14 +80,19 @@ def find_customer_appointment(calendar, customer_name: str, date: Optional[str] 
         time_min = datetime(now.year, now.month, now.day, 0, 0, tzinfo=tz)
         time_max = time_min + timedelta(days=30)
 
-    events = calendar.events().list(
-        calendarId=CALENDAR_ID,
-        timeMin=time_min.isoformat(),
-        timeMax=time_max.isoformat(),
-        q=customer_name,
-        singleEvents=True,
-        orderBy="startTime"
-    ).execute().get("items", [])
+    events = (
+        calendar.events()
+        .list(
+            calendarId=CALENDAR_ID,
+            timeMin=time_min.isoformat(),
+            timeMax=time_max.isoformat(),
+            q=customer_name,
+            singleEvents=True,
+            orderBy="startTime",
+        )
+        .execute()
+        .get("items", [])
+    )
 
     return events[0] if events else None
 
@@ -106,15 +109,13 @@ def fmt_date(dt: datetime) -> str:
 
 def make_datetime(date: datetime, time: datetime) -> datetime:
     """Combine date and time into timezone-aware datetime."""
-    return datetime(
-        date.year, date.month, date.day,
-        time.hour, time.minute, tzinfo=ZoneInfo(TIMEZONE)
-    )
+    return datetime(date.year, date.month, date.day, time.hour, time.minute, tzinfo=ZoneInfo(TIMEZONE))
 
 
 # ============================================================================
 # Function Tools
 # ============================================================================
+
 
 @function_tool()
 async def get_current_datetime(context: RunContext) -> str:
@@ -162,16 +163,20 @@ async def check_availability(
         day_start = datetime(target_date.year, target_date.month, target_date.day, start_hour, 0, tzinfo=tz)
         day_end = datetime(target_date.year, target_date.month, target_date.day, end_hour, 0, tzinfo=tz)
 
-        result = calendar.freebusy().query(body={
-            "timeMin": day_start.isoformat(),
-            "timeMax": day_end.isoformat(),
-            "items": [{"id": CALENDAR_ID}]
-        }).execute()
+        result = (
+            calendar.freebusy()
+            .query(
+                body={"timeMin": day_start.isoformat(), "timeMax": day_end.isoformat(), "items": [{"id": CALENDAR_ID}]}
+            )
+            .execute()
+        )
 
         busy_times = result["calendars"][CALENDAR_ID]["busy"]
         busy_periods = [
-            (datetime.fromisoformat(b["start"].replace("Z", "+00:00")),
-             datetime.fromisoformat(b["end"].replace("Z", "+00:00")))
+            (
+                datetime.fromisoformat(b["start"].replace("Z", "+00:00")),
+                datetime.fromisoformat(b["end"].replace("Z", "+00:00")),
+            )
             for b in busy_times
         ]
 
@@ -188,7 +193,7 @@ async def check_availability(
             return f"No slots on {fmt_date(target_date)}. Try another day?"
 
         # Suggest spread out times
-        suggestions = [slots[0], slots[len(slots)//2], slots[-1]] if len(slots) >= 3 else slots
+        suggestions = [slots[0], slots[len(slots) // 2], slots[-1]] if len(slots) >= 3 else slots
         times = ", ".join([fmt_time(s) for s in suggestions])
         return f"Available on {fmt_date(target_date)}: {times}. Which works?"
 
@@ -232,12 +237,15 @@ async def book_appointment(
         if service_type:
             description += f"\nService: {service_type}"
 
-        calendar.events().insert(calendarId=CALENDAR_ID, body={
-            "summary": summary,
-            "description": description,
-            "start": {"dateTime": start.isoformat(), "timeZone": TIMEZONE},
-            "end": {"dateTime": end.isoformat(), "timeZone": TIMEZONE},
-        }).execute()
+        calendar.events().insert(
+            calendarId=CALENDAR_ID,
+            body={
+                "summary": summary,
+                "description": description,
+                "start": {"dateTime": start.isoformat(), "timeZone": TIMEZONE},
+                "end": {"dateTime": end.isoformat(), "timeZone": TIMEZONE},
+            },
+        ).execute()
 
         return f"Booked! {fmt_date(start)} at {fmt_time(start)}. See you then, {customer_name}!"
 

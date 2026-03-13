@@ -9,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import Agent, AgentSession, RoomInputOptions
-from livekit.plugins import openai, silero, speechmatics, elevenlabs
+from livekit.plugins import elevenlabs, openai, silero, speechmatics
 
 load_dotenv()
 
@@ -36,7 +36,9 @@ async def entrypoint(ctx: agents.JobContext):
         max_delay=0.7,
         additional_vocab=[
             # Christmas terms
-            speechmatics.AdditionalVocabEntry(content="Santa Claus", sounds_like=["Santa", "santa clause", "Father Christmas"]),
+            speechmatics.AdditionalVocabEntry(
+                content="Santa Claus", sounds_like=["Santa", "santa clause", "Father Christmas"]
+            ),
             speechmatics.AdditionalVocabEntry(content="Christmas", sounds_like=["Xmas", "chris mas", "kris mas"]),
             speechmatics.AdditionalVocabEntry(content="Merry Christmas", sounds_like=["merry xmas", "merry chris mas"]),
             speechmatics.AdditionalVocabEntry(content="Nice List", sounds_like=["nice list", "the nice list"]),
@@ -54,11 +56,11 @@ async def entrypoint(ctx: agents.JobContext):
         voice_id="6oJyGTjYmfuGXhTV8Fhg",
         model="eleven_multilingual_v2",
         voice_settings=elevenlabs.VoiceSettings(
-            stability=0.4,           # Low for animated, lively variation
-            similarity_boost=0.8,    # Good voice match
-            style=0.9,               # High for maximum jolly expressiveness
+            stability=0.4,  # Low for animated, lively variation
+            similarity_boost=0.8,  # Good voice match
+            style=0.9,  # High for maximum jolly expressiveness
             use_speaker_boost=True,
-            speed=0.9                # Slightly faster for energy
+            speed=0.9,  # Slightly faster for energy
         ),
     )
 
@@ -86,6 +88,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     # Santa's magical greeting - use say() for instant response (skips LLM)
     await session.say("Well, well, well... it's been a few years! What's your name?")
+
 
 if __name__ == "__main__":
     agents.cli.run_app(

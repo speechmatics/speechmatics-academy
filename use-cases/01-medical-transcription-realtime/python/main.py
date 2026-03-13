@@ -7,13 +7,15 @@ Live transcription for clinical notes, patient interviews, and telemedicine.
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 from speechmatics.rt import (
     AsyncClient,
     AuthenticationError,
-    TranscriptionConfig,
-    ServerMessageType,
     OperatingPoint,
+    ServerMessageType,
+    TranscriptionConfig,
 )
 
 load_dotenv()
@@ -61,9 +63,9 @@ async def main():
         ],
     )
 
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print("MEDICAL TRANSCRIPTION (Real-Time)")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
     print(f"Processing: {audio_file.name}")
     print()
 
@@ -95,9 +97,9 @@ async def main():
             f.write(full_transcript)
 
         print()
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
         print(f"Transcript saved to: {output_file}")
-        print(f"{'='*80}")
+        print(f"{'=' * 80}")
 
     except AuthenticationError as e:
         print(f"\nAuthentication Error: {e}")

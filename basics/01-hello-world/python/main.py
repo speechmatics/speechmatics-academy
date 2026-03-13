@@ -7,7 +7,9 @@ Hello World - Your First Speechmatics Transcription
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 from speechmatics.batch import AsyncClient, AuthenticationError
 
 # Load environment variables
@@ -15,7 +17,7 @@ load_dotenv()
 
 
 async def main():
-    """Transcribe an audio file """
+    """Transcribe an audio file"""
 
     # Check API key first for immediate feedback
     api_key = os.getenv("SPEECHMATICS_API_KEY")
@@ -42,6 +44,7 @@ async def main():
     except AuthenticationError as e:
         print(f"\nAuthentication Error: {e}")
         print("Please check your API key is valid at portal.speechmatics.com")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

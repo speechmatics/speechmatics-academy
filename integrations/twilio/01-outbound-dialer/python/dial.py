@@ -67,7 +67,9 @@ def main():
 
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--server", metavar="URL", help="Server URL (e.g., https://abc123.ngrok-free.dev)")
-    group.add_argument("--webhook", metavar="URL", help="Direct webhook URL (e.g., https://abc123.ngrok-free.dev/twiml)")
+    group.add_argument(
+        "--webhook", metavar="URL", help="Direct webhook URL (e.g., https://abc123.ngrok-free.dev/twiml)"
+    )
 
     args = parser.parse_args()
 

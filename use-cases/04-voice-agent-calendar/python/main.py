@@ -8,12 +8,11 @@ to Google Calendar, and answers business questions.
 
 from pathlib import Path
 
+from calendar_tools import CALENDAR_TOOLS
 from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import Agent, AgentSession, RoomInputOptions
 from livekit.plugins import openai, silero, speechmatics
-
-from calendar_tools import CALENDAR_TOOLS
 
 load_dotenv()
 
@@ -49,16 +48,26 @@ async def entrypoint(ctx: agents.JobContext):
             speechmatics.AdditionalVocabEntry(content="Saturday", sounds_like=["Sat", "sat er day"]),
             speechmatics.AdditionalVocabEntry(content="Sunday", sounds_like=["Sun", "sun day"]),
             # Services offered
-            speechmatics.AdditionalVocabEntry(content="Swedish Massage", sounds_like=["swedish", "sweedish massage", "swedish mas sage"]),
-            speechmatics.AdditionalVocabEntry(content="Deep Tissue Massage", sounds_like=["deep tissue", "deep tis sue", "deep tissue mas sage"]),
-            speechmatics.AdditionalVocabEntry(content="Hot Stone Therapy", sounds_like=["hot stone", "hot stones", "hot stone thera py"]),
-            speechmatics.AdditionalVocabEntry(content="Sports Massage", sounds_like=["sports", "sport massage", "sports mas sage"]),
+            speechmatics.AdditionalVocabEntry(
+                content="Swedish Massage", sounds_like=["swedish", "sweedish massage", "swedish mas sage"]
+            ),
+            speechmatics.AdditionalVocabEntry(
+                content="Deep Tissue Massage", sounds_like=["deep tissue", "deep tis sue", "deep tissue mas sage"]
+            ),
+            speechmatics.AdditionalVocabEntry(
+                content="Hot Stone Therapy", sounds_like=["hot stone", "hot stones", "hot stone thera py"]
+            ),
+            speechmatics.AdditionalVocabEntry(
+                content="Sports Massage", sounds_like=["sports", "sport massage", "sports mas sage"]
+            ),
             # Appointment terms
             speechmatics.AdditionalVocabEntry(content="consultation", sounds_like=["consult", "consul tation"]),
             speechmatics.AdditionalVocabEntry(content="follow-up", sounds_like=["follow up", "followup"]),
             speechmatics.AdditionalVocabEntry(content="walk-in", sounds_like=["walk in", "walkin"]),
             speechmatics.AdditionalVocabEntry(content="AM", sounds_like=["A M", "a.m.", "in the morning"]),
-            speechmatics.AdditionalVocabEntry(content="PM", sounds_like=["P M", "p.m.", "in the afternoon", "in the evening"]),
+            speechmatics.AdditionalVocabEntry(
+                content="PM", sounds_like=["P M", "p.m.", "in the afternoon", "in the evening"]
+            ),
         ],
     )
 

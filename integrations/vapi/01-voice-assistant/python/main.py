@@ -6,11 +6,11 @@ import sys
 
 from dotenv import load_dotenv
 from vapi import Vapi
-from vapi.types import SpeechmaticsTranscriber, OpenAiModel, ElevenLabsVoice
+from vapi.types import ElevenLabsVoice, OpenAiModel, SpeechmaticsTranscriber
 
 load_dotenv()
 
-UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+UUID_PATTERN = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
 
 
 def get_client():
@@ -52,10 +52,12 @@ def create_assistant():
         model=OpenAiModel(
             provider="openai",
             model="gpt-4o-mini",
-            messages=[{
-                "role": "system",
-                "content": "You are a helpful voice assistant. Keep responses brief and conversational.",
-            }],
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a helpful voice assistant. Keep responses brief and conversational.",
+                }
+            ],
         ),
         voice=ElevenLabsVoice(provider="11labs", voice_id="21m00Tcm4TlvDq8ikWAM"),
         first_message="Hello! How can I help you today?",
@@ -63,7 +65,7 @@ def create_assistant():
     )
 
     print(f"Created: {assistant.name} ({assistant.id})")
-    print(f"Test at: https://dashboard.vapi.ai/")
+    print("Test at: https://dashboard.vapi.ai/")
     return assistant
 
 
@@ -83,7 +85,7 @@ def list_assistants():
 def get_assistant(assistant_id: str):
     """Get assistant details."""
     if not UUID_PATTERN.match(assistant_id):
-        print(f"Error: Invalid UUID. Run 'list' to see IDs.")
+        print("Error: Invalid UUID. Run 'list' to see IDs.")
         return None
 
     client = get_client()
@@ -94,14 +96,16 @@ def get_assistant(assistant_id: str):
     t = a.transcriber
     print(f"\n{a.name} ({a.id})")
     if t:
-        print(f"  Transcriber: {getattr(t, 'provider', '?')} | {getattr(t, 'language', '?')} | {getattr(t, 'operating_point', '?')}")
+        print(
+            f"  Transcriber: {getattr(t, 'provider', '?')} | {getattr(t, 'language', '?')} | {getattr(t, 'operating_point', '?')}"
+        )
     return a
 
 
 def delete_assistant(assistant_id: str):
     """Delete an assistant."""
     if not UUID_PATTERN.match(assistant_id):
-        print(f"Error: Invalid UUID. Run 'list' to see IDs.")
+        print("Error: Invalid UUID. Run 'list' to see IDs.")
         return
 
     client = get_client()

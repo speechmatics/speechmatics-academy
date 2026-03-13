@@ -140,11 +140,7 @@ Add your example to `docs/index.yaml`:
 
 ### Step 7: Create Pull Request
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b add-example-name`
-3. Commit your changes: `git commit -m "Add [example name] example"`
-4. Push to your fork: `git push origin add-example-name`
-5. Open a Pull Request
+See [Pull Request Process](#pull-request-process) below for full details.
 
 ## Example Quality Standards
 
@@ -152,8 +148,8 @@ All examples must meet these standards:
 
 ### Code Quality
 
+- [ ] Passes `ruff check` and `ruff format --check`
 - [ ] Code is clean, readable, and well-commented
-- [ ] Follows PEP 8 style guidelines
 - [ ] Uses async/await pattern
 - [ ] Includes proper error handling
 - [ ] No hardcoded secrets or API keys
@@ -178,20 +174,150 @@ All examples must meet these standards:
 
 ### Completeness
 
-- [ ] Metadata added to docs/index.yaml
+- [ ] Metadata added to `docs/index.yaml` (passes `python .github/scripts/check_structure.py`)
 - [ ] Follows directory structure template
 - [ ] Uses numbered prefix for ordering (e.g., `01-`, `02-`)
 - [ ] README follows the template format
+- [ ] All CI checks pass
+
+## Development Setup
+
+### Running CI Checks Locally
+
+Before opening a PR, run the same checks that CI will run:
+
+```bash
+# Install tools
+pip install ruff
+
+# Python linting and formatting
+ruff check .
+ruff format --check .
+
+# Auto-fix lint issues
+ruff check --fix .
+ruff format .
+
+# Structure validation (checks index.yaml <-> disk sync)
+python .github/scripts/check_structure.py
+
+# JavaScript syntax check (if you modified JS files)
+cd basics/11-voice-api-explorer/javascript
+npm ci
+node --check main.js
+```
+
+### Ruff Configuration
+
+The project uses [Ruff](https://docs.astral.sh/ruff/) for Python linting and formatting, configured in `ruff.toml` at the repo root. Key rules:
+
+- **E** (pycodestyle errors), **F** (pyflakes), **W** (warnings), **I** (isort)
+- Line length: 120 characters
+- Target: Python 3.12
+
+## Commit Conventions
+
+Use descriptive commit messages with a type prefix:
+
+| Prefix | Purpose |
+|--------|---------|
+| `Feat:` | New features or examples |
+| `Fix:` | Bug fixes |
+| `Docs:` | Documentation changes |
+| `Chore:` | Maintenance, dependency updates |
+| `Refactor:` | Code refactoring without behavior changes |
+
+**Examples:**
+
+```
+Feat: add Azure Speech provider integration
+Fix: resolve WebSocket timeout in voice-api-explorer
+Docs: improve Quick Start instructions for medical assistant
+Chore: update speechmatics-rt to 0.6.0
+Refactor: simplify error handling in batch examples
+```
+
+Keep the first line under 72 characters. Add a blank line and further detail in the body if needed.
+
+## Pull Request Process
+
+### 1. Fork and Branch
+
+```bash
+# Fork the repository on GitHub, then clone your fork
+git clone https://github.com/YOUR-USERNAME/speechmatics-academy.git
+cd speechmatics-academy
+
+# Create a feature branch from main
+git checkout -b feat/your-example-name
+```
+
+**Branch naming convention:**
+
+| Prefix | Use for |
+|--------|---------|
+| `feat/` | New examples or features |
+| `fix/` | Bug fixes |
+| `docs/` | Documentation improvements |
+| `chore/` | Dependency updates, maintenance |
+
+### 2. Make Your Changes
+
+- Follow the [Style Guidelines](#style-guidelines) and [Example Quality Standards](#example-quality-standards)
+- Run CI checks locally (see [Development Setup](#development-setup))
+- Test your example end-to-end with a fresh virtual environment
+
+### 3. Commit and Push
+
+```bash
+# Stage your changes
+git add .
+
+# Commit with a descriptive message (see Commit Conventions above)
+git commit -m "Feat: add your-example-name example"
+
+# Push to your fork
+git push origin feat/your-example-name
+```
+
+### 4. Open the Pull Request
+
+- Go to the [repository](https://github.com/speechmatics/speechmatics-academy) and click **New Pull Request**
+- Select your fork and branch
+- Fill in the PR template with:
+  - **Summary** of what you added/changed
+  - **Testing** steps you performed
+  - **Checklist** confirming quality standards are met
+
+### 5. CI Checks
+
+Your PR will automatically run these checks:
+
+| Check | What it validates |
+|-------|-------------------|
+| **Python Checks** | Ruff lint + format + syntax validation |
+| **JS Checks** | npm install + syntax check |
+| **Structure Check** | `index.yaml` catalog matches disk |
+| **Dependency Check** | All `requirements.txt` files resolve |
+| **Docker Build** | Dockerfiles build successfully |
+
+All checks must pass before merge. If a check fails, click on it to see the error details and fix accordingly.
+
+### 6. Review and Merge
+
+1. A maintainer will review your PR, usually within 2-3 business days
+2. Address any requested changes by pushing new commits to your branch
+3. Once approved, your PR will be merged
 
 ## Style Guidelines
 
 ### Python
 
-- Follow [PEP 8](https://peps.python.org/pep-0008/)
+- Code must pass `ruff check` and `ruff format --check` (see `ruff.toml`)
 - Use async/await for all Speechmatics API calls
 - Include type hints where helpful
 - Use `python-dotenv` for environment variables
-- Place imports at top (stdlib → third-party → local)
+- Place imports at top (stdlib, then third-party, then local)
 
 ```python
 #!/usr/bin/env python3
@@ -281,10 +407,10 @@ Found a bug or have a suggestion?
 
 After submitting a PR:
 
-1. **Automated checks** run (linting, validation)
+1. **CI checks** run automatically (Python lint/format, JS checks, structure validation, dependency resolution, Docker builds)
 2. **Maintainer review** - Usually within 2-3 business days
-3. **Feedback** - Address any requested changes
-4. **Merge** - Once approved, your PR will be merged
+3. **Feedback** - Address any requested changes by pushing new commits
+4. **Merge** - Once approved and all checks pass, your PR will be merged
 
 We aim to review PRs quickly, but please be patient during busy periods.
 

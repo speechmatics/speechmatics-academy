@@ -8,13 +8,12 @@ import asyncio
 import json
 
 from core import (
-    run_session,
-    print_msg,
-    header,
-    subheader,
     audio_format_block,
+    header,
+    print_msg,
+    run_session,
+    subheader,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # DEMO 1: RT Mode — Basic Transcription

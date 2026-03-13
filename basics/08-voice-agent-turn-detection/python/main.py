@@ -10,15 +10,15 @@ import sys
 
 import keyboard
 from dotenv import load_dotenv
-from speechmatics.rt import Microphone, AuthenticationError
+
+from speechmatics.rt import AuthenticationError, Microphone
 from speechmatics.voice import (
-    VoiceAgentClient,
-    VoiceAgentConfigPreset,
-    VoiceAgentConfig,
     AgentServerMessageType,
     EndOfUtteranceMode,
+    VoiceAgentClient,
+    VoiceAgentConfig,
+    VoiceAgentConfigPreset,
 )
-
 
 load_dotenv()
 
@@ -62,7 +62,7 @@ async def run_preset(preset_name: str):
             overlay_json=VoiceAgentConfig(
                 end_of_utterance_mode=EndOfUtteranceMode.FIXED,
                 end_of_utterance_silence_trigger=2.0,
-            ).model_dump_json(exclude_unset=True)
+            ).model_dump_json(exclude_unset=True),
         )
     else:
         config = VoiceAgentConfigPreset.load(preset_name)
@@ -88,10 +88,7 @@ async def run_preset(preset_name: str):
     segments = []
 
     # Create client with preset
-    client = VoiceAgentClient(
-        api_key=os.getenv("SPEECHMATICS_API_KEY"),
-        config=config
-    )
+    client = VoiceAgentClient(api_key=os.getenv("SPEECHMATICS_API_KEY"), config=config)
 
     # Event handlers
     @client.on(AgentServerMessageType.ADD_PARTIAL_SEGMENT)
@@ -123,9 +120,7 @@ async def run_preset(preset_name: str):
         await client.connect()
 
         # Start the Enter key detection task for external preset
-        enter_key_task = asyncio.create_task(
-            check_for_enter_key(client, preset_name)
-        )
+        enter_key_task = asyncio.create_task(check_for_enter_key(client, preset_name))
 
         # Main audio streaming loop
         while True:
@@ -136,7 +131,7 @@ async def run_preset(preset_name: str):
         print(f"\n\nStopped. Captured {len(segments)} segments.")
     finally:
         # Cancel the Enter key detection task
-        if 'enter_key_task' in locals():
+        if "enter_key_task" in locals():
             enter_key_task.cancel()
             try:
                 await enter_key_task
@@ -202,7 +197,7 @@ async def main():
             if 0 <= preset_idx < len(available_presets):
                 preset_name = available_presets[preset_idx]
             else:
-                print(f"Invalid choice. Using adaptive.")
+                print("Invalid choice. Using adaptive.")
                 preset_name = "adaptive"
 
     except (ValueError, KeyboardInterrupt):

@@ -7,17 +7,19 @@ Demonstrate real-time transcription and translation using microphone input.
 
 import asyncio
 import os
+
 from dotenv import load_dotenv
+
 from speechmatics.rt import (
     AsyncClient,
     AudioEncoding,
     AudioFormat,
-    Microphone,
-    TranscriptionConfig,
-    TranslationConfig,
-    TranscriptResult,
-    ServerMessageType,
     AuthenticationError,
+    Microphone,
+    ServerMessageType,
+    TranscriptionConfig,
+    TranscriptResult,
+    TranslationConfig,
 )
 
 load_dotenv()

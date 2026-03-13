@@ -3,17 +3,19 @@
 
 import asyncio
 import os
+
 from dotenv import load_dotenv
+
 from speechmatics.rt import (
     AsyncClient,
+    AudioEncoding,
+    AudioFormat,
+    AuthenticationError,
+    Microphone,
+    OperatingPoint,
     ServerMessageType,
     TranscriptionConfig,
     TranscriptResult,
-    OperatingPoint,
-    AudioFormat,
-    AudioEncoding,
-    Microphone,
-    AuthenticationError,
 )
 
 # Load environment variables

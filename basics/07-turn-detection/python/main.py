@@ -7,17 +7,19 @@ Demonstrate real-time turn detection to identify when a speaker has finished spe
 
 import asyncio
 import os
+
 from dotenv import load_dotenv
+
 from speechmatics.rt import (
     AsyncClient,
     AudioEncoding,
     AudioFormat,
-    Microphone,
-    TranscriptionConfig,
-    ConversationConfig,
-    TranscriptResult,
-    ServerMessageType,
     AuthenticationError,
+    ConversationConfig,
+    Microphone,
+    ServerMessageType,
+    TranscriptionConfig,
+    TranscriptResult,
 )
 
 load_dotenv()
@@ -44,9 +46,7 @@ async def main() -> None:
     transcription_config = TranscriptionConfig(
         language="en",
         enable_partials=True,
-        conversation_config=ConversationConfig(
-            end_of_utterance_silence_trigger=0.7
-        ),
+        conversation_config=ConversationConfig(end_of_utterance_silence_trigger=0.7),
     )
 
     mic = Microphone(
@@ -100,10 +100,7 @@ async def main() -> None:
                     end_time = message.get("end_of_utterance_time", 0)
                     duration = end_time - utterance_start_time
 
-                    utterances.append({
-                        "text": full_text,
-                        "duration": duration
-                    })
+                    utterances.append({"text": full_text, "duration": duration})
 
                     print(f"Turn {len(utterances)}: {full_text} ({duration:.2f}s)")
                     print()

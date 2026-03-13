@@ -16,14 +16,15 @@ import os
 import sys
 
 from dotenv import load_dotenv
-from speechmatics.rt import Microphone, ClientMessageType, AuthenticationError
+
+from speechmatics.rt import AuthenticationError, ClientMessageType, Microphone
 from speechmatics.voice import (
-    VoiceAgentClient,
-    VoiceAgentConfig,
     AgentServerMessageType,
-    SpeakerIdentifier,
     SpeakerFocusConfig,
     SpeakerFocusMode,
+    SpeakerIdentifier,
+    VoiceAgentClient,
+    VoiceAgentConfig,
 )
 
 load_dotenv()
@@ -74,6 +75,7 @@ def load_speakers(required=False):
 
 async def run_session(client, on_complete=None, stop_event=None):
     """Run a voice session - handles mic input, events, and cleanup."""
+
     @client.on(AgentServerMessageType.ADD_SEGMENT)
     def on_segment(message):
         # Handle transcribed speech segments

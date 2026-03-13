@@ -1,19 +1,20 @@
 """Medical Assistant - FastAPI backend with WebSocket for real-time transcription"""
+
 import asyncio
 import json
 import uuid
-from datetime import datetime
-from pathlib import Path
 from contextlib import asynccontextmanager
+from datetime import datetime
 from functools import lru_cache
+from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from pydantic_settings import BaseSettings
-from pydantic import BaseModel
 from dotenv import load_dotenv
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 # Load environment variables
 load_dotenv()
@@ -21,6 +22,7 @@ load_dotenv()
 
 class SessionState(BaseModel):
     """State of the current session"""
+
     session_id: str
     patient_name: Optional[str] = None
     started_at: Optional[datetime] = None
@@ -30,6 +32,7 @@ class SessionState(BaseModel):
 
 class Settings(BaseSettings):
     """Application settings from environment"""
+
     speechmatics_api_key: str = ""
     openai_api_key: str = ""
     host: str = "0.0.0.0"
@@ -45,12 +48,17 @@ def get_settings() -> Settings:
 
 
 # Import services
-from backend.services.transcription import TranscriptionService, TranscriptionSession, DiarizedTranscript
 from backend.services.extraction import (
-    ExtractionService, MedicalFormData, SuggestionsService, AISuggestions,
-    SpeakerRoleInference, SpeakerRole, DiarizedUtterance,
+    AISuggestions,
+    DiarizedUtterance,
+    ExtractionService,
+    MedicalFormData,
     SOAPService,
+    SpeakerRole,
+    SpeakerRoleInference,
+    SuggestionsService,
 )
+from backend.services.transcription import DiarizedTranscript, TranscriptionService, TranscriptionSession
 
 
 @asynccontextmanager
@@ -86,6 +94,7 @@ if frontend_path.exists():
 async def serve_index():
     """Serve index.html with cache-busting query strings on JS/CSS imports"""
     import time
+
     cache_bust = str(int(time.time()))
     html = (frontend_path / "index.html").read_text(encoding="utf-8")
     # Append cache-bust param so browser always fetches latest JS/CSS
@@ -117,10 +126,7 @@ class TranscriptionManager:
 
         # Session state
         self.session_state = SessionState(
-            session_id=str(uuid.uuid4()),
-            started_at=None,
-            is_recording=False,
-            is_paused=False
+            session_id=str(uuid.uuid4()), started_at=None, is_recording=False, is_paused=False
         )
 
         # Transcript management
@@ -155,16 +161,14 @@ class TranscriptionManager:
         """Handle partial transcript (with or without diarization)"""
         if isinstance(data, DiarizedTranscript):
             # Diarized partial
-            speaker_role = SpeakerRoleInference.infer_role(
-                data.text, data.speaker, self.speaker_history
-            )
+            speaker_role = SpeakerRoleInference.infer_role(data.text, data.speaker, self.speaker_history)
             await self.send_message(
                 "partial",
                 text=data.text,
                 speaker=data.speaker,
                 speaker_role=speaker_role.value,
                 start_time=data.start_time,
-                end_time=data.end_time
+                end_time=data.end_time,
             )
         else:
             # Non-diarized partial
@@ -174,9 +178,7 @@ class TranscriptionManager:
         """Handle final transcript and trigger extraction"""
         if isinstance(data, DiarizedTranscript):
             # Diarized final
-            speaker_role = SpeakerRoleInference.infer_role(
-                data.text, data.speaker, self.speaker_history
-            )
+            speaker_role = SpeakerRoleInference.infer_role(data.text, data.speaker, self.speaker_history)
             # Update speaker history
             self.speaker_history[data.speaker] = speaker_role
 
@@ -187,7 +189,7 @@ class TranscriptionManager:
                 text=data.text,
                 start_time=data.start_time,
                 end_time=data.end_time,
-                is_partial=False
+                is_partial=False,
             )
             self.diarized_utterances.append(utterance)
             self.transcript_buffer.append(data.text)
@@ -198,7 +200,7 @@ class TranscriptionManager:
                 speaker=data.speaker,
                 speaker_role=speaker_role.value,
                 start_time=data.start_time,
-                end_time=data.end_time
+                end_time=data.end_time,
             )
         else:
             # Non-diarized final
@@ -223,22 +225,14 @@ class TranscriptionManager:
 
         try:
             # Extract form data
-            self.current_form_data = await self.extraction_service.extract(
-                full_transcript,
-                self.language
-            )
-            await self.send_message(
-                "form_update",
-                data=self.current_form_data.model_dump()
-            )
+            self.current_form_data = await self.extraction_service.extract(full_transcript, self.language)
+            await self.send_message("form_update", data=self.current_form_data.model_dump())
 
             # Generate suggestions (debounced separately)
             if self._pending_suggestions:
                 self._pending_suggestions = False
                 if self._suggestions_task is None or self._suggestions_task.done():
-                    self._suggestions_task = asyncio.create_task(
-                        self._generate_suggestions(full_transcript)
-                    )
+                    self._suggestions_task = asyncio.create_task(self._generate_suggestions(full_transcript))
 
         except Exception as e:
             print(f"Extraction error: {e}")
@@ -248,13 +242,9 @@ class TranscriptionManager:
         """Generate AI suggestions"""
         try:
             self.current_suggestions = await self.suggestions_service.generate_suggestions(
-                transcript,
-                self.current_form_data
+                transcript, self.current_form_data
             )
-            await self.send_message(
-                "suggestions_update",
-                data=self.current_suggestions.model_dump()
-            )
+            await self.send_message("suggestions_update", data=self.current_suggestions.model_dump())
         except Exception as e:
             print(f"Suggestions error: {e}")
 
@@ -269,17 +259,11 @@ class TranscriptionManager:
         try:
             # Generate SOAP note
             soap_note = await self.soap_service.generate_soap(full_transcript, self.current_form_data)
-            await self.send_message(
-                "soap_update",
-                data=soap_note.model_dump()
-            )
+            await self.send_message("soap_update", data=soap_note.model_dump())
 
             # Generate ICD-10 codes
             icd_codes = await self.soap_service.generate_icd_codes(full_transcript, soap_note)
-            await self.send_message(
-                "icd_codes_update",
-                data=[code.model_dump() for code in icd_codes]
-            )
+            await self.send_message("icd_codes_update", data=[code.model_dump() for code in icd_codes])
 
         except Exception as e:
             print(f"SOAP generation error: {e}")
@@ -344,24 +328,14 @@ class TranscriptionManager:
         # Final extraction and suggestions
         if self.transcript_buffer:
             full_transcript = " ".join(self.transcript_buffer)
-            self.current_form_data = await self.extraction_service.extract(
-                full_transcript,
-                self.language
-            )
-            await self.send_message(
-                "form_update",
-                data=self.current_form_data.model_dump()
-            )
+            self.current_form_data = await self.extraction_service.extract(full_transcript, self.language)
+            await self.send_message("form_update", data=self.current_form_data.model_dump())
 
             # Final suggestions
             self.current_suggestions = await self.suggestions_service.generate_suggestions(
-                full_transcript,
-                self.current_form_data
+                full_transcript, self.current_form_data
             )
-            await self.send_message(
-                "suggestions_update",
-                data=self.current_suggestions.model_dump()
-            )
+            await self.send_message("suggestions_update", data=self.current_suggestions.model_dump())
 
     async def reset(self):
         """Reset transcript buffer, form data, and stop any active session"""
@@ -390,10 +364,7 @@ class TranscriptionManager:
         self.current_form_data = MedicalFormData()
         self.current_suggestions = AISuggestions()
         self.session_state = SessionState(
-            session_id=str(uuid.uuid4()),
-            started_at=None,
-            is_recording=False,
-            is_paused=False
+            session_id=str(uuid.uuid4()), started_at=None, is_recording=False, is_paused=False
         )
 
     def set_patient_name(self, name: str):
@@ -432,7 +403,12 @@ async def demo_websocket(websocket: WebSocket):
         # Doctor exam
         ("doctor", "الفحص shows mild bilateral leg edema.", 16.5, 19.0),
         # Patient history
-        ("patient", "أنا عندي diabetes and السكري hypertension. No known allergies. Currently on metformin.", 19.5, 25.0),
+        (
+            "patient",
+            "أنا عندي diabetes and السكري hypertension. No known allergies. Currently on metformin.",
+            19.5,
+            25.0,
+        ),
         # Doctor action
         ("doctor", "متابعة recommended in 2 weeks. Discharge is recommended.", 25.5, 29.0),
     ]
@@ -448,6 +424,7 @@ async def demo_websocket(websocket: WebSocket):
 
                 if data.get("type") == "start_demo":
                     import time
+
                     demo_start = time.time()
                     print(f"Demo: Starting demo mode at {demo_start:.3f}")
                     demo_full_transcript.clear()
@@ -455,29 +432,29 @@ async def demo_websocket(websocket: WebSocket):
                     # Send transcript segments with realistic pacing
                     for i, (speaker_role, segment, start_time, end_time) in enumerate(demo_segments):
                         seg_start = time.time()
-                        await websocket.send_json({
-                            "type": "final",
-                            "text": segment,
-                            "speaker": f"S{1 if speaker_role == 'doctor' else 2}",
-                            "speaker_role": speaker_role,
-                            "start_time": start_time,
-                            "end_time": end_time
-                        })
+                        await websocket.send_json(
+                            {
+                                "type": "final",
+                                "text": segment,
+                                "speaker": f"S{1 if speaker_role == 'doctor' else 2}",
+                                "speaker_role": speaker_role,
+                                "start_time": start_time,
+                                "end_time": end_time,
+                            }
+                        )
                         demo_full_transcript.append(segment)
-                        print(f"Demo: Segment {i+1}/7 sent in {(time.time() - seg_start)*1000:.1f}ms")
+                        print(f"Demo: Segment {i + 1}/7 sent in {(time.time() - seg_start) * 1000:.1f}ms")
                         await asyncio.sleep(0.6)  # 600ms between segments for readability
 
-                    print(f"Demo: All segments sent in {(time.time() - demo_start)*1000:.1f}ms total")
+                    print(f"Demo: All segments sent in {(time.time() - demo_start) * 1000:.1f}ms total")
 
                     # Show AI processing indicator
                     await websocket.send_json({"type": "ai_processing", "status": "start"})
 
                     # Send reasoning steps while processing
-                    await websocket.send_json({
-                        "type": "reasoning",
-                        "text": "Analyzing transcript for medical entities...",
-                        "icon": "search"
-                    })
+                    await websocket.send_json(
+                        {"type": "reasoning", "text": "Analyzing transcript for medical entities...", "icon": "search"}
+                    )
 
                     # Extract and suggest in parallel for speed
                     transcript_text = " ".join(demo_full_transcript)
@@ -485,59 +462,52 @@ async def demo_websocket(websocket: WebSocket):
                     ai_start = time.time()
 
                     await asyncio.sleep(0.3)  # Brief pause for UX
-                    await websocket.send_json({
-                        "type": "reasoning",
-                        "text": "Extracting vitals: BP, heart rate, temperature...",
-                        "icon": "vital_signs"
-                    })
+                    await websocket.send_json(
+                        {
+                            "type": "reasoning",
+                            "text": "Extracting vitals: BP, heart rate, temperature...",
+                            "icon": "vital_signs",
+                        }
+                    )
 
                     # Run both API calls concurrently
                     extraction_task = extraction_service.extract(transcript_text, "en")
                     suggestions_task = suggestions_service.generate_suggestions(
-                        transcript_text, None  # No form data yet, generate based on transcript
+                        transcript_text,
+                        None,  # No form data yet, generate based on transcript
                     )
 
                     # Send more reasoning while waiting
                     await asyncio.sleep(0.5)
-                    await websocket.send_json({
-                        "type": "reasoning",
-                        "text": "Identifying symptoms and clinical findings...",
-                        "icon": "symptoms"
-                    })
-
-                    await asyncio.sleep(0.5)
-                    await websocket.send_json({
-                        "type": "reasoning",
-                        "text": "Generating differential diagnoses...",
-                        "icon": "diagnosis"
-                    })
-
-                    demo_form_data, suggestions = await asyncio.gather(
-                        extraction_task, suggestions_task
+                    await websocket.send_json(
+                        {
+                            "type": "reasoning",
+                            "text": "Identifying symptoms and clinical findings...",
+                            "icon": "symptoms",
+                        }
                     )
 
-                    await websocket.send_json({
-                        "type": "reasoning",
-                        "text": "Preparing clinical recommendations...",
-                        "icon": "clinical_notes"
-                    })
+                    await asyncio.sleep(0.5)
+                    await websocket.send_json(
+                        {"type": "reasoning", "text": "Generating differential diagnoses...", "icon": "diagnosis"}
+                    )
 
-                    print(f"Demo: AI processing completed in {(time.time() - ai_start)*1000:.1f}ms")
+                    demo_form_data, suggestions = await asyncio.gather(extraction_task, suggestions_task)
+
+                    await websocket.send_json(
+                        {"type": "reasoning", "text": "Preparing clinical recommendations...", "icon": "clinical_notes"}
+                    )
+
+                    print(f"Demo: AI processing completed in {(time.time() - ai_start) * 1000:.1f}ms")
 
                     # Hide AI processing indicator
                     await websocket.send_json({"type": "ai_processing", "status": "stop"})
 
                     # Send both updates
-                    await websocket.send_json({
-                        "type": "form_update",
-                        "data": demo_form_data.model_dump()
-                    })
-                    await websocket.send_json({
-                        "type": "suggestions_update",
-                        "data": suggestions.model_dump()
-                    })
+                    await websocket.send_json({"type": "form_update", "data": demo_form_data.model_dump()})
+                    await websocket.send_json({"type": "suggestions_update", "data": suggestions.model_dump()})
 
-                    print(f"Demo: TOTAL TIME: {(time.time() - demo_start)*1000:.1f}ms")
+                    print(f"Demo: TOTAL TIME: {(time.time() - demo_start) * 1000:.1f}ms")
                     await websocket.send_json({"type": "demo_complete"})
 
                 elif data.get("type") == "generate_soap":
@@ -548,60 +518,53 @@ async def demo_websocket(websocket: WebSocket):
                         # Show AI processing indicator
                         await websocket.send_json({"type": "ai_processing", "status": "start"})
 
-                        await websocket.send_json({
-                            "type": "reasoning",
-                            "text": "Structuring subjective patient complaints...",
-                            "icon": "person"
-                        })
+                        await websocket.send_json(
+                            {
+                                "type": "reasoning",
+                                "text": "Structuring subjective patient complaints...",
+                                "icon": "person",
+                            }
+                        )
 
                         await asyncio.sleep(0.4)
-                        await websocket.send_json({
-                            "type": "reasoning",
-                            "text": "Compiling objective clinical findings...",
-                            "icon": "stethoscope"
-                        })
+                        await websocket.send_json(
+                            {
+                                "type": "reasoning",
+                                "text": "Compiling objective clinical findings...",
+                                "icon": "stethoscope",
+                            }
+                        )
 
                         # Generate SOAP note
                         soap_note = await soap_service.generate_soap(transcript_text, demo_form_data)
 
-                        await websocket.send_json({
-                            "type": "reasoning",
-                            "text": "Formulating clinical assessment...",
-                            "icon": "psychology"
-                        })
+                        await websocket.send_json(
+                            {"type": "reasoning", "text": "Formulating clinical assessment...", "icon": "psychology"}
+                        )
 
                         await asyncio.sleep(0.3)
-                        await websocket.send_json({
-                            "type": "reasoning",
-                            "text": "Mapping to ICD-10 diagnostic codes...",
-                            "icon": "code"
-                        })
+                        await websocket.send_json(
+                            {"type": "reasoning", "text": "Mapping to ICD-10 diagnostic codes...", "icon": "code"}
+                        )
 
                         # Generate ICD codes
                         icd_codes = await soap_service.generate_icd_codes(transcript_text, soap_note)
 
-                        await websocket.send_json({
-                            "type": "reasoning",
-                            "text": "Documentation complete.",
-                            "icon": "check_circle"
-                        })
+                        await websocket.send_json(
+                            {"type": "reasoning", "text": "Documentation complete.", "icon": "check_circle"}
+                        )
 
                         # Hide AI processing indicator
                         await websocket.send_json({"type": "ai_processing", "status": "stop"})
 
-                        await websocket.send_json({
-                            "type": "soap_update",
-                            "data": soap_note.model_dump()
-                        })
-                        await websocket.send_json({
-                            "type": "icd_codes_update",
-                            "data": [code.model_dump() for code in icd_codes]
-                        })
+                        await websocket.send_json({"type": "soap_update", "data": soap_note.model_dump()})
+                        await websocket.send_json(
+                            {"type": "icd_codes_update", "data": [code.model_dump() for code in icd_codes]}
+                        )
                     else:
-                        await websocket.send_json({
-                            "type": "error",
-                            "message": "No transcript available. Run demo first."
-                        })
+                        await websocket.send_json(
+                            {"type": "error", "message": "No transcript available. Run demo first."}
+                        )
 
     except WebSocketDisconnect:
         pass
@@ -614,10 +577,9 @@ async def transcription_websocket(websocket: WebSocket, language: str = "ar_en")
 
     # Validate language - ar_en is bilingual Arabic + English
     if language not in ["en", "ar", "ar_en"]:
-        await websocket.send_json({
-            "type": "error",
-            "message": f"Unsupported language: {language}. Use 'en', 'ar', or 'ar_en' (bilingual)."
-        })
+        await websocket.send_json(
+            {"type": "error", "message": f"Unsupported language: {language}. Use 'en', 'ar', or 'ar_en' (bilingual)."}
+        )
         await websocket.close()
         return
 
@@ -681,10 +643,6 @@ async def transcription_websocket(websocket: WebSocket, language: str = "ar_en")
 
 if __name__ == "__main__":
     import uvicorn
+
     settings = get_settings()
-    uvicorn.run(
-        "backend.main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=True
-    )
+    uvicorn.run("backend.main:app", host=settings.host, port=settings.port, reload=True)

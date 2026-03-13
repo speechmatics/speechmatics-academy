@@ -8,16 +8,18 @@ Extract insights from audio using Speechmatics Audio Intelligence features.
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
+
 from speechmatics.batch import (
     AsyncClient,
+    AuthenticationError,
     JobConfig,
     JobType,
-    TranscriptionConfig,
     SentimentAnalysisConfig,
     SummarizationConfig,
     TopicDetectionConfig,
-    AuthenticationError,
+    TranscriptionConfig,
 )
 
 load_dotenv()
@@ -87,12 +89,12 @@ async def main():
 
             # Display sentiment if available
             if result.sentiment_analysis:
-                segments = result.sentiment_analysis.get('segments', [])
+                segments = result.sentiment_analysis.get("segments", [])
                 if segments:
                     # Calculate overall sentiment from segments
-                    sentiment_counts = {'positive': 0, 'negative': 0, 'neutral': 0}
+                    sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
                     for segment in segments:
-                        sentiment = segment.get('sentiment', '').lower()
+                        sentiment = segment.get("sentiment", "").lower()
                         if sentiment in sentiment_counts:
                             sentiment_counts[sentiment] += 1
 
@@ -102,7 +104,7 @@ async def main():
 
             # Display topics if available
             if result.topics:
-                overall_topics = result.topics.get('summary', {}).get('overall', {})
+                overall_topics = result.topics.get("summary", {}).get("overall", {})
                 detected = [topic for topic, count in overall_topics.items() if count > 0]
                 if detected:
                     print("Topics:")
@@ -112,12 +114,12 @@ async def main():
 
             # Display summary if available
             if result.summary:
-                content = result.summary.get('content', '')
+                content = result.summary.get("content", "")
                 if content:
                     print("Summary:")
                     # Handle multi-line summaries (bullets or structured text)
-                    if '\n' in content:
-                        for line in content.split('\n'):
+                    if "\n" in content:
+                        for line in content.split("\n"):
                             if line.strip():
                                 print(f"   {line}")
                     else:

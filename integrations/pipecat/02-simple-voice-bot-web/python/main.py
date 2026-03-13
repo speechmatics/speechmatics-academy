@@ -15,8 +15,8 @@ Then open: http://localhost:7860/client
 """
 
 import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
@@ -27,10 +27,8 @@ print("Loading models and imports (20 seconds, first run only)\n")
 logger.info("Loading Local Smart Turn Analyzer V3 and Silero VAD...")
 from pipecat.audio.turn.smart_turn.local_smart_turn_v3 import LocalSmartTurnAnalyzerV3
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-
 from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
-
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -47,10 +45,9 @@ from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.daily.transport import DailyParams
 from pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy import (
-TurnAnalyzerUserTurnStopStrategy,
+    TurnAnalyzerUserTurnStopStrategy,
 )
 from pipecat.turns.user_turn_strategies import UserTurnStrategies
-
 
 logger.info("All components loaded!")
 
@@ -91,7 +88,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
             # Diarization settings
             enable_speaker_diarization=True,
             focus_speakers=["S1"],
-            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>", 
+            speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
             speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
         ),
     )
@@ -125,11 +122,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         context,
         user_params=LLMUserAggregatorParams(
             user_turn_strategies=UserTurnStrategies(
-                stop=[
-                    TurnAnalyzerUserTurnStopStrategy(
-                        turn_analyzer=LocalSmartTurnAnalyzerV3()
-                    )
-                ]
+                stop=[TurnAnalyzerUserTurnStopStrategy(turn_analyzer=LocalSmartTurnAnalyzerV3())]
             ),
         ),
     )
@@ -158,9 +151,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         logger.info("Client connected")
-        messages.append(
-            {"role": "system", "content": "Say hello and briefly introduce yourself."}
-        )
+        messages.append({"role": "system", "content": "Say hello and briefly introduce yourself."})
         await task.queue_frames([LLMRunFrame()])
 
     @transport.event_handler("on_client_disconnected")
@@ -181,14 +172,12 @@ async def bot(runner_args: RunnerArguments):
             audio_out_enabled=True,
             vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
             # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
-
         ),
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
             vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
             # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
-
         ),
     }
 

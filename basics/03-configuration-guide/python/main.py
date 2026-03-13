@@ -1,5 +1,5 @@
 """
-Configuration Guide 
+Configuration Guide
 Demonstrates configuration options.
 Perfect reference for seeing what's possible!
 """
@@ -7,8 +7,10 @@ Perfect reference for seeing what's possible!
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint, AuthenticationError
+
+from speechmatics.batch import AsyncClient, AuthenticationError, TranscriptionConfig
 
 load_dotenv()
 
@@ -35,10 +37,8 @@ async def main():
         config = TranscriptionConfig(
             # Language settings
             language="en",
-
             # Speaker diarization
             diarization="speaker",
-
             # Custom vocabulary for better accuracy
             # Shows both simple terms and phonetic alternatives
             additional_vocab=[
@@ -47,10 +47,8 @@ async def main():
                 {"content": "API", "sounds_like": ["A P I", "ay pee eye"]},
                 {"content": "demo"},
             ],
-
             # Formatting options
             enable_entities=True,  # Detect dates, times, numbers, currencies
-
             # Quality settings
             operating_point="enhanced",  # Best accuracy or "standard" best for speed
         )

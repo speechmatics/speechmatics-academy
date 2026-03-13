@@ -8,6 +8,7 @@ import argparse
 import os
 from datetime import datetime
 
+from common.lib.utils import load_env, load_file
 from loguru import logger
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
@@ -22,8 +23,6 @@ from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transcriptions.language import Language
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.services.daily import DailyParams
-
-from common.lib.utils import load_env, load_file
 
 load_env(__file__)
 

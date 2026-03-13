@@ -4,16 +4,17 @@ Shows how to stream audio to Deepgram for real-time transcription
 """
 
 import os
-import time
 import threading
+import time
 from pathlib import Path
+
 from deepgram import DeepgramClient
 from deepgram.core.events import EventType
 from deepgram.extensions.types.sockets.listen_v1_control_message import ListenV1ControlMessage
-
 from dotenv import load_dotenv
 
 load_dotenv()
+
 
 def main():
     """Stream audio to Deepgram for real-time transcription"""
@@ -43,7 +44,7 @@ def main():
             print("Connection opened to Deepgram")
 
         def on_message(result):
-            if hasattr(result, 'channel') and result.channel.alternatives:
+            if hasattr(result, "channel") and result.channel.alternatives:
                 sentence = result.channel.alternatives[0].transcript
                 if sentence:
                     if result.is_final:
@@ -87,6 +88,7 @@ def main():
             print(f"Error: Audio file '{audio_file_path}' not found")
         except Exception as e:
             print(f"Error during streaming: {e}")
+
 
 if __name__ == "__main__":
     main()

@@ -14,7 +14,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit import agents
-from livekit.agents import AgentSession, Agent, RoomInputOptions
+from livekit.agents import Agent, AgentSession, RoomInputOptions
 from livekit.plugins import openai, silero, speechmatics
 
 load_dotenv()
@@ -77,9 +77,7 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
     # Send Initial Greeting
-    await session.generate_reply(
-        instructions="Say a short hello and ask how you can help."
-    )
+    await session.generate_reply(instructions="Say a short hello and ask how you can help.")
 
 
 if __name__ == "__main__":

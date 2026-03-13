@@ -1,8 +1,10 @@
 """Speechmatics RT SDK — medical transcription service"""
+
 import asyncio
 from collections import Counter
-from typing import Callable, Awaitable
 from dataclasses import dataclass
+from typing import Awaitable, Callable
+
 from speechmatics.rt import (
     AsyncClient,
     AudioEncoding,
@@ -18,6 +20,7 @@ from speechmatics.rt import (
 @dataclass
 class DiarizedTranscript:
     """Transcript with speaker information"""
+
     text: str
     speaker: str  # "S1", "S2", etc. from Speechmatics
     start_time: float
@@ -65,9 +68,13 @@ class TranscriptionService:
     # Preview RT API endpoint (supports bilingual ar_en)
     RT_URL = "wss://preview.rt.speechmatics.com/v2"
 
-    def __init__(self, api_key: str, language: str = "ar_en",
-                 speaker_sensitivity: float = 0.7,
-                 prefer_current_speaker: bool = True):
+    def __init__(
+        self,
+        api_key: str,
+        language: str = "ar_en",
+        speaker_sensitivity: float = 0.7,
+        prefer_current_speaker: bool = True,
+    ):
         self.api_key = api_key
         self.language = language
         self.speaker_sensitivity = speaker_sensitivity

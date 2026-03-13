@@ -18,7 +18,8 @@ from pathlib import Path
 import aiohttp
 from dotenv import load_dotenv
 from loguru import logger
-
+from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.runner import PipelineRunner
 from pipecat.pipeline.task import PipelineParams, PipelineTask
@@ -31,8 +32,6 @@ from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
 from pipecat.services.openai.llm import OpenAILLMService
 from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
-from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.audio.vad.vad_analyzer import VADParams
 
 load_dotenv()
 
@@ -84,9 +83,7 @@ async def main():
             LocalAudioTransportParams(
                 audio_in_enabled=True,
                 audio_out_enabled=True,
-                vad_analyzer=SileroVADAnalyzer(
-                    params=VADParams(min_volume=0.6)
-                ),
+                vad_analyzer=SileroVADAnalyzer(params=VADParams(min_volume=0.6)),
             )
         )
 

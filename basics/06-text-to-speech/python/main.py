@@ -10,7 +10,8 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-from speechmatics.tts import AsyncClient, Voice, OutputFormat, AuthenticationError
+
+from speechmatics.tts import AsyncClient, AuthenticationError, OutputFormat, Voice
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +28,9 @@ async def main():
         return
 
     # Default text
-    default_text = "Hello! Welcome to Speechmatics text to speech. This is a demonstration of natural sounding speech synthesis."
+    default_text = (
+        "Hello! Welcome to Speechmatics text to speech. This is a demonstration of natural sounding speech synthesis."
+    )
 
     # Output file path
     output_file = Path(__file__).parent.parent / "assets" / "output.wav"
@@ -46,12 +49,12 @@ async def main():
     print()
 
     # Get user input or use default
-    user_input = input(f"Enter text to speak (or press Enter for default): ").strip()
+    user_input = input("Enter text to speak (or press Enter for default): ").strip()
     text = user_input if user_input else default_text
 
     print()
     print(f"Text: {text}")
-    print(f"Voice: Sarah (English UK Female)")
+    print("Voice: Sarah (English UK Female)")
     print(f"Output: {output_file.name}")
     print()
 

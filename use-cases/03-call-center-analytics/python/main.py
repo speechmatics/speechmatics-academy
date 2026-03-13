@@ -9,6 +9,7 @@ plus sentiment analysis, topic detection, and summarization.
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 from speechmatics.batch import (
@@ -16,11 +17,11 @@ from speechmatics.batch import (
     AuthenticationError,
     JobConfig,
     JobType,
-    TranscriptionConfig,
-    SummarizationConfig,
-    SentimentAnalysisConfig,
-    TopicDetectionConfig,
     OperatingPoint,
+    SentimentAnalysisConfig,
+    SummarizationConfig,
+    TopicDetectionConfig,
+    TranscriptionConfig,
 )
 
 load_dotenv()
@@ -34,6 +35,7 @@ def format_transcript(results):
     Build transcript with channel labels.
     Custom formatting here.
     """
+
     def join_words(words):
         if not words:
             return ""
@@ -103,9 +105,7 @@ async def main():
                 ),
                 sentiment_analysis_config=SentimentAnalysisConfig(),
                 topic_detection_config=TopicDetectionConfig(),
-                summarization_config=SummarizationConfig(
-                    content_type="conversational", summary_length="brief"
-                ),
+                summarization_config=SummarizationConfig(content_type="conversational", summary_length="brief"),
             )
 
             job = await client.submit_job(str(audio_file), config=config)
@@ -134,7 +134,9 @@ async def main():
                             counts[s] += 1
                     overall = max(counts, key=counts.get)
                     print(f"Overall: {overall.capitalize()}")
-                    print(f"Breakdown: {counts['positive']} positive, {counts['neutral']} neutral, {counts['negative']} negative\n")
+                    print(
+                        f"Breakdown: {counts['positive']} positive, {counts['neutral']} neutral, {counts['negative']} negative\n"
+                    )
 
             # Topics
             if result.topics and "summary" in result.topics:

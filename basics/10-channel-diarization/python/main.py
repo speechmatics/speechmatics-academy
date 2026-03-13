@@ -12,6 +12,7 @@ import wave
 from pathlib import Path
 
 from dotenv import load_dotenv
+
 from speechmatics.rt import (
     AsyncMultiChannelClient,
     AudioEncoding,
@@ -59,7 +60,7 @@ async def main():
                 return
             channel = msg.get("channel", "Unknown")
             start = result.metadata.start_time
-            print(f"[{int(start//60):02d}:{int(start%60):02d}] {channel}: {text}")
+            print(f"[{int(start // 60):02d}:{int(start % 60):02d}] {channel}: {text}")
             if channel in results:
                 results[channel].append(text)
 

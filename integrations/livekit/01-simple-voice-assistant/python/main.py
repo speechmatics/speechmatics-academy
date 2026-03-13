@@ -21,9 +21,9 @@ from typing import Any
 
 from dotenv import load_dotenv
 from livekit import agents
-from livekit.agents import AgentSession, Agent, RoomInputOptions
-from livekit.plugins import openai, silero, speechmatics, elevenlabs
-from livekit.plugins.speechmatics import TurnDetectionMode, SpeakerIdentifier
+from livekit.agents import Agent, AgentSession, RoomInputOptions
+from livekit.plugins import elevenlabs, openai, silero, speechmatics
+from livekit.plugins.speechmatics import SpeakerIdentifier, TurnDetectionMode
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -42,8 +42,7 @@ def load_known_speakers() -> list[SpeakerIdentifier]:
     return [
         SpeakerIdentifier(label=entry["label"], speaker_identifiers=entry["speaker_identifiers"])
         for entry in data
-        if entry.get("label") and entry.get("speaker_identifiers")
-        and not RESERVED_LABEL.match(entry["label"])
+        if entry.get("label") and entry.get("speaker_identifiers") and not RESERVED_LABEL.match(entry["label"])
     ]
 
 
@@ -115,9 +114,7 @@ async def entrypoint(ctx: agents.JobContext):
             instructions=f"Greet the user. You recognize: {names}. Welcome them back by name. Be brief."
         )
     else:
-        await session.generate_reply(
-            instructions="Say a short hello and ask how you can help."
-        )
+        await session.generate_reply(instructions="Say a short hello and ask how you can help.")
 
     # Capture voiceprints in background and save immediately
     async def capture_voiceprints():

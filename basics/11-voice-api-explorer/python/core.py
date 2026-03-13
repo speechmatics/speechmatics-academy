@@ -18,11 +18,11 @@ import websockets
 # ─── Constants ────────────────────────────────────────────────────────────────
 
 DEFAULT_SERVER = "wss://preview.rt.speechmatics.com"
-MIC_SAMPLE_RATE = 16000   # Mic recording sample rate (Hz)
-MIC_CHUNK_MS = 20         # Mic callback buffer size (ms)
-REPLAY_CHUNK_MS = 100     # Replay chunk size for streaming (ms)
-PACING = 4.0              # Replay audio at Nx real-time speed
-DEBUG = False             # Set via --debug flag from CLI
+MIC_SAMPLE_RATE = 16000  # Mic recording sample rate (Hz)
+MIC_CHUNK_MS = 20  # Mic callback buffer size (ms)
+REPLAY_CHUNK_MS = 100  # Replay chunk size for streaming (ms)
+PACING = 4.0  # Replay audio at Nx real-time speed
+DEBUG = False  # Set via --debug flag from CLI
 
 
 # ─── Audio Utilities ──────────────────────────────────────────────────────────
@@ -225,18 +225,18 @@ async def run_session(
 
 # ANSI colour codes
 class C:
-    RESET   = "\033[0m"
-    BOLD    = "\033[1m"
-    DIM     = "\033[2m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
     # Foreground
-    GREEN   = "\033[32m"     # Finals, Segments, Translations
-    YELLOW  = "\033[33m"     # Partials
-    CYAN    = "\033[36m"     # Speaker events, Turn events
-    MAGENTA = "\033[35m"     # Metrics
-    RED     = "\033[31m"     # Errors
-    ORANGE  = "\033[38;5;208m"  # Warnings
-    BLUE    = "\033[34m"     # Session lifecycle
-    WHITE   = "\033[37m"     # Optional / debug messages
+    GREEN = "\033[32m"  # Finals, Segments, Translations
+    YELLOW = "\033[33m"  # Partials
+    CYAN = "\033[36m"  # Speaker events, Turn events
+    MAGENTA = "\033[35m"  # Metrics
+    RED = "\033[31m"  # Errors
+    ORANGE = "\033[38;5;208m"  # Warnings
+    BLUE = "\033[34m"  # Session lifecycle
+    WHITE = "\033[37m"  # Optional / debug messages
 
 
 # Enable ANSI escape processing on Windows
@@ -251,8 +251,12 @@ def _fmt(v):
 
 # Optional message types — only shown when the demo explicitly opts in
 OPTIONAL_MSG_TYPES = {
-    "AudioAdded", "SpeechStarted", "SpeechEnded",
-    "EndOfTurnPrediction", "SmartTurnPrediction", "Diagnostics",
+    "AudioAdded",
+    "SpeechStarted",
+    "SpeechEnded",
+    "EndOfTurnPrediction",
+    "SmartTurnPrediction",
+    "Diagnostics",
 }
 
 
@@ -355,7 +359,9 @@ def print_msg(msg: dict, indent: int = 4, show_optional: bool = False):
 
     elif mt == "EndOfUtterance":
         meta = msg.get("metadata", {})
-        print(f"{p}{C.CYAN}[EndOfUtterance] {_fmt(meta.get('start_time', '?'))}s - {_fmt(meta.get('end_time', '?'))}s{C.RESET}")
+        print(
+            f"{p}{C.CYAN}[EndOfUtterance] {_fmt(meta.get('start_time', '?'))}s - {_fmt(meta.get('end_time', '?'))}s{C.RESET}"
+        )
 
     elif mt == "SessionMetrics":
         total = msg.get("total_time_str", msg.get("total_time", "?"))

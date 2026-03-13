@@ -10,15 +10,16 @@ import json
 import os
 from pathlib import Path
 
+import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, WebSocket, Request
+from elevenlabs import AsyncElevenLabs
+from fastapi import FastAPI, Request, WebSocket
 from fastapi.responses import Response
 from openai import AsyncOpenAI
-from elevenlabs import AsyncElevenLabs
-from speechmatics.voice import VoiceAgentClient, VoiceAgentConfigPreset, AgentServerMessageType
 from twilio.rest import Client as TwilioClient
 from twilio.twiml.voice_response import VoiceResponse
-import uvicorn
+
+from speechmatics.voice import AgentServerMessageType, VoiceAgentClient, VoiceAgentConfigPreset
 
 load_dotenv()
 
@@ -55,6 +56,7 @@ SPEECHMATICS_PRESET = "fast"
 # Audio Conversion
 # =============================================================================
 
+
 def pcm_to_mulaw(pcm_16khz: bytes) -> str:
     """
     Convert PCM audio to Twilio's required format.
@@ -75,6 +77,7 @@ def pcm_to_mulaw(pcm_16khz: bytes) -> str:
 # =============================================================================
 # Voice Assistant Logic
 # =============================================================================
+
 
 async def run_voice_assistant(twilio_ws: WebSocket, stream_sid: str):
     """
@@ -99,11 +102,7 @@ async def run_voice_assistant(twilio_ws: WebSocket, stream_sid: str):
     async def send_audio(payload: str):
         """Send a single audio chunk to Twilio."""
         if is_connected:
-            await twilio_ws.send_json({
-                "event": "media",
-                "streamSid": stream_sid,
-                "media": {"payload": payload}
-            })
+            await twilio_ws.send_json({"event": "media", "streamSid": stream_sid, "media": {"payload": payload}})
 
     async def speak(text: str):
         """
@@ -176,8 +175,7 @@ async def run_voice_assistant(twilio_ws: WebSocket, stream_sid: str):
 
     # Load preset and override audio format for Twilio
     config = VoiceAgentConfigPreset.load(
-        SPEECHMATICS_PRESET,
-        overlay_json=json.dumps({"audio_encoding": "mulaw", "sample_rate": 8000})
+        SPEECHMATICS_PRESET, overlay_json=json.dumps({"audio_encoding": "mulaw", "sample_rate": 8000})
     )
     client = VoiceAgentClient(api_key=SPEECHMATICS_API_KEY, config=config)
 
@@ -212,6 +210,7 @@ async def run_voice_assistant(twilio_ws: WebSocket, stream_sid: str):
 # =============================================================================
 # HTTP Endpoints
 # =============================================================================
+
 
 @app.get("/")
 async def index():

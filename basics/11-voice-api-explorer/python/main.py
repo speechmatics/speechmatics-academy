@@ -29,13 +29,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import core
-from core import DEFAULT_SERVER, record_audio, read_wav
+from core import DEFAULT_SERVER, read_wav, record_audio
 from demos import (
-    demo_rt_basic,
-    demo_voice_single,
-    demo_voice_profiles,
-    demo_voice_advanced,
     demo_message_control,
+    demo_rt_basic,
+    demo_voice_advanced,
+    demo_voice_profiles,
+    demo_voice_single,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -63,7 +63,7 @@ def show_menu():
     for i, (key, (title, _)) in enumerate(DEMOS.items(), 1):
         print(f"    {i}. [{key}] {title}")
     print(f"    {len(DEMOS) + 1}. [all] Run all demos")
-    print(f"    0. Exit")
+    print("    0. Exit")
     print()
 
     while True:

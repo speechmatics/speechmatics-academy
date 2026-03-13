@@ -1,12 +1,15 @@
 """GPT-4 medical form extraction and AI suggestions service"""
-from typing import Optional
+
 from enum import Enum
-from pydantic import BaseModel, Field
+from typing import Optional
+
 from openai import AsyncOpenAI
+from pydantic import BaseModel, Field
 
 
 class SpeakerRole(str, Enum):
     """Speaker role in conversation"""
+
     DOCTOR = "doctor"
     PATIENT = "patient"
     UNKNOWN = "unknown"
@@ -14,6 +17,7 @@ class SpeakerRole(str, Enum):
 
 class DiarizedUtterance(BaseModel):
     """A single utterance with speaker identification"""
+
     speaker_id: str  # "S1", "S2" from Speechmatics
     speaker_role: SpeakerRole
     text: str
@@ -24,6 +28,7 @@ class DiarizedUtterance(BaseModel):
 
 class ClinicalSuggestion(BaseModel):
     """AI-generated clinical suggestion"""
+
     id: str
     text: str
     priority: str = "normal"  # "low", "normal", "high", "critical"
@@ -32,6 +37,7 @@ class ClinicalSuggestion(BaseModel):
 
 class SOAPNote(BaseModel):
     """SOAP note structure"""
+
     subjective: str = Field(default="", description="Patient's symptoms, history, and complaints")
     objective: str = Field(default="", description="Physical exam findings, vitals, observations")
     assessment: str = Field(default="", description="Clinical assessment and diagnosis")
@@ -40,6 +46,7 @@ class SOAPNote(BaseModel):
 
 class ICDCode(BaseModel):
     """ICD-10 code suggestion"""
+
     code: str
     description: str
     confidence: float = Field(default=0.8, ge=0, le=1.0)
@@ -47,6 +54,7 @@ class ICDCode(BaseModel):
 
 class AISuggestions(BaseModel):
     """All AI-generated suggestions"""
+
     questions_to_ask: list[ClinicalSuggestion] = Field(default_factory=list)
     potential_diagnoses: list[ClinicalSuggestion] = Field(default_factory=list)
     tests_to_consider: list[ClinicalSuggestion] = Field(default_factory=list)
@@ -56,6 +64,7 @@ class AISuggestions(BaseModel):
 
 class VitalsData(BaseModel):
     """Patient vital signs"""
+
     blood_pressure: Optional[str] = Field(None, description="Blood pressure reading (e.g., '120/80')")
     pulse: Optional[int] = Field(None, description="Pulse rate in bpm")
     temperature: Optional[float] = Field(None, description="Body temperature")
@@ -66,14 +75,18 @@ class VitalsData(BaseModel):
 
 class MedicalFormData(BaseModel):
     """Extracted medical form data"""
+
     physical_examination: Optional[str] = Field(None, description="Physical examination findings")
     other_details: Optional[str] = Field(None, description="Additional clinical details")
     symptoms: Optional[list[str]] = Field(None, description="List of reported symptoms")
-    action: Optional[str] = Field(None, description="Recommended action (Follow-up, Referral, Admit, Discharge, Observation)")
-    review_after: Optional[str] = Field(None, description="Follow-up timing (1 week, 2 weeks, 1 month, 3 months, 6 months)")
+    action: Optional[str] = Field(
+        None, description="Recommended action (Follow-up, Referral, Admit, Discharge, Observation)"
+    )
+    review_after: Optional[str] = Field(
+        None, description="Follow-up timing (1 week, 2 weeks, 1 month, 3 months, 6 months)"
+    )
     discharge_recommended: Optional[bool] = Field(None, description="Whether discharge is recommended")
     vitals: Optional[VitalsData] = Field(None, description="Vital signs")
-
 
 
 class SpeakerRoleInference:
@@ -82,24 +95,57 @@ class SpeakerRoleInference:
     # Doctor patterns (English and Arabic)
     DOCTOR_PATTERNS = [
         # English clinical language
-        "blood pressure", "pulse", "temperature", "let me examine",
-        "i recommend", "i suggest", "prescribed", "diagnosis",
-        "your vitals", "your symptoms", "examination shows",
-        "we need to", "i'll order", "the test", "follow-up",
+        "blood pressure",
+        "pulse",
+        "temperature",
+        "let me examine",
+        "i recommend",
+        "i suggest",
+        "prescribed",
+        "diagnosis",
+        "your vitals",
+        "your symptoms",
+        "examination shows",
+        "we need to",
+        "i'll order",
+        "the test",
+        "follow-up",
         # Arabic clinical language
-        "ضغط الدم", "نبض", "حرارة", "الفحص", "الفحص يظهر",
-        "أنصح", "أوصي", "العلاج", "التشخيص", "المتابعة",
+        "ضغط الدم",
+        "نبض",
+        "حرارة",
+        "الفحص",
+        "الفحص يظهر",
+        "أنصح",
+        "أوصي",
+        "العلاج",
+        "التشخيص",
+        "المتابعة",
     ]
 
     # Patient patterns (English and Arabic)
     PATIENT_PATTERNS = [
         # English patient language
-        "i feel", "i have", "it hurts", "i'm experiencing",
-        "my pain", "when i", "i can't", "i've been",
-        "started yesterday", "woke up with", "since last",
+        "i feel",
+        "i have",
+        "it hurts",
+        "i'm experiencing",
+        "my pain",
+        "when i",
+        "i can't",
+        "i've been",
+        "started yesterday",
+        "woke up with",
+        "since last",
         # Arabic patient language
-        "أشعر", "عندي", "يؤلمني", "ألم في", "منذ",
-        "بدأت", "أعاني من", "لا أستطيع",
+        "أشعر",
+        "عندي",
+        "يؤلمني",
+        "ألم في",
+        "منذ",
+        "بدأت",
+        "أعاني من",
+        "لا أستطيع",
     ]
 
     @classmethod
@@ -170,7 +216,7 @@ Rules:
             print("Extraction: Empty transcript, returning empty form")
             return MedicalFormData()
 
-        user_prompt = f"""Extract medical form data from this {'Arabic' if language == 'ar' else 'English'} clinical transcript:
+        user_prompt = f"""Extract medical form data from this {"Arabic" if language == "ar" else "English"} clinical transcript:
 
 ---
 {transcript}
@@ -183,10 +229,7 @@ Return a JSON object with the extracted information."""
             response = await self.client.chat.completions.create(
                 model="gpt-4o",
                 response_format={"type": "json_object"},
-                messages=[
-                    {"role": "system", "content": self.SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
+                messages=[{"role": "system", "content": self.SYSTEM_PROMPT}, {"role": "user", "content": user_prompt}],
                 temperature=0.1,  # Low temperature for consistent extraction
                 max_tokens=1000,
             )
@@ -205,6 +248,7 @@ Return a JSON object with the extracted information."""
         except Exception as e:
             # Log error but return empty form data
             import traceback
+
             print(f"Extraction error: {e}")
             traceback.print_exc()
             return MedicalFormData()
@@ -212,14 +256,14 @@ Return a JSON object with the extracted information."""
     def _normalize_bp(self, bp_value: str) -> str:
         """Normalize blood pressure format (e.g., '145 over 95' -> '145/95')"""
         import re
-        # Replace various "over" formats with "/"
-        normalized = re.sub(r'\s*over\s*', '/', bp_value, flags=re.IGNORECASE)
-        normalized = re.sub(r'\s*על\s*', '/', normalized)  # Hebrew "over"
-        normalized = re.sub(r'\s*على\s*', '/', normalized)  # Arabic "over"
-        # Clean up any extra spaces around the slash
-        normalized = re.sub(r'\s*/\s*', '/', normalized)
-        return normalized.strip()
 
+        # Replace various "over" formats with "/"
+        normalized = re.sub(r"\s*over\s*", "/", bp_value, flags=re.IGNORECASE)
+        normalized = re.sub(r"\s*על\s*", "/", normalized)  # Hebrew "over"
+        normalized = re.sub(r"\s*على\s*", "/", normalized)  # Arabic "over"
+        # Clean up any extra spaces around the slash
+        normalized = re.sub(r"\s*/\s*", "/", normalized)
+        return normalized.strip()
 
 
 class SuggestionsService:
@@ -298,7 +342,7 @@ Return a JSON object with clinical suggestions."""
                 response_format={"type": "json_object"},
                 messages=[
                     {"role": "system", "content": self.SUGGESTIONS_PROMPT},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": user_prompt},
                 ],
                 temperature=0.3,  # Slightly higher for creative suggestions
                 max_tokens=1500,
@@ -328,6 +372,7 @@ Return a JSON object with clinical suggestions."""
 
         except Exception as e:
             import traceback
+
             print(f"Suggestions error: {e}")
             traceback.print_exc()
             return AISuggestions()
@@ -410,10 +455,7 @@ Return a JSON object with subjective, objective, assessment, and plan sections."
             response = await self.client.chat.completions.create(
                 model="gpt-4o",
                 response_format={"type": "json_object"},
-                messages=[
-                    {"role": "system", "content": self.SOAP_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
+                messages=[{"role": "system", "content": self.SOAP_PROMPT}, {"role": "user", "content": user_prompt}],
                 temperature=0.2,
                 max_tokens=1500,
             )
@@ -423,6 +465,7 @@ Return a JSON object with subjective, objective, assessment, and plan sections."
 
         except Exception as e:
             import traceback
+
             print(f"SOAP generation error: {e}")
             traceback.print_exc()
             return SOAPNote()
@@ -446,22 +489,21 @@ Return a JSON object with an array of codes."""
             response = await self.client.chat.completions.create(
                 model="gpt-4o",
                 response_format={"type": "json_object"},
-                messages=[
-                    {"role": "system", "content": self.ICD_PROMPT},
-                    {"role": "user", "content": user_prompt}
-                ],
+                messages=[{"role": "system", "content": self.ICD_PROMPT}, {"role": "user", "content": user_prompt}],
                 temperature=0.1,
                 max_tokens=500,
             )
 
             content = response.choices[0].message.content
             import json
+
             data = json.loads(content)
             codes = [ICDCode(**c) for c in data.get("codes", [])]
             return codes
 
         except Exception as e:
             import traceback
+
             print(f"ICD code generation error: {e}")
             traceback.print_exc()
             return []

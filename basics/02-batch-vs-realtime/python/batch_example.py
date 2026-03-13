@@ -2,8 +2,10 @@ import asyncio
 import os
 import time
 from pathlib import Path
+
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, TranscriptionConfig, OperatingPoint, AuthenticationError
+
+from speechmatics.batch import AsyncClient, AuthenticationError, OperatingPoint, TranscriptionConfig
 
 load_dotenv()
 
@@ -63,6 +65,7 @@ async def main():
     except AuthenticationError as e:
         print(f"\nAuthentication Error: {e}")
         print("Please check your API key is valid at portal.speechmatics.com")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

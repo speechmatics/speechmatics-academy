@@ -1,0 +1,29 @@
+# Ruff configuration for Speechmatics Academy
+# Educational code should be clean but not pedantic
+
+target-version = "py312"
+line-length = 120
+
+exclude = [
+    "venv",
+    ".venv",
+    "node_modules",
+    "__pycache__",
+    "*.egg-info",
+    ".git",
+]
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes (unused imports, undefined names, etc.)
+    "W",   # pycodestyle warnings
+    "I",   # isort (import ordering)
+]
+ignore = [
+    "E501",  # line length — handled by formatter, examples often have long descriptive strings
+    "E402",  # module-import-not-at-top — examples use load_dotenv() / sys.path before local imports
+]
+
+[lint.isort]
+known-first-party = ["speechmatics"]

@@ -1,0 +1,141 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python-checks:
+    name: Python Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Ruff lint
+        run: ruff check .
+
+      - name: Ruff format
+        run: ruff format --check .
+
+      - name: Python syntax check
+        run: |
+          find . -name "*.py" \
+            -not -path "*/venv/*" \
+            -not -path "*/.venv/*" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/__pycache__/*" \
+            -print0 | xargs -0 python -m py_compile
+
+  js-checks:
+    name: JavaScript Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: basics/11-voice-api-explorer/javascript
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: basics/11-voice-api-explorer/javascript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Syntax check
+        run: node --check main.js
+
+  structure-check:
+    name: Structure & Catalog Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate catalog and structure
+        run: python .github/scripts/check_structure.py
+
+  dependency-check:
+    name: Dependency Resolution Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Validate all requirements.txt files
+        run: |
+          failed=0
+          while IFS= read -r -d '' req; do
+            # Skip venv and .venv directories
+            case "$req" in
+              *venv*) continue ;;
+              *.venv*) continue ;;
+            esac
+
+            dir=$(dirname "$req")
+            echo "::group::Checking $req"
+            if uv pip compile "$req" --python-version 3.12 -q > /dev/null 2>&1; then
+              echo "OK: $req"
+            else
+              echo "::error file=$req::Failed to resolve dependencies in $req"
+              failed=1
+            fi
+            echo "::endgroup::"
+          done < <(find . -name "requirements.txt" -not -path "*/venv/*" -not -path "*/.venv/*" -not -path "*/node_modules/*" -print0)
+
+          if [ "$failed" -ne 0 ]; then
+            echo "::error::One or more requirements.txt files failed dependency resolution"
+            exit 1
+          fi
+          echo "All requirements.txt files resolved successfully"
+
+  docker-build:
+    name: Docker Build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: pipecat-voice-bot
+            context: integrations/pipecat/01-simple-voice-bot
+            dockerfile: integrations/pipecat/01-simple-voice-bot/Dockerfile
+          - name: vapi-voice-assistant
+            context: integrations/vapi/01-voice-assistant
+            dockerfile: integrations/vapi/01-voice-assistant/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.name }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: false
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}

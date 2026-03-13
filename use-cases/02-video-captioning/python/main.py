@@ -7,8 +7,10 @@ Add captions, create searchable archives, and generate clips from keywords.
 import asyncio
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, AuthenticationError, TranscriptionConfig, FormatType
+
+from speechmatics.batch import AsyncClient, AuthenticationError, FormatType, TranscriptionConfig
 
 load_dotenv()
 
@@ -36,10 +38,7 @@ async def main():
         async with AsyncClient(api_key=api_key) as client:
             print(f"Submitting job for: {video_file}")
 
-            job = await client.submit_job(
-                str(video_file),
-                transcription_config=TranscriptionConfig(language="en")
-            )
+            job = await client.submit_job(str(video_file), transcription_config=TranscriptionConfig(language="en"))
 
             print(f"Job submitted with ID: {job.id}")
             print("Waiting for completion...")
@@ -51,11 +50,11 @@ async def main():
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(captions)
 
-            print(f"\n{'='*80}")
+            print(f"\n{'=' * 80}")
             print(f"SUCCESS: Captions saved to {output_file}")
-            print('='*80)
+            print("=" * 80)
             print("\nPreview of captions:")
-            print('-'*80)
+            print("-" * 80)
             # Show first 500 characters of captions
             print(captions[:500])
             if len(captions) > 500:
