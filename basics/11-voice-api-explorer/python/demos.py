@@ -149,14 +149,14 @@ async def demo_voice_profiles(api_key, server, pcm, sr):
 async def demo_voice_advanced(api_key, server, pcm, sr):
     """Speaker focus, ForceEndOfUtterance, GetSpeakers, and diarization."""
     header("Demo 4: Voice Mode — Advanced Features")
-    print("  Features: enable_diarization, UpdateSpeakerFocus, GetSpeakers,")
+    print("  Features: diarization, UpdateSpeakerFocus, GetSpeakers,")
     print("            ForceEndOfUtterance, SpeakersResult, focus_mode")
     print()
 
     config = {
         "transcription_config": {
             "language": "en",
-            "enable_diarization": True,
+            "diarization": "speaker",
         },
         "audio_format": audio_format_block(sr),
     }

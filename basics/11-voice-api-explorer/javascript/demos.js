@@ -153,7 +153,7 @@ async function demoVoiceProfiles(apiKey, server, pcm, sr) {
 async function demoVoiceAdvanced(apiKey, server, pcm, sr) {
   header("Demo 4: Voice Mode - Advanced Features");
   console.log(
-    "  Features: enable_diarization, UpdateSpeakerFocus, GetSpeakers,",
+    "  Features: diarization, UpdateSpeakerFocus, GetSpeakers,",
   );
   console.log(
     "            ForceEndOfUtterance, SpeakersResult, focus_mode",
@@ -163,7 +163,7 @@ async function demoVoiceAdvanced(apiKey, server, pcm, sr) {
   const config = {
     transcription_config: {
       language: "en",
-      enable_diarization: true,
+      diarization: "speaker",
     },
     audio_format: audioFormatBlock(sr),
   };

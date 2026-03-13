@@ -271,7 +271,7 @@ For the `external` profile, the demo sends `ForceEndOfUtterance` to manually tri
 
 ### Demo 4: Advanced Features (`advanced`)
 
-Demonstrates mid-session control with `enable_diarization`:
+Demonstrates mid-session control with `diarization: "speaker"`:
 
 1. **GetSpeakers** - request speaker identification data → receives `SpeakersResult`
 2. **UpdateSpeakerFocus** with `focus_mode: "retain"` - non-focused speakers tracked as passive
@@ -289,7 +289,7 @@ Demonstrates mid-session control with `enable_diarization`:
         "language": "en",
         "operating_point": "enhanced",
         "enable_partials": true,
-        "enable_diarization": true,
+        "diarization": "speaker",
         "additional_vocab": [
             {"content": "Speechmatics", "sounds_like": ["speech matics"]}
         ]
@@ -301,6 +301,17 @@ Demonstrates mid-session control with `enable_diarization`:
     }
 }
 ```
+
+### Diarization Options
+
+The `diarization` field in `transcription_config` controls speaker labelling:
+
+| Value | Modes | Behaviour |
+|-------|-------|-----------|
+| `"none"` | Both | Speakers labelled as **UU** (unknown). `GetSpeakers` and `UpdateSpeakerFocus` are disabled. |
+| `"speaker"` | Both | Speakers labelled as **S1**, **S2**, etc. Enables `GetSpeakers` and `UpdateSpeakerFocus`. |
+| `"channel"` | RT only | One speaker per audio channel. |
+| `"channel_and_speaker"` | RT only | Per-channel diarization with speaker labels. |
 
 ### Voice Mode Restrictions
 
@@ -317,7 +328,7 @@ The following `transcription_config` fields are **not available** in Voice mode 
 | Audio (binary) | Both | Raw PCM frames matching declared `audio_format`. |
 | `EndOfStream` | Both | Signals no more audio. RT mode accepts `last_seq_no`. |
 | `ForceEndOfUtterance` | Voice | Finalise current utterance immediately. |
-| `UpdateSpeakerFocus` | Voice | Update speaker focus config mid-session. Requires `enable_diarization`. |
+| `UpdateSpeakerFocus` | Voice | Update speaker focus config mid-session. Requires `diarization: "speaker"`. |
 | `GetSpeakers` | Both | Request speaker identification data. |
 
 ### Server → Client Messages
@@ -486,7 +497,7 @@ Debug mode outputs:
 - On Windows, mic recording uses native APIs and does not require SoX
 
 **"UpdateSpeakerFocus returns Error"**
-- `enable_diarization` must be `true` in the initial `StartRecognition` config
+- `diarization` must be `"speaker"` in the initial `StartRecognition` config
 
 ## Resources
 
