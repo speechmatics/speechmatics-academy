@@ -1,0 +1,19 @@
+{
+  "name": "voice-api-explorer",
+  "version": "1.0.0",
+  "description": "Speechmatics Voice API Explorer - Node.js",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "dotenv": "^16.4.0"
+  },
+  "optionalDependencies": {
+    "node-record-lpcm16": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

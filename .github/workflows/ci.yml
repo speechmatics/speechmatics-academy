@@ -50,14 +50,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: basics/11-voice-api-explorer/javascript/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Syntax check
-        run: node --check main.js
+        run: |
+          node --check main.js
+          node --check core.js
+          node --check demos.js
 
   structure-check:
     name: Structure & Catalog Check
@@ -117,6 +118,7 @@ jobs:
     name: Docker Build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: pipecat-voice-bot
@@ -137,5 +139,6 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: false
+          platforms: linux/amd64
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}

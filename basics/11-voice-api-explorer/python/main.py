@@ -13,7 +13,6 @@ Usage:
     python main.py voice               # Voice mode (adaptive profile)
     python main.py profiles            # Compare all voice profiles
     python main.py advanced            # Speaker focus, ForceEOU, GetSpeakers
-    python main.py messages            # Message control include/exclude
     python main.py all                 # Run all demos
     python main.py rt --audio f.wav    # Use a WAV file instead of mic
 """
@@ -31,7 +30,6 @@ load_dotenv()
 import core
 from core import DEFAULT_SERVER, read_wav, record_audio
 from demos import (
-    demo_message_control,
     demo_rt_basic,
     demo_voice_advanced,
     demo_voice_profiles,
@@ -47,7 +45,6 @@ DEMOS = {
     "voice": ("Voice Mode — Adaptive Profile", demo_voice_single),
     "profiles": ("Voice Mode — Profile Comparison", demo_voice_profiles),
     "advanced": ("Voice Mode — Advanced Features", demo_voice_advanced),
-    "messages": ("Message Control — Include/Exclude", demo_message_control),
 }
 
 
@@ -108,7 +105,6 @@ Available demos:
   voice         Voice mode with adaptive profile (segments, turns, metrics)
   profiles      Compare all voice profiles (agile, adaptive, smart, external)
   advanced      Speaker focus, ForceEOU, GetSpeakers, diarization
-  messages      Message control include/exclude
   all           Run all demos in sequence
 
 Audio input:

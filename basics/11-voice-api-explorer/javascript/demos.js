@@ -225,70 +225,6 @@ async function demoVoiceAdvanced(apiKey, server, pcm, sr) {
   });
 }
 
-// =============================================================================
-// DEMO 5: Message Control - Include/Exclude
-// =============================================================================
-
-async function demoMessageControl(apiKey, server, pcm, sr) {
-  header("Demo 5: Message Control - Include/Exclude");
-
-  // --- Part A: Include optional messages ---
-  subheader("Part A: Include optional messages");
-  console.log(
-    "  AudioAdded, SpeechStarted, SpeechEnded are NOT forwarded by default.",
-  );
-  console.log("  Using message_control.include to opt in.");
-  console.log();
-
-  const configInclude = {
-    transcription_config: {
-      language: "en",
-    },
-    audio_format: audioFormatBlock(sr),
-    message_control: {
-      include: ["AudioAdded", "SpeechStarted", "SpeechEnded"],
-    },
-  };
-
-  await runSession({
-    apiKey,
-    server,
-    wsPath: "/v2/agent/adaptive",
-    config: configInclude,
-    pcm,
-    sampleRate: sr,
-    onMessage: (msg) => printMsg(msg, { showOptional: true }),
-  });
-
-  // --- Part B: Exclude default messages ---
-  subheader("Part B: Exclude default messages");
-  console.log(
-    "  SpeakerMetrics and SessionMetrics are forwarded by default in Voice mode.",
-  );
-  console.log("  Using message_control.exclude to opt out.");
-  console.log();
-
-  const configExclude = {
-    transcription_config: {
-      language: "en",
-    },
-    audio_format: audioFormatBlock(sr),
-    message_control: {
-      exclude: ["SpeakerMetrics", "SessionMetrics"],
-    },
-  };
-
-  await runSession({
-    apiKey,
-    server,
-    wsPath: "/v2/agent/agile",
-    config: configExclude,
-    pcm,
-    sampleRate: sr,
-    onMessage: (msg) => printMsg(msg),
-  });
-}
-
 // --- Exports -----------------------------------------------------------------
 
 module.exports = {
@@ -296,5 +232,4 @@ module.exports = {
   demoVoiceSingle,
   demoVoiceProfiles,
   demoVoiceAdvanced,
-  demoMessageControl,
 };

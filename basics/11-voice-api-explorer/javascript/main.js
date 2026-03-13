@@ -13,7 +13,6 @@
  *     node main.js voice               # Voice mode (adaptive profile)
  *     node main.js profiles            # Compare all voice profiles
  *     node main.js advanced            # Speaker focus, ForceEOU, GetSpeakers
- *     node main.js messages            # Message control include/exclude
  *     node main.js all                 # Run all demos
  *     node main.js rt --audio f.wav    # Use a WAV file instead of mic
  */
@@ -37,7 +36,6 @@ const {
   demoVoiceSingle,
   demoVoiceProfiles,
   demoVoiceAdvanced,
-  demoMessageControl,
 } = require("./demos");
 
 // =============================================================================
@@ -49,7 +47,6 @@ const DEMOS = new Map([
   ["voice", ["Voice Mode - Adaptive Profile", demoVoiceSingle]],
   ["profiles", ["Voice Mode - Profile Comparison", demoVoiceProfiles]],
   ["advanced", ["Voice Mode - Advanced Features", demoVoiceAdvanced]],
-  ["messages", ["Message Control - Include/Exclude", demoMessageControl]],
 ]);
 
 function showMenu() {
@@ -145,7 +142,6 @@ Available demos:
   voice         Voice mode with adaptive profile (segments, turns, metrics)
   profiles      Compare all voice profiles (agile, adaptive, smart, external)
   advanced      Speaker focus, ForceEOU, GetSpeakers, diarization
-  messages      Message control include/exclude
   all           Run all demos in sequence
 
 Options:

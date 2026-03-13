@@ -21,7 +21,6 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 - **Voice mode** (`/v2/agent/{profile}`): segments, turns, speaker tracking, and session metrics
 - All **four voice profiles**: `agile`, `adaptive`, `smart`, `external`
 - **Mid-session control**: `ForceEndOfUtterance`, `UpdateSpeakerFocus`, `GetSpeakers`
-- **Message control**: opt in/out of optional message types with `include`/`exclude`
 - The complete **session lifecycle**: `StartRecognition` → Audio → `EndOfStream` → `EndOfTranscript`
 
 ## Prerequisites
@@ -84,7 +83,6 @@ python main.py rt              # RT mode transcription
 python main.py voice           # Voice mode (adaptive)
 python main.py profiles        # Compare all profiles
 python main.py advanced        # Speaker focus, ForceEOU
-python main.py messages        # Message control
 python main.py all             # Run everything
 
 # Use a WAV file instead of the microphone
@@ -136,7 +134,6 @@ node main.js rt              # RT mode transcription
 node main.js voice           # Voice mode (adaptive)
 node main.js profiles        # Compare all profiles
 node main.js advanced        # Speaker focus, ForceEOU
-node main.js messages        # Message control
 node main.js all             # Run everything
 
 # Use a WAV file instead of the microphone
@@ -156,19 +153,19 @@ Both implementations split the code into three files with the same responsibilit
 | File | Purpose |
 |------|---------|
 | **`main.py` / `main.js`** | CLI entry point - argument parsing, interactive menu, audio input handling, and demo orchestration |
-| **`demos.py` / `demos.js`** | All five demo functions, each configuring and running a specific API scenario |
+| **`demos.py` / `demos.js`** | All four demo functions, each configuring and running a specific API scenario |
 | **`core.py` / `core.js`** | Shared infrastructure - constants, audio utilities (mic recording, WAV parsing), WebSocket session runner, and ANSI-coloured message formatter |
 
 ```
 11-voice-api-explorer/
 ├── python/
 │   ├── main.py              # CLI entry point
-│   ├── demos.py             # 5 demo functions
+│   ├── demos.py             # 4 demo functions
 │   ├── core.py              # Session runner, audio utils, message formatter
 │   └── requirements.txt
 ├── javascript/
 │   ├── main.js              # CLI entry point
-│   ├── demos.js             # 5 demo functions
+│   ├── demos.js             # 4 demo functions
 │   ├── core.js              # Session runner, audio utils, message formatter
 │   └── package.json
 ├── assets/
@@ -281,13 +278,6 @@ Demonstrates mid-session control with `enable_diarization`:
 3. **ForceEndOfUtterance** - immediately finalise the current utterance
 4. **UpdateSpeakerFocus** with `focus_mode: "ignore"` - non-focused speakers dropped entirely
 
-### Demo 5: Message Control (`messages`)
-
-Shows how `message_control` in `StartRecognition` lets you customise which messages are forwarded:
-
-- **Part A:** `include: ["AudioAdded", "SpeechStarted", "SpeechEnded"]` - opt into optional messages
-- **Part B:** `exclude: ["SpeakerMetrics", "SessionMetrics"]` - opt out of default messages
-
 ## Configuration Reference
 
 ### StartRecognition Payload
@@ -308,10 +298,6 @@ Shows how `message_control` in `StartRecognition` lets you customise which messa
         "type": "raw",
         "encoding": "pcm_s16le",
         "sample_rate": 16000
-    },
-    "message_control": {
-        "include": ["AudioAdded", "SpeechStarted", "SpeechEnded"],
-        "exclude": ["SpeakerMetrics"]
     }
 }
 ```
@@ -370,17 +356,6 @@ The following `transcription_config` fields are **not available** in Voice mode 
 | `AudioEventStarted` | Audio event detected (e.g. music). |
 | `AudioEventEnded` | Audio event ended. |
 
-**Optional (use `message_control.include`):**
-
-| Message | Description |
-|---------|-------------|
-| `AudioAdded` | Backend received audio. |
-| `SpeechStarted` | Speech activity detected. |
-| `SpeechEnded` | Speech activity ended. |
-| `EndOfTurnPrediction` | Predicted silence before turn ends. |
-| `SmartTurnPrediction` | Smart turn acoustic model result. |
-| `Diagnostics` | Debug information. |
-
 ## Key Features Demonstrated
 
 **RT Mode (Real-Time Transcription):**
@@ -397,7 +372,6 @@ The following `transcription_config` fields are **not available** in Voice mode 
 - `ForceEndOfUtterance` - manually finalise utterances
 - `UpdateSpeakerFocus` - retain or ignore non-focused speakers
 - `GetSpeakers` - request speaker identification data
-- `message_control` - opt in/out of optional message types
 
 ## Expected Output
 
@@ -407,9 +381,8 @@ Select a demo:
   2) voice          - Voice mode (adaptive)
   3) profiles       - Compare all voice profiles
   4) advanced       - Speaker focus & ForceEOU
-  5) messages       - Message control
-  6) all            - Run all demos
-Choice [1-6]: 1
+  5) all            - Run all demos
+Choice [1-5]: 1
 
   Recording... speak now, then press Enter to stop.
 

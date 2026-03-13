@@ -63,9 +63,13 @@ $RECYCLE.BIN/
 
 # Output files from examples
 output/
-*.json
 *.srt
 *.vtt
+
+# JSON output from transcription examples (but NOT package.json files)
+*.json
+!package.json
+!package-lock.json
 
 
 # Logs
