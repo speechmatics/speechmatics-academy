@@ -230,7 +230,7 @@ Use descriptive commit messages with a type prefix:
 **Examples:**
 
 ```
-Feat: add Azure Speech provider integration
+Feat: add LiveKit telephony integration example
 Fix: resolve WebSocket timeout in voice-api-explorer
 Docs: improve Quick Start instructions for medical assistant
 Chore: update speechmatics-rt to 0.6.0

@@ -5,14 +5,14 @@
 > [!WARNING]
 > The Voice API is currently in **preview** and is an **experimental feature**. Endpoints, message formats, and behaviour may change without notice. Do not use in production workloads.
 >
-> We value your feedback - please share it in our [Discord community](https://discord.gg/speechmatics). Areas of interest:
+> We value your feedback - [submit feedback](https://docs.google.com/forms/d/e/1FAIpQLSc-6GQXYx_0M-X0Uu_uB_4XyDL009jMv3hBJAFw7kD98AILJg/viewform). Areas of interest:
 > - **Integration experience** - documentation, SDKs, API messages/metadata
 > - **Accuracy & latency** - including data capture (e.g. phone numbers, spell-outs of names/account numbers)
 > - **Turn detection** - experience with different profiles (agile, adaptive, smart, external)
 > - **Missing capabilities** - what would make your product better
 > - **Production blockers** - what would stop you using this in production
 
-The Voice API is a unified WebSocket endpoint for real-time transcription and voice agent capabilities. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across five interactive scenarios.
+The Voice API is a unified WebSocket endpoint for real-time transcription and voice agent capabilities. Clients stream audio in and receive transcription events out. The mode (RT or Voice) is determined automatically from the URL path. This demo showcases all features across four interactive scenarios.
 
 ## What You'll Learn
 
