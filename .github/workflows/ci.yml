@@ -117,28 +117,20 @@ jobs:
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: pipecat-voice-bot
-            context: integrations/pipecat/01-simple-voice-bot
-            dockerfile: integrations/pipecat/01-simple-voice-bot/Dockerfile
-          - name: vapi-voice-assistant
-            context: integrations/vapi/01-voice-assistant
-            dockerfile: integrations/vapi/01-voice-assistant/Dockerfile
+    # Note: pipecat Dockerfile uses dailyco/pipecat-base which is ARM64-only,
+    # so only amd64-compatible Dockerfiles are validated here.
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build ${{ matrix.name }}
+      - name: Build vapi-voice-assistant
         uses: docker/build-push-action@v6
         with:
-          context: ${{ matrix.context }}
-          file: ${{ matrix.dockerfile }}
+          context: integrations/vapi/01-voice-assistant
+          file: integrations/vapi/01-voice-assistant/Dockerfile
           push: false
           platforms: linux/amd64
-          cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          cache-from: type=gha,scope=vapi-voice-assistant
+          cache-to: type=gha,mode=max,scope=vapi-voice-assistant

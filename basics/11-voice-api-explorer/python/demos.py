@@ -216,5 +216,3 @@ async def demo_voice_advanced(api_key, server, pcm, sr):
         on_message=print_msg,
         after_audio_fn=mid_session_actions,
     )
-
-
