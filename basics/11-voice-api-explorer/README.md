@@ -502,7 +502,7 @@ Debug mode outputs:
 ## Resources
 
 - [Speechmatics Portal](https://portal.speechmatics.com/) - get your API key
-- [Voice API Documentation](https://docs-git-voiceagentapipreview-speechmatics.vercel.app/private/voice-agent-api)
+- [Voice API Documentation](https://docs.speechmatics.com/private/voice-agent-api)
 - [Voice SDK Documentation](https://docs.speechmatics.com/voice-agents/voice-sdk)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)
 - [Speechmatics JavaScript SDK](https://github.com/speechmatics/speechmatics-js-sdk)
