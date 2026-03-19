@@ -4,9 +4,6 @@
 
 Combines Speechmatics RT SDK for speech-to-text with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
 
-> [!WARNING]
-> **Preview API Required.** This application uses the Speechmatics RT SDK preview endpoint (`wss://preview.rt.speechmatics.com/v2`) for bilingual `ar_en` support. You must have preview mode enabled on your Speechmatics API key. Contact Speechmatics or check your [portal settings](https://portal.speechmatics.com/) to ensure preview access is active.
-
 ## What You'll Learn
 
 - Real-time bilingual transcription with `ar_en` (Arabic + English) language pack
