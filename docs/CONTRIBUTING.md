@@ -5,10 +5,11 @@ Thank you for your interest in contributing to Speechmatics Academy! This docume
 ## Ways to Contribute
 
 1. **Add New Examples** - Create examples demonstrating Speechmatics features
-2. **Improve Existing Examples** - Fix bugs, add features, improve documentation
-3. **Add Language Implementations** - Add TypeScript/C# to Python-only examples (coming soon)
-4. **Fix Documentation** - Improve README files, fix typos, clarify instructions
-5. **Report Issues** - Report bugs or suggest improvements
+2. **Submit Community Projects** - Share your own projects built with Speechmatics (any language)
+3. **Improve Existing Examples** - Fix bugs, add features, improve documentation
+4. **Add Language Implementations** - Add TypeScript/C# to Python-only examples (coming soon)
+5. **Fix Documentation** - Improve README files, fix typos, clarify instructions
+6. **Report Issues** - Report bugs or suggest improvements
 
 ## Before You Start
 
@@ -413,6 +414,47 @@ After submitting a PR:
 4. **Merge** - Once approved and all checks pass, your PR will be merged
 
 We aim to review PRs quickly, but please be patient during busy periods.
+
+## Contributing Community Projects
+
+In addition to official examples, we welcome **community-contributed projects** in any programming language. Community projects live in the `community/` directory and have lighter quality requirements than official examples.
+
+### Community vs Official Examples
+
+| Aspect | Official Examples | Community Projects |
+|--------|------------------|--------------------|
+| Location | `basics/`, `integrations/`, `use-cases/` | `community/` |
+| Language | Python only | Any language |
+| Template | [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md) | [COMMUNITY_TEMPLATE.md](../community/COMMUNITY_TEMPLATE.md) |
+| Code style | Ruff lint/format (blocking) | Recommended, not enforced |
+| README sections | 9 required | 5 required |
+| Numbered prefix | Required (e.g., `01-`) | Not used |
+| CI checks | Full validation | Lightweight validation |
+
+### How to Submit a Community Project
+
+**Option A: Propose first (recommended for Verified status)**
+
+1. Open a [Community Project Proposal](https://github.com/speechmatics/speechmatics-academy/issues/new?template=community-project-proposal.yml) issue
+2. Wait for maintainer feedback
+3. Fork, implement following [COMMUNITY_TEMPLATE.md](../community/COMMUNITY_TEMPLATE.md)
+4. Submit PR — gets full review and `status: "verified"` on merge
+
+**Option B: Submit directly**
+
+1. Fork and create your project under `community/{subcategory}/your-project-name/`
+2. Include at minimum: `README.md`, working code, `CONTRIBUTORS.md`
+3. Add metadata to `docs/index.yaml` with `category: "community"` and `status: "community"`
+4. Submit PR — gets light review and `status: "community"` on merge
+
+### Quality Tiers
+
+- **Verified**: Full template compliance, maintainer code-reviewed, tested end-to-end
+- **Community**: Basic structure, working code, light review
+
+Community projects can be promoted to Verified via a follow-up PR. Exceptional projects may graduate into official categories.
+
+See the [Community Projects README](../community/README.md) for full details.
 
 ## Community Guidelines
 

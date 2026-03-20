@@ -17,6 +17,9 @@ categories:
   - id: "use-cases"
     title: "Use Cases"
     description: "Production-ready applications for specific industries"
+  - id: "community"
+    title: "Community Projects"
+    description: "Community-contributed examples, tools, and experiments"
 
 # Difficulty Levels
 difficulty_levels:
@@ -27,6 +30,10 @@ difficulty_levels:
 # Supported Languages
 languages:
   - python
+  - typescript
+  - javascript
+  - go
+  - csharp
 
 # Available Features
 features:
@@ -454,8 +461,20 @@ integration_frameworks:
     url: "https://vapi.ai"
 
 
+# Community Subcategories
+community_subcategories:
+  - use-cases
+  - integrations
+  - tools
+  - experiments
+
+# Community Status Levels
+community_status:
+  - community    # Basic structure, light review
+  - verified     # Full template compliance, maintainer-audited
+
 # Metadata for CLI Tool
 cli_config:
   search_fields: ["title", "description", "tags", "features"]
-  filter_fields: ["category", "difficulty", "languages", "features", "integrations"]
+  filter_fields: ["category", "difficulty", "languages", "features", "integrations", "status"]
   sort_options: ["title", "difficulty", "last_updated"]

@@ -114,6 +114,26 @@ jobs:
           fi
           echo "All requirements.txt files resolved successfully"
 
+  community-checks:
+    name: Community Project Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Ruff lint (community, warnings only)
+        run: ruff check community/ || true
+        continue-on-error: true
+
+      - name: Validate community project structure
+        run: python .github/scripts/check_community_structure.py
+
   docker-build:
     name: Docker Build
     runs-on: ubuntu-latest

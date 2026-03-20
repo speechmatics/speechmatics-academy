@@ -207,13 +207,16 @@ Alternatively, pass it as a query parameter: `wss://server/v2?api_key=<API_KEY>`
 
 The mode is selected by the URL path:
 
-| Profile | Mode | Path | Description |
-|---------|------|------|-------------|
-| *(none)* | RT | `/v2` | Real-time transcription with partials |
-| `agile` | Voice | `/v2/agent/agile` | Fastest response, VAD-based turn detection |
-| `adaptive` | Voice | `/v2/agent/adaptive` | Adapts to speaker pace and disfluency |
-| `smart` | Voice | `/v2/agent/smart` | Acoustic model for turn completion |
-| `external` | Voice | `/v2/agent/external` | Client-controlled turn detection |
+| Profile | Mode | Path | Languages | Description |
+|---------|------|------|-----------|-------------|
+| *(none)* | RT | `/v2` | All | Real-time transcription with partials |
+| `agile` | Voice | `/v2/agent/agile` | All | Fastest response, VAD-based turn detection |
+| `adaptive` | Voice | `/v2/agent/adaptive` | All | Adapts to speaker pace and disfluency |
+| `smart` | Voice | `/v2/agent/smart` | Limited (22) | Acoustic model for turn completion |
+| `external` | Voice | `/v2/agent/external` | All | Client-controlled turn detection |
+
+> [!NOTE]
+> The `smart` profile uses an acoustic model for turn prediction and only supports: Arabic, Bengali, Chinese, Danish, Dutch, English, Finnish, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Marathi, Norwegian, Polish, Portuguese, Russian, Spanish, Turkish, Ukrainian, Vietnamese. All other profiles support all languages.
 
 Profiles support versioning: `adaptive:latest`, `adaptive:2026-02-10`.
 
