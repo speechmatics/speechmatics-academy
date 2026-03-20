@@ -102,3 +102,7 @@ integrations/livekit/01-simple-voice-assistant/python/.models/
 use-cases/06-medical-assistant/.models/
 
 basics/11-voice-api-explorer/assets/sample_mono.wav
+
+basics/11-voice-api-explorer/python/sample.wav
+
+basics/11-voice-api-explorer/python/test_mulaw.py
