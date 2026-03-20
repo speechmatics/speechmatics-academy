@@ -1,6 +1,9 @@
 # Example Template
 
-This document describes the standard structure and content for Academy examples.
+This document describes the standard structure and content for **official** Academy examples.
+
+> [!NOTE]
+> **Contributing a community project?** Use the simplified [Community Project Template](../community/COMMUNITY_TEMPLATE.md) instead. Community projects have fewer requirements and support any programming language.
 
 ## Directory Structure
 

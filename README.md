@@ -38,6 +38,7 @@ Comprehensive collection of code examples demonstrating real-world applications,
 - [Quick Start](#quick-start)
 - [Theory](#theory)
 - [Example Categories](#example-categories)
+- [Community Projects](#community-projects)
 - [Migration Guides](#migration-guides)
 - [Finding Examples](#finding-examples)
 - [Example Structure](#example-structure)
@@ -225,6 +226,30 @@ Example applications for specific industries.
 
 ---
 
+<h2 id="community-projects">🌍 Community Projects</h2>
+
+Projects built by the Speechmatics community. Community projects can be written in **any language** and have lighter quality requirements than official examples.
+
+> [!NOTE]
+> No community projects yet — yours could be the first! See [How to Submit](community/README.md#how-to-submit).
+
+<!-- As community projects are added, list them here:
+| Project | Category | Description | Language | Author | Status |
+|---------|----------|-------------|----------|--------|--------|
+| [Example Project](community/use-cases/example/) | Use Case | Example description | Python | [@user](https://github.com/user) | ![Verified](https://img.shields.io/badge/Speechmatics_Academy-Verified-green) |
+| [Example Tool](community/tools/example/) | Tool | Example description | TypeScript | [@user](https://github.com/user) | ![Community](https://img.shields.io/badge/Speechmatics_Academy-Community_Project-blue) |
+-->
+
+Community projects have two quality tiers:
+
+![Verified](https://img.shields.io/badge/Speechmatics_Academy-Verified-green) Maintainer-audited, fully template-compliant, tested end-to-end
+
+![Community](https://img.shields.io/badge/Speechmatics_Academy-Community_Project-blue) Basic structure, working code, light review
+
+[Browse all community projects](community/) | [Submit a project](community/README.md#how-to-submit) | [Community Template](community/COMMUNITY_TEMPLATE.md)
+
+---
+
 <h2 id="migration-guides">🔄 Migration Guides</h2>
 
 Switching from another speech-to-text provider? Our migration guides help you transition smoothly with feature mappings, code comparisons, and practical examples.
@@ -349,10 +374,11 @@ We welcome contributions! There are many ways to help:
 ### Ways to Contribute
 
 1. **Add New Examples** - Share your implementations
-2. **Improve Existing Examples** - Fix bugs, add features
-3. **Add Language Support** - Port examples to other languages
-4. **Fix Documentation** - Improve README files
-5. **Report Issues** - Help us improve quality
+2. **Submit Community Projects** - Share your own projects in any language ([learn more](community/README.md))
+3. **Improve Existing Examples** - Fix bugs, add features
+4. **Add Language Support** - Port examples to other languages
+5. **Fix Documentation** - Improve README files
+6. **Report Issues** - Help us improve quality
 
 ### Adding a New Example
 

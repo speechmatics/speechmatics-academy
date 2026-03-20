@@ -1,0 +1,90 @@
+name: Community Project Proposal
+description: Propose a new community project for Speechmatics Academy
+title: "[Community] "
+labels: ["community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a community project! Fill out the details below so maintainers can review your idea.
+
+  - type: input
+    id: project-name
+    attributes:
+      label: Project Name
+      description: A short, descriptive name for your project (kebab-case for the directory, e.g., `podcast-transcription`)
+      placeholder: podcast-transcription
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Which subcategory does this project belong to?
+      options:
+        - use-cases (domain or industry-specific application)
+        - integrations (third-party framework or service)
+        - tools (utility, CLI tool, or library)
+        - experiments (benchmark, comparison, or research)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: languages
+    attributes:
+      label: Language(s)
+      description: Which programming language(s) will you use?
+      options:
+        - label: Python
+        - label: TypeScript
+        - label: JavaScript
+        - label: Go
+        - label: Rust
+        - label: "C#"
+        - label: Other
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What does this project do? What problem does it solve?
+      placeholder: Describe your project in 2-3 sentences...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Speechmatics Features Used
+      description: Which Speechmatics features does this project use?
+      options:
+        - label: Batch Transcription
+        - label: Real-time Transcription
+        - label: Speaker Diarization
+        - label: Speaker Identification
+        - label: Channel Diarization
+        - label: Custom Vocabulary
+        - label: Audio Intelligence (Sentiment, Topics, Summarization)
+        - label: Translation
+        - label: Text-to-Speech
+        - label: Turn Detection
+        - label: Voice Agents
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Third-party Dependencies
+      description: List any external services, APIs, or frameworks your project uses (e.g., OpenAI, LiveKit, Discord.js)
+      placeholder: |
+        - OpenAI API (for LLM responses)
+        - Discord.js (for bot framework)
+
+  - type: checkboxes
+    id: tested
+    attributes:
+      label: Testing
+      description: Confirm testing status
+      options:
+        - label: I have tested this project end-to-end
+          required: true

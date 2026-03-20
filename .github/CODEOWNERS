@@ -1,0 +1,15 @@
+# Speechmatics Academy — Code Ownership
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Official examples — Speechmatics DevRel team
+/basics/                    @speechmatics/devrel
+/integrations/              @speechmatics/devrel
+/use-cases/                 @speechmatics/devrel
+/guides/                    @speechmatics/devrel
+/docs/                      @speechmatics/devrel
+
+# Community projects — require at least one Speechmatics reviewer
+/community/                 @speechmatics/devrel
+
+# CI and infrastructure
+/.github/                   @speechmatics/devrel

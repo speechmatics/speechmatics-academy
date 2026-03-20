@@ -20,10 +20,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 INDEX_FILE = REPO_ROOT / "docs" / "index.yaml"
 
 # Categories that contain numbered example directories
-EXAMPLE_CATEGORIES = ["basics", "integrations", "use-cases"]
+EXAMPLE_CATEGORIES = ["basics", "integrations", "use-cases", "community"]
 
 # Known non-example directories at the integration level (contain sub-projects)
 INTEGRATION_PARENTS = {"livekit", "pipecat", "twilio", "vapi", "tambourine", "vercel"}
+
+# Community subcategories (act like integration parents — contain project directories)
+COMMUNITY_SUBCATEGORIES = {"use-cases", "integrations", "tools", "experiments"}
 
 
 def parse_index_yaml(path: Path) -> tuple[list[dict], int]:
@@ -87,6 +90,13 @@ def find_example_dirs_on_disk() -> set[str]:
                 if child.name in INTEGRATION_PARENTS:
                     for sub in sorted(child.iterdir()):
                         if sub.is_dir() and numbered_dir.match(sub.name):
+                            rel = sub.relative_to(REPO_ROOT).as_posix()
+                            found.add(rel)
+            elif category == "community":
+                # community has subcategory parent directories (no numbered prefixes)
+                if child.name in COMMUNITY_SUBCATEGORIES:
+                    for sub in sorted(child.iterdir()):
+                        if sub.is_dir():
                             rel = sub.relative_to(REPO_ROOT).as_posix()
                             found.add(rel)
             else:
