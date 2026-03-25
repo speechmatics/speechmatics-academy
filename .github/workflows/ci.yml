@@ -14,9 +14,9 @@ jobs:
     name: Python Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -45,9 +45,9 @@ jobs:
       run:
         working-directory: basics/11-voice-api-explorer/javascript
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -64,9 +64,9 @@ jobs:
     name: Structure & Catalog Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -77,13 +77,13 @@ jobs:
     name: Dependency Resolution Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
 
@@ -118,9 +118,9 @@ jobs:
     name: Community Project Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -140,13 +140,13 @@ jobs:
     # Note: pipecat Dockerfile uses dailyco/pipecat-base which is ARM64-only,
     # so only amd64-compatible Dockerfiles are validated here.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Build vapi-voice-assistant
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: integrations/vapi/01-voice-assistant
           file: integrations/vapi/01-voice-assistant/Dockerfile

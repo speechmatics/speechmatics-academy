@@ -19,7 +19,7 @@ jobs:
       (github.event.pull_request.user.type || github.event.issue.user.type) != 'Bot'
     steps:
       - name: Welcome first-time contributors
-        uses: actions/first-interaction@v1
+        uses: actions/first-interaction@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           pr-message: |
