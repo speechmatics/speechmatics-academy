@@ -18,4 +18,4 @@ keyboard>=0.13.5
 # Required for intelligent acoustic-based turn detection
 certifi>=2025.10.5
 onnxruntime>=1.19.0,<2
-transformers>=4.57.0,<5
+transformers>=4.57.0,<6
