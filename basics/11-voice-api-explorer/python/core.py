@@ -255,7 +255,7 @@ OPTIONAL_MSG_TYPES = {
     "SpeechStarted",
     "SpeechEnded",
     "EndOfTurnPrediction",
-    "SmartTurnPrediction",
+    "SmartTurnResult",
     "Diagnostics",
 }
 
@@ -403,8 +403,8 @@ def print_msg(msg: dict, indent: int = 4, show_optional: bool = False):
         wait = msg.get("predicted_wait", "?")
         print(f"{p}{C.WHITE}[EndOfTurnPrediction] predicted_wait={_fmt(wait)}s{C.RESET}")
 
-    elif mt == "SmartTurnPrediction":
-        print(f"{p}{C.WHITE}[SmartTurnPrediction] {json.dumps(msg)[:140]}{C.RESET}")
+    elif mt == "SmartTurnResult":
+        print(f"{p}{C.WHITE}[SmartTurnResult] {json.dumps(msg)[:140]}{C.RESET}")
 
     elif mt == "AudioEventStarted":
         etype = msg.get("type", msg.get("event", "?"))

@@ -330,7 +330,7 @@ The following `transcription_config` fields are **not available** in Voice mode 
 | `StartRecognition` | Both | First message. Configures transcription and mode. |
 | Audio (binary) | Both | Raw PCM frames matching declared `audio_format`. |
 | `EndOfStream` | Both | Signals no more audio. RT mode accepts `last_seq_no`. |
-| `ForceEndOfUtterance` | Voice | Finalise current utterance immediately. |
+| `ForceEndOfUtterance` | Both | Finalise current utterance immediately. Supports optional `timestamp` and `channel` fields in RT. |
 | `UpdateSpeakerFocus` | Voice | Update speaker focus config mid-session. Requires `diarization: "speaker"`. |
 | `GetSpeakers` | Both | Request speaker identification data. |
 
