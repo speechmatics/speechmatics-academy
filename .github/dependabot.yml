@@ -217,8 +217,13 @@ updates:
       interval: "weekly"
       day: "monday"
     groups:
-      integration-deps:
+      livekit-agents:
+        patterns: ["livekit-*"]
+      otel:
+        patterns: ["opentelemetry-*"]
+      other:
         patterns: ["*"]
+        exclude-patterns: ["livekit-*", "opentelemetry-*"]
 
   - package-ecosystem: "pip"
     directory: "/integrations/livekit/02-telephony-twilio/python"
@@ -226,8 +231,13 @@ updates:
       interval: "weekly"
       day: "monday"
     groups:
-      integration-deps:
+      livekit-agents:
+        patterns: ["livekit-*"]
+      otel:
+        patterns: ["opentelemetry-*"]
+      other:
         patterns: ["*"]
+        exclude-patterns: ["livekit-*", "opentelemetry-*"]
 
   - package-ecosystem: "pip"
     directory: "/integrations/pipecat/01-simple-voice-bot/python"
