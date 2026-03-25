@@ -99,10 +99,12 @@ jobs:
 
             dir=$(dirname "$req")
             echo "::group::Checking $req"
-            if uv pip compile "$req" --python-version 3.12 -q > /dev/null 2>&1; then
+            output=$(uv pip compile "$req" --python-version 3.12 --prerelease=allow -q 2>&1)
+            if [ $? -eq 0 ]; then
               echo "OK: $req"
             else
               echo "::error file=$req::Failed to resolve dependencies in $req"
+              echo "$output"
               failed=1
             fi
             echo "::endgroup::"
