@@ -1,11 +1,11 @@
 # LiveKit Agents Framework
-livekit-agents==1.4.3
+livekit-agents==1.5.1
 
 # LiveKit Plugins
-livekit-plugins-speechmatics==1.4.3
-livekit-plugins-openai==1.4.3
-livekit-plugins-elevenlabs==1.4.3
-livekit-plugins-silero==1.4.3
+livekit-plugins-speechmatics==1.5.1
+livekit-plugins-openai==1.5.1
+livekit-plugins-elevenlabs==1.5.1
+livekit-plugins-silero==1.5.1
 
 # Environment variables
-python-dotenv==1.2.1
+python-dotenv==1.2.2
