@@ -1,0 +1,248 @@
+# Dependabot configuration for Speechmatics Academy
+# Keeps dependencies secure and up-to-date across all examples
+# Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
+
+version: 2
+updates:
+  # ── GitHub Actions ──────────────────────────────────────────────
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # ── npm (Voice API Explorer) ────────────────────────────────────
+  - package-ecosystem: "npm"
+    directory: "/basics/11-voice-api-explorer/javascript"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      npm-deps:
+        patterns: ["*"]
+
+  # ── Docker ──────────────────────────────────────────────────────
+  - package-ecosystem: "docker"
+    directory: "/integrations/vapi/01-voice-assistant"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+  - package-ecosystem: "docker"
+    directory: "/integrations/pipecat/01-simple-voice-bot"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+
+  # ── pip: Basics ─────────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/basics/01-hello-world/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/02-batch-vs-realtime/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/03-configuration-guide/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/04-audio-intelligence/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/05-multilingual-translation/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/06-text-to-speech/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/07-turn-detection/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/08-voice-agent-turn-detection/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/09-voice-agent-speaker-id/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/10-channel-diarization/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/basics/11-voice-api-explorer/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  # ── pip: Use Cases ──────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/use-cases/01-medical-transcription-realtime/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/use-cases/02-video-captioning/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/use-cases/03-call-center-analytics/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/use-cases/04-voice-agent-calendar/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/use-cases/05-santa-voice-agent/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/use-cases/06-medical-assistant"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  # ── pip: Integrations ───────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directory: "/integrations/twilio/01-outbound-dialer/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/integrations/vapi/01-voice-assistant/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/integrations/livekit/01-simple-voice-assistant/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/integrations/livekit/02-telephony-twilio/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/integrations/pipecat/01-simple-voice-bot/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
+  - package-ecosystem: "pip"
+    directory: "/integrations/pipecat/02-simple-voice-bot-web/python"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      integration-deps:
+        patterns: ["*"]

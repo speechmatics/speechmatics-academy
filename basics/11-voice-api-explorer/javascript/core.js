@@ -549,7 +549,7 @@ const OPTIONAL_MSG_TYPES = new Set([
   "SpeechStarted",
   "SpeechEnded",
   "EndOfTurnPrediction",
-  "SmartTurnPrediction",
+  "SmartTurnResult",
   "Diagnostics",
 ]);
 
@@ -727,9 +727,9 @@ function printMsg(msg, { indent = 4, showOptional = false } = {}) {
     console.log(
       `${p}${C.WHITE}[EndOfTurnPrediction] predicted_wait=${fmt(wait)}s${C.RESET}`,
     );
-  } else if (mt === "SmartTurnPrediction") {
+  } else if (mt === "SmartTurnResult") {
     console.log(
-      `${p}${C.WHITE}[SmartTurnPrediction] ${JSON.stringify(msg).slice(0, 140)}${C.RESET}`,
+      `${p}${C.WHITE}[SmartTurnResult] ${JSON.stringify(msg).slice(0, 140)}${C.RESET}`,
     );
   } else if (mt === "AudioEventStarted") {
     const etype = msg.type || msg.event || "?";
