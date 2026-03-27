@@ -2060,7 +2060,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pipecat-ai", extras = ["daily", "cartesia", "local", "local-smart-turn-v3", "openai", "runner", "silero", "speechmatics", "webrtc", "websocket", "groq"], specifier = ">=0.0.101" },
+    { name = "pipecat-ai", extras = ["daily", "cartesia", "local", "local-smart-turn", "openai", "runner", "silero", "speechmatics", "webrtc", "websocket", "groq"], specifier = ">=0.0.101" },
     { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "torch", specifier = ">=2.10.0" },
 ]

@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12,<=3.13"
 
 dependencies = [
-    "pipecat-ai[daily,cartesia,local,local-smart-turn-v3,openai,runner,silero,speechmatics,webrtc,websocket,groq]>=0.0.101",
+    "pipecat-ai[daily,cartesia,local,local-smart-turn,openai,runner,silero,speechmatics,webrtc,websocket,groq]>=0.0.101",
     "python-dotenv>=1.2.1",
     "torch>=2.10.0",
 ]

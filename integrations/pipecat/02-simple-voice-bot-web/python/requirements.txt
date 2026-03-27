@@ -1,4 +1,4 @@
-pipecat-ai[daily,cartesia,local-smart-turn-v3,silero,speechmatics,webrtc,groq,runner]>=0.0.101
+pipecat-ai[daily,cartesia,local-smart-turn,silero,speechmatics,webrtc,groq,runner]>=0.0.101
 pipecat-ai-small-webrtc-prebuilt
 python-dotenv>=1.2.1
 loguru
