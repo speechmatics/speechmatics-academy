@@ -16,12 +16,30 @@ This example shows both modes side-by-side so you understand which to use for yo
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
 - **Python 3.8+**
 - **Microphone** (for real-time example)
+- **PortAudio** (for real-time example): Required on Mac/Linux — see [Quick Start](#quick-start) Step 1
 
 ## Quick Start
 
 ### Python
 
-**Step 1: Create and activate a virtual environment**
+**Step 1: Install PortAudio (system dependency for real-time microphone)**
+
+> [!NOTE]
+> The real-time example uses PyAudio for microphone input, which requires the PortAudio system library. The batch example does not need this.
+
+**Windows:** No extra steps needed (included with PyAudio wheel).
+
+**Mac:**
+```bash
+brew install portaudio
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo apt-get install portaudio19-dev
+```
+
+**Step 2: Create and activate a virtual environment**
 
 **On Windows:**
 ```bash
@@ -37,7 +55,7 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-**Step 2: Install dependencies and run**
+**Step 3: Install dependencies and run**
 
 ```bash
 pip install -r requirements.txt
@@ -371,6 +389,12 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 - **[Voice Agent Turn Detection](../08-voice-agent-turn-detection/)** - Advanced presets for voice agents
 
 ## Troubleshooting
+
+**Real-time: "Failed building wheel for pyaudio" / "portaudio.h: No such file"**
+- Install the PortAudio system library first:
+  - Mac: `brew install portaudio`
+  - Linux (Debian/Ubuntu): `sudo apt-get install portaudio19-dev`
+- Then reinstall: `pip install pyaudio`
 
 **Batch: "Processing timeout"**
 - Check file size (very large files take longer)
