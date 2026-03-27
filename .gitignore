@@ -25,6 +25,9 @@ MANIFEST
 # Virtual Environment
 venv/
 .venv/
+
+# uv lock files
+uv.lock
 env/
 .env/
 ENV/

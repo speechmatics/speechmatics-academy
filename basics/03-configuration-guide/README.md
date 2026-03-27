@@ -26,15 +26,15 @@ Stop searching through docs - common config options explained with working examp
 **On Windows:**
 ```bash
 cd python
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
 cd python
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 **Step 2: Install dependencies and run**

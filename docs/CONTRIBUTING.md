@@ -103,13 +103,13 @@ Use GitHub-flavored callouts for important information:
 ```bash
 # Create and activate virtual environment
 cd python
-python -m venv venv
+python -m venv .venv
 
 # Windows:
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # Mac/Linux:
-source venv/bin/activate
+source .venv/bin/activate
 
 # Install and test
 pip install -r requirements.txt

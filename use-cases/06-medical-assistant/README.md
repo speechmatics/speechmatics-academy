@@ -31,14 +31,14 @@ Combines Speechmatics RT SDK for speech-to-text with OpenAI GPT-4o for structure
 
 **On Windows:**
 ```bash
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 **Step 2: Install dependencies**

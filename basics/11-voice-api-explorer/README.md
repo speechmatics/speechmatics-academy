@@ -43,15 +43,15 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 **On Windows:**
 ```bash
 cd python
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
 cd python
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 ```
 
 **Step 2: Install dependencies**

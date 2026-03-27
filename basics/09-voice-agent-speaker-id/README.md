@@ -26,15 +26,15 @@ Learn how to extract speaker voice IDs for reuse across sessions and control whi
 **On Windows:**
 ```bash
 cd python
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
 cd python
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 **Step 2: Install dependencies**

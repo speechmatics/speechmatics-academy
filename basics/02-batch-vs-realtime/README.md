@@ -44,15 +44,15 @@ sudo apt-get install portaudio19-dev
 **On Windows:**
 ```bash
 cd python
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
 cd python
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
 **Step 3: Install dependencies and run**

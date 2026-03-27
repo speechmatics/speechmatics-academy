@@ -89,7 +89,7 @@ Having the closest endpoint will reduce latency.
 **Step 4: Run the bot**
 
 ```bash
-uv run python main.py
+python main.py
 ```
 
 **Step 5: Connect via browser**

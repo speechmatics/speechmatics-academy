@@ -47,9 +47,9 @@ docker compose run --rm vapi python main.py
 
 ```bash
 cd python
-python -m venv venv
-#source venv/bin/activate 
-Windows: venv\Scripts\activate
+python -m venv .venv
+#source .venv/bin/activate
+Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python main.py
 ```

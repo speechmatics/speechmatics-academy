@@ -62,8 +62,8 @@ sudo apt-get install portaudio19-dev
 **On Windows:**
 ```bash
 cd python
-python -m venv venv
-venv\Scripts\activate
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
@@ -77,8 +77,8 @@ python3 --version
 brew install python@3.12
 
 # Create venv with Python 3.12 explicitly
-python3.12 -m venv venv
-source venv/bin/activate
+python3.12 -m venv .venv
+source .venv/bin/activate
 
 # Verify the venv is using the correct Python
 python --version  # Should show Python 3.12.x
@@ -330,9 +330,9 @@ brew install python@3.12
 
 # Recreate the virtual environment with Python 3.12
 deactivate
-rm -rf venv
-python3.12 -m venv venv
-source venv/bin/activate
+rm -rf .venv
+python3.12 -m venv .venv
+source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 ```

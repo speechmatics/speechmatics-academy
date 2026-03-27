@@ -115,11 +115,11 @@ cd speechmatics-academy
 cd basics/01-hello-world/python
 
 # Setup virtual environment
-python -m venv venv
+python -m venv .venv
 
 # Activate virtual environment (Windows)
-venv\Scripts\activate
-# On Mac/Linux: source venv/bin/activate
+.venv\Scripts\activate
+# On Mac/Linux: source .venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
