@@ -15,6 +15,7 @@ from speechmatics.rt import (
     AuthenticationError,
     OperatingPoint,
     ServerMessageType,
+    SpeakerDiarizationConfig,
     TranscriptionConfig,
 )
 
@@ -49,6 +50,11 @@ async def main():
         operating_point=OperatingPoint.ENHANCED,  # Best accuracy for medical terms
         domain="medical",  # Medical-optimized language pack
         enable_partials=True,
+        diarization="speaker",
+        speaker_diarization_config=SpeakerDiarizationConfig(
+            max_speakers=2,
+            speaker_sensitivity=0.6,
+        ),
         additional_vocab=[
             {"content": "hypertension"},
             {"content": "metformin"},
@@ -76,9 +82,10 @@ async def main():
             def handle_transcript(msg):
                 """Handle final transcripts."""
                 text = msg["metadata"]["transcript"]
+                speaker = msg["results"][0].get("speaker", "?") if msg.get("results") else "?"
                 if text.strip():
-                    transcripts.append(text)
-                    print(f"Final: {text}")
+                    transcripts.append(f"[Speaker {speaker}] {text}")
+                    print(f"Final: [Speaker {speaker}] {text}")
 
             @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
             def handle_partial(msg):
