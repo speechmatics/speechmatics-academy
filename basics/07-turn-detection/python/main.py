@@ -75,7 +75,7 @@ async def main() -> None:
                 result = TranscriptResult.from_message(message)
                 transcript = result.metadata.transcript
                 if transcript:
-                    print(f"\r> {transcript}", end="", flush=True)
+                    print(f"> {transcript}")
 
             @client.on(ServerMessageType.ADD_TRANSCRIPT)
             def handle_transcript(message):
@@ -91,13 +91,11 @@ async def main() -> None:
             @client.on(ServerMessageType.END_OF_UTTERANCE)
             def handle_end_of_utterance(message):
                 nonlocal utterance_start_time
-                print("\r" + " " * 80, end="\r")
 
                 if current_utterance and utterance_start_time is not None:
                     full_text = " ".join(current_utterance)
 
-                    # END_OF_UTTERANCE has end_of_utterance_time directly in message
-                    end_time = message.get("end_of_utterance_time", 0)
+                    end_time = message.get("metadata", {}).get("end_time", 0)
                     duration = end_time - utterance_start_time
 
                     utterances.append({"text": full_text, "duration": duration})
