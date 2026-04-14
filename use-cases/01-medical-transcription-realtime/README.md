@@ -66,6 +66,7 @@ from speechmatics.rt import (
     TranscriptionConfig,
     ServerMessageType,
     OperatingPoint,
+    SpeakerDiarizationConfig,
 )
 
 config = TranscriptionConfig(
@@ -73,6 +74,11 @@ config = TranscriptionConfig(
     operating_point=OperatingPoint.ENHANCED,  # Best accuracy for medical terms
     domain="medical",  # Medical-optimized language pack
     enable_partials=True,
+    diarization="speaker",
+    speaker_diarization_config=SpeakerDiarizationConfig(
+        max_speakers=2,
+        speaker_sensitivity=0.6,
+    ),
     additional_vocab=[
         {"content": "hypertension"},
         {"content": "metformin"},
@@ -87,7 +93,9 @@ try:
     async with AsyncClient() as client:  # Auto-reads SPEECHMATICS_API_KEY from env
         @client.on(ServerMessageType.ADD_TRANSCRIPT)
         def handle_transcript(msg):
-            print(f"Final: {msg['metadata']['transcript']}")
+            text = msg["metadata"]["transcript"]
+            speaker = msg["results"][0].get("speaker", "?") if msg.get("results") else "?"
+            print(f"Final: [Speaker {speaker}] {text}")
 
         @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
         def handle_partial(msg):
@@ -109,7 +117,7 @@ except (AuthenticationError, ValueError) as e:
 | `domain` | `"medical"` | Medical-optimized language pack with clinical terminology |
 | `enable_partials` | `True`, `False` | Show real-time partial transcripts |
 | `additional_vocab` | `[{...}]` | Custom medical terminology |
-| `diarization` | `"speaker"`, `"none"` | Identify doctor vs patient |
+| `diarization` | `"speaker"`, `"none"` | Identify doctor vs patient (enabled by default) |
 
 > [!TIP]
 > **For medical transcription**, always use `domain="medical"` and `operating_point=OperatingPoint.ENHANCED`. The medical domain includes a specialized language pack optimized for clinical terminology, drug names, and medical procedures. Combined with enhanced operating point, this provides the highest accuracy for healthcare applications.
@@ -139,27 +147,27 @@ Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the
 Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms
 Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms, you
 Partial: Good morning, Mr. Ramirez. Based on your recent vitals and the symptoms you reported
-Final: Good morning,
+Final: [Speaker S1] Good morning,
 Partial: Mr. Ramirez. Based on your recent vitals and the symptoms you reported
-Final: Mr.
+Final: [Speaker S1] Mr.
 Partial: Ramirez. Based on your recent vitals and the symptoms you reported. I'm
 Partial: Ramirez. Based on your recent vitals and the symptoms you reported, I'm concerned about
-Final: Ramirez.
+Final: [Speaker S1] Ramirez.
 Partial: Based on your recent vitals and the symptoms you reported, I'm concerned about
-Final: Based on
+Final: [Speaker S1] Based on
 Partial: your recent vitals and the symptoms you reported, I'm concerned about possible
-Final: your
+Final: [Speaker S1] your
 Partial: recent vitals and the symptoms you reported, I'm concerned about possible
-Final: recent
+Final: [Speaker S1] recent
 Partial: vitals and the symptoms you reported, I'm concerned about possible
-Final: vitals and the
+Final: [Speaker S1] vitals and the
 Partial: symptoms you reported, I'm concerned about possible cardiovascular involvement
-Final: symptoms
+Final: [Speaker S1] symptoms
 Partial: you reported, I'm concerned about possible cardiovascular involvement
-Final: you
+Final: [Speaker S1] you
 Partial: reported, I'm concerned about possible cardiovascular involvement.
 Partial: reported, I'm concerned about possible cardiovascular involvement.
-Final: reported,
+Final: [Speaker S1] reported,
 Partial: I'm concerned about possible cardiovascular involvement. Given your
 
 ================================================================================
