@@ -106,12 +106,15 @@ def handle_end_of_utterance(message):
     # Message structure:
     # {
     #     "message": "EndOfUtterance",
-    #     "end_of_utterance_time": 12.5  # Timestamp when silence was detected
+    #     "metadata": {
+    #         "start_time": 12.5,
+    #         "end_time": 12.5  # Timestamp when silence was detected
+    #     }
     # }
 ```
 
 > [!Important]
-> The `end_of_utterance_time` represents when silence was detected, not the utterance duration. To calculate duration, track the start time from your first transcript.
+> The `metadata.end_time` represents when silence was detected, not the utterance duration. To calculate duration, track the start time from your first transcript.
 
 ### Calculating Utterance Duration
 
@@ -138,8 +141,7 @@ def handle_end_of_utterance(message):
     if current_utterance and utterance_start_time is not None:
         full_text = " ".join(current_utterance)
 
-        # END_OF_UTTERANCE has end_of_utterance_time directly in message
-        end_time = message.get("end_of_utterance_time", 0)
+        end_time = message.get("metadata", {}).get("end_time", 0)
         duration = end_time - utterance_start_time
 
         print(f"Turn: {full_text} ({duration:.2f}s)")
