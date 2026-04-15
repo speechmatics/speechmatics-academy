@@ -141,6 +141,7 @@ def handle_end_of_utterance(message):
     if current_utterance and utterance_start_time is not None:
         full_text = " ".join(current_utterance)
 
+        # metadata.end_time is the silence-detection timestamp, not the end of speech.
         end_time = message.get("metadata", {}).get("end_time", 0)
         duration = end_time - utterance_start_time
 
