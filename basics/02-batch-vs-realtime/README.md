@@ -63,10 +63,10 @@ cp ../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
 
 # Try batch mode
-python batch_example.py
+python3 batch_example.py
 
 # Try real-time mode
-python realtime_example.py
+python3 realtime_example.py
 ```
 
 ## Batch vs Real-time
@@ -347,7 +347,7 @@ File size: 0.7 MB
 Complete! Processing time: 0m 5s
 
 Full transcript:
-"SPEAKER UU: Good morning, everyone. Let's begin today's meeting."
+"SPEAKER UU: Good morning everyone. Let's begin today's meeting."
 ```
 
 ### Real-time Output
