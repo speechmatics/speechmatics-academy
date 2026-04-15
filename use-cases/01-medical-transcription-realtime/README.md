@@ -94,7 +94,7 @@ try:
         @client.on(ServerMessageType.ADD_TRANSCRIPT)
         def handle_transcript(msg):
             text = msg["metadata"]["transcript"]
-            speaker = msg["results"][0].get("speaker", "?") if msg.get("results") else "?"
+            speaker = msg["results"][0]["alternatives"][0].get("speaker", "?") if msg.get("results") else "?"
             print(f"Final: [Speaker {speaker}] {text}")
 
         @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
