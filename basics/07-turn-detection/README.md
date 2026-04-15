@@ -114,7 +114,8 @@ def handle_end_of_utterance(message):
 ```
 
 > [!Important]
-> The `metadata.end_time` represents when silence was detected, not the utterance duration. To calculate duration, track the start time from your first transcript.
+> The `metadata.start_time` represents when speech was started.
+> The `metadata.end_time` represents when silence was detected, not the utterance duration. To calculate duration, track both start and end times.
 
 ### Calculating Utterance Duration
 
