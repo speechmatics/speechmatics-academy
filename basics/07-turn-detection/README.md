@@ -107,8 +107,8 @@ def handle_end_of_utterance(message):
     # {
     #     "message": "EndOfUtterance",
     #     "metadata": {
-    #         "start_time": 12.5,
-    #         "end_time": 12.5  # Timestamp when silence was detected
+    #         "start_time": 12.5, # Silence-detection timestamp (same as end_time)
+    #         "end_time": 12.5  # # Silence-detection timestamp (same as start_time)   
     #     }
     # }
 ```
