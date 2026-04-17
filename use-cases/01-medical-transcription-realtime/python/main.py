@@ -21,7 +21,7 @@ from speechmatics.rt import (
 
 load_dotenv()
 
-# Store transcripts
+# Store transcripts as (speaker, text) tuples
 transcripts = []
 
 
@@ -84,7 +84,7 @@ async def main():
                 text = msg["metadata"]["transcript"]
                 speaker = msg["results"][0]["alternatives"][0].get("speaker", "?") if msg.get("results") else "?"
                 if text.strip():
-                    transcripts.append(f"[Speaker {speaker}] {text}")
+                    transcripts.append((speaker, text))
                     print(f"Final: [Speaker {speaker}] {text}")
 
             @client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT)
@@ -98,10 +98,18 @@ async def main():
             with open(audio_file, "rb") as f:
                 await client.transcribe(f, transcription_config=config)
 
-        # Save transcript to assets folder
-        full_transcript = " ".join(transcripts)
+        # Save transcript — only repeat the speaker label when it changes
+        lines = []
+        current_speaker = None
+        for speaker, text in transcripts:
+            if speaker != current_speaker:
+                lines.append(f"\n[Speaker {speaker}] {text}")
+                current_speaker = speaker
+            else:
+                lines.append(text)
+
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write(full_transcript)
+            f.write("".join(lines).strip())
 
         print()
         print(f"{'=' * 80}")
