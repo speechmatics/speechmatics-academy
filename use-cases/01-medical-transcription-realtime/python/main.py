@@ -82,7 +82,7 @@ async def main():
             def handle_transcript(msg):
                 """Handle final transcripts."""
                 text = msg["metadata"]["transcript"]
-                speaker = msg["results"][0].get("speaker", "?") if msg.get("results") else "?"
+                speaker = msg["results"][0]["alternatives"][0].get("speaker", "?") if msg.get("results") else "?"
                 if text.strip():
                     transcripts.append(f"[Speaker {speaker}] {text}")
                     print(f"Final: [Speaker {speaker}] {text}")
