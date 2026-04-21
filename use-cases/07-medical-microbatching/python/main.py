@@ -144,7 +144,7 @@ async def main() -> None:
         return
 
     try:
-        async with AsyncClient(api_key=api_key) as client:
+        async with AsyncClient(api_key=API_KEY) as client:
             tasks = await capture_and_transcribe(client, mic, vad)
 
             if not tasks:
