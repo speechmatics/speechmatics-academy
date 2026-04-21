@@ -77,7 +77,7 @@ Speak into your microphone. Press **Ctrl+C** to stop recording. The full transcr
 
 ### Why microbatching?
 
-The Batch API offers higher accuracy and simpler error handling than a persistent real-time WebSocket. Microbatching gives you near-continuous transcription without maintaining a live connection — useful when latency of a few seconds per chunk is acceptable.
+Many customers — especially in healthcare — use a microbatching workflow. Hospital networks can be unreliable, and losing a connection mid-consultation can mean losing an entire transcript. Instead of relying on continuous WebSocket streaming, the client splits audio into short chunks and submits each one as a standard REST batch job. If a chunk fails, it can simply be retried.
 
 ### VAD boundary detection
 
@@ -151,11 +151,11 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 
 --- TRANSCRIPT ---
 
-The patient reports chest pain radiating to the left arm, onset approximately two hours ago.
+SPEAKER UU: The patient reports chest pain radiating to the left arm, onset approximately two hours ago.
 
-Blood pressure is one forty over ninety. Heart rate eighty-eight beats per minute, regular rhythm.
+SPEAKER UU: Blood pressure is one forty over ninety. Heart rate eighty-eight beats per minute, regular rhythm.
 
-We'll order an ECG and troponin levels and review in thirty minutes.
+SPEAKER UU: We'll order an ECG and troponin levels and review in thirty minutes.
 ```
 
 ## Project Structure
@@ -183,13 +183,8 @@ We'll order an ECG and troponin levels and review in thirty minutes.
 **"No audio was recorded"**
 - The script exits cleanly if Ctrl+C is pressed before any VAD boundary is detected and no audio is buffered
 
-**Chunks are too long / too short**
-- Increase `MIN_CHUNK_DURATION_S` to reduce the number of API calls
-- Decrease it for shorter, more frequent submissions (note: very short chunks may hurt accuracy)
-
-**High latency between speech and transcript**
-- Reduce `POLLING_INTERVAL` to poll the Batch API more frequently (minimum ~1.0 s recommended)
-- Consider the [Real-Time API](../01-medical-transcription-realtime/) if sub-second latency is required
+**"Rate limited"**
+- Try reducing the polling rate.
 
 ## Resources
 
