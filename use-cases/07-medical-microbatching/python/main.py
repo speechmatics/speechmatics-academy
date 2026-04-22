@@ -51,6 +51,7 @@ logger = logging.getLogger(__name__)
 
 # -- VAD ----------------------------------------------------------------------
 
+
 def _load_vad() -> VADIterator:
     """Load Silero VAD and return a ready-to-use VADIterator."""
     return VADIterator(load_silero_vad(), sampling_rate=SAMPLE_RATE)
@@ -72,6 +73,7 @@ def _is_speech_end(vad: VADIterator, pcm: bytes) -> bool:
 
 
 # -- Transcription ------------------------------------------------------------
+
 
 def _pcm_to_wav(raw_pcm: bytes) -> io.BytesIO:
     """Wrap raw int16 PCM bytes in an in-memory WAV container."""
@@ -98,6 +100,7 @@ def _submit_chunk(client: AsyncClient, pcm: bytes) -> asyncio.Task:
 
 
 # -- Capture ------------------------------------------------------------------
+
 
 async def capture_and_transcribe(
     client: AsyncClient,
@@ -134,6 +137,7 @@ async def capture_and_transcribe(
 
 
 # -- Entry point --------------------------------------------------------------
+
 
 async def main() -> None:
     logger.info("Loading Silero VAD model ...")
