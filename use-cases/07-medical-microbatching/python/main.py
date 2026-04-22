@@ -22,6 +22,7 @@ import numpy as np
 import torch
 from dotenv import load_dotenv
 from silero_vad import VADIterator, load_silero_vad
+
 from speechmatics.batch import AsyncClient, OperatingPoint, TranscriptionConfig
 from speechmatics.rt import Microphone
 
@@ -39,7 +40,7 @@ VAD_WINDOW: int = 512  # samples required by Silero VAD at 16 kHz
 
 TRANSCRIPTION_CONFIG = TranscriptionConfig(
     language="en",
-    operating_point=OperatingPoint.STANDARD,
+    operating_point=OperatingPoint.ENHANCED,
 )
 
 POLLING_INTERVAL = 2.0
