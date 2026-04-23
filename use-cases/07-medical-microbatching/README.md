@@ -17,7 +17,7 @@ Supports on-premises deployment for HIPAA compliance.
 ## Prerequisites
 
 - **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Python 3.9+**
 - A working microphone
 
 > [!NOTE]
@@ -85,16 +85,13 @@ Many customers — especially in healthcare — use a microbatching workflow. Ho
 MIN_CHUNK_DURATION_S = 25  # seconds before VAD starts listening for end-of-speech
 
 def _is_speech_end(vad: VADIterator, pcm: bytes) -> bool:
-    samples = np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0
+    samples = np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / INT16_MAX
     tensor = torch.from_numpy(samples)
-    for i in range(0, len(tensor) - VAD_WINDOW + 1, VAD_WINDOW):
-        result = vad(tensor[i : i + VAD_WINDOW])
-        if result and "end" in result:
-            return True
-    return False
+    windows = (tensor[i : i + VAD_WINDOW] for i in range(0, len(tensor) - VAD_WINDOW + 1, VAD_WINDOW))
+    return any((r := vad(w)) and "end" in r for w in windows)
 ```
 
-Silero VAD requires exactly 512 samples per call at 16 kHz. The loop processes each incoming frame in 512-sample windows and returns `True` on the first end-of-speech event. VAD state is reset after each chunk boundary so the next chunk starts fresh.
+Silero VAD requires exactly 512 samples per call at 16 kHz. Each incoming frame is processed in 512-sample windows and `True` is returned on the first end-of-speech event. VAD state is reset after each chunk boundary so the next chunk starts fresh.
 
 ### Batch API submission
 
@@ -103,7 +100,7 @@ from speechmatics.batch import AsyncClient, OperatingPoint, TranscriptionConfig
 
 TRANSCRIPTION_CONFIG = TranscriptionConfig(
     language="en",
-    operating_point=OperatingPoint.STANDARD,
+    operating_point=OperatingPoint.ENHANCED,
 )
 
 async with AsyncClient(api_key=API_KEY) as client:
@@ -127,6 +124,13 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 | `VAD_WINDOW` | `512` | Silero VAD processing window (samples) — do not change |
 | `POLLING_INTERVAL` | `2.0` | Seconds between Batch API job status polls |
 
+> [!TIP]
+> **Choosing the right chunk size** — Speechmatics research puts the sweet spot at **25–35 seconds**.
+> - **Too short (< 20s):** Less surrounding context reaches the acoustic model, which can reduce accuracy on ambiguous words and domain-specific terminology.
+> - **Too long (> 40s):** Transcription time scales with audio duration, so very large chunks increase the wall-clock wait before results appear.
+>
+> Adjust `MIN_CHUNK_DURATION_S` within this range.
+
 **`TranscriptionConfig` options:**
 
 | Parameter | Options | Description |
@@ -135,15 +139,15 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 | `operating_point` | `OperatingPoint.STANDARD`, `ENHANCED` | `ENHANCED` gives higher accuracy at higher cost |
 
 > [!TIP]
-> For medical use, switch to `operating_point=OperatingPoint.ENHANCED` and add `domain="medical"` to `TranscriptionConfig` for a specialized clinical vocabulary pack.
+> For medical use, add `domain="medical"` to `TranscriptionConfig` to activate a specialised clinical vocabulary pack.
 
 ## Expected Output
 
 ```
 2026-04-21 10:32:01 [INFO] Loading Silero VAD model ...
 2026-04-21 10:32:03 [INFO] Audio capture started. Press Ctrl+C to stop.
-2026-04-21 10:32:30 [INFO] Chunk 0: VAD boundary detected. Submitting ...
-2026-04-21 10:33:01 [INFO] Chunk 1: VAD boundary detected. Submitting ...
+2026-04-21 10:32:30 [INFO] Chunk 0: VAD boundary — submitting ...
+2026-04-21 10:33:01 [INFO] Chunk 1: VAD boundary — submitting ...
 ^C
 2026-04-21 10:33:10 [INFO] Recording stopped.
 2026-04-21 10:33:10 [INFO] Submitting final partial chunk 2 ...
@@ -151,11 +155,14 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 
 --- TRANSCRIPT ---
 
-SPEAKER UU: The patient reports chest pain radiating to the left arm, onset approximately two hours ago.
+[Chunk 0 | 10:32:03 → 10:32:30 (27s)]
+The patient reports chest pain radiating to the left arm, onset approximately two hours ago.
 
-SPEAKER UU: Blood pressure is one forty over ninety. Heart rate eighty-eight beats per minute, regular rhythm.
+[Chunk 1 | 10:32:30 → 10:33:01 (31s)]
+Blood pressure is one forty over ninety. Heart rate eighty-eight beats per minute, regular rhythm.
 
-SPEAKER UU: We'll order an ECG and troponin levels and review in thirty minutes.
+[Chunk 2 | 10:33:01 → 10:33:10 (9s)]
+We'll order an ECG and troponin levels and review in thirty minutes.
 ```
 
 ## Project Structure
@@ -163,7 +170,7 @@ SPEAKER UU: We'll order an ECG and troponin levels and review in thirty minutes.
 ```
 07-medical-microbatching/
 ├── python/
-│   ├── academy_microbatching.py   # Main script
+│   ├── main.py                    # Main script
 │   └── requirements.txt
 ├── .env.example                   # Environment variable template
 └── README.md

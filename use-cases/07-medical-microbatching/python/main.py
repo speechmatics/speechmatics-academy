@@ -50,7 +50,6 @@ INT16_MAX: float = 32768.0  # normalises int16 PCM to [-1, 1]
 TRANSCRIPTION_CONFIG = TranscriptionConfig(
     language="en",
     operating_point=OperatingPoint.ENHANCED,
-    diarization="speaker",
 )
 
 POLLING_INTERVAL: float = 2.0
@@ -186,7 +185,12 @@ async def main() -> None:
             logger.error("Chunk %d failed: %s", i, result)
             _print_chunk(i, chunk, f"ERROR: {result}")
         else:
-            _print_chunk(i, chunk, result.transcript_text.strip())
+
+            text = "\n".join(
+                line.removeprefix("SPEAKER UU: ")
+                for line in result.transcript_text.splitlines()
+            )
+            _print_chunk(i, chunk, text.strip())
 
 
 if __name__ == "__main__":
