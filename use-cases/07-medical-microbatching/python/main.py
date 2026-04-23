@@ -42,7 +42,7 @@ BYTES_PER_SAMPLE: int = 2  # 16-bit PCM
 MIN_CHUNK_DURATION_S: int = 25
 MIN_CHUNK_BYTES: int = SAMPLE_RATE * MIN_CHUNK_DURATION_S * BYTES_PER_SAMPLE
 READ_SIZE: int = 4096
-VAD_WINDOW: int = 512       # samples per Silero VAD frame at 16 kHz
+VAD_WINDOW: int = 512  # samples per Silero VAD frame at 16 kHz
 INT16_MAX: float = 32768.0  # normalises int16 PCM to [-1, 1]
 
 # -- Speechmatics config ------------------------------------------------------
@@ -62,15 +62,17 @@ logger = logging.getLogger(__name__)
 
 # -- Data types ---------------------------------------------------------------
 
+
 class Chunk(NamedTuple):
     """A submitted transcription task paired with its recording window."""
 
     task: asyncio.Task
-    started_at: float    # wall time when this chunk's recording began
+    started_at: float  # wall time when this chunk's recording began
     submitted_at: float  # wall time when the chunk was dispatched to the API
 
 
 # -- VAD ----------------------------------------------------------------------
+
 
 def _is_speech_end(vad: VADIterator, pcm: bytes) -> bool:
     """Return True if end-of-speech is detected anywhere in *pcm*."""
@@ -81,6 +83,7 @@ def _is_speech_end(vad: VADIterator, pcm: bytes) -> bool:
 
 
 # -- Transcription ------------------------------------------------------------
+
 
 def _pcm_to_wav(raw_pcm: bytes) -> io.BytesIO:
     """Wrap raw int16 PCM bytes in an in-memory WAV container."""
@@ -107,6 +110,7 @@ def _submit_chunk(client: AsyncClient, pcm: bytes) -> asyncio.Task:
 
 
 # -- Capture ------------------------------------------------------------------
+
 
 async def capture_and_transcribe(
     client: AsyncClient,
@@ -145,6 +149,7 @@ async def capture_and_transcribe(
 
 # -- Output -------------------------------------------------------------------
 
+
 def _print_chunk(i: int, chunk: Chunk, text: str) -> None:
     duration = chunk.submitted_at - chunk.started_at
     t_start = datetime.fromtimestamp(chunk.started_at).strftime("%H:%M:%S")
@@ -156,6 +161,7 @@ def _print_chunk(i: int, chunk: Chunk, text: str) -> None:
 
 
 # -- Entry point -------------------------------------------------------------
+
 
 async def main() -> None:
     logger.info("Loading Silero VAD model ...")
@@ -185,11 +191,7 @@ async def main() -> None:
             logger.error("Chunk %d failed: %s", i, result)
             _print_chunk(i, chunk, f"ERROR: {result}")
         else:
-
-            text = "\n".join(
-                line.removeprefix("SPEAKER UU: ")
-                for line in result.transcript_text.splitlines()
-            )
+            text = "\n".join(line.removeprefix("SPEAKER UU: ") for line in result.transcript_text.splitlines())
             _print_chunk(i, chunk, text.strip())
 
 
