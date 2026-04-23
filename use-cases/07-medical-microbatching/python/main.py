@@ -147,9 +147,10 @@ async def capture_and_transcribe(
 # -- Output -------------------------------------------------------------------
 
 def _print_chunk(i: int, chunk: Chunk, text: str) -> None:
-    fmt = lambda t: datetime.fromtimestamp(t).strftime("%H:%M:%S")
     duration = chunk.submitted_at - chunk.started_at
-    print(f"[Chunk {i} | {fmt(chunk.started_at)} → {fmt(chunk.submitted_at)} ({duration:.0f}s)]")
+    t_start = datetime.fromtimestamp(chunk.started_at).strftime("%H:%M:%S")
+    t_end = datetime.fromtimestamp(chunk.submitted_at).strftime("%H:%M:%S")
+    print(f"[Chunk {i} | {t_start} → {t_end} ({duration:.0f}s)]")
     if text:
         print(text)
     print()
