@@ -29,14 +29,14 @@ Supports on-premises deployment for HIPAA compliance.
 
 **On Windows:**
 ```bash
-cd python
+cd python/simple-microbatch
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
 **On Mac/Linux:**
 ```bash
-cd python
+cd python/simple-microbatch
 python3 -m venv .venv
 source .venv/bin/activate
 ```
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 **Step 3: Configure your API key**
 
 ```bash
-cp ../.env.example .env
+cp ../../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
 ```
 
@@ -170,8 +170,9 @@ We'll order an ECG and troponin levels and review in thirty minutes.
 ```
 07-medical-microbatching/
 ├── python/
-│   ├── main.py                    # Main script
-│   └── requirements.txt
+│   └── simple-microbatch/
+│       ├── main.py                # Main script
+│       └── requirements.txt
 ├── .env.example                   # Environment variable template
 └── README.md
 ```
