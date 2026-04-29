@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2025-12-30"
-total_examples: 23
+total_examples: 24
 
 # Example Categories
 categories:
@@ -421,6 +421,21 @@ examples:
     readme: "use-cases/06-medical-assistant/README.md"
     tags: ["medical", "healthcare", "bilingual", "arabic", "diarization", "soap", "icd-10", "form-extraction", "clinical"]
     last_updated: "2026-02-10"
+    estimated_time: "15 minutes"
+
+  - id: "medical-microbatching"
+    title: "Medical Microbatching"
+    description: "Continuous microphone transcription via the Batch API. Splits audio at natural speech boundaries with Silero VAD and submits each chunk concurrently. Suitable for HIPAA-compliant on-premises deployment."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "use-cases/07-medical-microbatching"
+    readme: "use-cases/07-medical-microbatching/README.md"
+    tags: ["medical", "healthcare", "hipaa", "batch", "microbatching", "vad", "silero", "on-premises"]
+    last_updated: "2026-04-29"
     estimated_time: "15 minutes"
 
   - id: "voice-api-explorer"
