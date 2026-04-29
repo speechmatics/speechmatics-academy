@@ -111,3 +111,5 @@ basics/11-voice-api-explorer/python/sample.wav
 basics/11-voice-api-explorer/python/test_mulaw.py
 
 basics/08-voice-agent-turn-detection/python/.models/
+
+integrations/livekit/02-telephony-twilio/python/.models/
