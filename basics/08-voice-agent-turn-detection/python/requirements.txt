@@ -1,21 +1,21 @@
 # Speechmatics Voice SDK
-speechmatics-voice>=0.1.27
+speechmatics-voice>=0.2.8
 
 # Voice SDK dependencies
-websockets>=10.0
+websockets>=16.0
 
 # Microphone support
 pyaudio>=0.2.14
 
 # Utilities
-python-dotenv>=1.2.1
-typing_extensions>=4.0.0
+python-dotenv>=1.2.2
+typing_extensions>=4.15.0
 
 # Cross-platform keyboard input (for EXTERNAL mode)
 keyboard>=0.13.5
 
 # For SMART_TURN mode (ML-based turn detection)
 # Required for intelligent acoustic-based turn detection
-certifi>=2025.10.5
-onnxruntime>=1.19.0,<2
-transformers>=4.57.0,<6
+certifi>=2026.4.22
+onnxruntime>=1.25.1,<2
+transformers>=5.6.2,<6
