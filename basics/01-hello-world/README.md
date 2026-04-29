@@ -80,7 +80,7 @@ import asyncio
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, AuthenticationError
+from speechmatics.batch import AsyncClient, AuthenticationError, TranscriptionConfig
 
 # Load environment variables
 load_dotenv()
@@ -99,11 +99,18 @@ async def main():
     print(f"File: {audio_file.name}")
     print()
 
+    config = TranscriptionConfig(
+        additional_vocab=[
+            # Custom terms
+            {"content": "Speechmatics", "sounds_like": ["Speechmatics"]},
+        ],
+    )
+
     try:
         # Initialize client and transcribe
         async with AsyncClient(api_key=api_key) as client:
-            # Transcribe - this is the simplest way!
-            result = await client.transcribe(str(audio_file))
+            # Transcribe with custom vocabulary
+            result = await client.transcribe(str(audio_file), transcription_config=config)
             # Print the transcript
             print(result.transcript_text)
 
@@ -127,7 +134,7 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 **Minimal Setup:**
 - Single API call for transcription
 - Automatic audio format detection
-- No configuration required
+- Custom vocabulary via `TranscriptionConfig.additional_vocab`
 
 **Async/Await Pattern:**
 - Non-blocking I/O for better performance
@@ -142,9 +149,10 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 > 1. **Load Environment** - Load your API key from `.env` file using dotenv
 > 2. **Get API Key** - Retrieve API key from environment variables with validation
 > 3. **Locate Audio File** - Use Path to find the sample audio file
-> 4. **Create Async Client** - Initialize AsyncClient with your API key
-> 5. **Transcribe** - Send audio file to the API using `await client.transcribe()`
-> 6. **Get Results** - Access the transcript using `result.transcript_text`
+> 4. **Build Config** - Create a `TranscriptionConfig` with `additional_vocab` for custom terms
+> 5. **Create Async Client** - Initialize AsyncClient with your API key
+> 6. **Transcribe** - Send audio file and config to the API using `await client.transcribe(..., transcription_config=config)`
+> 7. **Get Results** - Access the transcript using `result.transcript_text`
 >
 > The code uses async/await for better performance and proper resource management with context managers.
 
