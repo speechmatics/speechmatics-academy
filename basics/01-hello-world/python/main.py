@@ -10,7 +10,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from speechmatics.batch import AsyncClient, AuthenticationError
+from speechmatics.batch import AsyncClient, AuthenticationError, TranscriptionConfig
 
 # Load environment variables
 load_dotenv()
@@ -33,11 +33,18 @@ async def main():
     print(f"File: {audio_file.name}")
     print()
 
+    config = TranscriptionConfig(
+        additional_vocab=[
+            # Custom terms
+            {"content": "Speechmatics", "sounds_like": ["Speechmatics"]},
+        ],
+    )
+
     try:
         # Initialize client and transcribe
         async with AsyncClient(api_key=api_key) as client:
-            # Transcribe - this is the simplest way!
-            result = await client.transcribe(str(audio_file))
+            # Transcribe with custom vocabulary
+            result = await client.transcribe(str(audio_file), transcription_config=config)
             # Print the transcript
             print(result.transcript_text)
 
