@@ -143,7 +143,8 @@ flowchart LR
         SPK[Local Speakers]
     end
 
-    MIC --> STT
+    MIC --> VAD[Silero VAD<br/>signals turn end]
+    VAD --> STT
     STT -->|S1 only| UA
     UA --> LLM
     LLM --> TTS
@@ -158,12 +159,13 @@ flowchart LR
 ### Pipeline Components
 
 1. **Local Microphone** - Captures audio from your microphone via PyAudio
-2. **Speechmatics STT** - Transcribes speech to text in real-time
-3. **User Aggregator** - Builds conversation context for the LLM
-4. **OpenAI LLM** - Generates intelligent responses
-5. **ElevenLabs TTS** - Converts text responses to natural speech
-6. **Local Speakers** - Plays audio back through your speakers
-7. **Assistant Aggregator** - Tracks assistant responses for context
+2. **Silero VAD Processor** - Detects when the user starts/stops speaking; emits `VADUserStoppedSpeakingFrame` so STT knows when to finalize the turn
+3. **Speechmatics STT** - Transcribes speech to text in real-time (configured for `EXTERNAL` turn detection — finalization is driven by the VAD step above)
+4. **User Aggregator** - Builds conversation context for the LLM
+5. **OpenAI LLM** - Generates intelligent responses
+6. **ElevenLabs TTS** - Converts text responses to natural speech
+7. **Local Speakers** - Plays audio back through your speakers
+8. **Assistant Aggregator** - Tracks assistant responses for context
 
 ### Key Features
 
@@ -179,34 +181,38 @@ flowchart LR
 ### Code Highlights
 
 ```python
-# Local audio transport with VAD
+# Local audio transport. In pipecat 1.x, VAD is no longer configured on the
+# transport — it lives in a dedicated VADProcessor inserted into the pipeline.
 transport = LocalAudioTransport(
     LocalAudioTransportParams(
         audio_in_enabled=True,
         audio_out_enabled=True,
-        vad_analyzer=SileroVADAnalyzer(
-            params=VADParams(min_volume=0.6)
-        ),
     )
 )
 
-# Speechmatics STT with speaker focus and formatting
+# VAD processor: emits VADUserStoppedSpeakingFrame when the user stops talking.
+# This is what drives end-of-utterance for the STT service in EXTERNAL mode.
+vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
+
+# Speechmatics STT with speaker focus and formatting. Defaults to
+# turn_detection_mode=EXTERNAL — finalization is driven by the VAD processor
+# above, not a server-side silence timer.
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    params=SpeechmaticsSTTService.InputParams(
+    settings=SpeechmaticsSTTService.Settings(
         enable_diarization=True,
         # Focus only on S1 (first speaker = user)
         # This ignores the bot's TTS output (labeled as S2)
         focus_speakers=["S1"],
-        end_of_utterance_silence_trigger=0.5,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     ),
 )
 
-# Pipeline: mic -> STT -> LLM -> TTS -> speakers
+# Pipeline: mic -> VAD -> STT -> LLM -> TTS -> speakers
 pipeline = Pipeline([
     transport.input(),
+    vad_processor,
     stt,
     user_aggregator,
     llm,
@@ -243,13 +249,15 @@ INFO     | Voice bot stopped.
 
 ### Change the Voice
 
-Edit the `voice_id` in `main.py`:
+Edit the `voice` field in `main.py`:
 
 ```python
 tts = ElevenLabsTTSService(
     aiohttp_session=session,
     api_key=os.getenv("ELEVENLABS_API_KEY"),
-    voice_id="your_voice_id_here",  # Find voices at elevenlabs.io
+    settings=ElevenLabsTTSService.Settings(
+        voice="your_voice_id_here",  # Find voices at elevenlabs.io
+    ),
 )
 ```
 
@@ -269,7 +277,7 @@ The STT is configured to identify speakers and filter background audio:
 ```python
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    params=SpeechmaticsSTTService.InputParams(
+    settings=SpeechmaticsSTTService.Settings(
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
@@ -296,9 +304,19 @@ This prevents the bot from hearing its own voice and responding to background au
 
 ### Adjust VAD Sensitivity
 
+VAD parameters are passed to `SileroVADAnalyzer` and the analyzer is wrapped by
+the `VADProcessor` in the pipeline:
+
 ```python
-vad_analyzer=SileroVADAnalyzer(
-    params=VADParams(min_volume=0.6)  # Lower = more sensitive
+from pipecat.audio.vad.vad_analyzer import VADParams
+
+vad_processor = VADProcessor(
+    vad_analyzer=SileroVADAnalyzer(
+        params=VADParams(
+            min_volume=0.6,  # Lower = more sensitive to quiet speech
+            stop_secs=0.2,   # How long of silence before "stopped speaking"
+        )
+    )
 )
 ```
 
@@ -409,7 +427,7 @@ pip install "numpy>=1.24,<2.3"
 
 **No audio input detected**
 - Check your microphone is selected as default input device
-- Try lowering `min_volume` in VADParams
+- Try lowering `min_volume` in `VADParams` (see [Adjust VAD Sensitivity](#adjust-vad-sensitivity))
 
 **Bot doesn't respond**
 - Check OpenAI API key is valid
