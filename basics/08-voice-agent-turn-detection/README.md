@@ -355,19 +355,26 @@ config = VoiceAgentConfigPreset._merge_configs(base_config, custom_config)
 
 ### Using EXTERNAL Mode (Manual Turn Control)
 
-The EXTERNAL preset allows manual control over turn endings. This example uses FIXED mode with the maximum silence trigger (2s) to minimize auto-triggering, then uses `force_end_of_utterance()` when Enter is pressed:
+The EXTERNAL preset allows manual control over turn endings. This example overlays FIXED mode (with the maximum 2s silence trigger to minimize auto-triggering) **and** disables `use_forced_eou` so the SDK's built-in `END_OF_UTTERANCE → finalize()` handler is registered. It then calls `force_end_of_utterance()` when Enter is pressed:
 
 ```python
 import keyboard  # Cross-platform keyboard input
-from speechmatics.voice import VoiceAgentConfig, EndOfUtteranceMode
+from speechmatics.voice import (
+    EndOfTurnConfig,
+    EndOfUtteranceMode,
+    VoiceAgentConfig,
+    VoiceAgentConfigPreset,
+)
 
-# Configure for manual control: FIXED mode with max silence trigger
-# Server allows 0-2 seconds for silence trigger
+# Configure for manual control: FIXED mode with max silence trigger.
+# use_forced_eou must be False so the SDK wires up the END_OF_UTTERANCE -> finalize()
+# handler that produces ADD_SEGMENT + END_OF_TURN events.
 config = VoiceAgentConfigPreset.load(
     "external",
     overlay_json=VoiceAgentConfig(
         end_of_utterance_mode=EndOfUtteranceMode.FIXED,
         end_of_utterance_silence_trigger=2.0,  # Max allowed by server
+        end_of_turn_config=EndOfTurnConfig(use_forced_eou=False),
     ).model_dump_json(exclude_unset=True)
 )
 
@@ -384,7 +391,9 @@ enter_task = asyncio.create_task(check_for_enter_key(client))
 ```
 
 > [!IMPORTANT]
-> The `end_of_utterance_silence_trigger` setting only applies to FIXED mode. Using FIXED mode ensures the SDK properly handles the server's END_OF_UTTERANCE response. The server allows values between 0 and 2 seconds. Setting to 0 disables automatic detection entirely.
+> Two settings must line up for manual control to produce final segments:
+> 1. `end_of_utterance_mode = FIXED` — `end_of_utterance_silence_trigger` only applies in FIXED mode (server allows 0–2s; setting 0 disables automatic detection).
+> 2. `end_of_turn_config.use_forced_eou = False` — the SDK only registers its `END_OF_UTTERANCE → finalize()` handler when this is False (it ships as `True` in the EXTERNAL preset). Without overriding it, ENTER triggers fire but no `ADD_SEGMENT` / `END_OF_TURN` events are emitted.
 
 ### Enable Smart Turn Detection
 
