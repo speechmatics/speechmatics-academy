@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 from speechmatics.rt import AuthenticationError, Microphone
 from speechmatics.voice import (
     AgentServerMessageType,
+    EndOfTurnConfig,
     EndOfUtteranceMode,
     VoiceAgentClient,
     VoiceAgentConfig,
@@ -51,17 +52,20 @@ async def check_for_enter_key(client: VoiceAgentClient, preset_name: str):
 async def run_preset(preset_name: str):
     """Run a voice agent with the specified preset."""
 
-    # Load preset configuration from SDK
+    # Load preset configuration from SDK.
     if preset_name == "external":
-        # For external/manual control, use FIXED mode with max silence trigger (2s)
-        # This minimizes auto-triggering while allowing force_end_of_utterance()
-        # to work correctly (SDK only handles END_OF_UTTERANCE events in FIXED mode)
-        # Note: Server allows 0-2 seconds for silence trigger
+        # The SDK only registers its END_OF_UTTERANCE -> finalize() handler when
+        # _uses_fixed_eou is true, which requires FIXED mode AND use_forced_eou=False
+        # (see speechmatics.voice._client). The "external" preset ships with
+        # use_forced_eou=True, so we must override BOTH fields in the overlay or
+        # ENTER triggers will never produce final segments. Silence trigger is set
+        # to the server max (2.0s) to minimize accidental auto-fires.
         config = VoiceAgentConfigPreset.load(
             "external",
             overlay_json=VoiceAgentConfig(
                 end_of_utterance_mode=EndOfUtteranceMode.FIXED,
                 end_of_utterance_silence_trigger=2.0,
+                end_of_turn_config=EndOfTurnConfig(use_forced_eou=False),
             ).model_dump_json(exclude_unset=True),
         )
     else:
