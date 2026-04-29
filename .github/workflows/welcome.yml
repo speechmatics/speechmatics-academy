@@ -21,8 +21,8 @@ jobs:
       - name: Welcome first-time contributors
         uses: actions/first-interaction@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          pr-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_message: |
             Welcome to Speechmatics Academy @${{ github.event.pull_request.user.login }}! Thanks for your first contribution.
 
             If you find this project useful:
@@ -30,7 +30,7 @@ jobs:
             - Check out the docs: https://docs.speechmatics.com
 
             We're excited to have you here!
-          issue-message: |
+          issue_message: |
             Thanks for opening your first issue @${{ github.event.issue.user.login }}!
 
             We appreciate you taking the time to report this. Our team will take a look as soon as possible.
