@@ -36,14 +36,12 @@ def create_assistant():
             language="en",
             operating_point="enhanced",
             region="us",
+            max_delay=3000,  # ms — partial transcript latency cap
             enable_diarization=True,
-            max_speakers=2,
-            speaker_labels=["SuperAgent", "Client"],
-            enable_partials=True,
-            enable_punctuation=True,
-            enable_capitalization=True,
             remove_disfluencies=True,
+            numeral_style="written",
             end_of_turn_sensitivity=0.5,
+            minimum_speech_duration=0.2,
             custom_vocabulary=[
                 {"content": "Speechmatics", "sounds_like": ["speech matics", "speech mattics"]},
                 {"content": "Vapi", "sounds_like": ["vappy", "vahpee", "vaypee", "v a p i", "vap ee"]},

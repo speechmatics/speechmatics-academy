@@ -127,14 +127,12 @@ assistant = client.assistants.create(
         language="en",
         operating_point="enhanced",
         region="us",
+        max_delay=3000,
         enable_diarization=True,
-        max_speakers=2,
-        speaker_labels=["SuperAgent", "Client"],
-        enable_partials=True,
-        enable_punctuation=True,
-        enable_capitalization=True,
         remove_disfluencies=True,
+        numeral_style="written",
         end_of_turn_sensitivity=0.5,
+        minimum_speech_duration=0.2,
         custom_vocabulary=[
             {"content": "Speechmatics", "sounds_like": ["speech matics", "speech mattics"]},
             {"content": "Vapi", "sounds_like": ["vappy", "vahpee", "vaypee", "v a p i", "vap ee"]},
@@ -168,20 +166,14 @@ assistant = client.assistants.create(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `enable_diarization` | boolean | Enable speaker identification |
-| `max_speakers` | number | Limits the number of distinct speakers identified |
-| `speaker_labels` | array | Custom labels for speakers |
 
 ### Transcription Behavior
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `enable_partials` | boolean | Stream partial/interim transcripts |
 | `max_delay` | number | Max delay in ms (lower = faster, less accurate) |
-| `enable_punctuation` | boolean | Auto-add punctuation |
-| `enable_capitalization` | boolean | Auto-capitalize |
 | `remove_disfluencies` | boolean | Remove "um", "uh", etc. |
 | `numeral_style` | string | `"written"` or `"spoken"` |
-| `enable_entities` | boolean | Entity recognition |
 
 ### Turn Detection
 
@@ -196,6 +188,12 @@ assistant = client.assistants.create(
 |-----------|------|-------------|
 | `custom_vocabulary` | array | List of custom words with optional `sounds_like` |
 
+### Fallback Plan (advanced)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `fallback_plan` | object | Configures backup transcriber providers if Speechmatics is unavailable. See [VAPI fallback docs](https://docs.vapi.ai/api-reference/types/server/fallback-transcriber-plan). Omitted from this example for brevity. |
+
 ### Full Example
 
 ```python
@@ -207,14 +205,12 @@ transcriber = SpeechmaticsTranscriber(
     language="en",
     operating_point="enhanced",
     region="us",
+    max_delay=3000,
     enable_diarization=True,
-    max_speakers=2,
-    speaker_labels=["SuperAgent", "Client"],
-    enable_partials=True,
-    enable_punctuation=True,
-    enable_capitalization=True,
     remove_disfluencies=True,
+    numeral_style="written",
     end_of_turn_sensitivity=0.5,
+    minimum_speech_duration=0.2,
     custom_vocabulary=[
         {"content": "Speechmatics", "sounds_like": ["speech matics", "speech mattics"]},
         {"content": "Vapi", "sounds_like": ["vappy", "vahpee", "vaypee", "v a p i", "vap ee"]},
