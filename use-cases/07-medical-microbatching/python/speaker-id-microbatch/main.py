@@ -8,6 +8,11 @@ When detected, the chunk is submitted and a new one begins.  Press
 Ctrl+C to stop; any partial final chunk is submitted, all outstanding
 jobs are awaited, and the full transcript is printed to stdout in order.
 
+The first chunk uses get_speakers=True to identify speakers. The first
+speaker is labelled DOCTOR in all subsequent chunks, and in the chunk 0
+output retroactively. All other speakers keep their default diarization
+labels.
+
 Requirements:
     pip install silero-vad torch pyaudio speechmatics-batch speechmatics-rt
 """
@@ -47,12 +52,11 @@ INT16_MAX: float = 32768.0  # normalises int16 PCM to [-1, 1]
 
 # -- Speechmatics config ------------------------------------------------------
 
-TRANSCRIPTION_CONFIG = TranscriptionConfig(
+FIRST_CHUNK_CONFIG = TranscriptionConfig(
     language="en",
     operating_point=OperatingPoint.ENHANCED,
-    speaker_diarization_config={
-        "get_speakers": True
-    }
+    diarization="speaker",
+    speaker_diarization_config={"get_speakers": True},
 )
 
 POLLING_INTERVAL: float = 2.0
@@ -101,15 +105,29 @@ def _pcm_to_wav(raw_pcm: bytes) -> io.BytesIO:
     return buf
 
 
-def _submit_chunk(client: AsyncClient, pcm: bytes) -> asyncio.Task:
+def _submit_chunk(client: AsyncClient, pcm: bytes, config: TranscriptionConfig) -> asyncio.Task:
     """Wrap *pcm* in a WAV container and fire off a transcription task."""
     return asyncio.create_task(
         client.transcribe(
             _pcm_to_wav(pcm),
-            transcription_config=TRANSCRIPTION_CONFIG,
+            transcription_config=config,
             polling_interval=POLLING_INTERVAL,
         )
     )
+
+
+async def _extract_speaker_info(task: asyncio.Task) -> tuple[list[dict], str]:
+    """Await chunk 0 and return (speaker_labels_for_api, doctor_original_label).
+
+    Only the first speaker is labelled DOCTOR; others keep default labels.
+    """
+    result = await task
+
+    if not result.speakers:
+        return [], ""
+
+    first = result.speakers[0]
+    return [{"label": "DOCTOR", "speaker_identifiers": first.speaker_identifiers}], first.label
 
 
 # -- Capture ------------------------------------------------------------------
@@ -119,11 +137,27 @@ async def capture_and_transcribe(
     client: AsyncClient,
     mic: Microphone,
     vad: VADIterator,
-) -> list[Chunk]:
-    """Record audio and dispatch a transcription task at each VAD boundary."""
+) -> tuple[list[Chunk], str]:
+    """Record audio and dispatch a transcription task at each VAD boundary.
+
+    Returns the list of chunks and the doctor's original diarization label
+    (e.g. "S1") for retroactive renaming of the chunk 0 transcript.
+    """
     chunks: list[Chunk] = []
     buffer = bytearray()
     chunk_start = time.time()
+    speaker_labels: list[dict] = []
+    doctor_label: str = ""
+    speaker_labels_ready = asyncio.Event()
+
+    async def _resolve_speakers(chunk0_task: asyncio.Task) -> None:
+        nonlocal speaker_labels, doctor_label
+        try:
+            speaker_labels, doctor_label = await _extract_speaker_info(chunk0_task)
+        except Exception as exc:
+            logger.warning("Could not extract speaker labels from chunk 0: %s", exc)
+        finally:
+            speaker_labels_ready.set()
 
     logger.info("Audio capture started. Press Ctrl+C to stop.")
 
@@ -135,7 +169,21 @@ async def capture_and_transcribe(
             if _is_speech_end(vad, data) and len(buffer) >= MIN_CHUNK_BYTES:
                 submitted_at = time.time()
                 logger.info("Chunk %d: VAD boundary — submitting ...", len(chunks))
-                chunks.append(Chunk(_submit_chunk(client, bytes(buffer)), chunk_start, submitted_at))
+
+                if not chunks:
+                    task = _submit_chunk(client, bytes(buffer), FIRST_CHUNK_CONFIG)
+                    asyncio.create_task(_resolve_speakers(task))
+                else:
+                    await speaker_labels_ready.wait()
+                    config = TranscriptionConfig(
+                        language="en",
+                        operating_point=OperatingPoint.ENHANCED,
+                        diarization="speaker",
+                        speaker_diarization_config={"speakers": speaker_labels} if speaker_labels else {},
+                    )
+                    task = _submit_chunk(client, bytes(buffer), config)
+
+                chunks.append(Chunk(task, chunk_start, submitted_at))
                 buffer.clear()
                 vad.reset_states()
                 chunk_start = submitted_at
@@ -145,9 +193,20 @@ async def capture_and_transcribe(
 
     if buffer:
         logger.info("Submitting final partial chunk %d ...", len(chunks))
-        chunks.append(Chunk(_submit_chunk(client, bytes(buffer)), chunk_start, time.time()))
+        if not chunks:
+            task = _submit_chunk(client, bytes(buffer), FIRST_CHUNK_CONFIG)
+        else:
+            await speaker_labels_ready.wait()
+            config = TranscriptionConfig(
+                language="en",
+                operating_point=OperatingPoint.ENHANCED,
+                diarization="speaker",
+                speaker_diarization_config={"speakers": speaker_labels} if speaker_labels else {},
+            )
+            task = _submit_chunk(client, bytes(buffer), config)
+        chunks.append(Chunk(task, chunk_start, time.time()))
 
-    return chunks
+    return chunks, doctor_label
 
 
 # -- Output -------------------------------------------------------------------
@@ -177,7 +236,7 @@ async def main() -> None:
 
     try:
         async with AsyncClient(api_key=API_KEY) as client:
-            chunks = await capture_and_transcribe(client, mic, vad)
+            chunks, doctor_label = await capture_and_transcribe(client, mic, vad)
 
             if not chunks:
                 logger.warning("No audio was recorded.")
@@ -194,7 +253,10 @@ async def main() -> None:
             logger.error("Chunk %d failed: %s", i, result)
             _print_chunk(i, chunk, f"ERROR: {result}")
         else:
-            text = "\n".join(line.removeprefix("SPEAKER UU: ") for line in result.transcript_text.splitlines())
+            lines = result.transcript_text.splitlines()
+            if i == 0 and doctor_label:
+                lines = [line.replace(f"SPEAKER {doctor_label}:", "SPEAKER DOCTOR:") for line in lines]
+            text = "\n".join(line.removeprefix("SPEAKER UU: ") for line in lines)
             _print_chunk(i, chunk, text.strip())
 
 
