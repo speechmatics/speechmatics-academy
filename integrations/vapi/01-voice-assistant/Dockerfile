@@ -1,5 +1,5 @@
 # VAPI Voice Assistant with Speechmatics STT
-FROM python:3.12-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 WORKDIR /app
 
