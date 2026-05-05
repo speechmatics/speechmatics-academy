@@ -1,0 +1,7 @@
+silero-vad
+torch
+numpy
+PyAudio
+speechmatics-batch
+speechmatics-rt
+dotenv

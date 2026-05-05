@@ -4,4 +4,4 @@ numpy
 PyAudio
 speechmatics-batch
 speechmatics-rt
-python-dotenv>=1.2.2
+dotenv
