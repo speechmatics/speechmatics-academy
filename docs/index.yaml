@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2025-12-30"
-total_examples: 24
+total_examples: 25
 
 # Example Categories
 categories:
@@ -437,6 +437,23 @@ examples:
     tags: ["medical", "healthcare", "hipaa", "batch", "microbatching", "vad", "silero", "on-premises"]
     last_updated: "2026-04-29"
     estimated_time: "15 minutes"
+
+  - id: "alphanumerics-form-filler"
+    title: "Alphanumerics Voice Form Filler"
+    description: "Real-time voice agent that fills a web form with spoken alphanumeric details (names, emails, phone, account numbers, post codes) using Speechmatics STT/TTS, OpenAI, and LiveKit RPC."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+      - "realtime-transcription"
+      - "text-to-speech"
+    integrations: ["livekit", "openai"]
+    path: "use-cases/08-alphanumerics-form-filler"
+    readme: "use-cases/08-alphanumerics-form-filler/README.md"
+    tags: ["voice-agent", "form-filling", "alphanumerics", "livekit", "rpc", "function-calling"]
+    last_updated: "2026-05-06"
+    estimated_time: "10 minutes"
 
   - id: "voice-api-explorer"
     title: "Voice API Explorer"
