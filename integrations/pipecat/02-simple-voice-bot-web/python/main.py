@@ -69,7 +69,10 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     Pipeline flow:
     1. WebRTC Audio -> Audio input from browser
     2. Speechmatics STT -> Transcribes speech to text (with diarization)
-    3. User Aggregator -> Builds user message for LLM
+    3. User Aggregator -> Built-in Silero VAD detects speech stop and broadcasts
+                          VADUserStoppedSpeakingFrame upstream (to STT) and
+                          downstream (to turn-stop strategies); aggregates the
+                          final transcript into a user message for the LLM
     4. Groq LLM -> Generates response
     5. Cartesia TTS -> Converts response to speech
     6. WebRTC Audio -> Audio output to browser
@@ -79,13 +82,14 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     agent_prompt = load_agent_prompt()
 
-    # Speech-to-Text: Speechmatics with diarization
+    # Speech-to-Text: Speechmatics with diarization.
+    # EXTERNAL turn detection: STT finalises when it receives
+    # VADUserStoppedSpeakingFrame, broadcast by the aggregator's internal VAD
+    # controller (configured via LLMUserAggregatorParams.vad_analyzer below).
     stt = SpeechmaticsSTTService(
         api_key=os.getenv("SPEECHMATICS_API_KEY"),
         params=SpeechmaticsSTTService.InputParams(
-            # Turn detection mode - EXTERNAL means handled by Pipecat
             turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
-            # Diarization settings
             enable_speaker_diarization=True,
             focus_speakers=["S1"],
             speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
@@ -116,11 +120,15 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         },
     ]
 
-    # context aggregator
+    # context aggregator. VAD is wired into the aggregator (vad_analyzer=...)
+    # rather than as a standalone processor, so VADUserStoppedSpeakingFrame is
+    # broadcast both upstream (to drive Speechmatics EXTERNAL finalisation) and
+    # downstream (to drive the smart-turn stop strategy).
     context = LLMContext(messages)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(
+            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
             user_turn_strategies=UserTurnStrategies(
                 stop=[TurnAnalyzerUserTurnStopStrategy(turn_analyzer=LocalSmartTurnAnalyzerV3())]
             ),
@@ -166,18 +174,16 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
 
+    # VAD is wired as a pipeline processor (see run_bot), not via transport params:
+    # pipecat 1.x removed `vad_analyzer` from TransportParams/DailyParams.
     transport_params = {
         "daily": lambda: DailyParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
-            # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
         ),
         "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
-            # turn_analyzer=LocalSmartTurnAnalyzerV3(), # optional: more robust turn detection
         ),
     }
 
