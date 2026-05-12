@@ -2,20 +2,20 @@
 speechmatics-voice>=0.2.8
 
 # ElevenLabs (Streaming TTS)
-elevenlabs>=2.45.0
+elevenlabs>=2.46.0
 
 # Twilio SDK (REST API + TwiML)
-twilio>=9.10.5
+twilio>=9.10.9
 
 # Web Framework
 fastapi>=0.136.1
 uvicorn[standard]>=0.46.0
 
 # LLM
-openai>=2.34.0
+openai>=2.36.0
 
 # HTTP Client (for dial.py CLI)
-requests>=2.33.1
+requests>=2.34.0
 
 # Utilities
 python-dotenv>=1.2.2
