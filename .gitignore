@@ -9,8 +9,10 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Anchored to repo root so these Python build-artifact rules don't match
+# nested JS/TS source dirs (e.g. client/src/lib/) in multi-language examples.
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -69,10 +71,17 @@ output/
 *.srt
 *.vtt
 
-# JSON output from transcription examples (but NOT package.json files)
+# JSON output from transcription examples (but NOT package.json or tooling config)
 *.json
 !package.json
 !package-lock.json
+# JS/TS tooling config that must stay tracked (multi-language examples)
+!tsconfig.json
+!tsconfig.*.json
+!jsconfig.json
+!biome.json
+!components.json
+!vercel.json
 
 
 # Logs
