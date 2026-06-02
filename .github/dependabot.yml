@@ -1,5 +1,10 @@
 # Dependabot configuration for Speechmatics Academy
-# Keeps dependencies secure and up-to-date across all examples
+# Keeps dependencies secure and up-to-date across all examples.
+#
+# Uses the `directories` (plural) key with glob patterns so a single entry
+# covers every example in a category — current and future — and `groups`
+# consolidate all updates for that category into ONE pull request per cycle
+# (instead of one PR per example directory).
 # Docs: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 
 version: 2
@@ -14,6 +19,43 @@ updates:
       github-actions:
         patterns: ["*"]
 
+  # ── pip: Basics ─────────────────────────────────────────────────
+  # Matches every requirements.txt under basics/** (venvs are gitignored).
+  - package-ecosystem: "pip"
+    directories:
+      - "/basics/**"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      basics-deps:
+        patterns: ["*"]
+
+  # ── pip: Use Cases ──────────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directories:
+      - "/use-cases/**"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      use-case-deps:
+        patterns: ["*"]
+
+  # ── pip: Integrations ───────────────────────────────────────────
+  - package-ecosystem: "pip"
+    directories:
+      - "/integrations/**"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      integration-deps:
+        patterns: ["*"]
+
   # ── npm (Voice API Explorer) ────────────────────────────────────
   - package-ecosystem: "npm"
     directory: "/basics/11-voice-api-explorer/javascript"
@@ -26,223 +68,12 @@ updates:
 
   # ── Docker ──────────────────────────────────────────────────────
   - package-ecosystem: "docker"
-    directory: "/integrations/vapi/01-voice-assistant"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-
-  - package-ecosystem: "docker"
-    directory: "/integrations/pipecat/01-simple-voice-bot"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-
-  # ── pip: Basics ─────────────────────────────────────────────────
-  - package-ecosystem: "pip"
-    directory: "/basics/01-hello-world/python"
+    directories:
+      - "/integrations/vapi/01-voice-assistant"
+      - "/integrations/pipecat/01-simple-voice-bot"
     schedule:
       interval: "weekly"
       day: "monday"
     groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/02-batch-vs-realtime/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/03-configuration-guide/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/04-audio-intelligence/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/05-multilingual-translation/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/06-text-to-speech/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/07-turn-detection/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/08-voice-agent-turn-detection/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/09-voice-agent-speaker-id/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/10-channel-diarization/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/basics/11-voice-api-explorer/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      basics-deps:
-        patterns: ["*"]
-
-  # ── pip: Use Cases ──────────────────────────────────────────────
-  - package-ecosystem: "pip"
-    directory: "/use-cases/01-medical-transcription-realtime/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/use-cases/02-video-captioning/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/use-cases/03-call-center-analytics/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/use-cases/04-voice-agent-calendar/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/use-cases/05-santa-voice-agent/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/use-cases/06-medical-assistant"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      use-case-deps:
-        patterns: ["*"]
-
-  # ── pip: Integrations ───────────────────────────────────────────
-  - package-ecosystem: "pip"
-    directory: "/integrations/twilio/01-outbound-dialer/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/integrations/vapi/01-voice-assistant/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/integrations/livekit/01-simple-voice-assistant/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/integrations/livekit/02-telephony-twilio/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/integrations/pipecat/01-simple-voice-bot/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
-        patterns: ["*"]
-
-  - package-ecosystem: "pip"
-    directory: "/integrations/pipecat/02-simple-voice-bot-web/python"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    groups:
-      integration-deps:
+      docker-deps:
         patterns: ["*"]

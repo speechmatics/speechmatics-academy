@@ -1,0 +1,39 @@
+name: Dependabot auto-merge
+
+# Enables auto-merge on Dependabot PRs for patch & minor version bumps once the
+# required CI checks pass. Major bumps are intentionally left for manual review.
+#
+# Prerequisites (repo Settings → General):
+#   - "Allow auto-merge" must be enabled.
+#   - Branch protection on `main` should mark the CI jobs (Python Checks,
+#     Dependency Resolution Check, etc.) as required status checks — otherwise
+#     `--auto` merges as soon as the PR is mergeable, without waiting for CI.
+#   - Uses `--squash` for a clean single commit per grouped bump; requires
+#     "Allow squash merging" (on by default). Switch to `--merge` if preferred.
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    # Only for Dependabot PRs on this repository (skips forks).
+    if: ${{ github.actor == 'dependabot[bot]' && github.repository == 'speechmatics/speechmatics-academy' }}
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # For grouped PRs, update-type is the highest semver bump in the group,
+      # so a single major dependency keeps the whole PR out of auto-merge.
+      - name: Enable auto-merge for patch & minor updates
+        if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor' }}
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
