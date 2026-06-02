@@ -3,5 +3,5 @@ livekit-agents==1.5.15
 livekit-plugins-openai==1.5.15
 livekit-plugins-silero==1.5.15
 livekit-plugins-speechmatics==1.5.15
-python-dotenv==1.2.1
+python-dotenv==1.2.2
 uvicorn>=0.41.0
