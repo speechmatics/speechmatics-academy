@@ -2,14 +2,14 @@
 speechmatics-rt>=1.0.0
 
 # Web framework
-fastapi>=0.136.1
-uvicorn[standard]>=0.46.0
+fastapi>=0.136.3
+uvicorn[standard]>=0.48.0
 websockets>=16.0
 
 # LLM extraction (OpenAI GPT-4o)
-openai>=2.34.0
+openai>=2.38.0
 
 # Configuration
 python-dotenv>=1.2.2
-pydantic>=2.13.3
-pydantic-settings>=2.14.0
+pydantic>=2.13.4
+pydantic-settings>=2.14.1
