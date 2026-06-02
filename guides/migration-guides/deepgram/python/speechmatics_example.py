@@ -55,7 +55,7 @@ async def main():
         # Configure transcription options
         config = TranscriptionConfig(
             language="en",
-            operating_point="enhanced",  # Equivalent to nova-2
+            operating_point="enhanced",  # Equivalent to nova-3
             diarization="speaker",
             enable_entities=True,  # Equivalent to smart_format
             enable_partials=True,  # Enable interim results

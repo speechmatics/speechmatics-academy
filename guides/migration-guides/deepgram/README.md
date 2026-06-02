@@ -48,7 +48,7 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
 | **Interim Results** | `interim_results=True` | `enable_partials=True` | `rt`, `voice` | Partial transcripts while processing |
-| **Endpointing** | `endpointing=500` (ms) | `max_delay=0.5` (seconds) | `rt`, `voice` | Duration engine waits to verify partial word accuracy before committing (0.7-4.0s) |
+| **Endpointing** | `endpointing=500` (ms) | `end_of_utterance_silence_trigger=0.5` (seconds) | `rt`, `voice` | Silence before end-of-speech is detected. (`max_delay`, ~0.7–4.0s, is a *separate* control — how long the engine waits before finalizing a word) |
 | **Max Delay Mode** | Not available | `max_delay_mode="flexible"` or `"fixed"` | `rt`, `voice` | Flexible allows entity completion |
 | **Utterance End** | `utterance_end_ms=1000` |`end_of_utterance_silence_trigger=1.0` | `rt`, `voice` | Reference silence duration (0-2s); ADAPTIVE mode scales this based on speech patterns |
 | **Force End Utterance** | `Finalize` message | `client.finalize(end_of_turn=True)` | `voice` | Manually trigger end of utterance |
@@ -185,7 +185,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 
     result = await client.transcribe("audio.wav", config=config)
     print(result.transcript_text)
-    print(result.summary)
+    print(result.summary.get("content"))  # summary is a dict; "content" holds the text
 ```
 
 </details>
@@ -498,8 +498,10 @@ for word in response.results.channels[0].alternatives[0].words:
 
 **Speechmatics:**
 ```python
+# A two-party clinical consultation (doctor + patient)
 config = TranscriptionConfig(
     language="en",
+    domain="medical",
     diarization="speaker",
     # max_speakers is optional - see note below
 )
@@ -508,13 +510,15 @@ result = await client.transcribe(audio_file, transcription_config=config)
 
 for item in result.results:
     if item.type == "word":
-        print(f"Speaker {item.attaches_to}: {item.alternatives[0].content}")
+        speaker = item.alternatives[0].speaker  # e.g. "S1", "S2"
+        print(f"Speaker {speaker}: {item.alternatives[0].content}")
 ```
 
 **Advantages:**
-- Higher accuracy in multi-speaker scenarios
+- Higher accuracy in multi-speaker scenarios (e.g. clinician vs patient)
 - Automatic speaker count detection
 - Fine-grained diarization controls via `speaker_diarization_config`
+- Speaker diarization is **included**, not a paid add-on
 
 > [!NOTE] 
 >`max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels. Only use this when you're certain about the exact speaker count (e.g., a two-person interview). For most scenarios, omit this setting for automatic detection.
@@ -563,7 +567,7 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 ```python
 options = PrerecordedOptions(
     model="nova-3",
-    keywords=["Speechmatics", "DeepSeek", "TechTerm:2"]  # keyword:boost
+    keywords=["metformin", "tachycardia", "acetaminophen:2"]  # keyword:boost
 )
 ```
 
@@ -571,18 +575,20 @@ options = PrerecordedOptions(
 ```python
 config = TranscriptionConfig(
     language="en",
+    domain="medical",  # medical-optimized language pack (no Deepgram equivalent)
     additional_vocab=[
-        {"content": "Speechmatics", "sounds_like": ["speech matics"]},
-        {"content": "DeepSeek"},
-        {"content": "TechTerm", "sounds_like": ["tek term", "tech term"]},
+        {"content": "metformin"},
+        {"content": "tachycardia", "sounds_like": ["tacky cardia"]},
+        {"content": "acetaminophen", "sounds_like": ["a seet a min oh fen"]},
+        {"content": "echocardiogram", "sounds_like": ["echo cardio gram"]},
     ]
 )
 ```
 
 **Features:**
-- Phonetic alternatives with `sounds_like` for pronunciation variants
-- 1,000 words included (vs Deepgram's 100)
-- Better recognition of domain-specific terms
+- Phonetic alternatives with `sounds_like` for pronunciation variants — ideal for drug and procedure names
+- 1,000 words included (vs Deepgram's 100) — room for a full clinical vocabulary
+- Pair with `domain="medical"` for a domain-optimized acoustic + language model
 
 ---
 
@@ -660,10 +666,10 @@ config = {
       "alternatives": [
         {
           "content": "hello",
-          "confidence": 0.99
+          "confidence": 0.99,
+          "speaker": "S1"
         }
-      ],
-      "attaches_to": "speaker_1"
+      ]
     }
   ],
   "metadata": {...}
@@ -673,7 +679,7 @@ config = {
 **Key Differences:**
 - Speechmatics provides `transcript_text` at the top level for quick access
 - Results are flat arrays instead of nested channels
-- Speaker is referenced via `attaches_to` field
+- Speaker labels (`S1`, `S2`, …) live on each alternative — `result.results[i].alternatives[0].speaker`
 
 ---
 
@@ -707,7 +713,7 @@ config = {
 -  Apply code `SWITCH200` for $200 free credit
 
 ### Code Migration
--  Install SDK: `pip install speechmatics-batch speechmatics-rt`
+-  Install SDK: `pip install speechmatics-batch speechmatics-rt speechmatics-voice speechmatics-tts` (install only the packages you use)
 -  Replace `DEEPGRAM_API_KEY` with `SPEECHMATICS_API_KEY`
 -  Update imports from `deepgram` to `speechmatics.batch` or `speechmatics.rt`
 -  Convert `PrerecordedOptions`/`LiveOptions` to `TranscriptionConfig`
@@ -798,10 +804,10 @@ Speechmatics' models are trained on diverse accents and don't require locale spe
 from deepgram import DeepgramClient, PrerecordedOptions
 import os
 
-def transcribe_audio():
+def transcribe_consultation():
     client = DeepgramClient(api_key=os.getenv("DEEPGRAM_API_KEY"))
 
-    with open("audio.wav", "rb") as audio_file:
+    with open("patient_consultation.wav", "rb") as audio_file:
         response = client.listen.prerecorded.transcribe_file(
             audio_file,
             PrerecordedOptions(
@@ -809,13 +815,13 @@ def transcribe_audio():
                 smart_format=True,
                 diarize=True,
                 language="en-US",
-                keywords=["ProductName", "TechTerm"]
+                keywords=["metformin", "tachycardia"]
             )
         )
 
     return response.results.channels[0].alternatives[0].transcript
 
-print(transcribe_audio())
+print(transcribe_consultation())
 ```
 
 ### After (Speechmatics)
@@ -825,29 +831,35 @@ import asyncio
 import os
 from speechmatics.batch import AsyncClient, TranscriptionConfig
 
-async def transcribe_audio():
+async def transcribe_consultation():
     async with AsyncClient(api_key=os.getenv("SPEECHMATICS_API_KEY")) as client:
         config = TranscriptionConfig(
             language="en",
             operating_point="enhanced",
-            diarization="speaker",
+            domain="medical",          # medical-optimized model — no Deepgram equivalent
+            diarization="speaker",      # included, not a paid add-on
             enable_entities=True,
             additional_vocab=[
-                {"content": "ProductName"},
-                {"content": "TechTerm"}
-            ]
+                {"content": "metformin"},
+                {"content": "tachycardia", "sounds_like": ["tacky cardia"]},
+            ],
         )
 
-        with open("audio.wav", "rb") as audio_file:
+        with open("patient_consultation.wav", "rb") as audio_file:
             result = await client.transcribe(audio_file, transcription_config=config)
             return result.transcript_text
 
-print(asyncio.run(transcribe_audio()))
+print(asyncio.run(transcribe_consultation()))
 ```
 
 **See complete working examples in:**
 - [Batch vs Real-time](../../../basics/02-batch-vs-realtime/) - Understand API modes
 - [Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/) - Voice SDK with presets
+
+**Healthcare use-cases (medical domain in action):**
+- [Medical Transcription (real-time)](../../../use-cases/01-medical-transcription-realtime/) - `domain="medical"` + medical custom vocabulary
+- [Medical Assistant](../../../use-cases/06-medical-assistant/) - bilingual clinical transcription, speaker diarization, SOAP notes & ICD-10
+- [Medical Microbatching](../../../use-cases/07-medical-microbatching/) - HIPAA-friendly on-prem batch pipeline with speaker identification
 
 ---
 
