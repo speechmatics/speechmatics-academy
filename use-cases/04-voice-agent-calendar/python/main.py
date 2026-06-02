@@ -29,13 +29,18 @@ async def entrypoint(ctx: agents.JobContext):
     """Main entrypoint for the AI receptionist."""
     await ctx.connect()
 
+    # Voice Activity Detection: Silero. Passed into the STT so the plugin drives
+    # turn finalization from the VAD (forces EXTERNAL mode). min_silence_duration
+    # controls how quickly a turn ends after silence.
+    vad = silero.VAD.load(min_silence_duration=0.5)
+
     # Speech-to-Text: Speechmatics with custom vocabulary
     stt = speechmatics.STT(
+        vad=vad,
         enable_diarization=True,
         operating_point="enhanced",
         enable_partials=True,
         focus_speakers=["S1"],
-        end_of_utterance_silence_trigger=0.5,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         max_delay=0.7,
         additional_vocab=[
@@ -76,9 +81,6 @@ async def entrypoint(ctx: agents.JobContext):
 
     # Text-to-Speech: Speechmatics
     tts = speechmatics.TTS(voice="megan")
-
-    # Voice Activity Detection: Silero
-    vad = silero.VAD.load()
 
     # Create agent with calendar tools
     receptionist = Agent(

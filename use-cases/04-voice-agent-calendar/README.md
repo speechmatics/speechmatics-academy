@@ -108,16 +108,20 @@ Configure LiveKit with Speechmatics STT/TTS:
 
 ```python
 from livekit.agents import Agent, AgentSession
-from livekit.plugins import openai, speechmatics
+from livekit.plugins import openai, silero, speechmatics
 
 from calendar_tools import CALENDAR_TOOLS
 
+# Silero VAD drives the STT's turn finalization (passing `vad` forces EXTERNAL mode);
+# min_silence_duration controls how quickly a turn ends after silence.
+vad = silero.VAD.load(min_silence_duration=0.5)
+
 stt = speechmatics.STT(
+    vad=vad,
     enable_diarization=True,
     operating_point="enhanced",
     enable_partials=True,
     focus_speakers=["S1"],
-    end_of_utterance_silence_trigger=0.5,
     max_delay=0.7,
     additional_vocab=[
         speechmatics.AdditionalVocabEntry(content="Swedish Massage"),
@@ -140,7 +144,7 @@ receptionist = Agent(
 > - `enable_diarization` - Identify different speakers
 > - `operating_point="enhanced"` - Higher accuracy mode
 > - `focus_speakers=["S1"]` - Focus on caller, ignore TTS playback
-> - `end_of_utterance_silence_trigger=0.5` - Faster turn detection
+> - `vad=silero.VAD.load(min_silence_duration=0.5)` - VAD-driven turn finalization (faster turns)
 
 ### 2. Calendar Functions (calendar_tools.py)
 

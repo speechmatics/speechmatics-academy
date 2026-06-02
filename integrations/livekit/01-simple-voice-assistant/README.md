@@ -19,7 +19,7 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 - How to integrate Speechmatics STT with LiveKit Agents
 - Building a complete voice assistant with WebRTC
 - Using LiveKit's agent framework for real-time conversations
-- Configuring turn detection modes for natural conversations
+- VAD-driven turn detection — the STT finalizes each turn from the shared Silero VAD
 - Voice Activity Detection (VAD) for natural turn-taking
 - Filtering background audio using speaker diarization and focus speakers
 - **Speaker identification** — enroll and recognize returning users by name across sessions
@@ -175,7 +175,7 @@ flowchart LR
 | Feature | Description |
 |---------|-------------|
 | **WebRTC** | Real-time audio streaming via LiveKit infrastructure |
-| **Turn Detection** | ML-based turn detection (SMART_TURN) for natural conversation flow |
+| **Turn Detection** | VAD-driven finalization — the STT ends each turn from the shared Silero VAD |
 | **Diarization** | Speaker identification to distinguish different speakers |
 | **Focus Speakers** | Filter to only respond to the primary user (S1) |
 | **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
@@ -210,7 +210,7 @@ The assistant automatically captures voiceprints during conversation and saves t
 ```python
 from livekit.agents import AgentSession, Agent
 from livekit.plugins import speechmatics, openai, elevenlabs, silero
-from livekit.plugins.speechmatics import TurnDetectionMode, SpeakerIdentifier
+from livekit.plugins.speechmatics import SpeakerIdentifier
 
 # Load previously enrolled speakers from speakers.json
 known_speakers = load_known_speakers()  # returns list[SpeakerIdentifier]
@@ -218,8 +218,12 @@ known_speakers = load_known_speakers()  # returns list[SpeakerIdentifier]
 async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
+    # The same Silero VAD drives both the session and the STT's turn finalization.
+    # Passing `vad` into the STT forces EXTERNAL turn detection — no manual finalize() glue.
+    vad = silero.VAD.load()
+
     stt = speechmatics.STT(
-        turn_detection_mode=TurnDetectionMode.SMART_TURN,
+        vad=vad,
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
@@ -231,7 +235,7 @@ async def entrypoint(ctx: agents.JobContext):
         stt=stt,
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM"),
-        vad=silero.VAD.load(),
+        vad=vad,
     )
 
     await session.start(room=ctx.room, agent=VoiceAssistant())
@@ -312,9 +316,19 @@ stt = speechmatics.STT(
 
 This prevents the assistant from responding to background conversations or media playing nearby.
 
-### Turn Detection Modes
+### Turn Detection
 
-Control how the agent detects when you've finished speaking:
+This example lets the **Silero VAD drive turn finalization**. The same `vad` passed to the
+`AgentSession` is also passed to `speechmatics.STT(...)`, so the plugin finalizes each turn on
+end-of-speech with no manual `finalize()` glue. Passing `vad` forces `EXTERNAL` turn detection
+(the plugin auto-loads Silero if you set `EXTERNAL` and pass no `vad`):
+
+```python
+vad = silero.VAD.load()
+stt = speechmatics.STT(vad=vad)  # STT finalizes turns from the VAD
+```
+
+Alternatively, omit `vad` on the STT and choose a server-side `turn_detection_mode`:
 
 ```python
 from livekit.plugins.speechmatics import TurnDetectionMode
@@ -326,7 +340,7 @@ stt = speechmatics.STT(
 
 | Mode | Description | Best For |
 |------|-------------|----------|
-| `SMART_TURN` | ML-based turn detection for natural conversation flow | Default choice, handles hesitations well |
+| `SMART_TURN` | ML-based turn detection for natural conversation flow | Handles hesitations well |
 | `ADAPTIVE` | VAD + hesitation/speed analysis, works with all languages | Multilingual applications |
 | `FIXED` | Simple VAD-only detection, lowest latency | Speed-critical applications |
 

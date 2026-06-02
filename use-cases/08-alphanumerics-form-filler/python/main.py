@@ -13,7 +13,6 @@ from livekit.agents import (
     function_tool,
 )
 from livekit.plugins import openai, silero, speechmatics
-from livekit.plugins.speechmatics import TurnDetectionMode
 
 load_dotenv()
 
@@ -58,10 +57,11 @@ class FormFillerAgent(Agent):
 async def entrypoint(ctx: agents.JobContext) -> None:
     await ctx.connect()
 
-    stt = speechmatics.STT(turn_detection_mode=TurnDetectionMode.SMART_TURN)
+    # Silero VAD drives the STT's turn finalization (passing `vad` forces EXTERNAL mode).
+    vad = silero.VAD.load()
+    stt = speechmatics.STT(vad=vad)
     llm = openai.LLM(model="gpt-4o-mini")
     tts = speechmatics.TTS()
-    vad = silero.VAD.load()
 
     session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad)
 

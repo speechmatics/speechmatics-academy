@@ -2,11 +2,11 @@
 
 **A real-time voice agent that listens to a user speak personal details — names, emails, phone numbers, post codes, account numbers — and fills a web form live, no typing required.**
 
-Learn how to capture clean alphanumeric input over voice using Speechmatics real-time STT with smart turn detection, drive a browser DOM from an LLM via LiveKit RPC, and close the loop with Speechmatics TTS.
+Learn how to capture clean alphanumeric input over voice using Speechmatics real-time STT with VAD-driven turn detection, drive a browser DOM from an LLM via LiveKit RPC, and close the loop with Speechmatics TTS.
 
 ## What You'll Learn
 
-- **Smart turn detection** with Speechmatics real-time STT — capture full utterances without polling or premature cut-offs.
+- **VAD-driven turn detection** with Speechmatics real-time STT — the STT finalizes each turn from a shared Silero VAD, capturing full utterances without premature cut-offs.
 - **LLM function-tool → LiveKit RPC → browser DOM** — a clean three-hop pattern that lets an LLM update a web UI directly.
 - **Robust alphanumeric capture** — system-prompt rules so phone numbers, post codes, and account numbers are stored as one continuous digit string and read back digit-by-digit for confirmation.
 
@@ -83,7 +83,7 @@ flowchart LR
 ```
 
 1. The browser joins a LiveKit room and streams microphone audio.
-2. The agent transcribes speech with **Speechmatics real-time STT** using smart turn detection — it waits for end-of-utterance before flushing the transcript.
+2. The agent transcribes speech with **Speechmatics real-time STT** using VAD-driven turn detection — the shared Silero VAD signals end-of-speech and the STT finalizes the turn.
 3. **GPT-4o-mini** interprets the transcript and decides whether to call `fill_form_field` for each detail it heard.
 4. The agent issues a **LiveKit RPC** to the browser, which writes the value into the matching `<input>` element.
 5. The agent speaks back via **Speechmatics TTS** and asks for the next field.
@@ -97,12 +97,12 @@ flowchart LR
 ```python
 from livekit.agents import Agent, AgentSession
 from livekit.plugins import openai, silero, speechmatics
-from livekit.plugins.speechmatics import TurnDetectionMode
 
-stt = speechmatics.STT(turn_detection_mode=TurnDetectionMode.SMART_TURN)
+# The Silero VAD drives the STT's turn finalization (passing `vad` forces EXTERNAL mode).
+vad = silero.VAD.load()
+stt = speechmatics.STT(vad=vad)
 llm = openai.LLM(model="gpt-4o-mini")
 tts = speechmatics.TTS()
-vad = silero.VAD.load()
 
 session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad)
 ```
@@ -181,7 +181,7 @@ Agent: "Got it — phone five, five, five, one, two, three, four, five,
 
 ## Key Features Demonstrated
 
-- **Speechmatics smart turn detection** — accurate end-of-utterance detection without manual VAD tuning.
+- **VAD-driven turn detection** — the STT finalizes from a shared Silero VAD, with no manual `finalize()` glue.
 - **Function-tool → RPC → DOM** — a generalisable pattern for letting an LLM drive a web UI live.
 - **Alphanumeric robustness** — clean digit-string capture for IDs and codes, plus digit-by-digit read-back.
 - **End-to-end real-time loop** — STT, LLM, TTS, and browser update all run with sub-second latency.
@@ -190,7 +190,7 @@ Agent: "Got it — phone five, five, five, one, two, three, four, five,
 
 - **LLM**: swap `openai.LLM(model="gpt-4o-mini")` in `main.py` for any other LiveKit-supported LLM.
 - **Region**: set `SPEECHMATICS_RT_URL` in `.env` or pass `base_url=` to `speechmatics.STT(...)` to target a different Speechmatics region.
-- **Turn detection**: `TurnDetectionMode.SMART_TURN` is the default; see the [LiveKit Speechmatics plugin docs](https://docs.livekit.io/agents/plugins/speechmatics/) for alternatives.
+- **Turn detection**: this example passes `vad=` to the STT for VAD-driven finalization. Alternatively, omit `vad` and set `turn_detection_mode` (`SMART_TURN`/`ADAPTIVE`/`FIXED`) — see the [LiveKit Speechmatics plugin docs](https://docs.livekit.io/agents/plugins/speechmatics/).
 - **Form fields**: extend the field list in the system prompt and the `fill_form_field` docstring, then add matching `<input>` elements in `assets/index.html`.
 
 ## Troubleshooting

@@ -342,7 +342,7 @@ Santa: "*laughs warmly* You know what? Talking to you made MY day brighter.
 
 **Speech not recognized well**
 - Add more terms to `additional_vocab`
-- Increase `end_of_utterance_silence_trigger` for longer pauses
+- Increase the Silero VAD's `min_silence_duration` for longer pauses before a turn ends
 
 **ElevenLabs rate limited**
 - Switch to `eleven_turbo_v2_5` for faster generation

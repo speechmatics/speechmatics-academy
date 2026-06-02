@@ -48,8 +48,12 @@ async def entrypoint(ctx: agents.JobContext):
     """
     await ctx.connect()
 
+    # Voice Activity Detection: Silero
+    vad = silero.VAD.load()
+
     # Speech-to-Text: Speechmatics
-    stt = speechmatics.STT()
+    # Passing `vad` lets the STT drive its own turn finalization (forces EXTERNAL mode).
+    stt = speechmatics.STT(vad=vad)
 
     # Language Model: OpenAI
     llm = openai.LLM(model="gpt-4o-mini")
@@ -57,9 +61,6 @@ async def entrypoint(ctx: agents.JobContext):
     # Text-to-Speech: Speechmatics
     # Available voices: sarah (UK female), theo (UK male), megan (US female)
     tts = speechmatics.TTS(voice="megan")
-
-    # Voice Activity Detection: Silero
-    vad = silero.VAD.load()
 
     # Create Agent Session
     session = AgentSession(

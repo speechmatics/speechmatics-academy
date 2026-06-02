@@ -163,11 +163,15 @@ class VoiceAssistant(Agent):
 async def entrypoint(ctx: agents.JobContext):
     await ctx.connect()
 
+    # The same Silero VAD drives the session and the STT's turn finalization
+    # (passing `vad` into the STT forces EXTERNAL turn detection).
+    vad = silero.VAD.load()
+
     session = AgentSession(
-        stt=speechmatics.STT(),
+        stt=speechmatics.STT(vad=vad),
         llm=openai.LLM(model="gpt-4o-mini"),
         tts=speechmatics.TTS(),
-        vad=silero.VAD.load(),
+        vad=vad,
     )
 
     await session.start(room=ctx.room, agent=VoiceAssistant())

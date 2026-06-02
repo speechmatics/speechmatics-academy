@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 from livekit import agents
 from livekit.agents import Agent, AgentSession, RoomInputOptions
 from livekit.plugins import elevenlabs, openai, silero, speechmatics
-from livekit.plugins.speechmatics import SpeakerIdentifier, TurnDetectionMode
+from livekit.plugins.speechmatics import SpeakerIdentifier
 
 load_dotenv(Path(__file__).parent.parent / ".env")
 
@@ -87,8 +87,12 @@ async def entrypoint(ctx: agents.JobContext):
 
     known_speakers = load_known_speakers()
 
+    # Voice Activity Detection: Silero. Passing it into the STT lets the plugin
+    # drive turn finalization from the VAD (this forces EXTERNAL turn detection).
+    vad = silero.VAD.load()
+
     stt = speechmatics.STT(
-        turn_detection_mode=TurnDetectionMode.SMART_TURN,
+        vad=vad,
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
         speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
@@ -98,7 +102,6 @@ async def entrypoint(ctx: agents.JobContext):
 
     llm = openai.LLM(model="gpt-4o-mini")
     tts = elevenlabs.TTS(voice_id="21m00Tcm4TlvDq8ikWAM")
-    vad = silero.VAD.load()
 
     session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad)
 
