@@ -1,5 +1,5 @@
 # Speechmatics Batch SDK
-speechmatics-batch>=0.4.7
+speechmatics-batch>=0.4.8
 
 # Utilities
 python-dotenv>=1.2.2
