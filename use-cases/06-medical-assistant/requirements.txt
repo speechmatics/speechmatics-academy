@@ -7,7 +7,7 @@ uvicorn[standard]>=0.48.0
 websockets>=16.0
 
 # LLM extraction (OpenAI GPT-4o)
-openai>=2.38.0
+openai>=2.40.0
 
 # Configuration
 python-dotenv>=1.2.2
