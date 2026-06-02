@@ -1,5 +1,5 @@
 # Speechmatics SDKs
-speechmatics-batch>=0.4.7
+speechmatics-batch>=0.4.8
 speechmatics-rt>=1.0.0
 
 # Utilities
