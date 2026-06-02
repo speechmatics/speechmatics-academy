@@ -7,7 +7,7 @@
     "start": "node main.js"
   },
   "dependencies": {
-    "ws": "^8.20.1",
+    "ws": "^8.21.0",
     "dotenv": "^17.4.2"
   },
   "optionalDependencies": {
