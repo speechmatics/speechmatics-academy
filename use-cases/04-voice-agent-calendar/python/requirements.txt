@@ -1,10 +1,10 @@
 # Direct dependencies only
 
 python-dotenv>=1.2.2
-livekit-agents>=1.5.16
-livekit-plugins-speechmatics>=1.5.16
-livekit-plugins-openai>=1.5.16
-livekit-plugins-silero>=1.5.16
+livekit-agents>=1.5.17
+livekit-plugins-speechmatics>=1.5.18
+livekit-plugins-openai>=1.5.18
+livekit-plugins-silero>=1.5.18
 
 # Google Calendar integration
 google-api-python-client>=2.197.0
