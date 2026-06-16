@@ -33,7 +33,7 @@ async def demo_rt_basic(api_key, server, pcm, sr):
         "transcription_config": {
             "language": "en",
             "enable_partials": True,
-            "operating_point": "enhanced",
+            "model": "enhanced",
         },
         "audio_format": audio_format_block(sr),
     }

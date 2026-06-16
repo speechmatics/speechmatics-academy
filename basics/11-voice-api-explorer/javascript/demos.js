@@ -33,7 +33,7 @@ async function demoRtBasic(apiKey, server, pcm, sr) {
     transcription_config: {
       language: "en",
       enable_partials: true,
-      operating_point: "enhanced",
+      model: "enhanced",
     },
     audio_format: audioFormatBlock(sr),
   };

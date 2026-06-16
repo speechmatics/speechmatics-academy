@@ -290,7 +290,7 @@ Demonstrates mid-session control with `diarization: "speaker"`:
     "message": "StartRecognition",
     "transcription_config": {
         "language": "en",
-        "operating_point": "enhanced",
+        "model": "enhanced",
         "enable_partials": true,
         "diarization": "speaker",
         "additional_vocab": [
