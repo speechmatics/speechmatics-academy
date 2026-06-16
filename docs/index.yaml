@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2025-12-30"
-total_examples: 25
+total_examples: 26
 
 # Example Categories
 categories:
@@ -34,6 +34,7 @@ languages:
   - javascript
   - go
   - csharp
+  - dart
 
 # Available Features
 features:
@@ -454,6 +455,26 @@ examples:
     tags: ["voice-agent", "form-filling", "alphanumerics", "livekit", "rpc", "function-calling"]
     last_updated: "2026-05-06"
     estimated_time: "10 minutes"
+
+  - id: "flutter-mobile-transcription"
+    title: "Flutter Mobile Transcription App"
+    description: "Cross-platform Flutter (Android & iOS) app that records or uploads audio and runs the Speechmatics Batch API end-to-end: multilingual Melia-1 transcription, speaker diarization and identification, translation, and speech intelligence (summary, topics, chapters, subtitles)."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["dart"]
+    features:
+      - "batch-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+      - "translation"
+      - "summarization"
+      - "topic-detection"
+    integrations: []
+    path: "use-cases/09-flutter-mobile-transcription"
+    readme: "use-cases/09-flutter-mobile-transcription/README.md"
+    tags: ["flutter", "mobile", "android", "ios", "batch", "diarization", "speaker-identification", "translation", "speech-intelligence"]
+    last_updated: "2026-06-16"
+    estimated_time: "20 minutes"
 
   - id: "voice-api-explorer"
     title: "Voice API Explorer"

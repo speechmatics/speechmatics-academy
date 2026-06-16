@@ -1,0 +1,37 @@
+name: speechmatics_translate
+description: "EveryVoice — Speechmatics batch transcription, translation and speech-intelligence app."
+publish_to: 'none'
+# v1.0.0 = first internal release (EveryVoice). Bump +N for every distributed build.
+version: 1.0.0+4
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.2.1
+  material_symbols_icons: ^4.2.870
+  http: ^1.6.0
+  provider: ^6.1.5+1
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  record: ^7.0.0
+  flutter_secure_storage: ^10.3.1
+  path_provider: ^2.1.5
+  intl: ^0.20.2
+  file_selector: ^1.1.0
+  audio_waveforms: ^2.0.2
+  share_plus: ^12.0.0
+  wakelock_plus: ^1.2.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
