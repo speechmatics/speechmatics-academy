@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2025-12-30"
-total_examples: 26
+total_examples: 27
 
 # Example Categories
 categories:
@@ -494,6 +494,21 @@ examples:
     tags: ["voice-api", "websocket", "realtime", "voice-agent", "profiles", "speaker-focus", "force-eou", "diarization"]
     last_updated: "2026-03-12"
     estimated_time: "20 minutes"
+
+  - id: "melia-multilingual"
+    title: "Melia Multilingual Transcription"
+    description: "Transcribe multilingual, code-switching audio with Melia over the Batch API. Set model to melia-1 and language to multi, and one recording that moves between languages returns as a single continuous transcript with per-word language tags."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "basics/12-melia-multilingual"
+    readme: "basics/12-melia-multilingual/README.md"
+    tags: ["melia", "multilingual", "code-switching", "batch", "language-identification"]
+    last_updated: "2026-06-16"
+    estimated_time: "5 minutes"
 
 # Integration Frameworks
 integration_frameworks:
