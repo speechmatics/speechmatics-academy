@@ -1,0 +1,269 @@
+{
+ "audio_event_summary": {
+  "overall": {
+   "speech": {
+    "count": 462,
+    "total_duration": 172.72
+   }
+  }
+ },
+ "audio_events": [],
+ "chapters": [
+  {
+   "end_time": 96.86,
+   "start_time": 0.0,
+   "summary": "The speaker provides a comprehensive guide to cooking pasta, starting with boiling salted water and adding the pasta while stirring to prevent sticking. They explain the different cooking times for fresh and dried pasta and describe how to prepare a simple sauce using garlic, olive oil, and tomatoes. The speaker emphasizes the importance of reserving some starchy pasta water to help the sauce adhere to the noodles. The process concludes with finishing the pasta in the sauce, adding fresh basil and grated parmesan, and serving immediately. The speaker highlights that timing, seasoning, and quality ingredients are key to a good plate of pasta.",
+   "title": "How to Cook Pasta: Step-by-Step Guide"
+  },
+  {
+   "end_time": 196.73,
+   "start_time": 96.86,
+   "summary": "The speaker shifts focus to space travel, explaining that rockets must achieve high speeds to reach low Earth orbit. They discuss the International Space Station's rapid orbit around the planet and the effects of microgravity on astronauts, such as muscle and bone loss. The speaker outlines the challenges of future Mars missions, including long travel times and the need for advanced life support and radiation protection. They also mention the development of reusable rockets by private companies, which is reducing the cost of space access, and predict that the next decade will likely see the establishment of a permanent lunar base.",
+   "title": "Introduction to Space Travel and Exploration"
+  }
+ ],
+ "format": "2.9",
+ "job": {
+  "created_at": "2026-06-11T20:36:25.590Z",
+  "data_name": "si_speech.wav",
+  "duration": 197,
+  "id": "aqabvwdz53"
+ },
+ "metadata": {
+  "audio_events_config": {
+   "types": [
+    "laughter",
+    "music",
+    "applause"
+   ]
+  },
+  "auto_chapters_config": {},
+  "created_at": "2026-06-11T20:36:36.893477Z",
+  "language_pack_info": {
+   "adapted": false,
+   "itn": true,
+   "language_description": "English",
+   "word_delimiter": " ",
+   "writing_direction": "left-to-right"
+  },
+  "orchestrator_version": "2026.06.05+682306b420+15.11.0",
+  "output_config": {
+   "srt_overrides": {
+    "max_line_length": 30,
+    "max_lines": 1
+   }
+  },
+  "summarization_config": {
+   "content_type": "auto",
+   "summary_length": "brief",
+   "summary_type": "bullets"
+  },
+  "topic_detection_config": {
+   "topics": [
+    "cooking",
+    "space"
+   ]
+  },
+  "transcription_config": {
+   "diarization": "speaker",
+   "language": "en",
+   "operating_point": "enhanced"
+  },
+  "type": "transcription"
+ },
+ "results": [
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "Let",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 0.44,
+   "start_time": 0.12,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "me",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 0.64,
+   "start_time": 0.44,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "tell",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 0.84,
+   "start_time": 0.64,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "you",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 1.04,
+   "start_time": 0.84,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "about",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 1.4,
+   "start_time": 1.04,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "cooking",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 1.88,
+   "start_time": 1.4,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "pasta",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 2.48,
+   "start_time": 1.88,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": ".",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "attaches_to": "previous",
+   "end_time": 2.48,
+   "is_eos": true,
+   "start_time": 2.48,
+   "type": "punctuation"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "First",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 4.08,
+   "start_time": 3.2,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": ",",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "attaches_to": "previous",
+   "end_time": 4.08,
+   "is_eos": false,
+   "start_time": 4.08,
+   "type": "punctuation"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "bring",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 4.48,
+   "start_time": 4.08,
+   "type": "word"
+  },
+  {
+   "alternatives": [
+    {
+     "confidence": 1.0,
+     "content": "a",
+     "language": "en",
+     "speaker": "S1"
+    }
+   ],
+   "end_time": 4.6,
+   "start_time": 4.48,
+   "type": "word"
+  }
+ ],
+ "summary": {
+  "content": "- Cooking pasta involves boiling salted water, timing (fresh pasta: 3 minutes, dried pasta: 10 minutes), and preparing a sauce with garlic, olive oil, tomatoes, basil, and parmesan cheese.\n- Rockets must reach 28,000km/h for low earth orbit; International Space Station orbits every 90 minutes; astronauts face microgravity effects like muscle loss and bone density reduction.\n- Mars missions require seven months of travel, new life support systems, and radiation shielding; private companies are developing reusable rockets; a permanent lunar base is expected in the next decade."
+ },
+ "topics": {
+  "segments": [
+   {
+    "end_time": 47.76,
+    "start_time": 0.12,
+    "text": "Let me tell you about cooking pasta. First, bring a large pot of salted water to a rolling boil. Add the pasta and stir occasionally so it does not stick together. Fresh pasta cooks in about three minutes, while dried pasta takes closer to ten. While the pasta cooks, prepare a simple sauce with garlic, olive oil and tomatoes. Reserve a cup of the starchy pasta water before draining because it helps the sauce cling to the noodles. Finish the pasta in the pan with the sauce. Add fresh basil and grated parmesan cheese and serve immediately. A good plate of pasta depends on timing, seasoning and quality ingredients.",
+    "topics": [
+     {
+      "topic": "cooking"
+     }
+    ]
+   },
+   {
+    "end_time": 146.49,
+    "start_time": 96.86,
+    "text": "Now let us switch topics completely and talk about space travel. Rockets must reach a speed of about 28,000km/h to enter low earth orbit. The International Space Station orbits our planet roughly every 90 minutes. Astronauts experience microgravity, which causes muscle loss and bone density reduction over long missions. Future missions to Mars will take around seven months of travel each way, requiring new life support systems and radiation shielding. Private companies are now developing reusable rockets, which dramatically lower the cost of reaching orbit. The next decade of space exploration will likely include a permanent lunar base.",
+    "topics": [
+     {
+      "topic": "space"
+     }
+    ]
+   }
+  ],
+  "summary": {
+   "overall": {
+    "cooking": 1,
+    "space": 1
+   }
+  }
+ }
+}
