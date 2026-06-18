@@ -268,16 +268,27 @@ class _InsightsViewState extends State<InsightsView>
         _sectionHeader('SUBTITLES (SRT)',
             onCopy: () => _copy(item.srtText!),
             extraAction: canShareFiles
-                ? IconButton(
-                    onPressed: () => shareTextAsFile(
-                        content: item.srtText!, baseName: item.title, extension: 'srt'),
-                    tooltip: 'Share .srt',
-                    icon: Icon(Symbols.share, size: 20, color: AppColors.primary),
-                    visualDensity: VisualDensity.compact,
-                    style: IconButton.styleFrom(
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: const EdgeInsets.all(8),
+                ? Builder(
+                    builder: (context) => IconButton(
+                      onPressed: () {
+                        final box = context.findRenderObject() as RenderBox?;
+                        shareTextAsFile(
+                          content: item.srtText!,
+                          baseName: item.title,
+                          extension: 'srt',
+                          sharePositionOrigin: box != null
+                              ? box.localToGlobal(Offset.zero) & box.size
+                              : null,
+                        );
+                      },
+                      tooltip: 'Share .srt',
+                      icon: Icon(Symbols.share, size: 20, color: AppColors.primary),
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.all(8),
+                      ),
                     ),
                   )
                 : null),

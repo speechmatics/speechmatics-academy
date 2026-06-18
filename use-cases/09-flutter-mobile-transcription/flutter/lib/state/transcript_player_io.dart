@@ -372,17 +372,25 @@ class PlaybackBar extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(child: WaveformBar(player: player, height: height)),
           const SizedBox(width: 8),
-          IconButton(
-            onPressed: () => SharePlus.instance.share(
-              ShareParams(files: [XFile(player._path)]),
-            ),
-            tooltip: 'Share audio',
-            icon: Icon(Symbols.share, size: 20, color: AppColors.primary),
-            visualDensity: VisualDensity.compact,
-            style: IconButton.styleFrom(
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.all(6),
+          Builder(
+            builder: (context) => IconButton(
+              onPressed: () {
+                // iPad requires an anchor rect or the share sheet won't present.
+                final box = context.findRenderObject() as RenderBox?;
+                SharePlus.instance.share(ShareParams(
+                  files: [XFile(player._path)],
+                  sharePositionOrigin:
+                      box != null ? box.localToGlobal(Offset.zero) & box.size : null,
+                ));
+              },
+              tooltip: 'Share audio',
+              icon: Icon(Symbols.share, size: 20, color: AppColors.primary),
+              visualDensity: VisualDensity.compact,
+              style: IconButton.styleFrom(
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                padding: const EdgeInsets.all(6),
+              ),
             ),
           ),
         ],

@@ -72,6 +72,13 @@ class SpeechmaticsTranslateApp extends StatelessWidget {
         theme: AppTheme.light(),
         initialRoute: Routes.home,
         routes: Routes.map,
+        // iOS has no built-in "hide keyboard" affordance like Android's. Tapping
+        // anywhere outside a text field dismisses the keyboard.
+        builder: (context, child) => GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child,
+        ),
       ),
     );
   }
