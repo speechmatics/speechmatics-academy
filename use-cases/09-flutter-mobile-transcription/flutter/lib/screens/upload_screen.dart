@@ -34,6 +34,11 @@ class _UploadScreenState extends State<UploadScreen> {
       label: 'Audio',
       extensions: ['wav', 'mp3', 'm4a', 'mp4', 'flac', 'ogg', 'oga', 'aac', 'opus'],
       mimeTypes: ['audio/*'],
+      // iOS filters the document picker by Uniform Type Identifiers, NOT by
+      // extensions or mimeTypes (those drive Android/web). Without UTIs the
+      // picker greys out audio files or fails to open on iOS. 'public.audio'
+      // is the parent type that matches all audio formats.
+      uniformTypeIdentifiers: ['public.audio'],
     );
     final file = await openFile(acceptedTypeGroups: [group]);
     if (file == null) return;
