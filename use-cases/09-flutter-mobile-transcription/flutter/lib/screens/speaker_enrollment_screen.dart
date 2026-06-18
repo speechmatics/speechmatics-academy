@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path_provider/path_provider.dart';
@@ -107,7 +108,14 @@ class _SpeakerEnrollmentScreenState extends State<SpeakerEnrollmentScreen>
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/sm_enroll_${DateTime.now().millisecondsSinceEpoch}.m4a';
       await _recorder.start(
-        const RecordConfig(encoder: AudioEncoder.aacLc, sampleRate: 16000, numChannels: 1),
+        // iOS captures at the native 48 kHz (its AVAudioRecorder yields an empty
+        // file when asked to resample down to 16 kHz on iOS 26); Android keeps
+        // 16 kHz. See recording_screen.dart for the full explanation.
+        RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          sampleRate: defaultTargetPlatform == TargetPlatform.iOS ? 48000 : 16000,
+          numChannels: 1,
+        ),
         path: path,
       );
       _path = path;

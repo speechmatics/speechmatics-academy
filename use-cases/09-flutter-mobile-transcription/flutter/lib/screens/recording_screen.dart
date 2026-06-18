@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:path_provider/path_provider.dart';
@@ -85,7 +86,15 @@ class _RecordingScreenState extends State<RecordingScreen>
       final dir = await getTemporaryDirectory();
       final path = '${dir.path}/sm_recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
       await _recorder.start(
-        const RecordConfig(encoder: AudioEncoder.aacLc, sampleRate: 16000, numChannels: 1),
+        RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          // iOS 26's AVAudioRecorder can't resample the 48 kHz built-in mic down to
+          // a lower requested rate — it silently writes an empty, zero-sample file.
+          // Capture at the native 48 kHz on iOS; Android resamples fine, so keep its
+          // smaller 16 kHz output. Speechmatics accepts either rate.
+          sampleRate: defaultTargetPlatform == TargetPlatform.iOS ? 48000 : 16000,
+          numChannels: 1,
+        ),
         path: path,
       );
       _path = path;
@@ -123,8 +132,18 @@ class _RecordingScreenState extends State<RecordingScreen>
     }
     // AudioStore keeps the durable copy on job success; the temp file is done.
     unawaited(deleteAudioFile(path));
-    if (bytes.isEmpty) {
-      if (mounted) _snack('The recording was empty.');
+    // A silent/failed capture writes only an AAC container header (a few hundred
+    // bytes) — non-empty, but far too small for valid audio, so the server
+    // rejects submission with a cryptic "data_file is too small". Surface the
+    // real numbers (duration + bytes) so a mic/audio-session problem is obvious
+    // here instead of as a 400 after upload.
+    const minValidBytes = 8000; // header-only files are only a few hundred bytes
+    if (bytes.length < minValidBytes) {
+      if (mounted) {
+        _snack('Recording captured almost no audio — ${_seconds}s but only '
+            '${bytes.length} bytes. The mic isn\'t picking up sound; '
+            'check input/Silent switch and try again.');
+      }
       return;
     }
     if (!mounted) return;
