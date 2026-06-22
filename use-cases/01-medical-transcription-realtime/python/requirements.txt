@@ -1,5 +1,5 @@
 # Direct dependencies only
 
 python-dotenv>=1.2.2
-speechmatics-rt>=1.0.0
+speechmatics-rt>=1.1.0
 typing_extensions>=4.15.0
