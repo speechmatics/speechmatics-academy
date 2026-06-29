@@ -14,7 +14,7 @@ jobs:
     name: Python Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -45,7 +45,7 @@ jobs:
       run:
         working-directory: basics/11-voice-api-explorer/javascript
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
@@ -64,7 +64,7 @@ jobs:
     name: Structure & Catalog Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -77,7 +77,7 @@ jobs:
     name: Dependency Resolution Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -120,7 +120,7 @@ jobs:
     name: Community Project Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v6
         with:
@@ -142,7 +142,7 @@ jobs:
     # Note: pipecat Dockerfile uses dailyco/pipecat-base which is ARM64-only,
     # so only amd64-compatible Dockerfiles are validated here.
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
