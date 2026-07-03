@@ -16,6 +16,6 @@ keyboard>=0.13.5
 
 # For SMART_TURN mode (ML-based turn detection)
 # Required for intelligent acoustic-based turn detection
-certifi>=2026.5.20
-onnxruntime>=1.26.0,<2
-transformers>=5.10.2,<6
+certifi>=2026.6.17
+onnxruntime>=1.27.0,<2
+transformers>=5.12.1,<6

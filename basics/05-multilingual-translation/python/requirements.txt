@@ -1,5 +1,5 @@
 # Speechmatics Real-Time SDK
-speechmatics-rt>=1.0.0
+speechmatics-rt>=1.1.0
 
 # Microphone support
 pyaudio>=0.2.14
