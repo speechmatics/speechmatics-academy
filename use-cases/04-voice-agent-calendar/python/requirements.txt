@@ -1,12 +1,12 @@
 # Direct dependencies only
 
 python-dotenv>=1.2.2
-livekit-agents>=1.6.4
-livekit-plugins-speechmatics>=1.6.4
-livekit-plugins-openai>=1.6.4
-livekit-plugins-silero>=1.6.4
+livekit-agents>=1.6.5
+livekit-plugins-speechmatics>=1.6.5
+livekit-plugins-openai>=1.6.5
+livekit-plugins-silero>=1.6.5
 
 # Google Calendar integration
 google-api-python-client>=2.198.0
-google-auth>=2.55.1
-tzdata>=2026.2  # Required for timezone support on Windows
+google-auth>=2.56.0
+tzdata>=2026.3  # Required for timezone support on Windows
