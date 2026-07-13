@@ -9,7 +9,7 @@ pyaudio>=0.2.14
 
 # Utilities
 python-dotenv>=1.2.2
-typing_extensions>=4.15.0
+typing_extensions>=4.16.0
 
 # Cross-platform keyboard input (for EXTERNAL mode)
 keyboard>=0.13.5
@@ -18,4 +18,4 @@ keyboard>=0.13.5
 # Required for intelligent acoustic-based turn detection
 certifi>=2026.6.17
 onnxruntime>=1.27.0,<2
-transformers>=5.12.1,<6
+transformers>=5.13.0,<6
