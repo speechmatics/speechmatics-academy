@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Speaker Focus — Speechmatics × LiveKit</title>
+<link rel="icon" href="data:,">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=21">
+<script src="vendor/livekit-client.umd.min.js"></script>
+</head>
+<body data-layout="desktop">
+
+<div class="app" id="app" data-setup="off">
+
+  <!-- top bar -->
+  <header class="topbar">
+    <div class="logo">
+      <img src="assets/logo_speechmatics_white.png" alt="Speechmatics">
+    </div>
+    <span class="app-name">SPEAKER FOCUS</span>
+    <div class="sess">
+      <button class="pause-chip" id="pauseBtn" data-on="false" title="Stop sending your mic to the agent">Pause</button>
+      <span class="mode-chip" id="modeChip" data-mode="none" title="focus_mode">NO LOCK</span>
+      <span class="conn"><span class="live-dot"></span><img class="conn-logo" src="assets/livekit-wordmark-white.png" alt="LiveKit"></span>
+    </div>
+  </header>
+
+  <!-- HERO — voice bars + captions -->
+  <main class="hero">
+    <div class="hero-top"><span id="roomWho">—</span></div>
+
+    <div class="stage" id="stage" data-src="idle">
+      <div class="bars" id="bars" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b></div>
+      <div class="badge" id="badge" data-kind="blocked"></div>
+    </div>
+
+    <div class="caps" id="caps" aria-live="polite"></div>
+  </main>
+
+  <!-- right rail -->
+  <aside class="rail">
+    <section class="card status">
+      <div class="eyebrow">Speaker Focus</div>
+      <h2 id="statusHead">No lock — all active</h2>
+      <p class="sub" id="statusSub">connecting…</p>
+      <div class="chips">
+        <span class="chip blocked" id="chipBlocked">DROPPED ×<b id="blockedN">0</b></span>
+      </div>
+      <div class="pulse-line" id="pulseLine"><i></i></div>
+      <div class="spk-strip" id="spkStrip"></div>
+      <div class="cmds">
+        <button data-call="focus">Focus me</button>
+        <button data-call="only">Only me</button>
+        <button data-call="ignore">Ignore stranger</button>
+        <button data-call="clear">Clear</button>
+        <button data-call="enroll">Enroll</button>
+        <button data-call="loadclips">Load clips…</button>
+      </div>
+      <input type="file" id="clipPick" accept="audio/*,video/*" multiple hidden>
+    </section>
+
+    <section class="card events">
+      <div class="head">Events <span class="n" id="evCount">0</span></div>
+      <div class="ev-list" id="evList"></div>
+    </section>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="help" id="help"></div>
+
+<script src="transport.js?v=23"></script>
+<script src="app.js?v=24"></script>
+</body>
+</html>
