@@ -2,7 +2,7 @@
 speechmatics-voice>=0.2.8
 
 # Voice SDK dependencies
-websockets>=16.0
+websockets>=16.1.1
 
 # Microphone support
 pyaudio>=0.2.14

@@ -1,7 +1,7 @@
 # Speechmatics Voice API Explorer
 
 # WebSocket client
-websockets>=16.0
+websockets>=16.1.1
 
 # Microphone input
 pyaudio>=0.2.14
