@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2025-12-30"
-total_examples: 27
+last_updated: "2026-07-17"
+total_examples: 28
 
 # Example Categories
 categories:
@@ -256,6 +256,26 @@ examples:
     tags: ["livekit", "twilio", "telephony", "sip", "phone", "krisp"]
     last_updated: "2025-11-29"
     estimated_time: "25 minutes"
+
+  - id: "livekit-speaker-focus"
+    title: "Speaker Focus Voice Agent"
+    description: "Voice agent access control: speaker focus (RETAIN/IGNORE), speaker memory, and voice-driven focus tools, with a browser visualiser."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+      - "voice-agents"
+      - "custom-vocabulary"
+      - "turn-detection"
+    integrations: ["livekit"]
+    path: "integrations/livekit/03-speaker-focus-voice-agent"
+    readme: "integrations/livekit/03-speaker-focus-voice-agent/README.md"
+    tags: ["livekit", "speaker-focus", "speaker-memory", "diarization", "voice-agent", "realtime"]
+    last_updated: "2026-07-17"
+    estimated_time: "20 minutes"
 
   - id: "pipecat-voice-bot"
     title: "Pipecat Simple Voice Bot"
