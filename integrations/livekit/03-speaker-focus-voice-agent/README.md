@@ -1,6 +1,16 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../logo/LK_wordmark_darkbg.png">
+  <source media="(prefers-color-scheme: light)" srcset="../logo/LK_wordmark_lightbg.png">
+  <img alt="LiveKit" src="../logo/LK_wordmark_lightbg.png" width="300">
+</picture>
+
 # Speaker Focus - Voice Agent Access Control
 
 **A LiveKit voice agent that decides who it obeys: focus on chosen speakers, ignore or retain the rest, and recognise returning speakers by name - all live, driven by voice.**
+
+</div>
 
 Put a voice agent in a room with more than one person and you hit a problem immediately: whose words should it act on? By default, everyone's - anyone within earshot is an admin. This example locks the agent onto chosen speakers using the Speechmatics **speaker focus** and **speaker memory** features, and ships with a browser visualiser so every decision is visible on screen.
 
