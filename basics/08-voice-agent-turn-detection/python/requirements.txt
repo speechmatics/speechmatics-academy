@@ -2,7 +2,7 @@
 speechmatics-voice>=0.2.8
 
 # Voice SDK dependencies
-websockets>=16.0
+websockets>=16.1.1
 
 # Microphone support
 pyaudio>=0.2.14
@@ -18,4 +18,4 @@ keyboard>=0.13.5
 # Required for intelligent acoustic-based turn detection
 certifi>=2026.6.17
 onnxruntime>=1.27.0,<2
-transformers>=5.13.0,<6
+transformers>=5.14.1,<6
