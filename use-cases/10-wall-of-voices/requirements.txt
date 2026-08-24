@@ -28,4 +28,4 @@ pyaudio>=0.2.14
 
 # Reads .env so cli.py finds SPEECHMATICS_API_KEY the way the rest of the
 # academy does. cli.py only.
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3

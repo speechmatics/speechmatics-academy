@@ -1,4 +1,4 @@
 # Direct dependencies only
 
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
 speechmatics-batch>=0.5.0

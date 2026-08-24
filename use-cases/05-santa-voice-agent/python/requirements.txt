@@ -1,14 +1,14 @@
 # LiveKit Agent Framework
-livekit-agents~=1.6.10
+livekit-agents~=1.7.0
 
 # LiveKit Plugins
-livekit-plugins-openai~=1.6.10
-livekit-plugins-speechmatics~=1.6.10
-livekit-plugins-elevenlabs~=1.6.10
-livekit-plugins-silero~=1.6.10
+livekit-plugins-openai~=1.7.0
+livekit-plugins-speechmatics~=1.7.0
+livekit-plugins-elevenlabs~=1.7.0
+livekit-plugins-silero~=1.7.0
 
 # Environment variables
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
 
 # Timezone support (required for Windows)
 tzdata>=2026.3
