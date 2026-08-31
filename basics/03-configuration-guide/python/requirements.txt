@@ -2,4 +2,4 @@
 speechmatics-batch>=0.5.0
 
 # Utilities
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
