@@ -1,9 +1,9 @@
 # Speechmatics Real-Time SDK
-speechmatics-rt>=1.1.0
+speechmatics-rt>=1.1.1
 
 # Microphone support
 pyaudio>=0.2.14
 
 # Utilities
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
 typing_extensions>=4.16.0
