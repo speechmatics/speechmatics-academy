@@ -1,15 +1,15 @@
 # Speechmatics RT SDK (real-time transcription with bilingual ar_en support)
-speechmatics-rt>=1.1.0
+speechmatics-rt>=1.1.1
 
 # Web framework
 fastapi>=0.141.1
 uvicorn[standard]>=0.52.4
-websockets>=17.0.1
+websockets>=17.1
 
 # LLM extraction (OpenAI GPT-4o)
-openai>=3.3.1
+openai>=3.5.0
 
 # Configuration
 python-dotenv>=1.2.3
-pydantic>=2.13.4
+pydantic>=2.13.5
 pydantic-settings>=2.15.0

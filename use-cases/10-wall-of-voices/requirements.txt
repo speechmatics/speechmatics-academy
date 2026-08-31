@@ -14,7 +14,7 @@
 
 # Speechmatics Real-Time SDK. Opens the Melia WebSocket from Python and yields
 # the same per-word `language` field the browser reads off the wire. cli.py only.
-speechmatics-rt>=1.1.0
+speechmatics-rt>=1.1.1
 
 # Microphone support. speechmatics.rt's Microphone imports pyaudio lazily and
 # start() returns False when it is absent, so a missing install shows up as a
