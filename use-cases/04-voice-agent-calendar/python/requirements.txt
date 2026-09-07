@@ -7,6 +7,6 @@ livekit-plugins-openai>=1.7.1
 livekit-plugins-silero>=1.7.1
 
 # Google Calendar integration
-google-api-python-client>=2.199.0
-google-auth>=2.57.0
+google-api-python-client>=2.200.0
+google-auth>=2.57.1
 tzdata>=2026.3  # Required for timezone support on Windows
