@@ -4,7 +4,7 @@
 
 version: "1.0.0"
 last_updated: "2026-09-15"
-total_examples: 30
+total_examples: 31
 
 # Example Categories
 categories:
@@ -223,6 +223,22 @@ examples:
     estimated_time: "10 minutes"
 
   # === INTEGRATIONS ===
+
+  - id: "agora-conversational-ai-agent"
+    title: "Agora Conversational AI Voice Agent"
+    description: "Browser-based voice agent with Agora RTC/RTM, managed agent orchestration, and Speechmatics real-time transcription."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python", "typescript"]
+    features:
+      - "realtime-transcription"
+      - "voice-agents"
+    integrations: ["agora"]
+    path: "integrations/agora/01-conversational-ai-agent"
+    readme: "integrations/agora/01-conversational-ai-agent/README.md"
+    tags: ["agora", "conversational-ai", "rtc", "rtm", "voice-agent", "realtime"]
+    last_updated: "2026-09-15"
+    estimated_time: "20 minutes"
 
   - id: "livekit-voice-assistant"
     title: "LiveKit Voice Assistant"
@@ -564,6 +580,9 @@ examples:
 
 # Integration Frameworks
 integration_frameworks:
+  - id: "agora"
+    title: "Agora"
+    url: "https://www.agora.io"
   - id: "livekit"
     title: "LiveKit"
     url: "https://livekit.io"

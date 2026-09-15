@@ -7,7 +7,7 @@ Checks:
   1. Every cataloged example path exists
   2. Every example has a README.md
   3. Every example has a .env.example
-  4. Python examples have requirements.txt (in python/ subdir or project root)
+  4. Python examples have requirements.txt (in python/, server/, or project root)
   5. total_examples count matches actual entries
   6. Orphaned example directories not in catalog
 """
@@ -23,7 +23,7 @@ INDEX_FILE = REPO_ROOT / "docs" / "index.yaml"
 EXAMPLE_CATEGORIES = ["basics", "integrations", "use-cases", "community"]
 
 # Known non-example directories at the integration level (contain sub-projects)
-INTEGRATION_PARENTS = {"livekit", "pipecat", "twilio", "vapi", "tambourine", "vercel"}
+INTEGRATION_PARENTS = {"agora", "livekit", "pipecat", "twilio", "vapi", "tambourine", "vercel"}
 
 # Community subcategories (act like integration parents — contain project directories)
 COMMUNITY_SUBCATEGORIES = {"use-cases", "integrations", "tools", "experiments"}
@@ -145,9 +145,9 @@ def main() -> int:
 
         # --- Check 5: Python requirements.txt ---
         if "python" in ex.get("languages", []):
-            has_requirements = (ex_path / "python" / "requirements.txt").is_file() or (
-                ex_path / "requirements.txt"
-            ).is_file()
+            has_requirements = any(
+                (ex_path / subdir / "requirements.txt").is_file() for subdir in ("python", "server", "")
+            )
             has_pyproject = (ex_path / "pyproject.toml").is_file()
             if not has_requirements and not has_pyproject:
                 warnings.append(f"[{ex['id']}] no requirements.txt or pyproject.toml found in {ex['path']}")

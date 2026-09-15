@@ -1,0 +1,40 @@
+{
+  "name": "agora-conversational-ai-demo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "web"
+  ],
+  "scripts": {
+    "dev": "bun run dev:check && concurrently -n backend,frontend -c blue,green \"bun run dev:backend\" \"bun run dev:frontend\"",
+    "dev:check": "bun run setup:env && bun run setup:deps",
+    "dev:backend": "bun scripts/py.ts server/scripts/backend.py serve",
+    "dev:frontend": "cd web && AGENT_BACKEND_URL=http://localhost:8000 bun run dev",
+    "backend": "bun scripts/py.ts server/scripts/backend.py serve --no-install",
+    "frontend": "cd web && AGENT_BACKEND_URL=http://localhost:8000 bun run dev",
+    "setup": "bun run setup:env && bun run setup:backend && bun run setup:frontend && bun run setup:done",
+    "setup:env": "bun scripts/py.ts server/scripts/setup_env.py",
+    "setup:deps": "bun scripts/ensure-deps.ts",
+    "setup:backend": "bun scripts/py.ts server/scripts/backend.py setup",
+    "setup:frontend": "bun install",
+    "setup:done": "bun scripts/py.ts server/scripts/setup_env.py --next-steps",
+    "doctor": "bun scripts/doctor.ts",
+    "doctor:local": "bun run doctor && bun scripts/py.ts server/scripts/python_runtime.py --check-venv && bun scripts/py.ts server/scripts/setup_env.py --check",
+    "build": "cd web && bun run build",
+    "verify": "bun run verify:web",
+    "verify:local": "bun run doctor:local && bun run verify:backend && bun run test:backend && bun run verify:local:fastapi && bun run verify:web:proxy && bun run verify:web:build",
+    "verify:local:fastapi": "cd web && bun run scripts/verify-local-fastapi.ts",
+    "verify:backend": "bun scripts/py.ts server/scripts/backend.py compile",
+    "test:backend": "bun scripts/py.ts server/scripts/backend.py test",
+    "verify:web": "bun run doctor && bun run verify:web:api && bun run verify:web:build",
+    "verify:web:api": "cd web && bun run scripts/verify-api-contracts.ts",
+    "verify:web:proxy": "cd web && bun run scripts/verify-local-proxy.ts",
+    "verify:web:build": "cd web && bun run build",
+    "clean": "bun run clean:backend && bun run clean:frontend",
+    "clean:backend": "rm -rf server/venv server/__pycache__ server/src/__pycache__ server/scripts/__pycache__ server/tests/__pycache__ server/.pytest_cache",
+    "clean:frontend": "rm -rf node_modules web/node_modules web/.next web/dist"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
