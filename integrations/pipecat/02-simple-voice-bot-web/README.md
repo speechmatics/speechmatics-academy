@@ -23,6 +23,13 @@ This example is optimized for low latency:
 > [!TIP]
 > **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly.
 
+> [!IMPORTANT]
+> **Speaker focus needs `pipecat-ai` 1.9.0 or earlier.** From 1.10.0 the Speechmatics service runs
+> on Agent STT and `focus_speakers` and `speaker_passive_format` were removed, so the focus
+> settings shown below no longer apply. It is expected to return in a later release.
+> `known_speakers` (speaker identification), `additional_vocab` (custom dictionaries) and
+> `enable_diarization` all still work. To run this example as written, pin `pipecat-ai` to 1.9.0.
+
 ## What You'll Learn
 
 - How to integrate Speechmatics STT with Pipecat AI
