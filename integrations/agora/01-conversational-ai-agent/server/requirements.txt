@@ -1,0 +1,7 @@
+fastapi>=0.100.0
+uvicorn>=0.20.0
+requests>=2.31.0
+python-dotenv>=1.0.0
+agora-agents==2.6.1
+# Enables httpx to route through a SOCKS proxy (e.g. all_proxy=socks5://...)
+socksio>=1.0.0

@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Light theme (default). Dark tokens apply when the OS prefers dark mode. */
+:root {
+	color-scheme: light;
+
+	--background: 220 20% 98%;
+	--surface: 220 18% 96%;
+	--surface-elevated: 220 16% 94%;
+
+	--card: 0 0% 100%;
+	--card-foreground: 220 25% 12%;
+	--popover: 0 0% 100%;
+	--popover-foreground: 220 25% 12%;
+	--muted: 220 14% 94%;
+
+	--border: 220 13% 88%;
+	--input: 220 13% 88%;
+
+	--foreground: 220 25% 12%;
+	--muted-foreground: 220 10% 42%;
+
+	--primary: 194 100% 42%;
+	--primary-foreground: 220 25% 12%;
+
+	--secondary: 220 14% 94%;
+	--secondary-foreground: 220 25% 12%;
+
+	--accent: 194 100% 42%;
+	--accent-foreground: 220 25% 12%;
+
+	--destructive: 0 72% 52%;
+	--destructive-foreground: 0 0% 100%;
+
+	--ring: 194 100% 42%;
+	--radius: 0.5rem;
+
+	--chart-1: 194 100% 42%;
+	--chart-2: 220 10% 45%;
+	--chart-3: 220 10% 35%;
+	--chart-4: 0 72% 52%;
+	--chart-5: 150 50% 40%;
+
+	--sidebar-background: 0 0% 100%;
+	--sidebar-foreground: 220 25% 12%;
+	--sidebar-primary: 194 100% 42%;
+	--sidebar-primary-foreground: 220 25% 12%;
+	--sidebar-accent: 220 14% 94%;
+	--sidebar-accent-foreground: 220 25% 12%;
+	--sidebar-border: 220 13% 88%;
+	--sidebar-ring: 194 100% 42%;
+
+	--viz-stop-1: 225 92% 50%;
+	--viz-stop-2: 220 14% 78%;
+	--viz-stop-3: 285 58% 48%;
+
+	--font-sans: var(--font-instrument-sans), system-ui, -apple-system,
+		BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		color-scheme: dark;
+
+		--background: 220 14% 5%;
+		--surface: 220 12% 9%;
+		--surface-elevated: 220 10% 13%;
+
+		--card: 220 12% 9%;
+		--card-foreground: 220 15% 95%;
+		--popover: 220 10% 13%;
+		--popover-foreground: 220 15% 95%;
+		--muted: 220 12% 9%;
+
+		--border: 220 10% 18%;
+		--input: 220 10% 18%;
+
+		--foreground: 220 15% 95%;
+		--muted-foreground: 220 10% 50%;
+
+		--primary: 194 100% 50%;
+		--primary-foreground: 220 14% 5%;
+
+		--secondary: 220 10% 13%;
+		--secondary-foreground: 220 15% 95%;
+
+		--accent: 194 100% 50%;
+		--accent-foreground: 220 14% 5%;
+
+		--destructive: 0 72% 58%;
+		--destructive-foreground: 0 0% 100%;
+
+		--ring: 194 100% 50%;
+
+		--chart-1: 194 100% 50%;
+		--chart-2: 220 10% 60%;
+		--chart-3: 220 10% 40%;
+		--chart-4: 0 72% 58%;
+		--chart-5: 150 60% 45%;
+
+		--sidebar-background: 220 12% 9%;
+		--sidebar-foreground: 220 15% 95%;
+		--sidebar-primary: 194 100% 50%;
+		--sidebar-primary-foreground: 220 14% 5%;
+		--sidebar-accent: 220 10% 13%;
+		--sidebar-accent-foreground: 220 15% 95%;
+		--sidebar-border: 220 10% 18%;
+		--sidebar-ring: 194 100% 50%;
+
+		--viz-stop-1: 194 100% 58%;
+		--viz-stop-2: 215 42% 72%;
+		--viz-stop-3: 272 62% 72%;
+	}
+}
+
+body {
+	font-family: var(--font-sans);
+	color: hsl(var(--foreground));
+	background-color: hsl(var(--background));
+}
+
+@keyframes fade-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-up {
+	animation: fade-up 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-up-d1 {
+	animation-delay: 60ms;
+}
+
+.animate-fade-up-d2 {
+	animation-delay: 120ms;
+}
+
+.animate-fade-up-d3 {
+	animation-delay: 180ms;
+}
+
+.conversation-mic-host {
+	flex-shrink: 0;
+}
+
+.conversation-mic-host > button {
+	aspect-ratio: 1 / 1;
+	width: 3rem;
+	height: 3rem;
+	min-width: 3rem;
+	min-height: 3rem;
+	max-width: 3rem;
+	max-height: 3rem;
+	border-radius: 9999px;
+	padding: 0;
+	box-sizing: border-box;
+	overflow: visible;
+}
+
+@media (min-width: 640px) {
+	.conversation-mic-host > button {
+		width: 3.5rem;
+		height: 3.5rem;
+		min-width: 3.5rem;
+		min-height: 3.5rem;
+		max-width: 3.5rem;
+		max-height: 3.5rem;
+	}
+}
