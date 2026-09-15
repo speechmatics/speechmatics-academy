@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2026-08-18"
-total_examples: 29
+last_updated: "2026-09-15"
+total_examples: 30
 
 # Example Categories
 categories:
@@ -527,6 +527,25 @@ examples:
     tags: ["melia", "multilingual", "code-switching", "batch", "language-identification"]
     last_updated: "2026-06-16"
     estimated_time: "5 minutes"
+
+  - id: "agent-stt"
+    title: "Agent STT - Segments, Turns and Speakers"
+    description: "Transcribe for voice agents with the Agent STT service. Segment-level transcripts rather than word groups, speech and turn events, speaker labels and reusable voiceprints, and a choice of who closes each turn: the service's VAD, or your own Silero VAD calling finalize()."
+    category: "basics"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "turn-detection"
+      - "voice-agents"
+      - "speaker-diarization"
+      - "speaker-identification"
+    integrations: []
+    path: "basics/13-agent-stt"
+    readme: "basics/13-agent-stt/README.md"
+    tags: ["agent-stt", "linden", "turn-detection", "segments", "speaker-identification", "voiceprints", "voice-agent", "realtime", "finalize", "silero", "vad", "pipecat", "livekit"]
+    last_updated: "2026-09-15"
+    estimated_time: "10 minutes"
 
   - id: "wall-of-voices"
     title: "Wall of Voices"

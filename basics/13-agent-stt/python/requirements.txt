@@ -1,0 +1,15 @@
+# Speechmatics Agent STT SDK (pulls in speechmatics-rt)
+speechmatics-agent-stt>=0.1.0
+
+# Utilities
+python-dotenv>=1.2.2
+
+# Optional extras, installed separately so the default run stays light:
+#
+#   --external  needs a VAD to decide where turns end:
+#       pip install silero-vad torch numpy
+#
+#   --mic       needs the PortAudio bindings:
+#       pip install pyaudio
+#   PyAudio ships no wheel for Python 3.14 yet and builds from source there, which
+#   needs a C compiler and the PortAudio headers.

@@ -26,9 +26,9 @@ Comprehensive collection of code examples demonstrating real-world applications,
 
 [Speechmatics](https://www.speechmatics.com/) is a leading Automatic Speech Recognition (ASR) platform providing highly accurate speech-to-text (STT) and text-to-speech (TTS) APIs. Whether you're building real-time voice assistants, conversational voice AI agents, transcription services, or call center tools, Speechmatics provides the foundation for accurate, scalable speech AI.
 
-**Flexible Deployment** — Cloud SaaS, on-premises, air-gapped environments, or on-device edge deployment.
+**Flexible Deployment** - Cloud SaaS, on-premises, air-gapped environments, or on-device edge deployment.
 
-**Advanced Features** — Domain-specific models, custom dictionaries, speaker diarization, speaker identification, and speaker focus for multi-speaker scenarios and much more.
+**Advanced Features** - Domain-specific models, custom dictionaries, speaker diarization, speaker identification, and speaker focus for multi-speaker scenarios and much more.
 
 ---
 
@@ -66,11 +66,14 @@ pip install speechmatics-batch
 # Real-time streaming
 pip install speechmatics-rt
 
-# Voice agents
-pip install speechmatics-voice
+# Speech-to-text for voice agents: segments plus speech and turn events
+pip install speechmatics-agent-stt
 
 # Text-to-speech
 pip install speechmatics-tts
+
+# Voice agent SDK: conversation management and turn-detection presets
+pip install speechmatics-voice
 ```
 <details>
 
@@ -88,15 +91,22 @@ pip install speechmatics-tts
 - Ultra-low latency
 - Partial and final transcripts
 
-**speechmatics-voice** - Voice agent SDK
-- Build conversational AI applications
-- Speaker diarization and turn detection
-- Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
+**speechmatics-agent-stt** - The speech-to-text layer for a voice agent, built on `speechmatics-rt`
+- Segment-level transcripts instead of word groups, plus speech and turn events
+- Turn detection included and on by default, from the service's own VAD: streaming audio is all it needs
+- Or set `TurnDetectionMode.EXTERNAL` to close each turn yourself, when Pipecat, LiveKit or your own VAD already owns that decision
+- Pick this for the transcription layer alone, with your own code driving the conversation
 
 **speechmatics-tts** - Text-to-speech
 - Convert text to natural-sounding speech
 - Multiple voices
 - Streaming and batch modes
+
+**speechmatics-voice** - The voice agent SDK, with the conversation handled for you
+- Built-in turn detection, selected from presets rather than wired up yourself
+- Speaker diarization and conversation management
+- Optional ML-based smart turn: `pip install speechmatics-voice[smart]`
+- Pick this when you want the agent loop provided rather than bringing your own
 
 </details>
 
@@ -186,6 +196,7 @@ Fundamental examples for getting started with the Speechmatics SDK.
 | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) | Smart turn detection with Voice SDK presets | `Voice` |  Intermediate |
 | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Extract speaker IDs and control which speakers drive conversation | `Voice` |  Intermediate |
 | [Voice API Explorer](basics/11-voice-api-explorer/) | Explore every Voice API WebSocket feature - RT and Voice modes, all profiles, mid-session control | `WebSocket` |  Intermediate |
+| [Agent STT](basics/13-agent-stt/) | Segment-level transcripts, speech and turn events, speaker voiceprints, and choosing who closes the turn | `Agent STT` |  Intermediate |
 
 [Browse all basics examples](basics/)
 
@@ -237,7 +248,7 @@ Example applications for specific industries.
 Projects built by the Speechmatics community. Community projects can be written in **any language** and have lighter quality requirements than official examples.
 
 > [!NOTE]
-> No community projects yet — yours could be the first! See [How to Submit](community/README.md#how-to-submit).
+> No community projects yet - yours could be the first! See [How to Submit](community/README.md#how-to-submit).
 
 <!-- As community projects are added, list them here:
 | Project | Category | Description | Language | Author | Status |
@@ -291,6 +302,7 @@ Find examples for the SDK package you installed:
 | **`speechmatics-batch`** | Async transcription of audio files | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Microbatching](use-cases/07-medical-microbatching/) |
 | **`speechmatics-rt`** | Real-time transcription | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Channel Diarization](basics/10-channel-diarization/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Assistant](use-cases/06-medical-assistant/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Wall of Voices](use-cases/10-wall-of-voices/) |
 | **`speechmatics-voice`** | Voice agent with conversation management | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) |
+| **`speechmatics-agent-stt`** | Segment-level STT for voice agents | [Agent STT](basics/13-agent-stt/) |
 | **`speechmatics-tts`** | Text-to-speech synthesis | [Text-to-Speech](basics/06-text-to-speech/) |
 
 ### By Feature
@@ -298,11 +310,11 @@ Find examples for the SDK package you installed:
 | Feature | Examples |
 |---------|----------|
 | **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Melia Multilingual](basics/12-melia-multilingual/) |
-| **Real-time** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Assistant](use-cases/06-medical-assistant/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Wall of Voices](use-cases/10-wall-of-voices/) |
-| **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/) |
-| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
-| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Assistant](use-cases/06-medical-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
-| **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
+| **Real-time** | [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Assistant](use-cases/06-medical-assistant/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Wall of Voices](use-cases/10-wall-of-voices/) |
+| **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/) |
+| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
+| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Assistant](use-cases/06-medical-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
+| **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Agent STT](basics/13-agent-stt/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
 | **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
 | **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) |
 | **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) |
@@ -323,7 +335,7 @@ Find examples for the SDK package you installed:
 
 | Language | Examples | Status |
 |----------|----------|--------|
-| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Medical Assistant](use-cases/06-medical-assistant/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Melia Multilingual](basics/12-melia-multilingual/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/) | **Available** |
+| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text-to-Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Medical Assistant](use-cases/06-medical-assistant/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Melia Multilingual](basics/12-melia-multilingual/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/), [Agent STT](basics/13-agent-stt/) | **Available** |
 | **Dart / Flutter** | [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) | **Available** |
 | **Typescript** | - | Coming Soon |
 | **C#** | - | Coming Soon |
@@ -334,7 +346,7 @@ Find examples for the SDK package you installed:
 | Difficulty | Examples |
 |------------|----------|
 | **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Real-time](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text-to-Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [VAPI Voice Assistant](integrations/vapi/01-voice-assistant/), [Tambourine Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Melia Multilingual](basics/12-melia-multilingual/) |
-| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/) |
+| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/), [Agent STT](basics/13-agent-stt/) |
 | **Advanced** | [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Medical Assistant](use-cases/06-medical-assistant/) |
 
 
