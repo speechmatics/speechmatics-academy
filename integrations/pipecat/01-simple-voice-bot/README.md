@@ -16,9 +16,9 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 
 > [!IMPORTANT]
 > **Speaker focus needs `pipecat-ai` 1.9.0 or earlier.** From 1.10.0 the Speechmatics service runs
-> on Agent STT and `focus_speakers` and `speaker_passive_format` were removed, so the focus
-> settings shown below no longer apply. It is expected to return in a later release.
-> `known_speakers` (speaker identification), `additional_vocab` (custom dictionaries) and
+> on Agent STT, powered by Linden 1, and `focus_speakers` and `speaker_passive_format` were
+> removed, so the focus settings shown below no longer apply. It is expected to return in a later
+> release. `known_speakers` (speaker identification), `additional_vocab` (custom dictionaries) and
 > `enable_diarization` all still work. To run this example as written, pin `pipecat-ai` to 1.9.0.
 
 ## What You'll Learn
