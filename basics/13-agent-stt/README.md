@@ -302,7 +302,6 @@ Two more worth knowing. `ForceEndOfUtterance` is **ignored** in `vad` mode, so s
 - **[Basic Turn Detection](../07-turn-detection/)** - The same problem on the RT SDK, with engine silence detection
 - **[Intelligent Turn Detection](../08-voice-agent-turn-detection/)** - Smart turn presets in the Voice SDK
 - **[Speaker ID and Speaker Focus](../09-voice-agent-speaker-id/)** - Deciding which speakers an agent should obey
-- **[Voice API Explorer](../11-voice-api-explorer/)** - The raw WebSocket behind these SDKs
 - **[Pipecat Voice Bot](../../integrations/pipecat/01-simple-voice-bot/)** - A framework that brings its own endpointing
 - **[Medical Microbatching](../../use-cases/07-medical-microbatching/)** - The same Silero VAD, driving batch chunking
 
@@ -385,7 +384,7 @@ pip cache remove "pyaudio*"
 
 ## Resources
 
-- [Agent STT Quickstart](https://docs.speechmatics.com/)
+- [Agent STT Quickstart](https://docs.speechmatics.com/speech-to-text/agent-stt/)
 - [speechmatics-agent-stt on PyPI](https://pypi.org/project/speechmatics-agent-stt/)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)
 - [API Reference](https://docs.speechmatics.com/api-ref/)
