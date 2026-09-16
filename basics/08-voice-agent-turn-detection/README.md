@@ -4,6 +4,11 @@
 
 Learn how to use optimized preset configurations for different conversational AI use cases including voice assistants, note-taking, live captions, and multi-party conversations.
 
+> [!NOTE]
+> **New voice agent work is moving to Agent STT.** The Voice SDK used here still works, but
+> [`speechmatics-agent-stt`](../13-agent-stt/) is the current starting point for agents: it returns
+> whole segments plus the speech and turn events that tell an agent when to respond.
+
 ## What You'll Learn
 
 - How to use official Voice SDK presets

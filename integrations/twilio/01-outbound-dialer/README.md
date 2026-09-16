@@ -10,6 +10,11 @@
 
 This example shows how to programmatically initiate outbound calls. The assistant calls the user, making it perfect for appointment reminders, notifications, or proactive customer outreach.
 
+> [!NOTE]
+> **New voice agent work is moving to Agent STT.** The Voice SDK used here still works, but
+> [`speechmatics-agent-stt`](../../../basics/13-agent-stt/) is the current starting point for agents: it returns
+> whole segments plus the speech and turn events that tell an agent when to respond.
+
 ## What You'll Learn
 
 - How to use the **Twilio REST API** to initiate outbound calls
