@@ -2,7 +2,7 @@
 speechmatics-agent-stt>=0.1.0
 
 # Utilities
-python-dotenv>=1.2.2
+python-dotenv>=1.2.3
 
 # Optional extras, installed separately so the default run stays light:
 #
