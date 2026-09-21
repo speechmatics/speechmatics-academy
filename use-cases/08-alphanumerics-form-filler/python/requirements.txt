@@ -1,7 +1,7 @@
 fastapi>=0.141.1
-livekit-agents==1.7.1
-livekit-plugins-openai==1.7.1
-livekit-plugins-silero==1.7.1
-livekit-plugins-speechmatics==1.7.1
+livekit-agents==1.8.2
+livekit-plugins-openai==1.8.2
+livekit-plugins-silero==1.8.2
+livekit-plugins-speechmatics==1.8.2
 python-dotenv==1.2.3
-uvicorn>=0.52.4
+uvicorn>=0.53.0
