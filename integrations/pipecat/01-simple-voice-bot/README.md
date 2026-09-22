@@ -14,13 +14,6 @@
 
 A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (OpenAI), and text-to-speech (ElevenLabs) using the Pipecat AI framework - all running locally with your microphone and speakers.
 
-> [!IMPORTANT]
-> **Speaker focus needs `pipecat-ai` 1.9.0 or earlier.** From 1.10.0 the Speechmatics service runs
-> on Agent STT, powered by Linden 1, and `focus_speakers` and `speaker_passive_format` were
-> removed, so the focus settings shown below no longer apply. It is expected to return in a later
-> release. `known_speakers` (speaker identification), `additional_vocab` (custom dictionaries) and
-> `enable_diarization` all still work. To run this example as written, pin `pipecat-ai` to 1.9.0.
-
 ## What You'll Learn
 
 - How to integrate Speechmatics STT with Pipecat AI

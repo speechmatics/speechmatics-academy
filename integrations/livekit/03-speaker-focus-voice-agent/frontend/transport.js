@@ -5,7 +5,7 @@
    Speechmatics STT plugin). The agent publishes UI protocol messages
    on data topic "speaker-focus" and answers over its own audio track
    (Otto's voice plays in this tab). Commands go to the agent via the
-   LiveKit RPC "update_speakers".
+   LiveKit RPC "set_focus".
 
    Needs the agent worker (agent/main.py dev) and token server
    (agent/token_server.py) running. Serve the frontend over http://
@@ -276,7 +276,7 @@ LiveKitTransport.prototype.command = function(action){
   }
   this.room.localParticipant.performRpc({
     destinationIdentity: this._agentId,
-    method: "update_speakers",
+    method: "set_focus",
     payload: JSON.stringify({action: action})
   }).catch(function(e){ self._toast("rpc failed: " + e.message); });
 };

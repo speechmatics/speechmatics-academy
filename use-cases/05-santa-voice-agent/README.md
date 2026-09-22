@@ -4,13 +4,6 @@
 
 Build an immersive Santa Claus experience using LiveKit, Speechmatics STT, ElevenLabs TTS with a custom Santa voice, and OpenAI for natural conversations. Santa is witty, warm, and helps grown-ups rediscover the joy of the holidays.
 
-> [!NOTE]
-> **This example pins an older plugin on purpose.** Speaker focus works up to
-> `livekit-plugins-speechmatics` 1.8.1; from 1.8.2 the plugin runs on Agent STT, powered by
-> Linden 1, which has no speaker focus yet, so `focus_speakers` and `speaker_passive_format` are
-> accepted but do nothing. It is expected to return in a later release. Speaker identification,
-> custom dictionaries and diarization are unaffected on either version.
-
 ## What You'll Learn
 
 - Building character voice agents that never break character

@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 """
-Speaker Focus — LiveKit Agents + Speechmatics
+Speaker Focus — LiveKit Agents + Speechmatics Agent STT
 
-A voice agent that only obeys the speakers you focus on. Speechmatics handles
-diarization and voiceprints natively; this agent adds live focus / ignore
-control and streams UI events to the browser visualiser over the
-"speaker-focus" data topic.
+A voice agent that only obeys the speakers you focus on. Speechmatics Agent STT
+labels every segment with its speaker; this agent decides, per turn, whether that
+speaker gets a reply, becomes silent background context, or is dropped outright.
+It streams UI events to the browser visualiser over the "speaker-focus" data topic.
 
     S1, S2 ...     diarization labels each new voice, live
     focus / ignore which speakers drive the conversation (hotkeys or voice)
     voiceprints    saved on demand (press E) to speakers.json — edit a "label" to name one
+
+Agent STT has no server-side speaker focus, so the gate lives in
+FocusAgent.on_user_turn_completed: RETAIN keeps a non-focused turn in the LLM's
+context without answering it, IGNORE drops it before it reaches the context at all.
 
 Run:
     .venv\\Scripts\\python main.py dev       # browser visualiser (frontend + token_server)
@@ -20,6 +24,7 @@ import asyncio
 import json
 import re
 import time
+from enum import Enum
 from pathlib import Path
 from typing import Any
 
@@ -31,12 +36,14 @@ from livekit.agents import (
     JobContext,
     RoomInputOptions,
     RoomOutputOptions,
+    StopResponse,
+    TurnHandlingOptions,
     function_tool,
+    llm,
 )
 from livekit.plugins import elevenlabs, openai, silero, speechmatics
 from livekit.plugins.speechmatics import (
     AdditionalVocabEntry,
-    SpeakerFocusMode,
     SpeakerIdentifier,
     TurnDetectionMode,
 )
@@ -49,9 +56,12 @@ PROMPT_FILE = Path(__file__).parent.parent / "assets" / "agent.md"
 TOPIC = "speaker-focus"
 RESERVED = re.compile(r"^S\d+$")  # diarization labels the server won't accept back
 
-# The model sees speakers tagged like this; LINE_RE parses it back out for the UI.
-ACTIVE_FMT = "[{speaker_id}]: {text}"
-PASSIVE_FMT = "[{speaker_id} (background)]: {text}"
+# Agent STT tags every segment with exactly one speaker, and this is the template it
+# uses. LINE_RE parses the label back out for the UI and the focus gate; BACKGROUND_FMT
+# is what a RETAINed (non-focused) turn is rewritten to before it enters the context.
+SPEAKER_FMT = "[{speaker_id}]: {text}"
+BACKGROUND_FMT = "[{speaker_id} (background)]: {text}"
+LINE_RE = re.compile(r"^\[(?P<who>[^\]]+?)\]:\s*(?P<text>.*)$")
 
 # Custom dictionary: bias the STT toward words it keeps mishearing. Each entry
 # is the correct spelling plus lowercase "sounds like" renderings of how people
@@ -62,7 +72,20 @@ VOCAB = [
     # The chaos clip "make that a Hawaiian" kept transcribing as "house".
     AdditionalVocabEntry(content="Hawaiian", sounds_like=["house", "hawaii an"]),
 ]
-LINE_RE = re.compile(r"^\[(?P<who>[^\]\(]+?)(?P<bg>\s*\(background\))?\]:\s*(?P<text>.*)$")
+
+
+class FocusMode(Enum):
+    """What happens to a speaker who is not in focus.
+
+    RETAIN: still transcribed, still in the LLM's context as background, never answered.
+    IGNORE: dropped before the turn reaches the context at all.
+
+    Agent STT does not filter on speaker labels, so unlike the pre-Agent-STT plugin
+    these are decisions this agent makes — see FocusAgent.on_user_turn_completed.
+    """
+
+    RETAIN = "retain"
+    IGNORE = "ignore"
 
 
 # ---------------------------------------------------------------- speakers --
@@ -100,24 +123,21 @@ def save_speakers(raw: list[Any]) -> list[str]:
 
 
 def load_prompt() -> str:
-    # encoding matters: prompt.md is UTF-8; Windows' default read is cp1252,
+    # encoding matters: agent.md is UTF-8; Windows' default read is cp1252,
     # which turns em-dashes into mojibake INSIDE the system prompt, and the
     # model then parrots the garbage verbatim in spoken confirmations.
     return PROMPT_FILE.read_text(encoding="utf-8") if PROMPT_FILE.exists() else "You are a concise voice assistant."
 
 
-def parse_lines(transcript: str, fallback: str | None):
-    """Split a formatted transcript into (who, is_passive, text) tuples."""
+def parse_lines(transcript: str, fallback: str | None) -> list[tuple[str, str]]:
+    """Split a formatted transcript into (who, text) tuples."""
     out = []
     for line in transcript.splitlines():
         line = line.strip()
         if not line:
             continue
         m = LINE_RE.match(line)
-        if m:
-            out.append((m.group("who").strip(), bool(m.group("bg")), m.group("text")))
-        else:
-            out.append((fallback or "S?", False, line))
+        out.append((m.group("who").strip(), m.group("text")) if m else (fallback or "S?", line))
     return out
 
 
@@ -128,7 +148,7 @@ class LockState:
     def __init__(self, primary: str | None):
         self.focus: list[str] = []
         self.ignore: list[str] = []
-        self.mode = SpeakerFocusMode.RETAIN
+        self.mode = FocusMode.RETAIN
         self.primary = primary  # enrolled human, e.g. "Edgar"
         self.seen: dict[str, float] = {}  # sid -> last-heard time (for "talking")
         self.counts: dict[str, int] = {}  # sid -> segments spoken (for "dominant")
@@ -143,12 +163,12 @@ class LockState:
         if self.focus:
             if sid in self.focus:
                 return "focused"
-            return "passive" if self.mode == SpeakerFocusMode.RETAIN else "ignored"
+            return "passive" if self.mode == FocusMode.RETAIN else "ignored"
         return "active"
 
     def mode_str(self) -> str:
         if self.focus:
-            return "retain" if self.mode == SpeakerFocusMode.RETAIN else "ignore"
+            return "retain" if self.mode == FocusMode.RETAIN else "ignore"
         return "ignore" if self.ignore else "none"
 
     def dominant(self) -> str | None:
@@ -160,9 +180,8 @@ class LockState:
         """Resolve "focus on me" to a speaker who is actually present.
 
         The enrolled name only counts if it was recognised this session;
-        focusing a name that isn't in the room makes EVERYONE passive, and
-        RETAIN then buffers all of it (nothing emits) — which looks exactly
-        like IGNORE. Fall back to the dominant live speaker.
+        focusing a name that isn't in the room makes EVERYONE passive, so the
+        agent would answer nobody. Fall back to the dominant live speaker.
         """
         if self.primary and self.primary in self.seen:
             return self.primary
@@ -192,6 +211,58 @@ class LockState:
         }
 
 
+# ------------------------------------------------------------------- agent --
+class FocusAgent(Agent):
+    """The focus gate. Agent STT hands over speaker-labelled turns; this decides
+    which ones are worth a reply.
+
+    `on_user_turn_completed` runs after the STT has finalized a turn and before the
+    LLM sees it, which is the only place a turn can still be dropped. Raising
+    `StopResponse` skips the reply *and* keeps the message out of the chat context,
+    so RETAIN has to re-add the message itself before raising.
+    """
+
+    def __init__(self, lock: LockState, tools: list, on_drop) -> None:
+        super().__init__(instructions=load_prompt(), tools=tools)
+        self._lock = lock
+        self._on_drop = on_drop
+
+    async def on_user_turn_completed(self, turn_ctx: llm.ChatContext, new_message: llm.ChatMessage) -> None:
+        text = new_message.text_content or ""
+        lines = parse_lines(text, None)
+        if not lines:
+            return
+
+        # One turn can hold several segments, so classify each and keep the ones
+        # that still deserve an answer. A turn with nothing focused left is not a turn.
+        keep, background = [], []
+        for who, said in lines:
+            state = self._lock.spk_state(who)
+            if state == "ignored":
+                continue
+            if state == "passive":
+                background.append(BACKGROUND_FMT.format(speaker_id=who, text=said))
+            else:
+                keep.append(SPEAKER_FMT.format(speaker_id=who, text=said))
+
+        if keep:
+            # Answer this turn, with any background lines alongside it for context.
+            new_message.content = ["\n".join(background + keep)]
+            return
+
+        self._on_drop(lines, bool(background))
+
+        if background:
+            # RETAIN: heard and remembered, never obeyed. The message has to be put
+            # on the context by hand, because StopResponse below discards it.
+            new_message.content = ["\n".join(background)]
+            chat_ctx = self.chat_ctx.copy()
+            chat_ctx.items.append(new_message)
+            await self.update_chat_ctx(chat_ctx)
+
+        raise StopResponse()
+
+
 # ------------------------------------------------------------- entrypoint --
 async def entrypoint(ctx: JobContext):
     await ctx.connect()
@@ -207,15 +278,13 @@ async def entrypoint(ctx: JobContext):
         publish({"t": "mode", "mode": lock.mode_str()})
         publish(lock.roster())
 
-    # No `vad` here: passing one forces EXTERNAL turn detection, which ends a turn
-    # on ANY voice — a background heckler would trip a reply. ADAPTIVE leaves
-    # endpointing to Speechmatics, which ends turns only for focused speakers.
+    # turn_detection_mode=VAD: Speechmatics endpoints server-side, so a turn ends when
+    # the *speaker* stops rather than when any voice in the room does. The focus gate
+    # below still decides whether that turn earns a reply.
     stt = speechmatics.STT(
-        turn_detection_mode=TurnDetectionMode.ADAPTIVE,
-        end_of_utterance_silence_trigger=0.6,  # pause (s) of the active speaker that ends a turn
+        turn_detection_mode=TurnDetectionMode.VAD,
         enable_diarization=True,
-        speaker_active_format=ACTIVE_FMT,
-        speaker_passive_format=PASSIVE_FMT,
+        speaker_format=SPEAKER_FMT,
         known_speakers=known,
         additional_vocab=VOCAB,
     )
@@ -226,7 +295,9 @@ async def entrypoint(ctx: JobContext):
     session = AgentSession(
         stt=stt,
         vad=vad,
-        turn_detection="stt",
+        # Required in VAD mode: without it the session discards the end-of-speech
+        # events the plugin emits and falls back to its own turn detector.
+        turn_handling=TurnHandlingOptions(turn_detection="stt"),
         llm=openai.LLM(model="gpt-4o-mini"),
         # Defaults drift pace/emotion between replies; pin stability/style/speed
         # so Otto stays consistent on camera.
@@ -246,23 +317,25 @@ async def entrypoint(ctx: JobContext):
     @session.on("user_input_transcribed")
     def on_transcribed(ev):
         now = time.monotonic()
-        for who, passive, text in parse_lines(ev.transcript, ev.speaker_id):
+        for who, text in parse_lines(ev.transcript, ev.speaker_id):
             if not text:
                 continue
             is_new = who not in lock.seen
             lock.note(who, now)
+            state = lock.spk_state(who)
+            passive = state in ("passive", "ignored")
             publish(
                 {
                     "t": "segment",
                     "who": who,
                     "cls": "passive" if passive else "active",
                     "text": text,
-                    "tag": "PASSIVE" if passive else None,
+                    "tag": state.upper() if passive else None,
                     "partial": not ev.is_final,
                 }
             )
             if ev.is_final:
-                tag = " (background)" if passive else ""
+                tag = f" ({state})" if passive else ""
                 publish({"t": "bus", "lines": [{"text": f"[{who}{tag}]: {text}"}]})
             if is_new:
                 publish_views()
@@ -278,34 +351,32 @@ async def entrypoint(ctx: JobContext):
     def on_agent_state(ev):
         publish({"t": "agentState", "text": f"agent · {ev.new_state}"})
 
-    # ---- the only speaker-focus lever: the Speechmatics plugin ----------
-    # Dropping ignored speakers, marking others passive, buffering — all of it
-    # happens inside the plugin. These wrappers call it and mirror the state
-    # into the UI; the LLM tools and the app hotkeys both funnel through here.
-    def apply_focus(targets: list[str], mode: SpeakerFocusMode):
+    # ---- the focus levers ----------------------------------------------
+    # These only move `lock`; FocusAgent.on_user_turn_completed reads it on every
+    # turn. The LLM tools and the app hotkeys both funnel through here.
+    def apply_focus(targets: list[str], mode: FocusMode):
         lock.focus, lock.mode = list(targets), mode
-        stt.update_speakers(focus_speakers=lock.focus, focus_mode=mode)
-        mname = "RETAIN" if mode == SpeakerFocusMode.RETAIN else "IGNORE"
-        publish(
-            {"t": "event", "text": f"update_speakers( focus_speakers={json.dumps(lock.focus)}, focus_mode={mname} )"}
-        )
+        publish({"t": "event", "text": f"focus( speakers={json.dumps(lock.focus)}, mode={mode.name} )"})
         publish_views()
 
     def apply_ignore(target: str):
         if target and target not in lock.ignore:
             lock.ignore.append(target)
-        stt.update_speakers(ignore_speakers=lock.ignore)
-        publish({"t": "event", "text": f"update_speakers( ignore_speakers={json.dumps(lock.ignore)} )"})
+        publish({"t": "event", "text": f"ignore( speakers={json.dumps(lock.ignore)} )"})
         publish_views()
 
     def apply_clear():
-        lock.focus, lock.ignore, lock.mode = [], [], SpeakerFocusMode.RETAIN
-        stt.update_speakers(focus_speakers=[], ignore_speakers=[], focus_mode=SpeakerFocusMode.RETAIN)
-        publish({"t": "event", "text": "update_speakers( cleared )"})
+        lock.focus, lock.ignore, lock.mode = [], [], FocusMode.RETAIN
+        publish({"t": "event", "text": "focus( cleared )"})
         publish_views()
 
+    def on_drop(lines: list[tuple[str, str]], retained: bool):
+        who = ", ".join(sorted({w for w, _ in lines}))
+        verb = "retained as background" if retained else "dropped"
+        publish({"t": "event", "text": f"turn from {who} {verb} — no reply"})
+
     # ---- voice control: LLM tools (doc-canonical) ----------------------
-    # The model resolves "me" from the speaker tag on the message (see prompt.md)
+    # The model resolves "me" from the speaker tag on the message (see agent.md)
     # and passes the real speaker id — no guessing on our side.
     @function_tool
     async def focus_on_speaker(speaker_ids: list[str]) -> str:
@@ -316,7 +387,7 @@ async def entrypoint(ctx: JobContext):
         "focus on me", "focus on my voice", "I want you to focus on my voice",
         "focus on us" — resolve "me" to the speaker id prefixing the
         requester's own message."""
-        apply_focus(speaker_ids, SpeakerFocusMode.RETAIN)
+        apply_focus(speaker_ids, FocusMode.RETAIN)
         return "focused"
 
     @function_tool
@@ -327,14 +398,14 @@ async def entrypoint(ctx: JobContext):
         for "I want you to ignore everyone else" and "only listen to me" —
         pass the requester's own speaker id. NOT for any request containing
         the word "focus" — those are focus_on_speaker."""
-        apply_focus(speaker_ids, SpeakerFocusMode.IGNORE)
+        apply_focus(speaker_ids, FocusMode.IGNORE)
         return "listening only to them"
 
     @function_tool
     async def ignore_speaker(speaker_id: str) -> str:
         """ONLY call when a speaker explicitly asks — never on your own
         initiative. Add ONE specific other speaker to the ignore list so their
-        speech stops being transcribed. Use for "ignore him / her / them".
+        speech stops reaching you. Use for "ignore him / her / them".
         Never use this for "ignore everyone else" — that is
         listen_only_to_speaker."""
         apply_ignore(speaker_id)
@@ -348,23 +419,24 @@ async def entrypoint(ctx: JobContext):
         apply_clear()
         return "listening to everyone"
 
-    agent = Agent(
-        instructions=load_prompt(),
+    agent = FocusAgent(
+        lock,
         tools=[focus_on_speaker, listen_only_to_speaker, ignore_speaker, listen_to_all_speakers],
+        on_drop=on_drop,
     )
 
     # ---- manual override: app hotkeys (F/O/I/C/E) ----------------------
-    # Same wrappers; the hotkey has no speaker context, so me()/other() pick a
+    # Same levers; the hotkey has no speaker context, so me()/other() pick a
     # present speaker as the target.
-    @ctx.room.local_participant.register_rpc_method("update_speakers")
-    async def on_update_speakers(data: rtc.RpcInvocationData) -> str:
+    @ctx.room.local_participant.register_rpc_method("set_focus")
+    async def on_set_focus(data: rtc.RpcInvocationData) -> str:
         cmd = json.loads(data.payload or "{}")
         action = cmd.get("action")
 
         if action == "focus":
-            apply_focus([lock.me()], SpeakerFocusMode.RETAIN)
+            apply_focus([lock.me()], FocusMode.RETAIN)
         elif action == "only":
-            apply_focus([lock.me()], SpeakerFocusMode.IGNORE)
+            apply_focus([lock.me()], FocusMode.IGNORE)
         elif action == "ignore":
             apply_ignore(lock.other())
         elif action == "clear":
@@ -411,7 +483,7 @@ async def entrypoint(ctx: JobContext):
         room_output_options=RoomOutputOptions(transcription_enabled=True),
     )
 
-    publish({"t": "event", "text": "agent connected — Speechmatics STT via livekit-agents"})
+    publish({"t": "event", "text": "agent connected — Speechmatics Agent STT via livekit-agents"})
     publish({"t": "agentState", "text": "agent · listening"})
     publish({"t": "roomWho", "text": f"livekit · {ctx.room.name}"})
     publish_views()

@@ -14,14 +14,6 @@
 
 Put a voice agent in a room with more than one person and you hit a problem immediately: whose words should it act on? By default, everyone's - anyone within earshot is an admin. This example locks the agent onto chosen speakers using the Speechmatics **speaker focus** and **speaker memory** features, and ships with a browser visualiser so every decision is visible on screen.
 
-> [!IMPORTANT]
-> **Speaker focus needs `livekit-plugins-speechmatics` 1.8.1 or earlier.** From 1.8.2 the plugin
-> runs on Agent STT, powered by Linden 1, which has no speaker focus yet, so `focus_speakers`,
-> `ignore_speakers`, `focus_mode` and `speaker_passive_format` are still accepted but do nothing
-> and `update_speakers()` is a no-op. It is expected to return in a later release. Speaker
-> identification, custom dictionaries and diarization are unaffected. To run this example as
-> written, pin `livekit-plugins-speechmatics==1.8.1`.
-
 ## What You'll Learn
 
 - **Diarization** - labelling every voice live (`S1`, `S2`, ...) with `enable_diarization`
