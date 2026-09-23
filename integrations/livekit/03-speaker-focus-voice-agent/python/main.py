@@ -11,9 +11,9 @@ It streams UI events to the browser visualiser over the "speaker-focus" data top
     focus / ignore which speakers drive the conversation (hotkeys or voice)
     voiceprints    saved on demand (press E) to speakers.json — edit a "label" to name one
 
-Agent STT has no server-side speaker focus, so the gate lives in
-FocusAgent.on_user_turn_completed: RETAIN keeps a non-focused turn in the LLM's
-context without answering it, IGNORE drops it before it reaches the context at all.
+The focus gate lives in FocusAgent.on_user_turn_completed: RETAIN keeps a
+non-focused turn in the LLM's context without answering it, IGNORE drops it
+before it reaches the context at all.
 
 Run:
     .venv\\Scripts\\python main.py dev       # browser visualiser (frontend + token_server)
@@ -80,8 +80,7 @@ class FocusMode(Enum):
     RETAIN: still transcribed, still in the LLM's context as background, never answered.
     IGNORE: dropped before the turn reaches the context at all.
 
-    Agent STT does not filter on speaker labels, so unlike the pre-Agent-STT plugin
-    these are decisions this agent makes — see FocusAgent.on_user_turn_completed.
+    See FocusAgent.on_user_turn_completed for where this is enforced.
     """
 
     RETAIN = "retain"

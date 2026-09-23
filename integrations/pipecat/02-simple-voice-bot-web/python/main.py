@@ -175,8 +175,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
 
-    # VAD is wired as a pipeline processor (see run_bot), not via transport params:
-    # pipecat 1.x removed `vad_analyzer` from TransportParams/DailyParams.
+    # VAD is wired as a pipeline processor (see run_bot), not via transport params.
     transport_params = {
         "daily": lambda: DailyParams(
             audio_in_enabled=True,

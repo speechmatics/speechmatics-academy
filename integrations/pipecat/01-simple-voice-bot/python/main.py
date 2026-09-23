@@ -80,8 +80,8 @@ async def main():
 
     async with aiohttp.ClientSession() as session:
         # Local Audio Transport (Microphone + Speakers).
-        # NOTE: in pipecat 1.x, transport params no longer accept vad_analyzer;
-        # VAD is now a separate FrameProcessor inserted into the pipeline below.
+        # VAD runs as a separate FrameProcessor in the pipeline below, not via
+        # transport params.
         transport = LocalAudioTransport(
             LocalAudioTransportParams(
                 audio_in_enabled=True,

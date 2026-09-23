@@ -20,7 +20,7 @@ A complete voice assistant pipeline combining best-in-class speech recognition (
 - Building a complete voice assistant pipeline
 - Using local audio transport (no cloud infrastructure needed)
 - Voice Activity Detection (VAD) for natural conversations
-- Filtering background audio and bot echo using speaker diarization
+- Speaker diarization to label who is speaking in the transcript
 
 ## Prerequisites
 
@@ -132,7 +132,7 @@ flowchart LR
     end
 
     subgraph Processing
-        STT[Speechmatics STT<br/>focus_speakers S1]
+        STT[Speechmatics STT<br/>diarization]
         UA[User Aggregator]
         LLM[OpenAI LLM]
         AA[Assistant Aggregator]
@@ -145,13 +145,11 @@ flowchart LR
 
     MIC --> VAD[Silero VAD<br/>signals turn end]
     VAD --> STT
-    STT -->|S1 only| UA
+    STT --> UA
     UA --> LLM
     LLM --> TTS
     TTS --> SPK
     TTS --> AA
-
-    SPK -.->|S2 ignored| MIC
 ```
 
 ## How It Works
@@ -173,9 +171,7 @@ flowchart LR
 |---------|-------------|
 | **Local Audio** | Uses your microphone and speakers directly - no WebRTC needed |
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
-| **Speaker Focus** | Uses `focus_speakers=["S1"]` to ignore bot's own TTS output |
-| **Diarization** | Speaker identification distinguishes user from bot |
-| **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
+| **Diarization** | Speaker identification labels each speaker (S1, S2, ...) in the transcript |
 | **Interruptions** | User can interrupt the bot mid-response |
 
 ### Code Highlights
@@ -194,18 +190,16 @@ transport = LocalAudioTransport(
 # This is what drives end-of-utterance for the STT service in EXTERNAL mode.
 vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
 
-# Speechmatics STT with speaker focus and formatting. Defaults to
-# turn_detection_mode=EXTERNAL — finalization is driven by the VAD processor
-# above, not a server-side silence timer.
+# Speechmatics STT with diarization and speaker-labeled formatting.
+# turn_detection_mode=EXTERNAL means finalization is driven by the VAD
+# processor above, not a server-side silence timer.
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     settings=SpeechmaticsSTTService.Settings(
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
         enable_diarization=True,
-        # Focus only on S1 (first speaker = user)
-        # This ignores the bot's TTS output (labeled as S2)
-        focus_speakers=["S1"],
+        # Wraps each speaker's text in a tag the LLM can read, e.g. <S1>Hello</S1>
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     ),
 )
 
@@ -222,14 +216,11 @@ pipeline = Pipeline([
 ])
 ```
 
-> [!IMPORTANT]
-> **Speak first!** The user must speak first to be registered as S1. The bot's TTS output will then be labeled as S2 and ignored by `focus_speakers=["S1"]`.
-
 ## Expected Output
 
 ```
 INFO     | Starting voice bot...
-INFO     | Speak first to register as the primary speaker (S1).
+INFO     | The first voice heard is labelled S1, the next S2, and so on.
 INFO     | Press Ctrl+C to exit.
 
 You: "Hello there!"
@@ -270,18 +261,17 @@ Edit `assets/agent.md` to change the bot's personality and capabilities. The def
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
-### Speaker Diarization & Background Filtering
+### Speaker Diarization
 
-The STT is configured to identify speakers and filter background audio:
+The STT is configured to identify speakers and label them in the transcript:
 
 ```python
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     settings=SpeechmaticsSTTService.Settings(
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
         enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-        focus_speakers=["S1"],
     ),
 )
 ```
@@ -289,18 +279,12 @@ stt = SpeechmaticsSTTService(
 | Parameter | Purpose |
 |-----------|---------|
 | `enable_diarization` | Identify different speakers in the audio |
-| `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
-| `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
-| `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
+| `speaker_active_format` | Wraps each speaker's text in a tag, e.g. `<S1>Hello</S1>` |
 
 **How it works:**
-1. The user speaks first and is assigned `S1` (the primary user)
-2. The bot's TTS output is labeled as S2 and filtered out
-3. Other speakers (TV, radio, people nearby) are marked as passive
-4. The agent prompt (`assets/agent.md`) instructs the LLM to ignore `<PASSIVE>` content
-5. In multi-speaker scenarios, Roxie acts as an active listener and only joins when invited
-
-This prevents the bot from hearing its own voice and responding to background audio.
+1. The first voice heard is labelled `S1`, the next distinct voice `S2`, and so on
+2. Each transcript segment is wrapped in its speaker tag before being sent to the LLM
+3. The agent prompt (`assets/agent.md`) is told how to interpret these tags, so in multi-speaker scenarios Roxie acts as an active listener and only joins when invited
 
 ### Adjust VAD Sensitivity
 

@@ -21,7 +21,7 @@ A complete voice assistant using LiveKit's real-time WebRTC infrastructure with 
 - Using LiveKit's agent framework for real-time conversations
 - VAD-driven turn detection — the STT finalizes each turn from the shared Silero VAD
 - Voice Activity Detection (VAD) for natural turn-taking
-- Filtering background audio using speaker diarization and focus speakers
+- Labeling speakers in the transcript using diarization
 - **Speaker identification** — enroll and recognize returning users by name across sessions
 
 ## Prerequisites
@@ -99,10 +99,10 @@ ELEVEN_API_KEY=your_elevenlabs_api_key_here
 <summary><strong>Option B: Manual Configuration</strong></summary>
 
 ```bash
-cp ../.env.example .env
+cp ../.env.example ../.env
 ```
 
-Open the `.env` file and add your API keys:
+Open the `.env` file (in the project root, one level up from `python/`) and add your API keys:
 
 ```
 SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
@@ -177,8 +177,6 @@ flowchart LR
 | **WebRTC** | Real-time audio streaming via LiveKit infrastructure |
 | **Turn Detection** | VAD-driven finalization — the STT ends each turn from the shared Silero VAD |
 | **Diarization** | Speaker identification to distinguish different speakers |
-| **Focus Speakers** | Filter to only respond to the primary user (S1) |
-| **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
 | **Auto Greeting** | Agent greets user when session starts |
 | **Speaker Identification** | Enroll and recognize returning users by voiceprint across sessions |
@@ -225,9 +223,7 @@ async def entrypoint(ctx: agents.JobContext):
     stt = speechmatics.STT(
         vad=vad,
         enable_diarization=True,
-        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-        focus_speakers=["S1"],
+        speaker_format="<{speaker_id}>{text}</{speaker_id}>",
         known_speakers=known_speakers,  # Recognize returning users
     )
 
@@ -288,33 +284,26 @@ Edit `assets/agent.md` to change the assistant's personality and capabilities. T
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
-### Speaker Diarization & Background Filtering
+### Speaker Diarization
 
-The STT is configured to identify speakers and filter background audio:
+The STT is configured to label each speaker in the transcript:
 
 ```python
 stt = speechmatics.STT(
     enable_diarization=True,
-    speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-    speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-    focus_speakers=["S1"],
+    speaker_format="<{speaker_id}>{text}</{speaker_id}>",
 )
 ```
 
 | Parameter | Purpose |
 |-----------|---------|
 | `enable_diarization` | Identify different speakers in the audio |
-| `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
-| `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
-| `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
+| `speaker_format` | Template for embedding the speaker label in the transcript, e.g. `<S1>Hello</S1>` |
 
 **How it works:**
-1. The first person to speak is assigned `S1` (the primary user)
-2. Other speakers (TV, radio, people nearby) are marked as passive
-3. The agent prompt (`assets/agent.md`) instructs the LLM to ignore `<PASSIVE>` content
-4. In multi-speaker scenarios, Roxie acts as an active listener and only joins when invited
-
-This prevents the assistant from responding to background conversations or media playing nearby.
+1. Diarization assigns each speaker a label (`S1`, `S2`, ...) based on their voice
+2. `speaker_format` wraps each transcript segment with its speaker's tag before it reaches the LLM
+3. The agent prompt (`assets/agent.md`) tells the LLM how to interpret the tags, so it can follow who said what in multi-speaker conversations
 
 ### Turn Detection
 
@@ -328,21 +317,23 @@ vad = silero.VAD.load()
 stt = speechmatics.STT(vad=vad)  # STT finalizes turns from the VAD
 ```
 
-Alternatively, omit `vad` on the STT and choose a server-side `turn_detection_mode`:
+Alternatively, omit `vad` on the STT and let the service run its own VAD by setting
+`turn_detection_mode=TurnDetectionMode.VAD`:
 
 ```python
 from livekit.plugins.speechmatics import TurnDetectionMode
 
 stt = speechmatics.STT(
-    turn_detection_mode=TurnDetectionMode.SMART_TURN,  # or ADAPTIVE, FIXED
+    turn_detection_mode=TurnDetectionMode.VAD,
 )
 ```
 
-| Mode | Description | Best For |
-|------|-------------|----------|
-| `SMART_TURN` | ML-based turn detection for natural conversation flow | Handles hesitations well |
-| `ADAPTIVE` | VAD + hesitation/speed analysis, works with all languages | Multilingual applications |
-| `FIXED` | Simple VAD-only detection, lowest latency | Speed-critical applications |
+| Mode | Description |
+|------|-------------|
+| `EXTERNAL` | Default. Turn boundaries are controlled by the caller — an external VAD (e.g. the shared Silero instance) drives `finalize()` |
+| `VAD` | The STT service runs its own VAD and closes turns itself, no client-side VAD needed |
+
+Older mode names (`SMART_TURN`, `ADAPTIVE`, `FIXED`) still work but now behave identically to `EXTERNAL`, and are scheduled for removal after 2026-10-05.
 
 ## Running Modes
 
@@ -379,7 +370,7 @@ Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in yo
 - The playground supports audio, video, and text input
 
 > [!TIP]
-> The playground shows live transcription, audio visualization, and agent responses - perfect for debugging speaker diarization and passive filtering.
+> The playground shows live transcription, audio visualization, and agent responses - perfect for debugging speaker diarization.
 
 ## Troubleshooting
 
