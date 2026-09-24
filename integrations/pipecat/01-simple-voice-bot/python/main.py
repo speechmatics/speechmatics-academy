@@ -20,8 +20,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.runner import PipelineRunner
-from pipecat.pipeline.task import PipelineParams, PipelineTask
+from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import (
     LLMAssistantAggregator,
@@ -32,6 +31,7 @@ from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
 from pipecat.services.openai.llm import OpenAILLMService
 from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
+from pipecat.workers.runner import WorkerRunner
 
 load_dotenv()
 
@@ -154,15 +154,14 @@ async def main():
             ]
         )
 
-        task = PipelineTask(
+        task = PipelineWorker(
             pipeline,
             params=PipelineParams(
-                allow_interruptions=True,
                 enable_metrics=True,
             ),
         )
 
-        runner = PipelineRunner()
+        runner = WorkerRunner()
         await runner.run(task)
 
 
