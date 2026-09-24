@@ -23,20 +23,13 @@ This example is optimized for low latency:
 > [!TIP]
 > **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly.
 
-> [!IMPORTANT]
-> **Speaker focus needs `pipecat-ai` 1.9.0 or earlier.** From 1.10.0 the Speechmatics service runs
-> on Agent STT, powered by Linden 1, and `focus_speakers` and `speaker_passive_format` were
-> removed, so the focus settings shown below no longer apply. It is expected to return in a later
-> release. `known_speakers` (speaker identification), `additional_vocab` (custom dictionaries) and
-> `enable_diarization` all still work. To run this example as written, pin `pipecat-ai` to 1.9.0.
-
 ## What You'll Learn
 
 - How to integrate Speechmatics STT with Pipecat AI
 - Building a browser-based voice assistant with WebRTC
 - Using the Pipecat runner framework for web deployment
 - Turn detection modes for natural conversations
-- Filtering background audio and bot echo using speaker diarization
+- Tagging speakers in the transcript using speaker diarization
 - Running a low-latency WebRTC pipeline with the Pipecat runner
 - Measuring latency per component (STT / LLM / TTS) in the browser
 
@@ -194,7 +187,7 @@ flowchart LR
     CLIENT <-->|WebRTC| WEBRTC
     WEBRTC --> STT
     WEBRTC --> VAD
-    STT -->|S1 only| UA
+    STT --> UA
     UA --> LLM
     LLM --> TTS
     TTS --> WEBRTC
@@ -219,9 +212,7 @@ flowchart LR
 | **Browser-Based** | Works from any browser - no local audio setup needed |
 | **WebRTC** | Low-latency peer-to-peer audio streaming |
 | **EXTERNAL Turn Detection** | Pipecat handles turn detection using external VAD (e.g., Silero) |
-| **Speaker Focus** | Uses `focus_speakers=["S1"]` to ignore background audio |
-| **Diarization** | Speaker identification distinguishes user from others |
-| **Passive Filtering** | Background audio (TV, radio) marked as passive and ignored by LLM |
+| **Diarization** | Speaker identification tags each transcript segment with its speaker |
 | **Auto Greeting** | Bot greets user when connection is established |
 
 ### Code Highlights
@@ -230,12 +221,11 @@ flowchart LR
 # Speechmatics STT with EXTERNAL turn detection and diarization
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    params=SpeechmaticsSTTService.InputParams(
-        enable_speaker_diarization=True,
-        focus_speakers=["S1"],
+    settings=SpeechmaticsSTTService.Settings(
         turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
+        enable_diarization=True,
+        # Agent STT tags one speaker per segment: <S1>Hello</S1>
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
     ),
 )
 
@@ -327,7 +317,7 @@ Speechmatics provides three turn detection modes that control how the system det
 # EXTERNAL mode - Pipecat handles turn detection using external VAD
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    params=SpeechmaticsSTTService.InputParams(
+    settings=SpeechmaticsSTTService.Settings(
         turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
     ),
 )
@@ -342,28 +332,25 @@ transport_params = {
 }
 ```
 
-### Speaker Diarization & Background Filtering
+### Speaker Diarization
 
-The STT is configured to identify speakers and filter background audio:
+The STT is configured to identify speakers and tag each transcript segment:
 
 ```python
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
-    params=SpeechmaticsSTTService.InputParams(
-        enable_speaker_diarization=True,
+    settings=SpeechmaticsSTTService.Settings(
+        turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
+        enable_diarization=True,
         speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-        focus_speakers=["S1"],
     ),
 )
 ```
 
 | Parameter | Purpose |
 |-----------|---------|
-| `enable_speaker_diarization` | Identify different speakers in the audio |
-| `speaker_active_format` | Format for the focused speaker: `<S1>Hello</S1>` |
-| `speaker_passive_format` | Format for background audio: `<PASSIVE><S2>...</S2></PASSIVE>` |
-| `focus_speakers` | Only treat S1 (first speaker) as active; others are passive |
+| `enable_diarization` | Identify different speakers in the audio |
+| `speaker_active_format` | Format applied to each speaker's segment: `<S1>Hello</S1>` |
 
 ## Troubleshooting
 

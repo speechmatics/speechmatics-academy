@@ -20,8 +20,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.runner import PipelineRunner
-from pipecat.pipeline.task import PipelineParams, PipelineTask
+from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import (
     LLMAssistantAggregator,
@@ -32,6 +31,7 @@ from pipecat.services.elevenlabs.tts import ElevenLabsTTSService
 from pipecat.services.openai.llm import OpenAILLMService
 from pipecat.services.speechmatics.stt import SpeechmaticsSTTService
 from pipecat.transports.local.audio import LocalAudioTransport, LocalAudioTransportParams
+from pipecat.workers.runner import WorkerRunner
 
 load_dotenv()
 
@@ -73,15 +73,15 @@ async def main():
         return
 
     logger.info("Starting voice bot...")
-    logger.info("Speak first to register as the primary speaker (S1).")
+    logger.info("The first voice heard is labelled S1, the next S2, and so on.")
     logger.info("Press Ctrl+C to exit.")
 
     agent_prompt = load_agent_prompt()
 
     async with aiohttp.ClientSession() as session:
         # Local Audio Transport (Microphone + Speakers).
-        # NOTE: in pipecat 1.x, transport params no longer accept vad_analyzer;
-        # VAD is now a separate FrameProcessor inserted into the pipeline below.
+        # VAD runs as a separate FrameProcessor in the pipeline below, not via
+        # transport params.
         transport = LocalAudioTransport(
             LocalAudioTransportParams(
                 audio_in_enabled=True,
@@ -90,21 +90,24 @@ async def main():
         )
 
         # Voice Activity Detection: Silero VAD as a pipeline processor. When
-        # speech stops, this broadcasts VADUserStoppedSpeakingFrame, which the
-        # Speechmatics STT service uses to drive end-of-utterance in EXTERNAL
-        # turn-detection mode (the service's default).
+        # speech stops, this broadcasts VADUserStoppedSpeakingFrame, which calls
+        # finalize() on the Speechmatics STT service — that is what closes a turn in
+        # EXTERNAL mode. With no VAD anywhere in the pipeline, nothing closes a turn
+        # and the service produces no transcripts at all.
         vad_processor = VADProcessor(vad_analyzer=SileroVADAnalyzer())
 
-        # Speech-to-Text: Speechmatics. Defaults turn_detection_mode to EXTERNAL,
-        # so user turns close when the pipeline emits VADUserStoppedSpeakingFrame
-        # from the VAD processor above (rather than a server-side silence timer).
+        # Speech-to-Text: Speechmatics Agent STT. EXTERNAL turn detection is the
+        # default: user turns close when the pipeline emits
+        # VADUserStoppedSpeakingFrame from the VAD processor above, rather than on a
+        # server-side silence timer. Agent STT attributes one speaker per segment, so
+        # speaker_active_format puts that label into the text the LLM reads:
+        # <S1>Hello</S1>. assets/agent.md explains the tags to the model.
         stt = SpeechmaticsSTTService(
             api_key=os.getenv("SPEECHMATICS_API_KEY"),
             settings=SpeechmaticsSTTService.Settings(
+                turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
                 enable_diarization=True,
-                focus_speakers=["S1"],
                 speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-                speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
             ),
         )
 
@@ -151,15 +154,14 @@ async def main():
             ]
         )
 
-        task = PipelineTask(
+        task = PipelineWorker(
             pipeline,
             params=PipelineParams(
-                allow_interruptions=True,
                 enable_metrics=True,
             ),
         )
 
-        runner = PipelineRunner()
+        runner = WorkerRunner()
         await runner.run(task)
 
 

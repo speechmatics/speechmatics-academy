@@ -165,7 +165,7 @@
         break;
       case "event":
         pushCap({kind:"event", text:msg.text});
-        addEv("update", "update_speakers", msg.text);
+        addEv("update", "focus gate", msg.text);
         break;
       case "bus":
         addEv("llm", "llm input", msg.lines.map(function(l){ return plain(l.text); }).join(" · "));
@@ -207,10 +207,10 @@
     toastTimer = setTimeout(function(){ els.toast.classList.remove("show"); }, hold || 2400);
   }
   var CALLS = {
-    focus:  'stt.update_speakers(<span class="fn">focus_speakers</span>=[you], <span class="fn">focus_mode</span>=RETAIN)',
-    only:   'stt.update_speakers(<span class="fn">focus_speakers</span>=[you], <span class="fn">focus_mode</span>=IGNORE)',
-    ignore: 'stt.update_speakers(<span class="fn">ignore_speakers</span>=[stranger])',
-    clear:  'stt.update_speakers(<span class="fn">focus_speakers</span>=[], <span class="fn">ignore_speakers</span>=[])'
+    focus:  'focus(<span class="fn">speakers</span>=[you], <span class="fn">mode</span>=RETAIN)',
+    only:   'focus(<span class="fn">speakers</span>=[you], <span class="fn">mode</span>=IGNORE)',
+    ignore: 'ignore(<span class="fn">speakers</span>=[stranger])',
+    clear:  'focus(<span class="fn">cleared</span>)'
   };
   function command(action){
     transport.command(action);
