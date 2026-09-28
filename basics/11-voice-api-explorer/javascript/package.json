@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "ws": "^8.21.3",
-    "dotenv": "^17.4.2"
+    "dotenv": "^18.0.0"
   },
   "optionalDependencies": {
     "node-record-lpcm16": "^1.0.1"
