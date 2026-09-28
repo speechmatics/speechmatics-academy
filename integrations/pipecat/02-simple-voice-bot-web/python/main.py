@@ -3,10 +3,10 @@
 Simple Voice Bot - Web Client Version
 
 A conversational voice bot with browser-based audio using.
-Bot is built for speed using Speechmatics 'EXTERNAL' mode to force finalise.
+Bot is built for speed using Speechmatics Agent STT in 'EXTERNAL' mode to force finalise.
 
 :
-- Speechmatics STT (Speech-to-Text) with diarization
+- Speechmatics Agent STT (Speech-to-Text) with diarization
 - Groq LLM (Language Model)
 - Cartesia TTS (Text-to-Speech)
 
@@ -30,8 +30,7 @@ from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.frames.frames import LLMRunFrame
 from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.runner import PipelineRunner
-from pipecat.pipeline.task import PipelineParams, PipelineTask
+from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import (
     LLMContextAggregatorPair,
@@ -48,6 +47,7 @@ from pipecat.turns.user_stop.turn_analyzer_user_turn_stop_strategy import (
     TurnAnalyzerUserTurnStopStrategy,
 )
 from pipecat.turns.user_turn_strategies import UserTurnStrategies
+from pipecat.workers.runner import WorkerRunner
 
 logger.info("All components loaded!")
 
@@ -82,18 +82,19 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
 
     agent_prompt = load_agent_prompt()
 
-    # Speech-to-Text: Speechmatics with diarization.
-    # EXTERNAL turn detection: STT finalises when it receives
+    # Speech-to-Text: Speechmatics Agent STT with diarization.
+    # EXTERNAL turn detection (the default): the service finalises when it receives
     # VADUserStoppedSpeakingFrame, broadcast by the aggregator's internal VAD
-    # controller (configured via LLMUserAggregatorParams.vad_analyzer below).
+    # controller (configured via LLMUserAggregatorParams.vad_analyzer below). The
+    # frame is broadcast upstream as well as downstream, so it reaches the service
+    # even though the VAD sits after it in the pipeline.
     stt = SpeechmaticsSTTService(
         api_key=os.getenv("SPEECHMATICS_API_KEY"),
-        params=SpeechmaticsSTTService.InputParams(
+        settings=SpeechmaticsSTTService.Settings(
             turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
-            enable_speaker_diarization=True,
-            focus_speakers=["S1"],
+            enable_diarization=True,
+            # Agent STT tags one speaker per segment: <S1>Hello</S1>
             speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-            speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
         ),
     )
 
@@ -148,7 +149,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         ]
     )
 
-    task = PipelineTask(
+    task = PipelineWorker(
         pipeline,
         params=PipelineParams(
             enable_metrics=True,
@@ -167,15 +168,14 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         logger.info("Client disconnected")
         await task.cancel()
 
-    runner = PipelineRunner(handle_sigint=runner_args.handle_sigint)
+    runner = WorkerRunner(handle_sigint=runner_args.handle_sigint)
     await runner.run(task)
 
 
 async def bot(runner_args: RunnerArguments):
     """Main bot entry point."""
 
-    # VAD is wired as a pipeline processor (see run_bot), not via transport params:
-    # pipecat 1.x removed `vad_analyzer` from TransportParams/DailyParams.
+    # VAD is wired as a pipeline processor (see run_bot), not via transport params.
     transport_params = {
         "daily": lambda: DailyParams(
             audio_in_enabled=True,

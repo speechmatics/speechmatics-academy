@@ -87,16 +87,17 @@ async def entrypoint(ctx: agents.JobContext):
 
     known_speakers = load_known_speakers()
 
-    # Voice Activity Detection: Silero. Passing it into the STT lets the plugin
-    # drive turn finalization from the VAD (this forces EXTERNAL turn detection).
+    # Voice Activity Detection: Silero. EXTERNAL turn detection (the default) needs a
+    # VAD to close each turn; sharing one instance with the session avoids loading a
+    # second model.
     vad = silero.VAD.load()
 
     stt = speechmatics.STT(
         vad=vad,
         enable_diarization=True,
-        speaker_active_format="<{speaker_id}>{text}</{speaker_id}>",
-        speaker_passive_format="<PASSIVE><{speaker_id}>{text}</{speaker_id}></PASSIVE>",
-        focus_speakers=["S1"],
+        # Agent STT attributes one speaker per segment, so the label goes into the text
+        # the LLM reads: <S1>Hello</S1>. assets/agent.md explains the tags to the model.
+        speaker_format="<{speaker_id}>{text}</{speaker_id}>",
         known_speakers=known_speakers,
     )
 
