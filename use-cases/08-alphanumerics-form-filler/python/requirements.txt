@@ -1,7 +1,7 @@
-fastapi>=0.141.1
-livekit-agents==1.8.3
-livekit-plugins-openai==1.8.3
-livekit-plugins-silero==1.8.3
-livekit-plugins-speechmatics==1.8.3
-python-dotenv==1.2.3
+fastapi>=0.142.2
+livekit-agents==1.8.4
+livekit-plugins-openai==1.8.4
+livekit-plugins-silero==1.8.4
+livekit-plugins-speechmatics==1.8.4
+python-dotenv==1.2.4
 uvicorn>=0.54.0
