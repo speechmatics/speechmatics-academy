@@ -239,6 +239,7 @@ Example applications for specific industries.
 | **Business** | [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/) | LiveKit voice agent, real-time STT with smart turn detection, browser RPC form filling, digit-by-digit confirmation |
 | **Mobile** | [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) | Flutter (Android & iOS), Batch API, Melia-1 multilingual transcription, speaker diarization & identification, translation, speech intelligence |
 | **Events** | [Wall of Voices](use-cases/10-wall-of-voices/) | Real-time Melia multilingual transcription, per-word language tags, browser WebSocket audio, right-to-left rendering, short-lived token endpoint |
+| **Healthcare** | [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) | Oak 1 multilingual transcription with direct audio uploads, word timelines, speaker/channel exploration, and a Python serverless token backend |
 
 [Browse all use cases](use-cases/)
 
