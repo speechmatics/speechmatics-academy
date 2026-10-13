@@ -95,6 +95,7 @@ function loadSample(sample) {
   $('sample-description').textContent = sample.description;
   $('consultation-id').textContent = sample.isDemo ? `CONSULTATION ${String(samples.indexOf(sample) + 1).padStart(3, '0')}` : 'YOUR RECORDING';
   $('source-badge').innerHTML = `<span></span> ${sample.isDemo ? 'Scripted demo' : sample.transcribed ? 'Oak 1 transcript' : 'Local audio'}`;
+  $('demo-notice').hidden = !sample.isDemo;
   $('duration-label').textContent = formatTime(sample.duration);
   $('total-time').textContent = formatTime(sample.duration);
   $('playback-note').textContent = sample.isDemo ? 'Timeline preview · no audio' : 'Local audio playback';
@@ -476,6 +477,8 @@ $('speaker-name').addEventListener('input', () => $('speaker-name').setCustomVal
 $('close-rename').addEventListener('click', () => $('rename-dialog').close());
 $('new-consultation').addEventListener('click', openNew);
 $('sidebar-upload').addEventListener('click', openNew);
+$('demo-add-audio').addEventListener('click', openNew);
+$('demo-settings').addEventListener('click', () => $('open-settings').click());
 $('audio-file').addEventListener('change', event => { if (event.target.files[0]) loadAudioFile(event.target.files[0]); });
 $('drop-zone').addEventListener('dragover', event => { event.preventDefault(); $('drop-zone').classList.add('dragover'); });
 $('drop-zone').addEventListener('dragleave', () => $('drop-zone').classList.remove('dragover'));

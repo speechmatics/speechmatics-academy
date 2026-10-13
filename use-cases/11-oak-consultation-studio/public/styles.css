@@ -106,6 +106,14 @@ h1{font-size:30px;font-weight:500;letter-spacing:-1.1px;line-height:1.2}
 .primary .icon{width:16px;height:16px}
 .page-heading>.button{margin-top:20px}
 .workspace-grid{display:grid;grid-template-columns:minmax(0,1fr) 268px;gap:22px;align-items:start}
+.demo-notice{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:22px;border:1px solid #F8D3B9;border-radius:10px;background:var(--orange-soft);color:var(--ink)}
+.demo-notice>[data-icon]{color:var(--orange-ink);align-self:flex-start;margin-top:2px}
+.demo-notice-copy{flex:1;min-width:0}
+.demo-notice strong{display:block;font-size:13px;font-weight:600;line-height:1.6}
+.demo-notice p{margin-top:4px;font-size:12px;line-height:1.7}
+.demo-notice-copy button{font-size:inherit;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.demo-notice>.button{flex-shrink:0;background:var(--surface);border-color:#F8D3B9;color:var(--orange-ink)}
+@media(max-width:900px){.demo-notice{flex-wrap:wrap}.demo-notice-copy{flex-basis:calc(100% - 34px)}.demo-notice>.button{margin-left:33px}}
 .conversation-column{min-width:0}
 .recording-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:22px 24px 15px;box-shadow:0 2px 2px #0D3C4805}
 .recording-top{display:flex;align-items:center;justify-content:space-between;gap:12px}

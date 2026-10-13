@@ -50,6 +50,8 @@ export function initSettings(notify, {
     }
     const hint = $('settings-key-hint');
     if (hint) hint.hidden = !needsKey;
+    const demoGuidance = $('demo-key-guidance');
+    if (demoGuidance) demoGuidance.hidden = !needsKey;
     if (needsKey && !wasMissingKey) notify('Add your Speechmatics API key in Settings to start transcribing.');
     wasMissingKey = needsKey;
     return needsKey;
