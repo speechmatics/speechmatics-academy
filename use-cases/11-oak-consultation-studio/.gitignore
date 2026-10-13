@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+.venv/
+.vercel/
+
+.vercel
+.env*

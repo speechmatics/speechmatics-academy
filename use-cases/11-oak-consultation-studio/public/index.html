@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#FBFDFC">
+  <meta name="description" content="Explore multilingual medical conversations with Oak 1 in Speechmatics Academy.">
+  <title>Oak Consultation Studio · Speechmatics Academy</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./main.js"></script>
+  <script type="module" src="./analytics.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#transcript">Skip to transcript</a>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="Speechmatics Academy home"><img class="brand-logo" src="./assets/speechmatics-logo.svg" alt="Speechmatics" width="194" height="21"><span class="academy">Academy</span></a>
+    <div class="topbar-center"><span class="status-dot"></span> Oak 1 <span class="header-divider">/</span> Medical speech recognition</div>
+    <div class="topbar-actions"><a class="docs-link" href="https://docs.speechmatics.com/speech-to-text/models#oak-1" target="_blank" rel="noopener noreferrer">Explore the docs <span data-icon="arrow"></span></a><button id="open-settings" class="settings-button" aria-haspopup="dialog" aria-controls="settings-dialog"><span data-icon="settings"></span> Settings<span id="settings-indicator" class="status-dot" aria-hidden="true" hidden></span></button><span id="settings-key-hint" class="sr-only" hidden>Add your Speechmatics API key in Settings to start transcribing.</span></div>
+  </header>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Consultation library">
+      <div class="sidebar-heading"><span class="eyebrow">YOUR WORKSPACE</span><span class="workspace-dot"></span></div>
+      <div class="nav-current"><span data-icon="headphones"></span><span>Consultation studio</span><span class="nav-count">4</span></div>
+      <div class="library-heading"><span class="eyebrow">TRY A CONVERSATION</span><span data-icon="down"></span></div>
+      <div id="sample-list" class="sample-list"></div>
+      <button id="sidebar-upload" class="sidebar-upload"><span data-icon="plus"></span> Add your own audio</button>
+      <div class="sidebar-note"><div class="brand-echo-frame" aria-hidden="true"><img class="brand-echo" src="./assets/echo-orange.svg" alt=""></div><div class="note-copy"><span class="eyebrow">POWERED BY OAK 1</span><h3>Understand<br>every voice.</h3><p>Medical conversations cross languages.<br>Your transcript can, too.</p><a class="note-footer" href="https://docs.speechmatics.com/speech-to-text/models#oak-1" target="_blank" rel="noopener noreferrer">EXPLORE OAK 1 <span data-icon="arrow"></span></a></div></div>
+      <div class="sidebar-bottom"><span class="status-dot"></span> Oak 1 Batch <span>v1.0</span></div>
+    </aside>
+    <main class="workspace">
+      <div class="page-heading"><div><div class="breadcrumb">Academy <span>/</span> Use cases <span>/</span> Oak 1</div><h1>Consultation studio<span class="title-dot">.</span></h1><p>Every word. Every language. The whole conversation.</p></div><button id="new-consultation" class="button primary"><span data-icon="plus"></span> New consultation</button></div>
+      <div class="workspace-grid">
+        <div class="conversation-column">
+          <section class="recording-card" aria-labelledby="sample-title">
+            <div class="recording-top"><span class="eyebrow" id="consultation-id">CONSULTATION 001</span><span class="demo-badge" id="source-badge"><span></span> Scripted demo</span></div>
+            <div class="recording-title"><div><div class="title-row"><h2 id="sample-title">Loading consultation…</h2><button type="button" id="rename-consultation" class="icon-button" aria-label="Rename consultation" title="Rename consultation" aria-haspopup="dialog" aria-controls="title-dialog"><span data-icon="edit"></span></button></div><p id="sample-description"></p></div><span class="recording-symbol" data-icon="file"></span></div>
+            <div class="recording-meta"><span><span data-icon="clock"></span><span id="duration-label">00:00</span></span><span><span data-icon="people"></span><span id="speaker-count">2 speakers</span></span><span><span data-icon="globe"></span><span id="language-count">2 languages</span></span><span class="model-tag"><span data-icon="leaf"></span> Oak 1</span></div>
+            <div class="timeline">
+              <div class="waveform" id="waveform" aria-hidden="true"><div id="waveform-bars" class="waveform-bars"></div></div>
+              <div class="waveform-playhead" id="playhead" aria-hidden="true"></div>
+              <input id="seek" class="seek" aria-label="Seek consultation timeline" title="Click or drag anywhere on the waveform to seek" type="range" min="0" max="82" step="0.05" value="0">
+            </div>
+            <div class="transport"><div class="transport-controls"><button class="icon-button" id="restart" aria-label="Restart playback"><span data-icon="back"></span></button><button class="play-button" id="play" aria-label="Preview timeline"><span data-icon="play"></span></button><span class="time"><strong id="current-time">00:00</strong><span>/</span><span id="total-time">01:22</span></span></div><span class="preview-note" id="playback-note">Timeline preview · no audio</span><button id="speed" class="speed-button" aria-label="Playback speed">1×</button></div>
+          </section>
+          <section class="transcript-card" id="transcript" tabindex="-1" aria-labelledby="transcript-title">
+            <div class="transcript-header"><div class="transcript-tab"><span data-icon="file"></span><h2 id="transcript-title">Transcript</h2><span id="word-count" class="count-badge">0 words</span></div><div class="transcript-actions"><button id="copy-transcript" class="icon-button" aria-label="Copy transcript" title="Copy transcript"><span data-icon="copy"></span></button><button id="export-transcript" class="icon-button" aria-label="Download transcript" title="Download transcript"><span data-icon="download"></span></button></div></div>
+            <div class="transcript-toolbar"><label class="search-field"><span data-icon="search"></span><input id="search" type="search" placeholder="Find a word or phrase…" aria-label="Search transcript"></label><div class="filter-row"><label class="select-wrap"><span class="sr-only">Filter by speaker</span><select id="speaker-filter" aria-label="Filter by speaker"><option value="all">All speakers</option></select></label><label class="select-wrap"><span class="sr-only">Filter by language</span><select id="language-filter" aria-label="Filter by language"><option value="all">All languages</option></select></label></div></div>
+            <div class="transcript-options"><span id="result-count">Click a word to explore</span></div>
+            <div id="transcript-body" class="transcript-body"></div>
+            <div class="transcript-footer"><span data-icon="info"></span><span id="transcript-disclosure">Fictional consultation · authored transcript and illustrative timings.</span></div>
+          </section>
+        </div>
+        <aside class="inspector" aria-label="Conversation details">
+          <section class="inspector-card"><div class="inspector-heading"><span data-icon="spark"></span><h2>Conversation at a glance</h2></div><div class="inspector-section"><div class="section-label">LANGUAGE MIX <span id="language-total">2 detected</span></div><div id="language-ribbon" class="language-ribbon"></div><div id="language-breakdown"></div></div><div class="inspector-section"><div class="section-label">LANGUAGE SWITCHES <span class="count-badge" id="switch-count">0</span></div><div id="language-switches" class="language-switches"></div></div><div class="inspector-section"><div class="section-label">SPEAKERS <span>Click to rename</span></div><div id="speaker-list" class="speaker-list"></div></div></section>
+          <section id="word-inspector" class="word-inspector"><div class="section-label">WORD EXPLORER <span data-icon="code"></span></div><p>Select any word in the transcript to see its language, speaker, and timing.</p></section>
+          <section class="oak-card"><div class="oak-card-heading"><div><strong>Meet Oak 1</strong><span>Built for medical conversations</span></div></div><p>Multilingual speech recognition, with medical terminology at its core.</p><button id="show-config" class="text-button">See code <span data-icon="arrow"></span></button></section>
+        </aside>
+      </div>
+      <footer class="workspace-footer"><span>An open-source example from Speechmatics Academy</span><span>Designed for conversations that matter.</span></footer>
+    </main>
+  </div>
+  <dialog id="new-dialog" class="modal"><form method="dialog" class="dialog-close-form"><button class="icon-button" aria-label="Close new consultation"><span data-icon="close"></span></button></form><span class="eyebrow">YOUR NEXT CONVERSATION</span><h2>Bring your own audio.</h2><p class="modal-intro">Upload or record a conversation, then explore its languages, speakers, and word timings with Oak 1.</p><div class="input-tabs" role="tablist" aria-label="Audio source"><button id="upload-tab" role="tab" aria-selected="true" aria-controls="upload-panel" class="active">Upload audio</button><button id="record-tab" role="tab" aria-selected="false" aria-controls="record-panel" tabindex="-1">Record audio</button></div><div id="upload-panel" role="tabpanel" aria-labelledby="upload-tab"><label class="drop-zone" id="drop-zone"><span data-icon="upload"></span><strong>Drop a conversation here</strong><span>or choose a file</span><small>WAV, MP3, M4A, OGG, FLAC, AAC, MP4 or WebM · up to 100 MiB</small><input id="audio-file" type="file" accept="audio/*,.mp4" aria-label="Choose an audio file"></label></div><div id="record-panel" role="tabpanel" aria-labelledby="record-tab" hidden><div class="record-panel-inner"><span class="record-orb" data-icon="mic"></span><strong id="record-status">Your microphone, your conversation.</strong><p>Finish recording to start transcription automatically.</p><button type="button" id="record-button" class="button primary"><span data-icon="mic"></span> Start recording</button></div></div><p id="upload-error" class="error-message" role="alert" hidden></p><div class="local-note"><span data-icon="info"></span> Audio is sent to Speechmatics automatically after you add a file or finish recording.</div></dialog>
+  <dialog id="config-dialog" class="modal config-modal"><form method="dialog" class="dialog-close-form"><button class="icon-button" aria-label="Close API request"><span data-icon="close"></span></button></form><span class="eyebrow">UNDER THE SURFACE</span><h2>A conversation. One request.</h2><p class="modal-intro">Explore the configuration sent to the Speechmatics Batch API. For your own audio, these settings apply to the next transcription.</p><div class="config-fields"><label>Region<select id="config-region"><option value="eu">Europe · EU1 · default</option><option value="us">United States · US1</option></select></label><label>English spelling<select id="config-locale"><option value="" disabled>No English in sample</option><option value="en-GB">British English</option><option value="en-US">US English</option></select></label><label>Diarization<select id="config-diarization"><option value="speaker">By speaker</option><option value="channel">By audio channel</option><option value="none">None</option></select></label></div><label class="switch-label config-hints"><input id="config-hints" type="checkbox"><span class="switch" aria-hidden="true"></span> Include this sample's languages as hints</label><div class="code-header"><span>POST <span id="config-endpoint"></span></span><button class="icon-button" id="copy-config" aria-label="Copy request JSON"><span data-icon="copy"></span></button></div><pre id="config-code"></pre><p class="config-note">Start transcription from your audio to submit this request. Oak 1 supports Batch transcription; summaries and translation require separate services.</p><a class="text-button" href="https://docs.speechmatics.com/speech-to-text/models#oak-1" target="_blank" rel="noopener noreferrer">Read the Oak 1 documentation <span data-icon="arrow"></span></a></dialog>
+  <dialog id="rename-dialog" class="modal rename-modal"><form id="rename-form"><div class="dialog-close-form"><button type="button" class="icon-button" id="close-rename" aria-label="Close speaker editor"><span data-icon="close"></span></button></div><span class="eyebrow">MAKE IT YOURS</span><h2>Rename speaker</h2><p class="modal-intro">A display name for this consultation. This does not enrol or identify a voice.</p><label class="name-label">Display name<input id="speaker-name" maxlength="40" required autocomplete="off"></label><button class="button primary" type="submit">Save name <span data-icon="check"></span></button></form></dialog>
+  <dialog id="title-dialog" class="modal rename-modal" aria-labelledby="consultation-title-heading"><form id="title-form"><div class="dialog-close-form"><button type="button" class="icon-button" id="close-title" aria-label="Close title editor"><span data-icon="close"></span></button></div><span class="eyebrow">MAKE IT YOURS</span><h2 id="consultation-title-heading">Rename consultation</h2><p class="modal-intro">Give this consultation a title that is easy to find.</p><label class="name-label" for="consultation-title">Consultation title<input id="consultation-title" name="title" maxlength="120" required autocomplete="off"></label><div class="title-actions"><button type="button" id="cancel-title" class="button">Cancel</button><button type="submit" class="button primary">Save title <span data-icon="check"></span></button></div></form></dialog>
+  <dialog id="settings-dialog" class="modal settings-modal" aria-labelledby="settings-title">
+    <button type="button" class="icon-button dialog-close-form" id="close-settings" aria-label="Close settings"><span data-icon="close"></span></button>
+    <span class="eyebrow">YOUR CONNECTION</span>
+    <h2 id="settings-title">Settings</h2>
+    <p class="modal-intro">Manage your Speechmatics API key.</p>
+    <form id="settings-form" autocomplete="off">
+      <div id="ui-key-panel" class="key-panel">
+        <label class="key-label" for="settings-api-key">Speechmatics API key</label>
+        <div class="key-input-row"><input id="settings-api-key" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="8192" aria-describedby="key-session-status" placeholder="Paste your Speechmatics API key"><button id="toggle-api-key" type="button" aria-label="Show API key" aria-pressed="false">Show</button></div>
+        <p id="key-session-status" class="settings-help"></p>
+        <div class="key-links"><a href="https://portal.speechmatics.com/settings/api-keys/" target="_blank" rel="noopener noreferrer">Get an API key <span data-icon="arrow"></span></a><button id="clear-api-key" type="button" hidden>Clear saved key</button></div>
+      </div>
+      <p id="settings-error" class="error-message" role="alert" hidden></p>
+      <div class="settings-preview-note"><span data-icon="info"></span><p><strong>Your key, your connection</strong> Used when you start transcription. Your saved key takes precedence over the app’s default connection.</p></div>
+      <p id="settings-summary" class="settings-summary" role="status">No key selected</p>
+      <div class="settings-actions"><button type="button" id="cancel-settings" class="button">Cancel</button><button type="submit" id="save-settings" class="button primary">Save settings <span data-icon="check"></span></button></div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <audio id="local-audio" preload="metadata"></audio>
+</body>
+</html>

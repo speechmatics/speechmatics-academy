@@ -1,0 +1,9 @@
+# Local credentials and development files are never deployment inputs.
+.env*
+.venv/
+**/__pycache__/
+.pytest_cache/
+/tests/
+/assets/
+/README.md
+/dev_server.py

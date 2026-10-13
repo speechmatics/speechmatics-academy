@@ -3,8 +3,8 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2026-09-15"
-total_examples: 31
+last_updated: "2026-10-13"
+total_examples: 32
 
 # Example Categories
 categories:
@@ -577,6 +577,23 @@ examples:
     tags: ["melia", "multilingual", "code-switching", "realtime", "language-identification", "rtl", "demo", "conference", "bring-your-own-key"]
     last_updated: "2026-08-18"
     estimated_time: "15 minutes"
+
+  - id: "oak-consultation-studio"
+    title: "Oak Consultation Studio"
+    description: "Record or upload multilingual consultations for Oak 1 Batch transcription, then explore word timings, languages, speakers and channels in a browser UI backed by a Python serverless token endpoint."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python", "javascript"]
+    features:
+      - "batch-transcription"
+      - "speaker-diarization"
+      - "channel-diarization"
+    integrations: []
+    path: "use-cases/11-oak-consultation-studio"
+    readme: "use-cases/11-oak-consultation-studio/README.md"
+    tags: ["oak", "medical", "healthcare", "multilingual", "code-switching", "batch", "serverless", "bring-your-own-key"]
+    last_updated: "2026-10-13"
+    estimated_time: "20 minutes"
 
 # Integration Frameworks
 integration_frameworks:
