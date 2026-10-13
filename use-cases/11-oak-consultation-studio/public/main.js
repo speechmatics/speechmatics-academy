@@ -1,7 +1,9 @@
-import { SAMPLES, LANGUAGES } from './demo-data.js';
+import { SAMPLES } from './demo-data.js';
+import { createLanguagePalette, getLanguagePresentation, normalizeLanguageCode, getWaveformLanguage } from './language-presentation.js';
 import { formatTime, getWords, getStats, filterUtterances, findWordAtTime, toPlainText, createRequestConfig } from './transcript.js';
 import { validateAudioFile, createRecorder, seekAudio } from './audio.js';
 import { createAudioLoader } from './audio-loader.js';
+import { createAudioWaveform, WAVEFORM_BARS } from './audio-waveform.js';
 import { icon } from './icons.js';
 import { initSettings, credentials } from './settings.js';
 import { createBatchClient } from './batch-client.js';
@@ -41,12 +43,20 @@ const consultations = createConsultationLibrary({
 const allSamples = () => [...samples, ...consultations.entries().map(entry => entry.sample)];
 const selectedEntry = () => consultations.get(state.sample.id);
 
-const languageNames = new Intl.DisplayNames(['en'], { type: 'language' });
-function languageMeta(code) {
-  if (Object.hasOwn(LANGUAGES, code)) return LANGUAGES[code];
-  let name = code === 'und' ? 'Unspecified' : code;
-  try { if (code !== 'und') name = languageNames.of(code) || code; } catch { /* Preserve an unknown code. */ }
-  return { name, dir: /^(ar|he|fa|ur|ps|sd|yi)(-|$)/u.test(code) ? 'rtl' : 'ltr', color: '#0D3C48' };
+const languagePalettes = new WeakMap();
+function languageMeta(code, sample = state.sample) {
+  const signature = sample.languages.join('|');
+  let cached = languagePalettes.get(sample);
+  if (cached?.signature !== signature) {
+    cached = { signature, palette: createLanguagePalette(sample.languages) };
+    languagePalettes.set(sample, cached);
+  }
+  return cached.palette.get(normalizeLanguageCode(code)) || getLanguagePresentation(code);
+}
+
+function languageStyle(code, sample = state.sample) {
+  const { color, ink, soft, border } = languageMeta(code, sample);
+  return `--language-color:${color};--language-ink:${ink};--language-soft:${soft};--language-border:${border}`;
 }
 
 document.querySelectorAll('[data-icon]').forEach(element => { element.innerHTML = icon(element.dataset.icon); });
@@ -75,7 +85,7 @@ function avatar(speaker) {
 function renderLibrary() {
   const items = allSamples();
   document.querySelector('.nav-count').textContent = items.length;
-  $('sample-list').innerHTML = items.map(sample => `<button class="sample-button ${state.sample.id === sample.id ? 'active' : ''}" data-sample="${escape(sample.id)}" aria-pressed="${state.sample.id === sample.id}"><strong>${escape(sample.title)}</strong><p>${escape(sample.subtitle || sample.specialty)}</p><span class="sample-badges">${sample.languages.map(language => `<span class="lang-chip" data-lang="${escape(language)}">${escape(language.toUpperCase())}</span>`).join('')}${!sample.isDemo ? '<span class="lang-chip">LOCAL FILE</span>' : ''}<span class="sample-duration">${formatTime(sample.duration)}</span></span></button>`).join('');
+  $('sample-list').innerHTML = items.map(sample => `<button class="sample-button ${state.sample.id === sample.id ? 'active' : ''}" data-sample="${escape(sample.id)}" aria-pressed="${state.sample.id === sample.id}"><strong>${escape(sample.title)}</strong><p>${escape(sample.subtitle || sample.specialty)}</p><span class="sample-badges">${sample.languages.map(language => `<span class="lang-chip" data-lang="${escape(language)}" style="${languageStyle(language, sample)}">${escape(language.toUpperCase())}</span>`).join('')}${!sample.isDemo ? '<span class="lang-chip">LOCAL FILE</span>' : ''}<span class="sample-duration">${formatTime(sample.duration)}</span></span></button>`).join('');
 }
 
 function loadSample(sample) {
@@ -95,6 +105,7 @@ function loadSample(sample) {
   $('sample-description').textContent = sample.description;
   $('consultation-id').textContent = sample.isDemo ? `CONSULTATION ${String(samples.indexOf(sample) + 1).padStart(3, '0')}` : 'YOUR RECORDING';
   $('source-badge').innerHTML = `<span></span> ${sample.isDemo ? 'Scripted demo' : sample.transcribed ? 'Oak 1 transcript' : 'Local audio'}`;
+  $('demo-notice').hidden = !sample.isDemo;
   $('duration-label').textContent = formatTime(sample.duration);
   $('total-time').textContent = formatTime(sample.duration);
   $('playback-note').textContent = sample.isDemo ? 'Timeline preview · no audio' : 'Local audio playback';
@@ -124,14 +135,42 @@ function loadSample(sample) {
 }
 
 function renderWaveform() {
-  // Illustrative timeline bars, not measured audio amplitudes.
-  const words = getWords(state.sample);
-  $('waveform-bars').innerHTML = Array.from({ length: 130 }, (_, index) => {
-    const time = index / 130 * state.sample.duration;
+  const media = selectedEntry()?.media;
+  const peaks = media?.waveform;
+  // Scripted samples have no audio; real consultations use locally measured peaks.
+  const words = getWords(state.sample).sort((a, b) => a.start - b.start);
+  $('playback-note').textContent = state.sample.isDemo ? 'Timeline preview · no audio'
+    : media?.waveformStatus === 'loading' ? 'Preparing waveform…'
+    : media?.waveformStatus === 'unavailable' ? 'Audio playback · waveform unavailable'
+    : 'Local audio playback';
+  $('waveform-bars').innerHTML = Array.from({ length: WAVEFORM_BARS }, (_, index) => {
+    const time = index / WAVEFORM_BARS * state.sample.duration;
     const word = words.find(word => word.start <= time && word.end > time);
-    const height = word && state.sample.isDemo ? 12 + Math.abs(Math.sin(index * 1.9) * Math.cos(index * .37)) * 40 : 4;
-    return `<i style="height:${height.toFixed(1)}px;--wave-color:${word ? languageMeta(word.language).color : 'var(--line)'}"></i>`;
+    const height = state.sample.isDemo
+      ? word ? 12 + Math.abs(Math.sin(index * 1.9) * Math.cos(index * .37)) * 40 : 4
+      : 4 + 48 * Math.pow(peaks?.[index] || 0, .65);
+    const language = state.sample.isDemo ? word?.language : getWaveformLanguage(words, time);
+    const color = language ? languageMeta(language).color : words.length ? 'var(--line)' : 'var(--orange)';
+    return `<i data-lang="${escape(language || '')}" style="height:${height.toFixed(1)}px;--wave-color:${color}"></i>`;
   }).join('');
+}
+
+async function loadWaveform(entry) {
+  const { media, file } = entry;
+  const controller = new AbortController();
+  const release = media.release;
+  media.release = () => { controller.abort(); release(); };
+  try {
+    media.waveform = await createAudioWaveform(file, { signal: controller.signal });
+    media.waveformStatus = 'ready';
+  } catch {
+    // A preview failure must never stop playback or automatic transcription.
+    media.waveformStatus = 'unavailable';
+  }
+  if (!controller.signal.aborted && selectedEntry() === entry) {
+    renderWaveform();
+    updateTime();
+  }
 }
 
 function renderTranscript() {
@@ -162,10 +201,10 @@ function renderTranscript() {
       if (current?.language === word.language) current.words.push({ ...word, index });
       else runs.push({ language: word.language, words: [{ ...word, index }] });
     });
-    return `<article class="turn" data-turn="${escape(turn.id)}">${avatar(turn.speaker)}<div><div class="turn-meta"><span class="speaker-label ${speakerTone(turn.speaker)}">${escape(state.sample.speakerNames[turn.speaker] || turn.speaker)}</span><span class="speaker-code">${escape(turn.speaker)}</span><button class="turn-time" data-seek="${turn.start}" aria-label="Go to ${formatTime(turn.start)}">${formatTime(turn.start)} ${icon('play')}</button></div><p class="turn-words">${runs.map(run => `<span class="language-run" lang="${escape(run.language)}" dir="${languageMeta(run.language).dir}">${run.words.map(word => {
+    return `<article class="turn" data-turn="${escape(turn.id)}">${avatar(turn.speaker)}<div><div class="turn-meta"><span class="speaker-label ${speakerTone(turn.speaker)}">${escape(state.sample.speakerNames[turn.speaker] || turn.speaker)}</span><span class="speaker-code">${escape(turn.speaker)}</span><button class="turn-time" data-seek="${turn.start}" aria-label="Go to ${formatTime(turn.start)}">${formatTime(turn.start)} ${icon('play')}</button></div><p class="turn-words">${runs.map(run => `<span class="language-run" style="${languageStyle(run.language)}" lang="${escape(run.language)}" dir="${languageMeta(run.language).dir}">${run.words.map(word => {
       const match = state.query && turn.matchingWordIndexes.includes(word.index);
       const label = `${word.text} · ${languageMeta(word.language).name} · ${formatTime(word.start)}`;
-      return `${word.index ? escape(word.separatorBefore ?? ' ') : ''}<button class="word ${word.language !== 'en' ? 'foreign' : ''}" data-turn-id="${escape(turn.id)}" data-word="${word.index}" data-lang="${escape(word.language)}" aria-label="${escape(label)}">${match ? '<mark>' : ''}${escape(word.text)}${match ? '</mark>' : ''}</button>`;
+      return `${word.index ? escape(word.separatorBefore ?? ' ') : ''}<button class="word" data-turn-id="${escape(turn.id)}" data-word="${word.index}" data-lang="${escape(word.language)}" aria-label="${escape(label)}">${match ? '<mark>' : ''}${escape(word.text)}${match ? '</mark>' : ''}</button>`;
     }).join('')}</span>`).join('')}</p></div></article>`;
   }).join('') || `<div class="empty-state">${icon('search')}<strong>No matching words.</strong><p>Try another phrase or clear the speaker and language filters.</p><button id="clear-filters">Clear all filters</button></div>`;
   updateTime();
@@ -178,19 +217,19 @@ function renderInspector() {
   $('language-count').textContent = hasTranscript ? `${stats.languageCount} language${stats.languageCount === 1 ? '' : 's'}` : 'Languages pending';
   $('word-count').textContent = `${stats.wordCount} words`;
   $('language-total').textContent = hasTranscript ? `${stats.languageCount} in ${state.sample.isDemo ? 'sample' : 'audio'}` : 'Awaiting transcript';
-  $('language-ribbon').innerHTML = Object.entries(stats.languageCounts).map(([code, count]) => `<span style="width:${count / stats.wordCount * 100}%;background:${languageMeta(code).color}" title="${escape(languageMeta(code).name)}"></span>`).join('');
-  $('language-breakdown').innerHTML = Object.entries(stats.languageCounts).map(([code, count]) => `<div class="language-row"><span class="language-dot" style="background:${languageMeta(code).color}"></span><span>${escape(languageMeta(code).name)} <small>${escape(code.toUpperCase())}</small></span><strong>${Math.round(count / stats.wordCount * 100)}%</strong></div>`).join('');
+  $('language-ribbon').innerHTML = Object.entries(stats.languageCounts).map(([code, count]) => `<span data-lang="${escape(code)}" style="width:${count / stats.wordCount * 100}%;background:${languageMeta(code).color}" title="${escape(languageMeta(code).name)}"></span>`).join('');
+  $('language-breakdown').innerHTML = Object.entries(stats.languageCounts).map(([code, count]) => `<div class="language-row" data-lang="${escape(code)}" style="${languageStyle(code)}"><span class="language-dot"></span><span>${escape(languageMeta(code).name)} <small>${escape(code.toUpperCase())}</small></span><strong>${Math.round(count / stats.wordCount * 100)}%</strong></div>`).join('');
   $('switch-count').textContent = stats.switchCount;
   const words = getWords(state.sample);
   const switches = words.flatMap((word, index) => index && word.language !== words[index - 1].language ? [{ ...word, from: words[index - 1].language }] : []);
-  $('language-switches').innerHTML = switches.map(word => `<button class="switch-item" data-seek="${word.start}" aria-label="Go to language switch at ${formatTime(word.start)}"><span class="switch-time">${formatTime(word.start)}</span><span class="switch-tag" data-lang="${escape(word.from)}">${escape(word.from.toUpperCase())}</span>${icon('chevron')}<span class="switch-tag" data-lang="${escape(word.language)}">${escape(word.language.toUpperCase())}</span></button>`).join('') || '<span class="preview-note">No language switches to show.</span>';
+  $('language-switches').innerHTML = switches.map(word => `<button class="switch-item" data-seek="${word.start}" aria-label="Go to language switch at ${formatTime(word.start)}"><span class="switch-time">${formatTime(word.start)}</span><span class="switch-tag" data-lang="${escape(word.from)}" style="${languageStyle(word.from)}">${escape(word.from.toUpperCase())}</span>${icon('chevron')}<span class="switch-tag" data-lang="${escape(word.language)}" style="${languageStyle(word.language)}">${escape(word.language.toUpperCase())}</span></button>`).join('') || '<span class="preview-note">No language switches to show.</span>';
   $('speaker-list').innerHTML = Object.entries(state.sample.speakerNames).map(([code, name]) => `<button class="speaker-button" data-rename="${escape(code)}" aria-label="Rename ${escape(name)}">${avatar(code)}<span><strong>${escape(name)}</strong><small>${state.sample.diarization === 'channel' ? 'Audio channel' : 'Speaker'} ${escape(code)}</small></span>${icon('edit')}</button>`).join('') || '<span class="preview-note">Available after transcription.</span>';
 }
 
 function renderWord() {
   const header = `<div class="section-label">WORD EXPLORER ${icon('code')}</div>`;
   const word = state.selected;
-  $('word-inspector').innerHTML = !word ? `${header}<p>Select any word in the transcript to see its language, speaker, and timing.</p>` : `${header}<h3 dir="auto">${escape(word.text)}</h3><dl class="word-details"><div><dt>Language</dt><dd>${escape(languageMeta(word.language).name)}</dd></div><div><dt>Speaker</dt><dd>${escape(state.sample.speakerNames[word.speaker] || word.speaker)}</dd></div><div><dt>Start → end</dt><dd>${word.start.toFixed(2)} → ${word.end.toFixed(2)}s</dd></div></dl><p>${state.sample.isDemo ? 'Illustrative metadata from this scripted sample.' : 'Word-level transcript metadata.'}</p>`;
+  $('word-inspector').innerHTML = !word ? `${header}<p>Select any word in the transcript to see its language, speaker, and timing.</p>` : `${header}<h3 dir="auto" style="${languageStyle(word.language)};color:var(--language-ink)">${escape(word.text)}</h3><dl class="word-details"><div><dt>Language</dt><dd>${escape(languageMeta(word.language).name)}</dd></div><div><dt>Speaker</dt><dd>${escape(state.sample.speakerNames[word.speaker] || word.speaker)}</dd></div><div><dt>Start → end</dt><dd>${word.start.toFixed(2)} → ${word.end.toFixed(2)}s</dd></div></dl><p>${state.sample.isDemo ? 'Illustrative metadata from this scripted sample.' : 'Word-level transcript metadata.'}</p>`;
 }
 
 function updateTime() {
@@ -199,7 +238,7 @@ function updateTime() {
   $('seek').value = state.time;
   $('seek').setAttribute('aria-valuetext', `${formatTime(state.time)} of ${formatTime(state.sample.duration)}`);
   $('playhead').style.left = `${Math.min(100, state.time / duration * 100)}%`;
-  [...$('waveform-bars').children].forEach((bar, index) => bar.classList.toggle('played', index / 130 <= state.time / duration));
+  [...$('waveform-bars').children].forEach((bar, index) => bar.classList.toggle('played', index / WAVEFORM_BARS <= state.time / duration));
   const current = findWordAtTime(state.sample, state.time);
   $('transcript-body').querySelectorAll('.word').forEach(element => {
     const turn = state.sample.utterances.find(turn => turn.id === element.dataset.turnId);
@@ -295,7 +334,9 @@ async function loadAudioFile(file, { source = 'upload' } = {}) {
     if (generation !== importGeneration) { media.release(); return; }
     credentials.refresh();
     const entry = consultations.add(file, media, { source, apiKey: credentials.forRequest().key });
+    media.waveformStatus = 'loading';
     loadSample(entry.sample);
+    void loadWaveform(entry);
     $('new-dialog').close();
     notify(source === 'recording' ? 'Recording saved. Starting transcription…' : 'Audio added. Starting transcription…');
   } catch (error) {
@@ -476,6 +517,8 @@ $('speaker-name').addEventListener('input', () => $('speaker-name').setCustomVal
 $('close-rename').addEventListener('click', () => $('rename-dialog').close());
 $('new-consultation').addEventListener('click', openNew);
 $('sidebar-upload').addEventListener('click', openNew);
+$('demo-add-audio').addEventListener('click', openNew);
+$('demo-settings').addEventListener('click', () => $('open-settings').click());
 $('audio-file').addEventListener('change', event => { if (event.target.files[0]) loadAudioFile(event.target.files[0]); });
 $('drop-zone').addEventListener('dragover', event => { event.preventDefault(); $('drop-zone').classList.add('dragover'); });
 $('drop-zone').addEventListener('dragleave', () => $('drop-zone').classList.remove('dragover'));

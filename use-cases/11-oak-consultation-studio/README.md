@@ -102,6 +102,10 @@ Open [http://127.0.0.1:4173](http://127.0.0.1:4173), then select **New consultat
 
 Each upload or recording creates a separate consultation. Switching entries preserves their audio, titles, and transcription progress for the current page session.
 
+Uploaded and recorded audio gets a waveform calculated locally from the sound's amplitude. It appears independently of transcription, retains language colors when a transcript is available, and stays attached to its consultation. Scripted showcases use illustrative bars because they contain no audio. If the browser cannot decode a waveform, playback and transcription can still continue.
+
+Language colors come from one shared palette across the waveform, transcript, language summary, and badges, including languages outside the scripted showcases. Text uses darker shades for readability. Colors stay stable when filtering, and waveform language segments continue through gaps between words instead of reverting to English's color.
+
 ## How It Works
 
 ```mermaid
@@ -124,6 +128,8 @@ flowchart LR
 3. **Submit audio directly.** [public/batch-client.js](public/batch-client.js) sends multipart `data_file` and `config` to Speechmatics. Audio does not pass through the Python function.
 4. **Retrieve the result.** The browser polls job status, renews temporary credentials when needed, and retrieves `json-v2` after completion.
 5. **Render the transcript.** [public/batch-transcript.js](public/batch-transcript.js) normalizes words, punctuation, speakers, languages, and timestamps for the UI. [public/consultation-library.js](public/consultation-library.js) keeps each consultation's state separate.
+
+[public/audio-waveform.js](public/audio-waveform.js) decodes a separate, low-sample-rate preview in the browser and reduces it to normalized amplitude peaks. Only those peaks are retained for the timeline; the original audio used for playback and transcription is unchanged.
 
 ### Oak request configuration
 
