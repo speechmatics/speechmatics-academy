@@ -1,17 +1,21 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:provider/provider.dart';
 
+import '../app_config.dart';
 import '../data/api_keys.dart';
 import '../data/config_mapper.dart';
+import '../data/rt_protocol.dart';
 import '../models/classic_lang_catalog.dart';
 import '../models/lang_catalog.dart';
 import '../models/speaker_profile.dart';
 import '../routes.dart';
 import '../state/settings_store.dart';
+import 'translate_target_screen.dart';
 import '../state/speaker_store.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
@@ -39,6 +43,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Seeded once so per-keystroke store writes don't reset the cursor.
   late final TextEditingController _dictController;
   late final TextEditingController _topicsController;
+  late final TextEditingController _rtDictController;
 
   @override
   void initState() {
@@ -46,6 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final store = context.read<SettingsStore>();
     _dictController = TextEditingController(text: store.customDictText);
     _topicsController = TextEditingController(text: store.topicsText);
+    _rtDictController = TextEditingController(text: store.rtCustomDictText);
     _apiKeys.hasStoredSpeechmatics().then((v) {
       if (mounted) setState(() => _smSaved = v);
     });
@@ -60,6 +66,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _googleKeyController.dispose();
     _dictController.dispose();
     _topicsController.dispose();
+    _rtDictController.dispose();
     super.dispose();
   }
 
@@ -84,21 +91,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: SegmentedToggle<String>(
                 value: s.mode,
                 onChanged: s.setMode,
-                // Real-Time isn't implemented yet — visible but locked.
-                disabled: const {'realtime'},
-                items: const [SegItem('batch', 'Batch'), SegItem('realtime', 'Real-Time')],
-                segHPad: 20,
+                items: const [
+                  SegItem('batch', 'Batch'),
+                  SegItem('realtime', 'Real-Time'),
+                  SegItem('agent', 'Agent'),
+                ],
+                segHPad: 16,
                 segVPad: 8,
               ),
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Text('Real-Time transcription is coming soon.',
-                  style: AppType.body(size: 12, color: AppColors.tertiary)),
-            ),
             const SizedBox(height: 24),
-            if (s.mode == 'batch') ..._batch(context, s) else _realtime(),
+            // API keys are account-level — one dedicated section, visible in
+            // every mode, defined exactly once.
+            _apiKeysSection(s),
+            const SizedBox(height: 24),
+            if (s.mode == 'batch')
+              ..._batch(context, s)
+            else if (s.mode == 'realtime')
+              ..._realtime(context, s)
+            else
+              ..._agent(context, s),
           ],
         ),
       ),
@@ -107,7 +119,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ---------- Batch settings ----------
   List<Widget> _batch(BuildContext context, SettingsStore s) => [
-        _apiKeysSection(s),
+        _label('ENDPOINT'),
+        const SizedBox(height: 12),
+        _endpointCard(
+          title: 'Endpoint region',
+          seg: SegmentedToggle<String>(
+            value: s.region,
+            onChanged: s.setRegion,
+            radius: 10,
+            fontSize: 13,
+            items: const [SegItem('eu1', 'EU'), SegItem('us1', 'US')],
+          ),
+          infoIcon: Symbols.public,
+          info: 'Batch jobs are submitted to — and processed in — this region.',
+          hostLabel: '${s.region == 'us1' ? 'US' : 'EU'} · batch REST API',
+          hostUrl: AppConfig.speechmaticsBase(s.region),
+          note:
+              'EU: eu1.asr.api.speechmatics.com · US: us1.asr.api.speechmatics.com',
+        ),
         const SizedBox(height: 24),
         _speakersSection(context, s),
         const SizedBox(height: 24),
@@ -159,7 +188,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           sub: _rowPicker(
             title: 'Translate to',
             value: s.targetLanguageName,
-            onTap: () => _pickLanguage(context, (l) => s.setTarget(l.code, l.name)),
+            // Full selection panel (Google Translate catalog) — same design
+            // as the Language Hints screen, replacing the old bottom sheet.
+            onTap: () => Navigator.pushNamed(
+              context,
+              Routes.translateTarget,
+              arguments:
+                  const TranslateTargetArgs(TranslateTargetMode.batchGoogle),
+            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -278,52 +314,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _rowPicker(
             title: 'Language',
             value: ClassicLangCatalog.nameFor(s.classicLanguage),
-            onTap: () => _pickClassicLanguage(context, s),
+            // Shared full-screen language panel (same design as the
+            // translate pickers), with the pinned Auto-detect action.
+            onTap: () => Navigator.pushNamed(
+              context,
+              Routes.translateTarget,
+              arguments:
+                  const TranslateTargetArgs(TranslateTargetMode.batchLanguage),
+            ),
           ),
       ],
     );
-  }
-
-  /// Same panel design as the Melia-1 picker, with the classic catalog
-  /// (one alphabetical list; bilingual packs included where they sort).
-  Future<void> _pickClassicLanguage(BuildContext context, SettingsStore s) async {
-    final entries = [...ClassicLangCatalog.all]..sort((a, b) => a.name.compareTo(b.name));
-    final picked = await showModalBottomSheet<ClassicLangInfo>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Choose a language', style: AppType.headline(size: 18)),
-            ),
-            for (final l in entries)
-              ListTile(
-                title: Text(l.name, style: AppType.body(size: 16)),
-                subtitle: _classicSubtitle(l),
-                trailing: Text(l.id.toUpperCase(),
-                    style: AppType.mono(size: 12, color: AppColors.onSurfaceVariant)),
-                onTap: () => Navigator.pop(ctx, l),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (picked != null) s.setClassicLanguage(picked.id);
-  }
-
-  /// Native name where the omni catalog knows it; packs marked as such.
-  Widget? _classicSubtitle(ClassicLangInfo l) {
-    if (l.bilingual) {
-      return Text('Bilingual pack', style: AppType.body(size: 13, color: AppColors.tertiary));
-    }
-    final native = LangCatalog.info(l.id)?.native;
-    if (native == null || native.isEmpty) return null;
-    return Text(native, style: AppType.body(size: 13, color: AppColors.tertiary));
   }
 
   // ---------- speakers (identification) ----------
@@ -949,18 +950,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Region', style: AppType.body(size: 15, weight: FontWeight.w500)),
-              const SizedBox(height: 8),
-              SegmentedToggle<String>(
-                value: s.region,
-                onChanged: s.setRegion,
-                radius: 10,
-                fontSize: 13,
-                items: const [SegItem('eu1', 'EU'), SegItem('us1', 'US')],
-              ),
-              const SizedBox(height: 16),
-              const Divider(height: 1),
-              const SizedBox(height: 16),
               _keyField(
                 label: 'Speechmatics API key',
                 controller: _smKeyController,
@@ -1004,8 +993,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _googleKeyController.clear();
                 },
               ),
+              const SizedBox(height: 16),
               const SizedBox(height: 8),
-              Text('Keys are stored securely on this device.',
+              Text(
+                  'Keys are stored securely on this device for recording and live transcription.',
                   style: AppType.body(size: 12, color: AppColors.tertiary)),
             ],
           ),
@@ -1181,80 +1172,666 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> _pickLanguage(BuildContext context, void Function(LangInfo) onPicked) async {
-    final picked = await showModalBottomSheet<LangInfo>(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: ListView(
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text('Choose a language', style: AppType.headline(size: 18)),
-            ),
-            for (final l in LangCatalog.all)
-              ListTile(
-                title: Text(l.name, style: AppType.body(size: 16)),
-                subtitle: Text(l.native, style: AppType.body(size: 13, color: AppColors.tertiary)),
-                trailing: Text(l.code.toUpperCase(),
-                    style: AppType.mono(size: 12, color: AppColors.onSurfaceVariant)),
-                onTap: () => Navigator.pop(ctx, l),
-              ),
-          ],
-        ),
-      ),
-    );
-    if (picked != null) onPicked(picked);
-  }
-
   // ---------- Real-Time ----------
-  Widget _realtime() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.outlineVariant),
-        boxShadow: const [BoxShadow(color: Color(0x0F0D3C48), blurRadius: 20, offset: Offset(0, 4))],
-      ),
-      child: Column(
-        children: [
-          Stack(
-            clipBehavior: Clip.none,
+  List<Widget> _realtime(BuildContext context, SettingsStore s) => [
+        _label('ENDPOINT'),
+        const SizedBox(height: 12),
+        _endpointCard(
+          title: 'Endpoint mode',
+          seg: SegmentedToggle<String>(
+            value: s.rtEndpointMode,
+            onChanged: s.setRtEndpointMode,
+            radius: 10,
+            fontSize: 13,
+            items: const [
+              SegItem('auto', 'Auto'),
+              SegItem('eu', 'EU'),
+              SegItem('us', 'US'),
+            ],
+          ),
+          infoIcon: Symbols.travel_explore,
+          info:
+              'Auto (recommended) routes each session to the nearest region for the lowest latency.',
+          hostLabel: s.rtEndpointMode == 'auto'
+              ? 'Auto · global routing'
+              : '${s.rtEndpointMode.toUpperCase()} · real-time websocket',
+          hostUrl: AppConfig.rtBase(s.rtEndpointMode),
+          note:
+              'Auto: global.rt.speechmatics.com · EU: eu.rt.speechmatics.com · US: us.rt.speechmatics.com',
+        ),
+        const SizedBox(height: 24),
+        _label('TRANSCRIPTION'),
+        const SizedBox(height: 12),
+        _plainCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(color: AppColors.primaryContainer, shape: BoxShape.circle),
-                child: const Text('🚀', style: TextStyle(fontSize: 40)),
-              ),
-              Positioned(
-                top: -4,
-                right: -8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                      color: AppColors.warningAmber, borderRadius: BorderRadius.circular(999)),
-                  child: Text('Coming Soon',
-                      style: AppType.body(size: 10, weight: FontWeight.w700, color: const Color(0xFF0D3C48))),
+              _rowPicker(
+                title: 'Source language',
+                value: ClassicLangCatalog.nameFor(s.rtLanguage),
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  Routes.translateTarget,
+                  arguments:
+                      const TranslateTargetArgs(TranslateTargetMode.rtSource),
                 ),
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              const SizedBox(height: 16),
+              Text('Accuracy', style: AppType.body(size: 15, weight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              SegmentedToggle<String>(
+                value: s.rtOperatingPoint,
+                onChanged: s.setRtOperatingPoint,
+                radius: 10,
+                fontSize: 13,
+                items: const [
+                  SegItem('enhanced', 'Enhanced'),
+                  SegItem('standard', 'Standard'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text('Show partials',
+                          style: AppType.body(size: 15, weight: FontWeight.w500)),
+                    ),
+                  ),
+                  _switch(s.rtPartials, s.setRtPartials),
+                ],
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Text('Real-Time Transcription',
-              style: AppType.headline(size: 20, color: const Color(0xFF0D3C48))),
+        ),
+        const SizedBox(height: 24),
+        Row(children: [
+          _label('DOMAIN'),
+          if (s.rtOperatingPoint != 'enhanced') ...[
+            const SizedBox(width: 8),
+            Icon(Symbols.lock, size: 18, color: AppColors.warningAmber),
+          ],
+        ]),
+        const SizedBox(height: 12),
+        _rtDomainCard(s),
+        const SizedBox(height: 24),
+        _toggleSection(
+          title: 'DIARIZATION',
+          label: 'Speaker diarization',
+          value: s.rtDiarization,
+          onChanged: s.setRtDiarization,
+          sub: Row(
+            children: [
+              Expanded(
+                child: Text('Max speakers',
+                    style: AppType.body(size: 14, color: AppColors.onSurfaceVariant)),
+              ),
+              _stepper(
+                value: s.rtMaxSpeakers,
+                onChanged: s.setRtMaxSpeakers,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        _label('LATENCY'),
+        const SizedBox(height: 12),
+        _plainCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Max delay',
+                        style: AppType.body(size: 15, weight: FontWeight.w500)),
+                  ),
+                  Text('${s.rtMaxDelay.toStringAsFixed(1)}s',
+                      style: AppType.mono(size: 13, color: AppColors.primary)),
+                ],
+              ),
+              Slider(
+                value: s.rtMaxDelay,
+                min: 0.7,
+                max: 4.0,
+                divisions: 33,
+                activeColor: AppColors.primary,
+                onChanged: s.setRtMaxDelay,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Fast', style: AppType.body(size: 11, color: AppColors.tertiary)),
+                  Text('Extra accurate',
+                      style: AppType.body(size: 11, color: AppColors.tertiary)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SegmentedToggle<String>(
+                value: s.rtMaxDelayMode,
+                onChanged: s.setRtMaxDelayMode,
+                radius: 10,
+                fontSize: 13,
+                items: const [
+                  SegItem('flexible', 'Flexible'),
+                  SegItem('fixed', 'Fixed'),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        _toggleSection(
+          title: 'CUSTOM DICTIONARY',
+          label: 'Custom dictionary',
+          value: s.rtCustomDict,
+          onChanged: s.setRtCustomDict,
+          sub: TextField(
+            controller: _rtDictController,
+            onChanged: s.setRtCustomDictText,
+            maxLines: 2,
+            style: AppType.body(size: 14),
+            decoration: InputDecoration(
+              hintText: 'Unique words, comma separated',
+              hintStyle: AppType.body(size: 14, color: AppColors.tertiary),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: const BorderSide(color: AppColors.outlineVariant),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
+        _toggleSection(
+          title: 'PUNCTUATION',
+          label: 'Punctuation',
+          value: s.rtPunctuation,
+          onChanged: s.setRtPunctuation,
+          sub: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Sensitivity',
+                        style: AppType.body(size: 14, color: AppColors.onSurfaceVariant)),
+                  ),
+                  Text(s.rtSensitivity.toStringAsFixed(1),
+                      style: AppType.mono(size: 13, color: AppColors.primary)),
+                ],
+              ),
+              Slider(
+                value: s.rtSensitivity,
+                min: 0,
+                max: 1,
+                divisions: 10,
+                activeColor: AppColors.primary,
+                onChanged: s.setRtSensitivity,
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final m in const [
+                    ('comma', 'Comma'),
+                    ('period', 'Period'),
+                    ('question_mark', 'Question'),
+                    ('exclamation_mark', 'Exclamation'),
+                  ])
+                    _chip(m.$2, s.rtMarks.contains(m.$1),
+                        () => s.toggleRtMark(m.$1)),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        _label('ADVANCED'),
+        const SizedBox(height: 12),
+        _plainCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (s.rtLanguage == 'en') ...[
+                Text('Output locale',
+                    style: AppType.body(size: 15, weight: FontWeight.w500)),
+                const SizedBox(height: 8),
+                SegmentedToggle<String>(
+                  value: s.rtOutputLocale,
+                  onChanged: s.setRtOutputLocale,
+                  radius: 10,
+                  fontSize: 12,
+                  items: const [
+                    SegItem('', 'Default'),
+                    SegItem('en-GB', 'EN-GB'),
+                    SegItem('en-US', 'EN-US'),
+                    SegItem('en-AU', 'EN-AU'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+              ],
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('Audio filtering',
+                        style: AppType.body(size: 15, weight: FontWeight.w500)),
+                  ),
+                  _switch(s.rtAudioFiltering, s.setRtAudioFiltering),
+                ],
+              ),
+              if (s.rtAudioFiltering) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text('Volume threshold',
+                          style: AppType.body(
+                              size: 14, color: AppColors.onSurfaceVariant)),
+                    ),
+                    Text(s.rtVolume.round().toString(),
+                        style: AppType.mono(size: 13, color: AppColors.primary)),
+                  ],
+                ),
+                Slider(
+                  value: s.rtVolume.clamp(0, 100).toDouble(),
+                  min: 0,
+                  max: 100,
+                  divisions: 100,
+                  activeColor: AppColors.primary,
+                  onChanged: s.setRtVolume,
+                ),
+                Text('High values can filter out all speech — keep this low.',
+                    style: AppType.body(size: 12, color: AppColors.tertiary)),
+                const SizedBox(height: 8),
+              ],
+              const Divider(height: 1),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text('Disfluency removal',
+                          style: AppType.body(size: 15, weight: FontWeight.w500)),
+                    ),
+                  ),
+                  _switch(s.rtDisfluencyRemoval, s.setRtDisfluencyRemoval),
+                ],
+              ),
+              Text("Removes hesitations like 'hmm' or 'um' from the transcript.",
+                  style: AppType.body(size: 12, color: AppColors.tertiary)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        _toggleSection(
+          title: 'LIVE TRANSLATION',
+          label: 'Enable translation (Google)',
+          value: s.rtTranslation,
+          onChanged: s.setRtTranslation,
+          sub: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _rowPicker(
+                title: 'Translate to',
+                value: s.rtTargetLanguageName,
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  Routes.translateTarget,
+                  arguments:
+                      const TranslateTargetArgs(TranslateTargetMode.rtGoogle),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                  'Live captions are translated with Google Translate as they finalize — the same pipeline Batch and Agent use.',
+                  style: AppType.body(size: 12, color: AppColors.tertiary)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        _toggleSection(
+          title: 'TASKS',
+          label: 'Audio events',
+          value: s.rtAudioEvents,
+          onChanged: s.setRtAudioEvents,
+          sub: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final e in const [
+                ('laughter', 'Laughter'),
+                ('music', 'Music'),
+                ('applause', 'Applause'),
+              ])
+                _chip(e.$2, s.rtEventTypes.contains(e.$1),
+                    () => s.toggleRtEventType(e.$1)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        // Linden 2 = the multilingual Agent STT model (Melia is packaged
+        // separately as the batch family).
+        _teaserCard(
+            'LINDEN 2 — COMING SOON',
+            'Multilingual Agent STT: 56 languages with mid-sentence '
+                'code-switching, previewing in the second half of August.'),
+        const SizedBox(height: 24),
+        _wirePreview(
+          s.rtSnapshot(),
+          footNote: s.rtTranslation
+              ? 'Google Translate → ${s.rtTargetLanguageName} (per finalized caption)'
+              : 'Translation off',
+        ),
+      ];
+
+  /// RT domain packs — Enhanced-only, mirroring the Batch card.
+  Widget _rtDomainCard(SettingsStore s) {
+    const items = [
+      SegItem('none', 'None'),
+      SegItem('medical', 'Medical'),
+      SegItem('finance', 'Finance'),
+    ];
+    if (s.rtOperatingPoint != 'enhanced') {
+      return Opacity(
+        opacity: 0.7,
+        child: _plainCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SegmentedToggle<String>(
+                value: 'none',
+                onChanged: (_) {},
+                expand: true,
+                radius: 10,
+                segVPad: 8,
+                fontSize: 14,
+                disabled: const {'none', 'medical', 'finance'},
+                items: items,
+              ),
+              const SizedBox(height: 12),
+              Text('Domain packs need Enhanced accuracy — switch ACCURACY to Enhanced.',
+                  style: AppType.body(size: 12, color: AppColors.warningAmber)),
+            ],
+          ),
+        ),
+      );
+    }
+    final caption = s.rtDomain == 'none'
+        ? 'Domain language packs tune Enhanced for specialised vocabulary.'
+        : 'The ${s.rtDomain} pack is applied to ${ClassicLangCatalog.nameFor(s.rtLanguage)}.';
+    return _plainCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SegmentedToggle<String>(
+            value: s.rtDomain,
+            onChanged: s.setRtDomain,
+            expand: true,
+            radius: 10,
+            segVPad: 8,
+            fontSize: 14,
+            items: items,
+          ),
+          const SizedBox(height: 16),
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+          Row(children: [
+            Icon(Symbols.domain, size: 16, color: AppColors.primary),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(caption,
+                  style: AppType.body(
+                      size: 13, color: AppColors.onSurfaceVariant)),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+
+  /// The exact StartRecognition body a live session will send — same
+  /// technical-card treatment as the Batch config preview.
+  Widget _wirePreview(RtSessionConfig config, {String? footNote}) {
+    final body = buildStartRecognition(config,
+        sampleRate:
+            defaultTargetPlatform == TargetPlatform.iOS ? 48000 : 16000);
+    final json = const JsonEncoder.withIndent('  ').convert(body);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.technicalBg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.technicalBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Text('StartRecognition',
+                style: AppType.mono(size: 14, color: const Color(0xFFFBFDFC))),
+            const Spacer(),
+            const Icon(Symbols.bolt, size: 16, color: Color(0xFF6ADAB7)),
+          ]),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Divider(height: 1, color: AppColors.technicalBorder),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Text(json,
+                style: AppType.mono(
+                        size: 12,
+                        color: const Color(0xFFD9F5EC),
+                        weight: FontWeight.w400)
+                    .copyWith(height: 1.5)),
+          ),
+          if (footNote != null) ...[
+            const SizedBox(height: 12),
+            Row(children: [
+              const Icon(Symbols.translate, size: 14, color: Color(0xFFA3CDDC)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(footNote,
+                    style:
+                        AppType.body(size: 12, color: const Color(0xFFA3CDDC))),
+              ),
+            ]),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ---------- Agent settings ----------
+
+  List<Widget> _agent(BuildContext context, SettingsStore s) => [
+        _label('VOICE AGENT'),
+        const SizedBox(height: 12),
+        _plainCard(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Connect your voice agent',
+                    style: AppType.headline(size: 18)),
+                const SizedBox(height: 8),
+                Text(
+                    'Set up the Agent connection and conversation personality.',
+                    style: AppType.body(size: 14, color: AppColors.tertiary)),
+                const SizedBox(height: 16),
+                _rowPicker(
+                  title: 'Agent setup',
+                  value: 'Connection and personality',
+                  onTap: () =>
+                      Navigator.pushNamed(context, Routes.agentConnection),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ];
+
+  /// Endpoint card — one design family across Batch, Real-Time and Agent.
+  Widget _endpointCard({
+    required String title,
+    required Widget seg,
+    required IconData infoIcon,
+    required String info,
+    required String hostLabel,
+    required String hostUrl,
+    required String note,
+  }) {
+    return _plainCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppType.body(size: 15, weight: FontWeight.w500)),
           const SizedBox(height: 8),
-          Text(
-            'Real-time transcription is currently in development and will be available in a future release.',
-            textAlign: TextAlign.center,
-            style: AppType.body(size: 14, color: AppColors.onSurfaceVariant, height: 1.4),
+          seg,
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(infoIcon, size: 16, color: AppColors.onSurfaceVariant),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(info,
+                    style: AppType.body(
+                        size: 12.5, color: AppColors.onSurfaceVariant, height: 1.4)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(Symbols.dns, size: 16, color: AppColors.onSurfaceVariant),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(hostLabel,
+                          style: AppType.body(size: 12, weight: FontWeight.w600)),
+                      Text(hostUrl,
+                          style: AppType.mono(
+                              size: 11, color: AppColors.onSurfaceVariant)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(note, style: AppType.body(size: 11, color: AppColors.tertiary)),
+        ],
+      ),
+    );
+  }
+
+  Widget _teaserCard(String label, String text) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Symbols.auto_awesome, size: 17, color: AppColors.primary),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: AppType.labelCaps(size: 9, color: AppColors.primary)),
+                const SizedBox(height: 3),
+                Text(text,
+                    style: AppType.body(
+                        size: 12.5, color: AppColors.onSurfaceVariant, height: 1.45)),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _stepper({required int value, required ValueChanged<int> onChanged}) {
+    Widget btn(IconData icon, VoidCallback onTap) => InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 18, color: AppColors.onSurface),
+          ),
+        );
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      btn(Symbols.remove, () => onChanged(value - 1)),
+      SizedBox(
+        width: 44,
+        child: Text('$value',
+            textAlign: TextAlign.center,
+            style: AppType.mono(size: 14, weight: FontWeight.w600)),
+      ),
+      btn(Symbols.add, () => onChanged(value + 1)),
+    ]);
+  }
+
+  /// Toggle chip; [ign] renders the on-state in the orange "ignored"
+  /// treatment (block icon + strike-through) from the design.
+  Widget _chip(String label, bool on, VoidCallback? onTap, {bool ign = false}) {
+    final accent = ign ? AppColors.recordActive : AppColors.primary;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: on ? accent.withValues(alpha: ign ? 0.08 : 0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+              color: on
+                  ? (ign ? accent.withValues(alpha: 0.4) : accent)
+                  : AppColors.outlineVariant),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          if (on) ...[
+            Icon(ign ? Symbols.block : Symbols.check, size: 14, color: accent),
+            const SizedBox(width: 4),
+          ],
+          Text(label,
+              style: AppType.body(
+                      size: 13,
+                      weight: FontWeight.w600,
+                      color: on ? accent : AppColors.onSurfaceVariant)
+                  .copyWith(
+                      decoration:
+                          on && ign ? TextDecoration.lineThrough : null,
+                      decorationColor: accent)),
+        ]),
       ),
     );
   }

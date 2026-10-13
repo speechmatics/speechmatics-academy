@@ -7,7 +7,7 @@ import '../routes.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
 
-enum SpeechTab { home, upload, history, settings, none }
+enum SpeechTab { home, upload, history, agent, settings, none }
 
 /// Bottom navigation shared across the four primary destinations.
 /// Tapping a destination replaces the current route (matches the per-page
@@ -20,6 +20,7 @@ class SpeechBottomNav extends StatelessWidget {
   static const _items = [
     (_NavItem(SpeechTab.home, Symbols.home, 'Home', Routes.home)),
     (_NavItem(SpeechTab.upload, Symbols.cloud_upload, 'Upload', Routes.upload)),
+    (_NavItem(SpeechTab.agent, Symbols.smart_toy, 'Agent', Routes.agent)),
     (_NavItem(SpeechTab.history, Symbols.history, 'History', Routes.history)),
     (_NavItem(SpeechTab.settings, Symbols.settings, 'Settings', Routes.settings)),
   ];

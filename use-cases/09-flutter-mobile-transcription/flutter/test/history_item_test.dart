@@ -5,6 +5,36 @@ import 'package:speechmatics_translate/models/history_item.dart';
 
 void main() {
   group('HistoryItem serialization', () {
+    test('legacy Agent and Home LIVE conversations keep their resume identity', () {
+      for (final model in ['Agent STT', 'RT']) {
+        final legacy = <String, dynamic>{
+          'id': 'live-123',
+          'type': 'conversation',
+          'title': 'Saved conversation',
+          'jobId': '',
+          'languages': ['EN', 'LV'],
+          'model': model,
+          'translation': true,
+          'translationText': 'Sveiki',
+          'targetLanguage': 'Latvian',
+          'conversation': [
+            {'role': 'Speaker 1', 'lang': 'EN', 'text': 'Hello'},
+            {'role': 'AGENT', 'lang': 'EN', 'text': 'How can I help?'},
+          ],
+        };
+        final item = HistoryItem.fromJson(legacy);
+        final reloaded = HistoryItem.fromJson(item.copyWith(title: 'Renamed').toJson());
+        expect(reloaded.type, HistoryType.conversation);
+        expect(reloaded.model, model);
+        expect(reloaded.jobId, isEmpty);
+        expect(reloaded.audioFile, isNull);
+        expect(reloaded.conversation!.map((turn) => turn.role), ['Speaker 1', 'AGENT']);
+        expect(reloaded.conversation!.map((turn) => turn.text), ['Hello', 'How can I help?']);
+        expect(reloaded.translationText, 'Sveiki');
+        expect(reloaded.targetLanguage, 'Latvian');
+      }
+    });
+
     test('round-trips audioFile and per-word timings', () {
       final item = HistoryItem(
         id: 't-1',
@@ -179,6 +209,46 @@ void main() {
       expect(item.srtText, isNull);
       expect(item.favorite, isFalse);
       expect(item.hasInsights, isFalse);
+    });
+
+    test('round-trips failed items (failed, errorText, retryConfig)', () {
+      final item = HistoryItem(
+        id: 't-9',
+        type: HistoryType.batch,
+        title: 'Recording 19:43',
+        jobId: '',
+        languages: const [],
+        relativeLabel: 'Just now',
+        bucket: 'today',
+        model: 'Enhanced',
+        audioFile: 't-9.m4a',
+        failed: true,
+        errorText: 'SocketException: Network is unreachable, errno = 101',
+        retryConfig: const {'model': 'enhanced', 'region': 'eu1'},
+      );
+
+      final back = HistoryItem.fromJson(
+          (jsonDecode(jsonEncode(item.toJson())) as Map).cast<String, dynamic>());
+
+      expect(back.failed, isTrue);
+      expect(back.errorText, contains('errno = 101'));
+      expect(back.retryConfig, {'model': 'enhanced', 'region': 'eu1'});
+      expect(back.audioFile, 't-9.m4a');
+    });
+
+    test('old JSON without failed fields → not failed', () {
+      final item = HistoryItem.fromJson(const {
+        'id': 'o2',
+        'type': 'batch',
+        'title': 'Old',
+        'jobId': 'x',
+        'languages': ['EN'],
+        'relativeLabel': '1d ago',
+        'bucket': 'week',
+      });
+      expect(item.failed, isFalse);
+      expect(item.errorText, isNull);
+      expect(item.retryConfig, isNull);
     });
   });
 }

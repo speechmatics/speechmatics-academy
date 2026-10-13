@@ -14,6 +14,21 @@ class AppConfig {
   static String speechmaticsBase(String region) =>
       'https://${region == 'us1' ? 'us1' : 'eu1'}.asr.api.speechmatics.com/v2';
 
+  /// Speechmatics RT websocket base for an endpoint mode.
+  /// 'auto' uses the global endpoint, which routes each connection to the
+  /// nearest region for the lowest latency — no hard-coded region needed.
+  static String rtBase(String endpointMode) => switch (endpointMode) {
+        'eu' => 'wss://eu.rt.speechmatics.com/v2',
+        'us' => 'wss://us.rt.speechmatics.com/v2',
+        _ => 'wss://global.rt.speechmatics.com/v2',
+      };
+
+  // RT session tunables.
+  static const rtChunkBytes = 4096;
+  static const rtConnectTimeout = Duration(seconds: 10);
+  static const rtStartTimeout = Duration(seconds: 10); // RecognitionStarted wait
+  static const rtFinishTimeout = Duration(seconds: 5); // EndOfTranscript wait
+
   static const googleTranslateUrl =
       'https://translation.googleapis.com/language/translate/v2';
 

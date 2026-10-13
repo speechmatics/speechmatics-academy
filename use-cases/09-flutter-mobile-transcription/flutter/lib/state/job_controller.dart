@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../data/api_keys.dart';
+import '../data/audio_file.dart';
 import '../data/audio_store.dart';
 import '../data/config_mapper.dart';
 import '../data/dto/job_status.dart';
@@ -16,6 +19,10 @@ enum JobPhase { idle, submitting, polling, parsing, translating, done, error }
 /// Orchestrates one transcription job end-to-end and drives the Synthesizing
 /// screen. Produces a [HistoryItem], saves it to [HistoryStore], and exposes
 /// the result id for navigation.
+///
+/// The audio is persisted to [AudioStore] BEFORE the job is submitted, so a
+/// job that dies on the network (or is rejected) still lands in History as a
+/// failed item that can be retried — a transient outage never loses a take.
 class JobController extends ChangeNotifier {
   JobController({required this.apiKeys, required this.history});
 
@@ -28,8 +35,16 @@ class JobController extends ChangeNotifier {
   String? resultId;
   bool translationSkipped = false;
 
+  /// Id of the failed HistoryItem persisted for the current error (audio +
+  /// original config saved) — non-null exactly when Retry is possible.
+  String? failedItemId;
+
   bool _busy = false;
   bool _cancelled = false;
+
+  /// True while a job is running end-to-end. `phase` is NOT a reliable proxy —
+  /// cancel() flips it to idle while the pipeline is still winding down.
+  bool get busy => _busy;
 
   void _set(JobPhase p) {
     phase = p;
@@ -41,12 +56,48 @@ class JobController extends ChangeNotifier {
     if (_busy) _set(JobPhase.idle);
   }
 
+  /// Re-runs a failed History item with its persisted audio and the exact
+  /// config it was originally submitted with. Returns false when the retry
+  /// could not start (busy, item gone, or audio unreadable).
+  Future<bool> retry(String itemId) async {
+    if (_busy) return false;
+    final item = history.byId(itemId);
+    final audioFile = item?.audioFile;
+    if (item == null || !item.failed || audioFile == null) return false;
+
+    List<int> bytes;
+    try {
+      final path = await AudioStore.resolve(audioFile);
+      if (path == null) throw StateError('audio missing');
+      bytes = await readAudioBytes(path);
+    } catch (_) {
+      error = 'The saved audio for this recording could not be read.';
+      failedItemId = null;
+      _set(JobPhase.error);
+      return false;
+    }
+
+    // Fire-and-forget: callers navigate to the Synthesizing screen, which
+    // renders progress from the phase notifications.
+    unawaited(startJob(
+      audioBytes: bytes,
+      filename: audioFile,
+      config: JobConfig.fromJson(item.retryConfig ?? const {}),
+      title: item.title,
+      reuseItemId: item.id,
+      presavedAudioFile: audioFile,
+    ));
+    return true;
+  }
+
   Future<void> startJob({
     required List<int> audioBytes,
     required String filename,
     required JobConfig config,
     required String title,
     bool conversation = false,
+    String? reuseItemId,
+    String? presavedAudioFile,
   }) async {
     if (_busy) return;
     _busy = true;
@@ -55,7 +106,15 @@ class JobController extends ChangeNotifier {
     detectedLanguages = [];
     resultId = null;
     translationSkipped = false;
+    failedItemId = null;
     _set(JobPhase.submitting);
+
+    // Retries reuse the failed item's id so success REPLACES it in History.
+    final id = reuseItemId ?? 't-${DateTime.now().microsecondsSinceEpoch}';
+    String? audioFile = presavedAudioFile;
+    var freshSave = false; // audio written by THIS run (cleaned up on cancel)
+    var persisted = false; // a HistoryItem (result or failed) now owns the audio
+    String jobId = '';
 
     SpeechmaticsClient? sm;
     try {
@@ -65,9 +124,20 @@ class JobController extends ChangeNotifier {
       }
       if (audioBytes.isEmpty) throw 'The selected audio file is empty.';
 
+      // Persist the take BEFORE submitting — from here on, no failure mode
+      // short of storage loss can destroy the recording. Best-effort: on
+      // platforms without persistence (web) the job simply runs as before.
+      if (audioFile == null) {
+        try {
+          audioFile = await AudioStore.save(
+              itemId: id, bytes: audioBytes, sourceFilename: filename);
+          freshSave = true;
+        } catch (_) {}
+      }
+
       sm = SpeechmaticsClient(apiKey: smKey, region: config.region);
       final body = ConfigMapper.build(config);
-      final jobId = await sm.submitJob(
+      jobId = await sm.submitJob(
         audioBytes: audioBytes,
         filename: filename,
         config: body,
@@ -134,15 +204,6 @@ class JobController extends ChangeNotifier {
       }
       if (_cancelled) return;
 
-      // Persist the audio for playback (best-effort — a failed save just means
-      // the item has no play button, as before this feature existed).
-      final id = 't-${DateTime.now().microsecondsSinceEpoch}';
-      String? audioFile;
-      try {
-        audioFile = await AudioStore.save(
-            itemId: id, bytes: audioBytes, sourceFilename: filename);
-      } catch (_) {}
-
       final item = _buildItem(
         id: id,
         parsed: parsed,
@@ -155,16 +216,72 @@ class JobController extends ChangeNotifier {
         insights: insights,
         srtText: srtText,
       );
-      history.add(item);
+      history.add(item); // upsert — a retried failure is replaced by its result
+      persisted = true;
       resultId = item.id;
       _set(JobPhase.done);
     } catch (e) {
-      error = e.toString().replaceFirst('Exception: ', '');
+      // A cancelled job that then errors is still just cancelled — no failed
+      // item, no error screen; the finally block reclaims the audio.
+      if (_cancelled) return;
+      final raw = e.toString().replaceFirst('Exception: ', '');
+      if (audioFile != null) {
+        history.add(HistoryItem(
+          id: id,
+          type: HistoryType.batch,
+          title: title,
+          jobId: jobId,
+          languages: const [],
+          relativeLabel: 'Just now',
+          bucket: 'today',
+          model: config.modelDisplayName,
+          createdAt: DateTime.now(),
+          audioFile: audioFile,
+          failed: true,
+          errorText: raw,
+          retryConfig: config.toJson(),
+        ));
+        persisted = true;
+        failedItemId = id;
+      }
+      error = _friendlyError(raw, saved: failedItemId != null);
       _set(JobPhase.error);
     } finally {
       sm?.dispose();
+      // A cancelled run persists nothing — don't strand its audio on disk.
+      if (_cancelled && freshSave && !persisted) {
+        unawaited(AudioStore.delete(audioFile));
+      }
       _busy = false;
     }
+  }
+
+  /// Marks of a connection-level failure (the request never reached the API).
+  static const _networkMarks = [
+    'SocketException',
+    'SocketConnection',
+    'ClientException',
+    'Network is unreachable',
+    'Failed host lookup',
+    'Connection refused',
+    'Connection reset',
+    'Connection closed',
+    'connection abort',
+    'Connection timed out',
+    'Broken pipe',
+    'HandshakeException',
+  ];
+
+  static String _friendlyError(String raw, {required bool saved}) {
+    final isNetwork = _networkMarks.any(raw.contains);
+    if (isNetwork) {
+      final note = saved
+          ? 'Your recording is safe — retry below, or later from History.'
+          : 'Check Wi-Fi or mobile data and try again.';
+      return 'Could not reach the transcription service — the phone had no '
+          'working internet route. $note\n\n($raw)';
+    }
+    return saved ? '$raw\n\nYour recording is saved in History.' : raw;
   }
 
   HistoryItem _buildItem({

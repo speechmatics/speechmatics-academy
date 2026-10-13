@@ -2,7 +2,7 @@ name: speechmatics_translate
 description: "EveryVoice — Speechmatics batch transcription, translation and speech-intelligence app."
 publish_to: 'none'
 # v1.0.0 = first internal release (EveryVoice). Bump +N for every distributed build.
-version: 1.0.0+4
+version: 1.1.0+9
 
 environment:
   sdk: '>=3.4.0 <4.0.0'
@@ -24,10 +24,14 @@ dependencies:
   file_selector: ^1.1.0
   audio_waveforms: ^2.0.2
   share_plus: ^12.0.0
+  web_socket_channel: ^3.0.3
   wakelock_plus: ^1.2.8
+  livekit_client: 2.12.0
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 

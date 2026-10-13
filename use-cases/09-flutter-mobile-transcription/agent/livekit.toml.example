@@ -1,0 +1,8 @@
+# Reference only. `lk agent create` writes the real file after creating a NEW agent.
+# Selected project: speechmatics (project ID p_39rz86ejydw).
+# Existing Speechmatics_AI (CA_cPiiPuZaz4aT) must remain unchanged.
+[project]
+subdomain = "speechmatics-58s7pbzh"
+
+[agent]
+id = "REPLACE_WITH_NEW_AGENT_ID"

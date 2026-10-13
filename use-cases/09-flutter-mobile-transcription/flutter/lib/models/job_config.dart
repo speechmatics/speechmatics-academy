@@ -105,4 +105,100 @@ class JobConfig {
       };
 
   String get modelDisplayName => displayNameFor(model);
+
+  // ---- serialization (persisted on failed HistoryItems so Retry re-runs the
+  // job with the settings it was submitted with, not today's settings) ----
+
+  Map<String, dynamic> toJson() => {
+        'model': model,
+        'region': region,
+        'languageMode': languageMode,
+        'singleLanguage': singleLanguage,
+        'classicLanguageMode': classicLanguageMode,
+        'classicLanguage': classicLanguage,
+        'domain': domain,
+        'languageHints': languageHints,
+        'languageHintsStrict': languageHintsStrict,
+        'diarization': diarization,
+        'diarizationType': diarizationType,
+        'customDictEnabled': customDictEnabled,
+        'customDictText': customDictText,
+        'translationEnabled': translationEnabled,
+        'targetLanguageCode': targetLanguageCode,
+        'targetLanguageName': targetLanguageName,
+        'audioFiltering': audioFiltering,
+        'volumeThreshold': volumeThreshold,
+        'punctuation': punctuation,
+        'sensitivity': sensitivity,
+        'marks': marks,
+        'audioEvents': audioEvents,
+        'eventTypes': eventTypes,
+        'subtitlesEnabled': subtitlesEnabled,
+        'subtitleMaxLineLength': subtitleMaxLineLength,
+        'subtitleMaxLines': subtitleMaxLines,
+        'summaryEnabled': summaryEnabled,
+        'summaryType': summaryType,
+        'summaryLength': summaryLength,
+        'topicsEnabled': topicsEnabled,
+        'topicsText': topicsText,
+        'chaptersEnabled': chaptersEnabled,
+        'speakers': speakers.map((s) => s.toJson()).toList(),
+        'speakerIdentification': speakerIdentification,
+        'speakerSensitivity': speakerSensitivity,
+      };
+
+  /// Tolerant: any missing or wrong-typed field falls back to its default, so
+  /// a retry never fails on a config persisted by an older build.
+  factory JobConfig.fromJson(Map<String, dynamic> j) {
+    const d = JobConfig();
+    String str(String k, String fb) => j[k] is String ? j[k] as String : fb;
+    bool flag(String k, bool fb) => j[k] is bool ? j[k] as bool : fb;
+    double dbl(String k, double fb) => j[k] is num ? (j[k] as num).toDouble() : fb;
+    int intOf(String k, int fb) => j[k] is num ? (j[k] as num).toInt() : fb;
+    List<String> strings(String k, List<String> fb) =>
+        j[k] is List ? (j[k] as List).whereType<String>().toList() : fb;
+    return JobConfig(
+      model: str('model', d.model),
+      region: str('region', d.region),
+      languageMode: str('languageMode', d.languageMode),
+      singleLanguage: str('singleLanguage', d.singleLanguage),
+      classicLanguageMode: str('classicLanguageMode', d.classicLanguageMode),
+      classicLanguage: str('classicLanguage', d.classicLanguage),
+      domain: str('domain', d.domain),
+      languageHints: strings('languageHints', d.languageHints),
+      languageHintsStrict: flag('languageHintsStrict', d.languageHintsStrict),
+      diarization: flag('diarization', d.diarization),
+      diarizationType: str('diarizationType', d.diarizationType),
+      customDictEnabled: flag('customDictEnabled', d.customDictEnabled),
+      customDictText: str('customDictText', d.customDictText),
+      translationEnabled: flag('translationEnabled', d.translationEnabled),
+      targetLanguageCode: str('targetLanguageCode', d.targetLanguageCode),
+      targetLanguageName: str('targetLanguageName', d.targetLanguageName),
+      audioFiltering: flag('audioFiltering', d.audioFiltering),
+      volumeThreshold: dbl('volumeThreshold', d.volumeThreshold),
+      punctuation: flag('punctuation', d.punctuation),
+      sensitivity: dbl('sensitivity', d.sensitivity),
+      marks: strings('marks', d.marks),
+      audioEvents: flag('audioEvents', d.audioEvents),
+      eventTypes: strings('eventTypes', d.eventTypes),
+      subtitlesEnabled: flag('subtitlesEnabled', d.subtitlesEnabled),
+      subtitleMaxLineLength: intOf('subtitleMaxLineLength', d.subtitleMaxLineLength),
+      subtitleMaxLines: intOf('subtitleMaxLines', d.subtitleMaxLines),
+      summaryEnabled: flag('summaryEnabled', d.summaryEnabled),
+      summaryType: str('summaryType', d.summaryType),
+      summaryLength: str('summaryLength', d.summaryLength),
+      topicsEnabled: flag('topicsEnabled', d.topicsEnabled),
+      topicsText: str('topicsText', d.topicsText),
+      chaptersEnabled: flag('chaptersEnabled', d.chaptersEnabled),
+      speakers: j['speakers'] is List
+          ? (j['speakers'] as List)
+              .whereType<Map>()
+              .map((m) => SpeakerProfile.fromJson(m.cast<String, dynamic>()))
+              .whereType<SpeakerProfile>()
+              .toList()
+          : d.speakers,
+      speakerIdentification: flag('speakerIdentification', d.speakerIdentification),
+      speakerSensitivity: dbl('speakerSensitivity', d.speakerSensitivity),
+    );
+  }
 }

@@ -5,7 +5,9 @@ import 'package:provider/provider.dart';
 
 import '../models/history_item.dart';
 import '../models/sample_data.dart';
+import '../routes.dart';
 import '../state/history_store.dart';
+import '../state/job_controller.dart';
 import '../state/transcript_player.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_theme.dart';
@@ -371,7 +373,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      _typeBadge(item.type),
+                      if (item.failed) _failedBadge() else _typeBadge(item.type),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -462,6 +464,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
     ]);
   }
 
+  Widget _failedBadge() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.4)),
+        color: AppColors.error.withValues(alpha: 0.08),
+      ),
+      child: Text('FAILED',
+          style: AppType.body(size: 10, weight: FontWeight.w700, color: AppColors.error)
+              .copyWith(letterSpacing: 0.8)),
+    );
+  }
+
   Widget _typeBadge(HistoryType t) {
     final label = t == HistoryType.conversation ? 'Live transcription' : 'Recording';
     return Container(
@@ -488,8 +504,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 12),
-          // Same view toggle as the transcription result screen.
-          if (!item.isConversation) ...[
+          // Same view toggle as the transcription result screen. Conversation
+          // (live/agent) items join in once they carry a translation.
+          if (!item.failed &&
+              (!item.isConversation ||
+                  (item.translationText ?? '').trim().isNotEmpty)) ...[
             SegmentedToggle<String>(
               value: _cardView,
               onChanged: (v) => setState(() => _cardView = v),
@@ -511,7 +530,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
             PlaybackBar(player: _tp!),
             const SizedBox(height: 12),
           ],
-          if (item.isConversation) _conversation(item) else _batch(item),
+          if (item.failed)
+            _failedPanel(item)
+          else if (item.isConversation)
+            _conversation(item)
+          else
+            _batch(item),
           // Copy & Delete now live on the JOB ID row (always visible without scrolling).
           if (item.isConversation) ...[
             const SizedBox(height: 4),
@@ -612,28 +636,123 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _conversation(HistoryItem item) {
+  /// Expanded content for a failed job: what went wrong + Retry. The playback
+  /// bar above still works — the take was persisted before submission.
+  Widget _failedPanel(HistoryItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final turn in item.conversation ?? const <ConversationTurn>[]) ...[
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: AppColors.error.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                Icon(Symbols.error, size: 16, color: AppColors.error),
+                const SizedBox(width: 6),
+                Text('TRANSCRIPTION FAILED',
+                    style: AppType.body(size: 11, weight: FontWeight.w700, color: AppColors.error)
+                        .copyWith(letterSpacing: 1.0)),
+              ]),
+              const SizedBox(height: 6),
+              Text(item.errorText ?? 'The job did not complete.',
+                  style: AppType.body(size: 13, color: AppColors.onSurfaceVariant, height: 1.4)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: FilledButton.icon(
+            onPressed: () => _retry(item),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(vertical: 12),
+            ),
+            icon: const Icon(Symbols.refresh, size: 18, color: Colors.white),
+            label: Text('Retry transcription',
+                style: AppType.body(size: 13, weight: FontWeight.w700, color: Colors.white)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _retry(HistoryItem item) async {
+    // Release the audio player before the job re-runs against the same file.
+    if (_tpItemId == item.id) {
+      _tpGen++;
+      _releaseNow();
+    }
+    final started = await context.read<JobController>().retry(item.id);
+    if (!mounted) return;
+    if (started) {
+      Navigator.pushNamed(context, Routes.synthesizing);
+    } else {
+      _toast('Could not retry — the saved audio is missing or a job is already running.');
+    }
+  }
+
+  Widget _conversation(HistoryItem item) {
+    final translation = (item.translationText ?? '').trim();
+    // Without a translation there is only the original view; with one, the
+    // shared Original | Translation | Split toggle drives what renders.
+    final view = translation.isEmpty
+        ? 'original'
+        : (_cardView == 'insights' ? 'original' : _cardView);
+    final showOriginal = view == 'original' || view == 'split';
+    final showTranslation = translation.isNotEmpty &&
+        (view == 'translation' || view == 'split');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (showOriginal)
+          for (final turn in item.conversation ?? const <ConversationTurn>[]) ...[
+            Row(children: [
+              Text(turn.role.toUpperCase(),
+                  style: AppType.body(
+                          size: 11,
+                          weight: FontWeight.w700,
+                          color: turn.isUser ? AppColors.primary : AppColors.onSurfaceVariant)
+                      .copyWith(letterSpacing: 1.0)),
+              const SizedBox(width: 8),
+              LangCodeChip(turn.lang),
+            ]),
+            const SizedBox(height: 4),
+            turn.isRtl
+                ? Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Text(turn.text, style: AppType.body(size: 14, height: 1.5)))
+                : Text(turn.text, style: AppType.body(size: 14, height: 1.5)),
+            const SizedBox(height: 12),
+          ],
+        if (showOriginal && showTranslation) ...[
+          const Divider(height: 1),
+          const SizedBox(height: 12),
+        ],
+        if (showTranslation) ...[
           Row(children: [
-            Text(turn.role.toUpperCase(),
+            Icon(Symbols.translate, size: 16, color: AppColors.primary),
+            const SizedBox(width: 6),
+            Text(
+                item.targetLanguage != null
+                    ? 'TRANSLATED · ${item.targetLanguage!.toUpperCase()}'
+                    : 'TRANSLATED',
                 style: AppType.body(
                         size: 11,
                         weight: FontWeight.w700,
-                        color: turn.isUser ? AppColors.primary : AppColors.onSurfaceVariant)
+                        color: AppColors.onSurfaceVariant)
                     .copyWith(letterSpacing: 1.0)),
-            const SizedBox(width: 8),
-            LangCodeChip(turn.lang),
           ]),
+          const SizedBox(height: 6),
+          Text(translation, style: AppType.body(size: 14, height: 1.5)),
           const SizedBox(height: 4),
-          turn.isRtl
-              ? Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: Text(turn.text, style: AppType.body(size: 14, height: 1.5)))
-              : Text(turn.text, style: AppType.body(size: 14, height: 1.5)),
-          const SizedBox(height: 12),
         ],
       ],
     );
@@ -655,7 +774,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _resumeButton(HistoryItem item) {
     return FilledButton.icon(
-      onPressed: () => _toast('Resuming conversation'),
+      // Live sessions can't literally continue (the stream ended) — resume
+      // reopens the matching live surface with today's settings, ready to talk.
+      onPressed: () => Navigator.pushReplacementNamed(
+        context,
+        item.model == 'Agent STT' ? Routes.agent : Routes.home,
+        arguments: 'resume-live',
+      ),
       style: FilledButton.styleFrom(
         backgroundColor: AppColors.primary,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

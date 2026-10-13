@@ -299,24 +299,48 @@ class _SynthesizingScreenState extends State<SynthesizingScreen>
               textAlign: TextAlign.center,
               style: AppType.body(size: 14, color: AppColors.onSurfaceVariant, height: 1.4)),
           const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
+          // Retry re-runs the persisted failed item (audio + original config)
+          // in place — this screen simply flips back to the status pipeline.
+          if (job.failedItemId != null) ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () => job.retry(job.failedItemId!),
+                icon: const Icon(Symbols.refresh, size: 18, color: Colors.white),
+                label: Text('Retry',
+                    style: AppType.body(size: 14, weight: FontWeight.w700, color: Colors.white)),
               ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
               onPressed: () => Navigator.maybePop(context),
               child: Text('Back',
-                  style: AppType.body(size: 14, weight: FontWeight.w700, color: Colors.white)),
+                  style: AppType.body(size: 13, weight: FontWeight.w600, color: AppColors.primary)),
             ),
-          ),
-          const SizedBox(height: 4),
-          TextButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, Routes.settings),
-            child: Text('Open Settings',
-                style: AppType.body(size: 13, weight: FontWeight.w600, color: AppColors.primary)),
-          ),
+          ] else ...[
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                onPressed: () => Navigator.maybePop(context),
+                child: Text('Back',
+                    style: AppType.body(size: 14, weight: FontWeight.w700, color: Colors.white)),
+              ),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => Navigator.pushReplacementNamed(context, Routes.settings),
+              child: Text('Open Settings',
+                  style: AppType.body(size: 13, weight: FontWeight.w600, color: AppColors.primary)),
+            ),
+          ],
         ],
       ),
     );

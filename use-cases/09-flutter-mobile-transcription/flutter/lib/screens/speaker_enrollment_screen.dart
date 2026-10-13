@@ -110,7 +110,7 @@ class _SpeakerEnrollmentScreenState extends State<SpeakerEnrollmentScreen>
       await _recorder.start(
         // iOS captures at the native 48 kHz (its AVAudioRecorder yields an empty
         // file when asked to resample down to 16 kHz on iOS 26); Android keeps
-        // 16 kHz. See recording_screen.dart for the full explanation.
+        // 16 kHz. See home_screen.dart (the one-tap recorder) for the full explanation.
         RecordConfig(
           encoder: AudioEncoder.aacLc,
           sampleRate: defaultTargetPlatform == TargetPlatform.iOS ? 48000 : 16000,

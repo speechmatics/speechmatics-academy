@@ -1,0 +1,13 @@
+**/.git
+**/.venv
+**/.python
+**/.uv-cache
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/*.pyc
+**/.env*
+**/*secret*
+tests
+README.md
+livekit.toml*

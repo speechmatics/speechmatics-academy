@@ -17,7 +17,8 @@ class ApiKeys {
       _nz(await _storage.read(key: _smKey)) ?? _nz(AppConfig.smKeyFromDefine);
 
   Future<String?> google() async =>
-      _nz(await _storage.read(key: _googleKey)) ?? _nz(AppConfig.googleKeyFromDefine);
+      _nz(await _storage.read(key: _googleKey)) ??
+      _nz(AppConfig.googleKeyFromDefine);
 
   Future<void> setSpeechmatics(String value) =>
       _storage.write(key: _smKey, value: value.trim());
@@ -30,6 +31,6 @@ class ApiKeys {
       _nz(await _storage.read(key: _smKey)) != null;
   Future<bool> hasStoredGoogle() async =>
       _nz(await _storage.read(key: _googleKey)) != null;
-
-  static String? _nz(String? s) => (s == null || s.trim().isEmpty) ? null : s.trim();
+  static String? _nz(String? s) =>
+      (s == null || s.trim().isEmpty) ? null : s.trim();
 }

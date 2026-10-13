@@ -2,7 +2,7 @@
 
 **A cross-platform Flutter app (Android and iOS) that records or uploads audio, transcribes it with the Speechmatics Batch API, then translates, diarizes, and analyses it, all from a phone.**
 
-This is the academy's first mobile example. It shows how to drive the Speechmatics Batch REST API end-to-end from a Flutter client: submit a job, poll it to completion, and render a rich result with multilingual transcription, speaker diarization and identification, translation, and speech-intelligence add-ons (summary, topics, chapters, subtitles). The full pipeline runs on-device against the cloud API, so no backend of your own is required.
+This is the academy's first mobile example. It shows how to drive the Speechmatics Batch REST API end-to-end from a Flutter client: submit a job, poll it to completion, and render a rich result with multilingual transcription, speaker diarization and identification, translation, and speech-intelligence add-ons (summary, topics, chapters, subtitles). Batch transcription and Home LIVE connect directly to their existing cloud APIs. The separate **Agent** tab uses a deployed LiveKit agent and an authenticated token service.
 
 <p align="center">
   <img src="assets/home.jpg" width="23%" alt="Home screen" />
@@ -24,7 +24,7 @@ This is the academy's first mobile example. It shows how to drive the Speechmati
 
 ## Prerequisites
 
-- **Flutter SDK 3.4+** (developed on 3.44 / Dart 3.12). See the [install guide](https://docs.flutter.dev/get-started/install).
+- **Flutter SDK 3.38+ / Dart 3.10+** for the LiveKit client (developed on Flutter 3.44 / Dart 3.12). See the [install guide](https://docs.flutter.dev/get-started/install).
 - **An Android device or emulator**, plus the **Android SDK** (bundled with [Android Studio](https://developer.android.com/studio)). iOS builds additionally require **macOS and Xcode**.
 - **Speechmatics API Key**. Sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**. Jobs run against the paid Batch API, so check your plan's limits.
 - **Google Cloud Translation v2 API Key** *(optional)*. Only needed for the translation feature; create one in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
@@ -104,7 +104,77 @@ flutter build apk --release \
 
 A key entered in-app always takes priority over a build-time value. Never commit your `.env`; only the `.env.example` placeholder template ships with the repo.
 
-## How It Works
+## Agent conversations
+
+The Agent tab uses `livekit_client` for audio, connection state, and conversation
+captions. Its server runs Speechmatics `speechmatics/linden-1` speech recognition,
+an LLM, and voice synthesis through LiveKit Inference. The former mobile OpenAI,
+TTS, speaker-focus, and custom end-of-utterance runtime has been removed.
+
+Open **Agent > Connection setup** and choose **LiveKit hosted (development)**.
+Enter the development token server ID from the **speechmatics** project's
+LiveKit settings and keep the agent name `everyvoice-agent`. This connects over
+HTTPS and works over Wi-Fi or mobile data, without USB or a local token service.
+The server ID can also be supplied in a local build-defines JSON file as
+`LIVEKIT_TOKEN_SERVER_ID`. Never embed a LiveKit API signing key or secret.
+
+LiveKit's hosted token server is for development/testing. Anyone with its ID
+can request tokens; it does not enforce application user authentication. Use
+**Custom token endpoint** with an authenticated HTTPS service for production.
+That mode retains the endpoint URL and access-token settings, stored securely
+on the device. Only debug builds allow localhost HTTP for local testing.
+
+When a hosted default is supplied, an older saved localhost setup with no
+explicit connection mode automatically selects hosted mode. Explicit custom
+endpoint choices and saved remote endpoint configurations are preserved.
+
+The screen supports start/end, microphone mute, user/agent captions, and saving
+the conversation to existing History. Personality edits apply to the next
+session. Resuming an older Agent history entry starts a new conversation.
+
+See [agent/README.md](agent/README.md) for the worker, hosted development tokens,
+and the optional authenticated token service. Home Record/LIVE, Upload, and batch
+settings retain their existing behavior.
+
+To build with the hosted default, put `LIVEKIT_TOKEN_SERVER_ID` in a local JSON
+file outside source and run:
+
+```sh
+flutter build apk --debug --dart-define-from-file=/path/to/local-hosted-defines.json
+```
+
+The hosted device smoke test requests named Agent dispatch and checks real HTTPS
+token issuance, settings migration, and the connection UI without opening the mic.
+Remove any `tcp:8000` USB forwarding before this test to verify independence:
+
+```sh
+flutter drive --driver=test_driver/agent_setup_driver.dart \
+  --target=integration_test/hosted_agent_smoke_test.dart --keep-app-running \
+  --dart-define-from-file=/path/to/local-hosted-defines.json -d DEVICE_ID
+```
+
+The optional device setup smoke test uses actual device storage and leaves the
+microphone off. Prefer an emulator or a dedicated test device; back up existing
+app data before running it on a personal phone. Supply
+`AGENT_SMOKE_TOKEN_ENDPOINT`, `AGENT_SMOKE_ACCESS_TOKEN`,
+and optionally `AGENT_SMOKE_AGENT_NAME` in a local JSON file outside source, then
+run from `flutter/`:
+
+```sh
+flutter drive --driver=test_driver/agent_setup_driver.dart \
+  --target=integration_test/agent_setup_smoke_test.dart \
+  --keep-app-running \
+  --dart-define-from-file=/path/to/local-phone-test.json -d DEVICE_ID
+```
+
+`--keep-app-running` is required to preserve app data: without it, Flutter's
+driver uninstalls the app during cleanup. Screenshots go to `build/test-output`
+(or `EVERYVOICE_TEST_OUTPUT`). Build the normal `lib/main.dart` app afterward and
+replace the test APK using `adb install -r`, without uninstalling: the test APK
+contains its test configuration. The normal app reads the saved access token
+from secure storage.
+
+## How Batch Transcription Works
 
 ```mermaid
 flowchart LR

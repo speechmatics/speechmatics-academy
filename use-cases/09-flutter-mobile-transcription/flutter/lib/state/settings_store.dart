@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 
+import '../data/rt_protocol.dart';
+import '../models/agent_personality_templates.dart';
 import '../models/job_config.dart';
 import '../models/speaker_profile.dart';
 
@@ -63,6 +65,40 @@ class SettingsStore extends ChangeNotifier {
   String topicsText = '';
   bool chapters = false;
 
+  // ---- Real-Time (v4) — fully independent from Batch by design: language,
+  // dictionary, punctuation, filtering etc. are separate values, never shared.
+  String rtEndpointMode = 'auto'; // 'auto' (global) | 'eu' | 'us'
+  String rtLanguage = 'en';
+  String rtOperatingPoint = 'enhanced'; // 'enhanced' | 'standard'
+  String rtDomain = 'none'; // 'none' | 'medical' | 'finance' (Enhanced only)
+  bool rtPartials = true;
+  bool rtDiarization = false;
+  int rtMaxSpeakers = 50;
+  double rtMaxDelay = 2.0; // 0.7–4.0 s
+  String rtMaxDelayMode = 'flexible'; // 'flexible' | 'fixed'
+  String rtOutputLocale = ''; // '', 'en-GB', 'en-US', 'en-AU' (en only)
+  bool rtDisfluencyRemoval = false;
+  bool rtCustomDict = false;
+  String rtCustomDictText = '';
+  bool rtPunctuation = true;
+  double rtSensitivity = 0.5;
+  Set<String> rtMarks = {'comma', 'period', 'question_mark', 'exclamation_mark'};
+  bool rtAudioFiltering = false;
+  double rtVolume = 4;
+  // Google-powered, single target — the same pipeline Batch uses.
+  // (Native RT translation stays in the protocol layer for a future Melia
+  // engine, but the app no longer sends it.)
+  bool rtTranslation = false;
+  String rtTargetLanguageCode = 'en';
+  String rtTargetLanguageName = 'English';
+  bool rtAudioEvents = false;
+  Set<String> rtEventTypes = {'laughter', 'music', 'applause'};
+
+  // Agent personality is sent to the hosted agent when a new session starts.
+  // Keep existing user instructions when retiring the old on-device runtime.
+  String agentPersonalityTemplate = 'assistant';
+  String agentPersonalityText = AgentPersonalityTemplates.assistant;
+
   // ---- persistence ----
   void _load() {
     final raw = _box.get(_key);
@@ -70,9 +106,8 @@ class SettingsStore extends ChangeNotifier {
     try {
       final m = jsonDecode(raw) as Map<String, dynamic>;
       mode = m['mode'] ?? mode;
-      // Real-Time is locked in the UI (not implemented) — never load into an
-      // unreachable state.
-      if (mode != 'batch') mode = 'batch';
+      // Three-way settings body since v4; sanitize unknown values.
+      if (!const {'batch', 'realtime', 'agent'}.contains(mode)) mode = 'batch';
       region = m['region'] ?? region;
       model = m['model'] ?? model;
       // Old installs have no model key; sanitize unknown values to the default.
@@ -119,6 +154,42 @@ class SettingsStore extends ChangeNotifier {
       topicsText = m['topicsText'] ?? topicsText;
       chapters = m['chapters'] ?? chapters;
 
+      // v4 (Real-Time + Agent) — additive, defaults cover old installs.
+      rtEndpointMode = m['rtEndpointMode'] ?? rtEndpointMode;
+      if (!const {'auto', 'eu', 'us'}.contains(rtEndpointMode)) {
+        rtEndpointMode = 'auto';
+      }
+      rtLanguage = m['rtLanguage'] ?? rtLanguage;
+      rtOperatingPoint = m['rtOperatingPoint'] ?? rtOperatingPoint;
+      rtDomain = m['rtDomain'] ?? rtDomain;
+      if (!const {'none', 'medical', 'finance'}.contains(rtDomain)) {
+        rtDomain = 'none';
+      }
+      rtPartials = m['rtPartials'] ?? rtPartials;
+      rtDiarization = m['rtDiarization'] ?? rtDiarization;
+      rtMaxSpeakers = (m['rtMaxSpeakers'] as num?)?.toInt() ?? rtMaxSpeakers;
+      rtMaxDelay =
+          ((m['rtMaxDelay'] as num?)?.toDouble() ?? rtMaxDelay).clamp(0.7, 4.0);
+      rtMaxDelayMode = m['rtMaxDelayMode'] ?? rtMaxDelayMode;
+      rtOutputLocale = m['rtOutputLocale'] ?? rtOutputLocale;
+      rtDisfluencyRemoval = m['rtDisfluencyRemoval'] ?? rtDisfluencyRemoval;
+      rtCustomDict = m['rtCustomDict'] ?? rtCustomDict;
+      rtCustomDictText = m['rtCustomDictText'] ?? rtCustomDictText;
+      rtPunctuation = m['rtPunctuation'] ?? rtPunctuation;
+      rtSensitivity = (m['rtSensitivity'] as num?)?.toDouble() ?? rtSensitivity;
+      rtMarks = (m['rtMarks'] as List?)?.cast<String>().toSet() ?? rtMarks;
+      rtAudioFiltering = m['rtAudioFiltering'] ?? rtAudioFiltering;
+      rtVolume = (m['rtVolume'] as num?)?.toDouble() ?? rtVolume;
+      rtTranslation = m['rtTranslation'] ?? rtTranslation;
+      rtTargetLanguageCode = m['rtTargetLanguageCode'] ?? rtTargetLanguageCode;
+      rtTargetLanguageName = m['rtTargetLanguageName'] ?? rtTargetLanguageName;
+      rtAudioEvents = m['rtAudioEvents'] ?? rtAudioEvents;
+      rtEventTypes =
+          (m['rtEventTypes'] as List?)?.cast<String>().toSet() ?? rtEventTypes;
+      agentPersonalityTemplate =
+          m['agentPersonalityTemplate'] ?? agentPersonalityTemplate;
+      agentPersonalityText = m['agentPersonalityText'] ?? agentPersonalityText;
+
       // v1 → v2 migration: audio filtering shipped (locked) with a destructive
       // default — enabled at threshold 50, which silently filters out ALL
       // speech on classic models. Nobody set those values deliberately.
@@ -138,7 +209,7 @@ class SettingsStore extends ChangeNotifier {
   }
 
   Map<String, dynamic> _toJson() => {
-        'v': 3, // v3 = speech-intelligence fields (additive)
+        'v': 6, // Hosted Agent; only personality remains in shared settings.
         'mode': mode,
         'region': region,
         'model': model,
@@ -174,6 +245,32 @@ class SettingsStore extends ChangeNotifier {
         'topics': topics,
         'topicsText': topicsText,
         'chapters': chapters,
+        // v4: Real-Time (independent of Batch) + Agent
+        'rtEndpointMode': rtEndpointMode,
+        'rtLanguage': rtLanguage,
+        'rtOperatingPoint': rtOperatingPoint,
+        'rtDomain': rtDomain,
+        'rtPartials': rtPartials,
+        'rtDiarization': rtDiarization,
+        'rtMaxSpeakers': rtMaxSpeakers,
+        'rtMaxDelay': rtMaxDelay,
+        'rtMaxDelayMode': rtMaxDelayMode,
+        'rtOutputLocale': rtOutputLocale,
+        'rtDisfluencyRemoval': rtDisfluencyRemoval,
+        'rtCustomDict': rtCustomDict,
+        'rtCustomDictText': rtCustomDictText,
+        'rtPunctuation': rtPunctuation,
+        'rtSensitivity': rtSensitivity,
+        'rtMarks': rtMarks.toList(),
+        'rtAudioFiltering': rtAudioFiltering,
+        'rtVolume': rtVolume,
+        'rtTranslation': rtTranslation,
+        'rtTargetLanguageCode': rtTargetLanguageCode,
+        'rtTargetLanguageName': rtTargetLanguageName,
+        'rtAudioEvents': rtAudioEvents,
+        'rtEventTypes': rtEventTypes.toList(),
+        'agentPersonalityTemplate': agentPersonalityTemplate,
+        'agentPersonalityText': agentPersonalityText,
       };
 
   /// Classic engine (standard/enhanced) vs the next-gen omni-v1.
@@ -220,6 +317,76 @@ class SettingsStore extends ChangeNotifier {
   void setTopics(bool v) => _commit(() => topics = v);
   void setTopicsText(String v) => _commit(() => topicsText = v);
   void setChapters(bool v) => _commit(() => chapters = v);
+
+  // ---- Real-Time setters ----
+  void setRtEndpointMode(String v) => _commit(() => rtEndpointMode = v);
+  void setRtLanguage(String v) => _commit(() => rtLanguage = v);
+  void setRtOperatingPoint(String v) => _commit(() => rtOperatingPoint = v);
+  void setRtDomain(String v) => _commit(() => rtDomain = v);
+  void setRtPartials(bool v) => _commit(() => rtPartials = v);
+  void setRtDiarization(bool v) => _commit(() => rtDiarization = v);
+  void setRtMaxSpeakers(int v) => _commit(() => rtMaxSpeakers = v.clamp(2, 100));
+  void setRtMaxDelay(double v) => _commit(() => rtMaxDelay = v.clamp(0.7, 4.0));
+  void setRtMaxDelayMode(String v) => _commit(() => rtMaxDelayMode = v);
+  void setRtOutputLocale(String v) => _commit(() => rtOutputLocale = v);
+  void setRtDisfluencyRemoval(bool v) => _commit(() => rtDisfluencyRemoval = v);
+  void setRtCustomDict(bool v) => _commit(() => rtCustomDict = v);
+  void setRtCustomDictText(String v) => _commit(() => rtCustomDictText = v);
+  void setRtPunctuation(bool v) => _commit(() => rtPunctuation = v);
+  void setRtSensitivity(double v) => _commit(() => rtSensitivity = v);
+  void toggleRtMark(String id) =>
+      _commit(() => rtMarks.contains(id) ? rtMarks.remove(id) : rtMarks.add(id));
+  void setRtAudioFiltering(bool v) => _commit(() => rtAudioFiltering = v);
+  void setRtVolume(double v) => _commit(() => rtVolume = v);
+  void setRtTranslation(bool v) => _commit(() => rtTranslation = v);
+  void setRtTarget(String code, String name) => _commit(() {
+        rtTargetLanguageCode = code;
+        rtTargetLanguageName = name;
+      });
+  void setRtAudioEvents(bool v) => _commit(() => rtAudioEvents = v);
+  void toggleRtEventType(String id) => _commit(() =>
+      rtEventTypes.contains(id) ? rtEventTypes.remove(id) : rtEventTypes.add(id));
+
+  // ---- Agent personality ----
+  void setAgentPersonality(String template, String text) => _commit(() {
+        agentPersonalityTemplate = template;
+        agentPersonalityText = text;
+      });
+
+  /// Session config for a standard-RT live session. RT settings are fully
+  /// independent of Batch by design — nothing here reads batch fields.
+  RtSessionConfig rtSnapshot() => RtSessionConfig(
+        engine: LiveEngine.standard,
+        language: rtLanguage,
+        operatingPoint: rtOperatingPoint,
+        // Domain packs are an Enhanced feature (probe-verified on batch:
+        // standard rejects them) — drop silently on Standard.
+        domain: rtOperatingPoint == 'enhanced' ? rtDomain : 'none',
+        partials: rtPartials,
+        diarization: rtDiarization,
+        maxSpeakers: rtDiarization ? rtMaxSpeakers : null,
+        maxDelay: rtMaxDelay,
+        maxDelayMode: rtMaxDelayMode,
+        outputLocale: rtLanguage == 'en' ? rtOutputLocale : '',
+        disfluencyRemoval: rtDisfluencyRemoval,
+        customDictWords: rtCustomDict
+            ? rtCustomDictText
+                .split(RegExp(r'[,\n]'))
+                .map((w) => w.trim())
+                .where((w) => w.isNotEmpty)
+                .toList()
+            : const [],
+        punctuationEnabled: rtPunctuation,
+        punctuationSensitivity: rtSensitivity,
+        punctuationMarks: rtMarks.toList(),
+        audioFiltering: rtAudioFiltering,
+        volumeThreshold: rtVolume,
+        // RT translation is Google-powered app-side; nothing native is sent.
+        translationTargets: const [],
+        eouTrigger: 0.8,
+        audioEventTypes: rtAudioEvents ? rtEventTypes.toList() : const [],
+        rtEndpointMode: rtEndpointMode,
+      );
 
   /// Immutable snapshot for one job. [speakers] = the enrolled profiles to
   /// identify (callers pass SpeakerStore.profiles; the list is copied so

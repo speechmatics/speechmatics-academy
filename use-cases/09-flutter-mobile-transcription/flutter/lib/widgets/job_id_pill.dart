@@ -14,6 +14,9 @@ class JobIdPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Failed submissions have no job id — render nothing instead of an
+    // empty "JOB ID:" chip.
+    if (id.isEmpty) return const SizedBox.shrink();
     return GestureDetector(
       onTap: () {
         Clipboard.setData(ClipboardData(text: id));

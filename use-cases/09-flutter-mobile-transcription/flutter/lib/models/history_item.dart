@@ -194,6 +194,9 @@ class HistoryItem {
     this.audioEventMarks,
     this.srtText,
     this.favorite = false,
+    this.failed = false,
+    this.errorText,
+    this.retryConfig,
   });
 
   final String id;
@@ -229,6 +232,19 @@ class HistoryItem {
 
   /// Starred by the user (the History "Favourites" filter).
   final bool favorite;
+
+  // ---- failed-job persistence (audio is saved BEFORE submit, so a job that
+  // dies on the network still lands in History and can be retried) ----
+
+  /// True when the job errored — the item has audio + retryConfig, no results.
+  final bool failed;
+
+  /// The error that failed the job (shown on the History card).
+  final String? errorText;
+
+  /// Serialized [JobConfig] the job was submitted with, so Retry re-runs it
+  /// faithfully even if Settings changed since. Only set on failed items.
+  final Map<String, dynamic>? retryConfig;
 
   /// True when any speech-intelligence result exists → the Insights view shows.
   bool get hasInsights =>
@@ -308,6 +324,9 @@ class HistoryItem {
         audioEventMarks: audioEventMarks,
         srtText: srtText,
         favorite: favorite ?? this.favorite,
+        failed: failed,
+        errorText: errorText,
+        retryConfig: retryConfig,
       );
 
   Map<String, dynamic> toJson() => {
@@ -338,6 +357,9 @@ class HistoryItem {
           'audioEventMarks': audioEventMarks!.map((m) => m.toJson()).toList(),
         if (srtText != null) 'srtText': srtText,
         if (favorite) 'favorite': true,
+        if (failed) 'failed': true,
+        if (errorText != null) 'errorText': errorText,
+        if (retryConfig != null) 'retryConfig': retryConfig,
       };
 
   factory HistoryItem.fromJson(Map<String, dynamic> j) => HistoryItem(
@@ -379,5 +401,8 @@ class HistoryItem {
             .toList(),
         srtText: j['srtText'] as String?,
         favorite: j['favorite'] as bool? ?? false,
+        failed: j['failed'] as bool? ?? false,
+        errorText: j['errorText'] as String?,
+        retryConfig: (j['retryConfig'] as Map?)?.cast<String, dynamic>(),
       );
 }
