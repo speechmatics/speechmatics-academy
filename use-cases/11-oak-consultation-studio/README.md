@@ -4,6 +4,8 @@
 
 Upload a sound file or record a consultation, then explore its transcript by word, speaker, language, and timestamp. This example uses the Speechmatics **Batch API**: transcription starts automatically after an upload loads or a recording finishes.
 
+**[Try the live demo](https://oak-consultation-studio.vercel.app/)** — explore the scripted consultations, or add your own Speechmatics API key in **Settings** to transcribe audio.
+
 ![Application walkthrough: explore scripted multilingual consultations, upload a synthetic WAV for real Oak transcription, seek through the transcript, rename the consultation, and inspect the API configuration](assets/oak-consultation-studio.gif)
 
 ## What You'll Learn
@@ -162,10 +164,18 @@ The regional endpoint is defined separately in [public/batch-endpoints.js](publi
 
 The included [vercel.json](vercel.json) uses this example as the project root, serves `public/`, and exposes the Python handlers in `api/`. There is no database, application object storage, or long-running transcription function. Other hosts need equivalent static-file and Python-function routing.
 
+To deploy your own copy, run the following from this example's directory and follow the Vercel CLI prompts to select your account and project:
+
+```bash
+npx vercel --prod
+```
+
+[.vercelignore](.vercelignore) excludes local environment files, virtual environments, tests, and documentation assets from deployment. Keep the project root set to this example directory.
+
 Remote deployments default to visitors supplying their own keys. An environment key can be enabled with `SPEECHMATICS_ENABLE_ENV_KEY=true`, but only on access-protected hosting with abuse and rate controls: visitors otherwise spend the deployment owner's allowance. Configure secrets in the hosting platform, never in `public/` or a committed `.env`.
 
 > [!NOTE]
-> The Vercel configuration is included as a deployment starting point. Hosted deployment has not been verified; the local Python server and live Speechmatics flow have been exercised.
+> The [live Vercel deployment](https://oak-consultation-studio.vercel.app/) has been verified for frontend loading, Python API routing, origin checks, and Speechmatics credential validation. End-to-end audio transcription has been exercised locally. The hosted demo uses visitor-provided keys; it has no shared Speechmatics API key.
 
 ## Expected Output
 
