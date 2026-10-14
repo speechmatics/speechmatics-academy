@@ -1,20 +1,85 @@
 import { API_KEY_STORAGE, createCredentialStore, readRuntimeConfig } from './credentials.js';
+import { HINT_LANGUAGES, LANGUAGE_HINTS_STORAGE, languagePreferences } from './language-preferences.js';
+import { icon } from './icons.js';
 
 export const credentials = createCredentialStore();
+export { languagePreferences };
 
 export function initSettings(notify, {
   document = globalThis.document, window = globalThis.window,
   store = credentials, readConfig = readRuntimeConfig,
+  preferences = languagePreferences, onHintsChanged = () => {}, onAddAudio = () => {},
 } = {}) {
   const $ = id => document.getElementById(id);
   const dialog = $('settings-dialog');
   const input = $('settings-api-key');
   const settingsButton = $('open-settings');
+  const demoAction = $('demo-add-audio');
   const defaultTitle = settingsButton.getAttribute('title');
+  const hintSearch = $('language-hints-search');
+  let draftHints = new Set(preferences.get());
+  const hintOptions = HINT_LANGUAGES.map(language => {
+    const label = document.createElement('label');
+    label.className = 'language-hint-option';
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.value = language.code;
+    checkbox.setAttribute('data-language-hint', language.code);
+    const name = document.createElement('span');
+    name.className = 'language-hint-name';
+    name.textContent = language.name;
+    const code = document.createElement('span');
+    code.className = 'language-hint-code';
+    code.textContent = language.code.toUpperCase();
+    code.setAttribute('aria-hidden', 'true');
+    label.append(checkbox, name, code);
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) draftHints.add(language.code);
+      else draftHints.delete(language.code);
+      $('settings-error').hidden = true;
+      renderHints();
+    });
+    return { ...language, label, checkbox };
+  });
+  $('language-hints-list').replaceChildren(...hintOptions.map(option => option.label));
   let runtime = null;
   let requestVersion = 0;
   let configurationChecked = false;
   let wasMissingKey = false;
+
+  function hintsEqual(left, right) {
+    return left.length === right.length && left.every(code => right.includes(code));
+  }
+
+  function renderHints() {
+    const query = hintSearch.value.trim().toLowerCase();
+    let matches = 0;
+    for (const option of hintOptions) {
+      option.checkbox.checked = draftHints.has(option.code);
+      option.label.hidden = !`${option.name} ${option.code}`.toLowerCase().includes(query);
+      if (!option.label.hidden) matches++;
+    }
+    const selectedNames = HINT_LANGUAGES.filter(language => draftHints.has(language.code)).map(language => language.name);
+    const selection = selectedNames.length
+      ? `Expected languages: ${selectedNames.join(', ')}.`
+      : 'Automatic language detection. No expected languages selected.';
+    $('language-hints-summary').textContent = matches ? selection : `No languages match your search. ${selection}`;
+    $('clear-language-hints').disabled = draftHints.size === 0;
+  }
+
+  function resetHints() {
+    draftHints = new Set(preferences.get());
+    hintSearch.value = '';
+    renderHints();
+  }
+
+  function refreshHints() {
+    const previous = preferences.get();
+    preferences.refresh();
+    resetHints();
+    const current = preferences.get();
+    if (!hintsEqual(previous, current)) onHintsChanged(current);
+  }
 
   function resetInput() {
     input.value = '';
@@ -27,7 +92,17 @@ export function initSettings(notify, {
 
   function render() {
     const state = store.status();
-    const needsKey = configurationChecked && !state.hasKey && !runtime?.environmentKeyConfigured;
+    const keyAvailable = state.hasKey || runtime?.environmentKeyConfigured;
+    const needsKey = configurationChecked && !keyAvailable;
+    if (demoAction) {
+      demoAction.disabled = !state.hasKey && !configurationChecked;
+      demoAction.setAttribute('aria-controls', keyAvailable ? 'new-dialog' : 'settings-dialog');
+      $('demo-action-label').textContent = keyAvailable ? 'Add your audio' : 'Add API key';
+      const actionIcon = $('demo-action-icon');
+      const iconName = keyAvailable ? 'upload' : 'settings';
+      actionIcon.setAttribute('data-icon', iconName);
+      actionIcon.innerHTML = icon(iconName);
+    }
     input.placeholder = state.hasKey ? 'Enter a replacement key' : 'Paste your Speechmatics API key';
     $('clear-api-key').hidden = !state.hasKey;
     $('key-session-status').textContent = state.hasKey
@@ -69,18 +144,29 @@ export function initSettings(notify, {
     }
   }
 
-  function showError(message) {
+  function showError(message, focusTarget = input) {
     $('settings-error').textContent = message;
     $('settings-error').hidden = false;
-    input.focus();
+    focusTarget.focus();
   }
 
-  $('open-settings').addEventListener('click', () => {
+  function openSettings() {
     store.refresh();
+    refreshHints();
     resetInput();
     render();
     dialog.showModal();
     checkConfiguration();
+  }
+  settingsButton.addEventListener('click', openSettings);
+  demoAction?.addEventListener('click', () => {
+    store.refresh();
+    const needsKey = render();
+    if (demoAction.disabled) return;
+    if (needsKey) {
+      openSettings();
+      input.focus();
+    } else onAddAudio();
   });
   $('toggle-api-key').addEventListener('click', () => {
     const show = input.type === 'password';
@@ -99,24 +185,41 @@ export function initSettings(notify, {
   });
   $('settings-form').addEventListener('submit', event => {
     event.preventDefault();
+    let focusTarget = input;
     try {
       if (input.value.trim()) store.save(input.value);
-      else if (!store.status().hasKey && !runtime?.environmentKeyConfigured) throw new Error('Enter an API key.');
-      const hasKey = store.status().hasKey;
+      focusTarget = hintSearch;
+      const nextHints = [...draftHints];
+      if (!hintsEqual(preferences.get(), nextHints)) {
+        preferences.save(nextHints);
+        onHintsChanged(preferences.get());
+      }
       resetInput();
-      render();
+      const needsKey = render();
       dialog.close();
-      notify(hasKey ? 'API key saved in this browser.' : 'Settings saved. The app’s API key will be used automatically.');
-    } catch (error) { showError(error.message); }
+      notify(needsKey ? 'Settings saved. Add your Speechmatics API key to start transcribing.' : 'Settings saved in this browser.');
+    } catch (error) {
+      render();
+      showError(error.message, focusTarget);
+    }
+  });
+  hintSearch.addEventListener('input', renderHints);
+  $('clear-language-hints').addEventListener('click', () => {
+    draftHints.clear();
+    $('settings-error').hidden = true;
+    renderHints();
   });
   input.addEventListener('input', () => { $('settings-error').hidden = true; });
   $('close-settings').addEventListener('click', () => dialog.close());
   $('cancel-settings').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('close', resetInput);
-  window.addEventListener('pagehide', resetInput);
+  function discardDraft() { resetInput(); resetHints(); }
+  dialog.addEventListener('close', discardDraft);
+  window.addEventListener('pagehide', discardDraft);
   window.addEventListener('storage', event => {
     if (event.key === API_KEY_STORAGE || event.key === null) { store.refresh(); render(); }
+    if (event.key === LANGUAGE_HINTS_STORAGE || event.key === null) refreshHints();
   });
+  renderHints();
   render();
   checkConfiguration();
 }
