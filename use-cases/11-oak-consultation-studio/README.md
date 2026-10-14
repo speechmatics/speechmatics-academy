@@ -92,11 +92,11 @@ With the virtual environment activated, on any platform:
 python dev_server.py --port 4173
 ```
 
-Open [http://127.0.0.1:4173](http://127.0.0.1:4173), then select **New consultation**:
+Open [http://127.0.0.1:4173](http://127.0.0.1:4173). Optionally open **Settings → Expected languages** and select the languages you expect, then save. Leave the selection empty for automatic detection. Select **New consultation**:
 
 1. Choose or drop an audio file. Transcription starts when it finishes loading.
 2. Alternatively, record through your microphone and select **Finish & transcribe**. Recordings are limited to five minutes.
-3. When the transcript appears, click its words or the audio timeline to seek. A timeline seek also scrolls to the corresponding transcript word.
+3. During playback, the transcript follows the highlighted word so it stays visible. Click a word or the audio timeline to seek; a timeline seek also reveals the corresponding text.
 4. Try search, language and speaker filters, the title edit button, and transcript download.
 5. Open **See code** to inspect the request configuration.
 
@@ -104,7 +104,9 @@ Each upload or recording creates a separate consultation. Switching entries pres
 
 Uploaded and recorded audio gets a waveform calculated locally from the sound's amplitude. It appears independently of transcription, retains language colors when a transcript is available, and stays attached to its consultation. Scripted showcases use illustrative bars because they contain no audio. If the browser cannot decode a waveform, playback and transcription can still continue.
 
-Language colors come from one shared palette across the waveform, transcript, language summary, and badges, including languages outside the scripted showcases. Text uses darker shades for readability. Colors stay stable when filtering, and waveform language segments continue through gaps between words instead of reverting to English's color.
+Consecutive words with the same language are displayed as a paragraph with a language tag, within their speaker's turn, following the Flutter example. Each word remains clickable for playback and Word Explorer. This groups the API's original labels without smoothing or hiding brief language changes.
+
+Language colors come from one shared palette across the waveform, paragraph tags, language summary, and badges, including languages outside the scripted showcases. Tags use darker text shades for readability. Colors stay stable when filtering, and waveform language segments continue through gaps between words instead of reverting to English's color.
 
 ## How It Works
 
@@ -162,7 +164,9 @@ For example, `createRequestConfig({ locale: 'en-US' })` produces:
 }
 ```
 
-`output_locale` controls English spelling. `language_hints`, when supplied, restrict recognition to the listed languages; uploads and recordings omit hints to allow automatic recognition.
+`output_locale` controls English spelling. **Settings → Expected languages** optionally adds `language_hints` to new uploads and recordings; selecting English, Latvian, and Russian sends `"language_hints": ["en", "lv", "ru"]`. The empty default omits the field for automatic detection. This example does not send `language_hints_strict` or guarantee that language labels will be error-free.
+
+Expected languages persist in this browser through [public/language-preferences.js](public/language-preferences.js). Every consultation captures its own selection when audio is added, so later Settings changes do not alter an existing job or its retries. **See code** shows the current consultation's captured hints; demos retain their optional sample-language preview toggle.
 
 The regional endpoint is defined separately in [public/batch-endpoints.js](public/batch-endpoints.js). **EU1 is the default** (`https://eu1.asr.api.speechmatics.com/v2`); US1 is also available. Oak does not support the global Batch endpoint. **See code** previews region, English spelling, and diarization options. For a local consultation whose submission has not succeeded, you can adjust these before retrying; a submitted job keeps its original configuration and region.
 
@@ -194,6 +198,8 @@ Oak Consultation Studio: http://127.0.0.1:4173/
 After a successful upload or recording, the new consultation shows a transcript with word timings, available language and speaker labels, and audio playback. Search and filters narrow the transcript; clicking the timeline reveals the matching text. Consultation titles and speaker display names can be edited, and the transcript can be copied or downloaded as text.
 
 Four scripted consultations are available immediately: **Spanish–English**, **Arabic–English–French**, **Finnish–Swedish**, and **Polish–English**. The Nordic example illustrates separate audio channels; the Arabic example includes right-to-left text.
+
+Without a configured key, the showcase banner offers **Add API key** and opens Settings. Once a saved browser key or the automatic environment key is available, it offers **Add your audio** and opens the upload/record dialog.
 
 > [!NOTE]
 > These are fictional, authored transcripts with synthetic timings. They have no bundled audio, so their timelines play silently. They demonstrate the interface, not recognition accuracy. Upload your own audio to see real Oak output; the app does not generate clinical summaries, diagnoses, or extracted medical entities.

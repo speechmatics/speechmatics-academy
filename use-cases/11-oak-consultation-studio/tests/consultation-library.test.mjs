@@ -44,8 +44,11 @@ for (const source of ['recording', 'upload']) test(`two ${source}s automatically
   const { library, clients } = environment();
   const firstFile = file('consultation-recording.wav'), secondFile = file('consultation-recording.wav');
   const firstMedia = media('first'), secondMedia = media('second');
-  const first = library.add(firstFile, firstMedia, { source, apiKey: 'first-key' });
-  const second = library.add(secondFile, secondMedia, { source, apiKey: 'second-key' });
+  const preferences = ['en', 'es'];
+  const first = library.add(firstFile, firstMedia, { source, apiKey: 'first-key', hints: preferences });
+  preferences.splice(0, preferences.length, 'fr');
+  const second = library.add(secondFile, secondMedia, { source, apiKey: 'second-key', hints: preferences });
+  preferences.length = 0;
   const firstSample = first.sample, secondSample = second.sample;
   assert.notEqual(first.sample.id, second.sample.id);
   assert.equal(first.sample.region, 'eu');
@@ -65,6 +68,10 @@ for (const source of ['recording', 'upload']) test(`two ${source}s automatically
   assert.equal(clients[1].options.apiKey, 'second-key');
   assert.equal(clients[0].options.region, 'eu');
   assert.equal(clients[1].options.region, 'eu');
+  assert.deepEqual(clients[0].submissions[0].config.transcription_config.language_hints, ['en', 'es']);
+  assert.deepEqual(clients[1].submissions[0].config.transcription_config.language_hints, ['fr']);
+  assert.deepEqual(first.sample.hints, ['en', 'es']);
+  assert.deepEqual(second.sample.hints, ['fr']);
   const firstWords = [{ id: 'first-turn', words: [{ text: 'First' }] }];
   const secondWords = [{ id: 'second-turn', words: [{ text: 'Second' }] }];
   clients[1].finish({ utterances: secondWords });
@@ -77,17 +84,29 @@ for (const source of ['recording', 'upload']) test(`two ${source}s automatically
   assert.equal(second.sample.id, 'local-consultation-2');
   assert.deepEqual(first.sample.utterances, firstWords);
   assert.deepEqual(second.sample.utterances, secondWords);
+  assert.deepEqual(first.sample.hints, ['en', 'es'], 'completion retains the original expected languages');
+  assert.deepEqual(second.sample.hints, ['fr']);
   assert.equal(firstMedia.releases + secondMedia.releases, 0);
   assert.deepEqual(library.entries(), [first, second]);
 });
 
+for (const source of ['recording', 'upload']) test(`${source} without expected languages omits language hints from its request`, async () => {
+  const { library, clients } = environment();
+  const entry = library.add(file(`${source}.wav`), media(source), { source, hints: [] });
+  await tick();
+  assert.equal(Object.hasOwn(clients[0].submissions[0].config.transcription_config, 'language_hints'), false);
+  assert.deepEqual(entry.sample.hints, []);
+  clients[0].finish({ utterances: [] });
+  await tick();
+});
+
 test('uploads automatically use the supplied key and current configuration without duplicate submissions', async () => {
   const { library, clients } = environment();
-  const upload = library.add(file('uploaded-audio.wav'), media('upload', 42), { apiKey: 'upload-key' });
+  const upload = library.add(file('uploaded-audio.wav'), media('upload', 42), { apiKey: 'upload-key', hints: ['en', 'es'] });
   assert.equal(upload.sample.title, 'uploaded-audio.wav');
   assert.equal(upload.sample.region, 'eu');
   assert.equal(clients.length, 0, 'startup waits for the caller to select and configure the new entry');
-  Object.assign(upload.sample, { region: 'us', locale: 'en-US', diarization: 'channel', hints: ['en', 'es'] });
+  Object.assign(upload.sample, { region: 'us', locale: 'en-US', diarization: 'channel' });
   await tick();
   assert.equal(clients.length, 1, 'no second click is required to start the upload');
   assert.deepEqual(clients[0].options, { apiKey: 'upload-key', region: 'us' });
@@ -125,8 +144,9 @@ test('renaming during transcription survives completion and keeps the same mutab
 
 test('resume belongs to the selected entry and never resubmits either consultation', async () => {
   const { library, clients } = environment();
-  const first = library.add(file('first.wav'), media('first'));
-  const second = library.add(file('second.wav'), media('second'));
+  const preferences = ['en', 'es'];
+  const first = library.add(file('first.wav'), media('first'), { hints: preferences });
+  const second = library.add(file('second.wav'), media('second'), { hints: ['fr'] });
   const firstTask = library.transcribe(first.sample.id, { apiKey: 'first-key' });
   const secondTask = library.transcribe(second.sample.id, { apiKey: 'second-key' });
   await tick();
@@ -134,7 +154,8 @@ test('resume belongs to the selected entry and never resubmits either consultati
   clients[1].finish({ utterances: [{ id: 'second-result' }] });
   await Promise.all([firstTask, secondTask]);
   assert.equal(first.session.state.canResume, true);
-  const resume = library.transcribe(first.sample.id, { apiKey: 'updated-first-key' });
+  preferences.splice(0, preferences.length, 'de');
+  const resume = library.transcribe(first.sample.id, { apiKey: 'updated-first-key', hints: preferences });
   await tick();
   assert.equal(clients.length, 3);
   assert.equal(clients[2].options.apiKey, 'updated-first-key');
@@ -144,6 +165,9 @@ test('resume belongs to the selected entry and never resubmits either consultati
   await resume;
   assert.equal(first.sample.utterances[0].id, 'first-result');
   assert.equal(second.sample.utterances[0].id, 'second-result');
+  assert.deepEqual(first.sample.hints, ['en', 'es']);
+  assert.deepEqual(clients[0].submissions[0].config.transcription_config.language_hints, ['en', 'es']);
+  assert.deepEqual(second.sample.hints, ['fr']);
   assert.equal(clients[0].submissions.length + clients[1].submissions.length, 2);
 });
 
@@ -204,6 +228,7 @@ test('an upload without a browser key automatically uses the environment credent
   assert.equal(clients.length, 1);
   assert.equal(clients[0].options.apiKey, '');
   assert.equal(clients[0].submissions.length, 1);
+  assert.equal(Object.hasOwn(clients[0].submissions[0].config.transcription_config, 'language_hints'), false);
   clients[0].finish({ utterances: [] });
   await tick();
   assert.equal(upload.sample.transcribed, true);
@@ -224,16 +249,21 @@ test('automatic upload startup errors are surfaced and allow an explicit retry w
     onChange: (entry, status) => progress.push({ entry, status }),
   });
   const audio = file('retry.wav');
-  const upload = library.add(audio, media('retry'));
+  const preferences = ['en', 'es'];
+  const upload = library.add(audio, media('retry'), { hints: preferences });
   await tick();
   assert.equal(starts.length, 1);
   assert.equal(progress.at(-1).entry, upload);
   assert.equal(progress.at(-1).status.status, 'error');
   assert.equal(progress.at(-1).status.canResume, false);
   assert.match(progress.at(-1).status.message, /API key/);
-  await library.transcribe(upload.sample.id, { apiKey: 'newly-saved-key' });
+  preferences.splice(0, preferences.length, 'fr');
+  await library.transcribe(upload.sample.id, { apiKey: 'newly-saved-key', hints: preferences });
   assert.equal(starts.length, 2);
   assert.equal(starts[1].audio, audio);
   assert.equal(starts[1].options.apiKey, 'newly-saved-key');
+  assert.deepEqual(starts[0].options.config.transcription_config.language_hints, ['en', 'es']);
+  assert.deepEqual(starts[1].options.config.transcription_config.language_hints, ['en', 'es']);
+  assert.deepEqual(upload.sample.hints, ['en', 'es']);
   assert.equal(library.entries().length, 1);
 });

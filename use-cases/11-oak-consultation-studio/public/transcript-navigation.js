@@ -1,6 +1,6 @@
 import { findWordForSeek } from './transcript.js';
 
-// Only explicit seeks reveal text; regular playback leaves reading position alone.
+// Explicit seeks align their destination; playback only reveals an obscured word.
 export function revealTranscriptAtTime(container, sample, seconds) {
   const word = findWordForSeek(sample, seconds);
   if (!container || !word) return null;
@@ -24,5 +24,27 @@ export function revealTranscriptAtTime(container, sample, seconds) {
     // The mobile layout expands the transcript; the document is its scroller.
     element.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
   }
+  return element;
+}
+
+export function followTranscriptWord(container, element) {
+  if (!container || !element || (container.contains && !container.contains(element))) return null;
+  const padding = 24;
+  const deltaFor = (bounds, top, bottom) => bounds.top < top ? bounds.top - top
+    : bounds.bottom > bottom ? bounds.bottom - bottom : 0;
+
+  if (container.scrollHeight > container.clientHeight + 1) {
+    const top = container.getBoundingClientRect().top + container.clientTop;
+    const delta = deltaFor(element.getBoundingClientRect(), top + padding,
+      top + container.clientHeight - padding);
+    const target = Math.max(0, Math.min(container.scrollTop + delta,
+      container.scrollHeight - container.clientHeight));
+    if (target !== container.scrollTop) container.scrollTo({ top: target, behavior: 'instant' });
+  }
+
+  // Measure again after the panel moves; expanded mobile transcripts use only the page.
+  const view = container.ownerDocument.defaultView;
+  const delta = deltaFor(element.getBoundingClientRect(), padding, view.innerHeight - padding);
+  if (delta) view.scrollBy({ top: delta, left: 0, behavior: 'instant' });
   return element;
 }

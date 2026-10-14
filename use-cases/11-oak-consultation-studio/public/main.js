@@ -5,14 +5,15 @@ import { validateAudioFile, createRecorder, seekAudio } from './audio.js';
 import { createAudioLoader } from './audio-loader.js';
 import { createAudioWaveform, WAVEFORM_BARS } from './audio-waveform.js';
 import { icon } from './icons.js';
-import { initSettings, credentials } from './settings.js';
+import { initSettings, credentials, languagePreferences } from './settings.js';
+import { HINT_LANGUAGES } from './language-preferences.js';
 import { createBatchClient } from './batch-client.js';
 import { prepareAudioFile } from './audio-convert.js';
 import { normalizeBatchTranscript } from './batch-transcript.js';
 import { createTranscriptionSession } from './transcription-session.js';
 import { createConsultationLibrary } from './consultation-library.js';
 import { BATCH_ENDPOINTS } from './batch-endpoints.js';
-import { revealTranscriptAtTime } from './transcript-navigation.js';
+import { revealTranscriptAtTime, followTranscriptWord } from './transcript-navigation.js';
 
 const $ = id => document.getElementById(id);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
@@ -28,6 +29,8 @@ let recordingFinishing = false;
 const audioLoader = createAudioLoader();
 let importGeneration = 0;
 let playbackGeneration = 0;
+let followedWord = null;
+let scrubbingTimeline = false;
 const consultations = createConsultationLibrary({
   createSession: ({ onChange }) => createTranscriptionSession({
     createClient: createBatchClient, prepareAudio: prepareAudioFile, normalize: normalizeBatchTranscript, onChange,
@@ -37,7 +40,10 @@ const consultations = createConsultationLibrary({
       if (state.sample === entry.sample) loadSample(entry.sample);
       else renderLibrary();
       notify(`Transcript ready: ${entry.sample.title}`);
-    } else if (state.sample === entry.sample) renderTranscript();
+    } else if (state.sample === entry.sample) {
+      renderTranscript();
+      if ($('config-dialog').open) updateConfig();
+    }
   },
 });
 const allSamples = () => [...samples, ...consultations.entries().map(entry => entry.sample)];
@@ -123,7 +129,8 @@ function loadSample(sample) {
   $('config-locale').disabled = sample.isDemo && !sample.languages.includes('en');
   $('config-region').value = sample.region;
   $('config-hints').checked = false;
-  $('config-hints').disabled = !sample.languages.length;
+  $('config-hints').disabled = !sample.isDemo || !sample.languages.length;
+  $('config-hints-option').hidden = !sample.isDemo;
   renderLibrary();
   renderTranscript();
   renderInspector();
@@ -201,11 +208,11 @@ function renderTranscript() {
       if (current?.language === word.language) current.words.push({ ...word, index });
       else runs.push({ language: word.language, words: [{ ...word, index }] });
     });
-    return `<article class="turn" data-turn="${escape(turn.id)}">${avatar(turn.speaker)}<div><div class="turn-meta"><span class="speaker-label ${speakerTone(turn.speaker)}">${escape(state.sample.speakerNames[turn.speaker] || turn.speaker)}</span><span class="speaker-code">${escape(turn.speaker)}</span><button class="turn-time" data-seek="${turn.start}" aria-label="Go to ${formatTime(turn.start)}">${formatTime(turn.start)} ${icon('play')}</button></div><p class="turn-words">${runs.map(run => `<span class="language-run" style="${languageStyle(run.language)}" lang="${escape(run.language)}" dir="${languageMeta(run.language).dir}">${run.words.map(word => {
+    return `<article class="turn" data-turn="${escape(turn.id)}">${avatar(turn.speaker)}<div><div class="turn-meta"><span class="speaker-label ${speakerTone(turn.speaker)}">${escape(state.sample.speakerNames[turn.speaker] || turn.speaker)}</span><span class="speaker-code">${escape(turn.speaker)}</span><button class="turn-time" data-seek="${turn.start}" aria-label="Go to ${formatTime(turn.start)}">${formatTime(turn.start)} ${icon('play')}</button></div><div class="turn-words">${runs.map(run => `<div class="language-paragraph" style="${languageStyle(run.language)}" dir="${languageMeta(run.language).dir}"><span class="lang-chip paragraph-language" data-lang="${escape(run.language)}" dir="ltr" title="${escape(languageMeta(run.language).name)}" aria-label="${escape(languageMeta(run.language).name)}">${escape(run.language.toUpperCase())}</span><p class="language-run" lang="${escape(run.language)}" dir="${languageMeta(run.language).dir}">${run.words.map((word, runIndex) => {
       const match = state.query && turn.matchingWordIndexes.includes(word.index);
       const label = `${word.text} · ${languageMeta(word.language).name} · ${formatTime(word.start)}`;
-      return `${word.index ? escape(word.separatorBefore ?? ' ') : ''}<button class="word" data-turn-id="${escape(turn.id)}" data-word="${word.index}" data-lang="${escape(word.language)}" aria-label="${escape(label)}">${match ? '<mark>' : ''}${escape(word.text)}${match ? '</mark>' : ''}</button>`;
-    }).join('')}</span>`).join('')}</p></div></article>`;
+      return `${runIndex ? escape(word.separatorBefore ?? ' ') : ''}<button class="word" data-turn-id="${escape(turn.id)}" data-word="${word.index}" data-lang="${escape(word.language)}" aria-label="${escape(label)}">${match ? '<mark>' : ''}${escape(word.text)}${match ? '</mark>' : ''}</button>`;
+    }).join('')}</p></div>`).join('')}</div></div></article>`;
   }).join('') || `<div class="empty-state">${icon('search')}<strong>No matching words.</strong><p>Try another phrase or clear the speaker and language filters.</p><button id="clear-filters">Clear all filters</button></div>`;
   updateTime();
 }
@@ -232,7 +239,7 @@ function renderWord() {
   $('word-inspector').innerHTML = !word ? `${header}<p>Select any word in the transcript to see its language, speaker, and timing.</p>` : `${header}<h3 dir="auto" style="${languageStyle(word.language)};color:var(--language-ink)">${escape(word.text)}</h3><dl class="word-details"><div><dt>Language</dt><dd>${escape(languageMeta(word.language).name)}</dd></div><div><dt>Speaker</dt><dd>${escape(state.sample.speakerNames[word.speaker] || word.speaker)}</dd></div><div><dt>Start → end</dt><dd>${word.start.toFixed(2)} → ${word.end.toFixed(2)}s</dd></div></dl><p>${state.sample.isDemo ? 'Illustrative metadata from this scripted sample.' : 'Word-level transcript metadata.'}</p>`;
 }
 
-function updateTime() {
+function updateTime({ followPlayback = true } = {}) {
   const duration = state.sample.duration || 1;
   $('current-time').textContent = formatTime(state.time);
   $('seek').value = state.time;
@@ -240,12 +247,20 @@ function updateTime() {
   $('playhead').style.left = `${Math.min(100, state.time / duration * 100)}%`;
   [...$('waveform-bars').children].forEach((bar, index) => bar.classList.toggle('played', index / WAVEFORM_BARS <= state.time / duration));
   const current = findWordAtTime(state.sample, state.time);
+  let currentElement = null;
   $('transcript-body').querySelectorAll('.word').forEach(element => {
     const turn = state.sample.utterances.find(turn => turn.id === element.dataset.turnId);
     const word = turn?.words[Number(element.dataset.word)];
-    element.classList.toggle('current', Boolean(current && current.utteranceId === turn.id && current.start === word.start));
+    const isCurrent = Boolean(current && current.utteranceId === turn.id && current.start === word.start);
+    element.classList.toggle('current', isCurrent);
+    if (isCurrent) currentElement = element;
     element.classList.toggle('selected', Boolean(state.selected && state.selected.utteranceId === turn.id && state.selected.start === word.start));
   });
+  if (followPlayback && state.playing && !scrubbingTimeline && currentElement
+    && currentElement !== followedWord && !document.querySelector('dialog[open]')) {
+    followTranscriptWord($('transcript-body'), currentElement);
+    followedWord = currentElement;
+  }
 }
 
 function seek(time, { revealTranscript = true } = {}) {
@@ -254,13 +269,15 @@ function seek(time, { revealTranscript = true } = {}) {
     state.time = $('local-audio').currentTime || 0;
     notify('This recording cannot seek to that position yet.');
   }
-  updateTime();
+  updateTime({ followPlayback: false });
   if (revealTranscript) revealTranscriptAtTime($('transcript-body'), state.sample, state.time);
 }
 
 function pause() {
   playbackGeneration++;
   state.playing = false;
+  followedWord = null;
+  scrubbingTimeline = false;
   cancelAnimationFrame(frame);
   $('local-audio').pause();
   $('play').innerHTML = icon('play');
@@ -298,9 +315,33 @@ async function play() {
 }
 
 function updateConfig() {
-  const config = createRequestConfig({ locale: $('config-locale').value, diarization: $('config-diarization').value, hints: $('config-hints').checked ? state.sample.languages : [] });
-  $('config-endpoint').textContent = `${BATCH_ENDPOINTS[$('config-region').value].replace('https://', '')}/jobs`;
+  const sample = state.sample;
+  const entry = selectedEntry();
+  const locked = Boolean(entry && (sample.transcribed || entry.session.busy || entry.session.state.canResume));
+  if (entry) {
+    $('config-region').value = sample.region;
+    $('config-locale').value = sample.locale;
+    $('config-diarization').value = sample.diarization;
+  }
+  $('config-region').disabled = locked;
+  $('config-diarization').disabled = locked;
+  $('config-locale').disabled = locked || (sample.isDemo && !sample.languages.includes('en'));
+  const config = createRequestConfig(sample.isDemo
+    ? { locale: $('config-locale').value, diarization: $('config-diarization').value, hints: $('config-hints').checked ? sample.languages : [] }
+    : sample);
+  $('config-language-hints').hidden = sample.isDemo;
+  $('config-language-hints').textContent = describeHints(sample.hints || []);
+  $('config-endpoint').textContent = `${BATCH_ENDPOINTS[entry ? sample.region : $('config-region').value].replace('https://', '')}/jobs`;
   $('config-code').textContent = JSON.stringify(config, null, 2);
+}
+
+function describeHints(hints) {
+  return hints.length ? `Expected languages: ${hints.map(code => HINT_LANGUAGES.find(language => language.code === code)?.name || getLanguagePresentation(code).name).join(', ')}.`
+    : 'Automatic language detection · no expected languages selected.';
+}
+
+function updateLanguageDefaults() {
+  $('new-language-hints').textContent = describeHints(languagePreferences.get());
 }
 
 async function copyText(text, message) {
@@ -333,7 +374,8 @@ async function loadAudioFile(file, { source = 'upload' } = {}) {
     if (!media) return;
     if (generation !== importGeneration) { media.release(); return; }
     credentials.refresh();
-    const entry = consultations.add(file, media, { source, apiKey: credentials.forRequest().key });
+    languagePreferences.refresh();
+    const entry = consultations.add(file, media, { source, apiKey: credentials.forRequest().key, hints: languagePreferences.get() });
     media.waveformStatus = 'loading';
     loadSample(entry.sample);
     void loadWaveform(entry);
@@ -349,6 +391,8 @@ async function loadAudioFile(file, { source = 'upload' } = {}) {
 function openNew() {
   pause();
   showAudioError('');
+  languagePreferences.refresh();
+  updateLanguageDefaults();
   $('new-dialog').showModal();
 }
 
@@ -448,8 +492,15 @@ $('search').addEventListener('input', event => { state.query = event.target.valu
 $('language-filter').addEventListener('change', event => { state.language = event.target.value; renderTranscript(); });
 $('speaker-filter').addEventListener('change', event => { state.speaker = event.target.value; renderTranscript(); });
 $('seek').addEventListener('input', event => seek(event.target.value, { revealTranscript: false }));
+$('seek').addEventListener('pointerdown', () => { scrubbingTimeline = true; });
+window.addEventListener('pointerup', () => { scrubbingTimeline = false; });
+window.addEventListener('pointercancel', () => { scrubbingTimeline = false; });
+window.addEventListener('blur', () => { scrubbingTimeline = false; });
 // Reveal on release/commit, so mobile scrubbing does not move the slider mid-drag.
-$('seek').addEventListener('change', () => revealTranscriptAtTime($('transcript-body'), state.sample, state.time));
+$('seek').addEventListener('change', () => {
+  scrubbingTimeline = false;
+  revealTranscriptAtTime($('transcript-body'), state.sample, state.time);
+});
 $('play').addEventListener('click', play);
 $('restart').addEventListener('click', () => seek(0));
 $('speed').addEventListener('click', () => {
@@ -517,7 +568,6 @@ $('speaker-name').addEventListener('input', () => $('speaker-name').setCustomVal
 $('close-rename').addEventListener('click', () => $('rename-dialog').close());
 $('new-consultation').addEventListener('click', openNew);
 $('sidebar-upload').addEventListener('click', openNew);
-$('demo-add-audio').addEventListener('click', openNew);
 $('demo-settings').addEventListener('click', () => $('open-settings').click());
 $('audio-file').addEventListener('change', event => { if (event.target.files[0]) loadAudioFile(event.target.files[0]); });
 $('drop-zone').addEventListener('dragover', event => { event.preventDefault(); $('drop-zone').classList.add('dragover'); });
@@ -544,4 +594,5 @@ window.addEventListener('beforeunload', event => {
 });
 window.addEventListener('unload', () => consultations.releaseAll());
 loadSample(samples[0]);
-initSettings(notify);
+initSettings(notify, { onHintsChanged: updateLanguageDefaults, onAddAudio: openNew });
+updateLanguageDefaults();

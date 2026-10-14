@@ -3,7 +3,7 @@
 # Used by CLI tool for search, filtering, and scaffolding
 
 version: "1.0.0"
-last_updated: "2026-10-13"
+last_updated: "2026-10-14"
 total_examples: 32
 
 # Example Categories
@@ -580,7 +580,7 @@ examples:
 
   - id: "oak-consultation-studio"
     title: "Oak Consultation Studio"
-    description: "Automatically transcribe uploaded audio or microphone recordings with Oak 1, then explore multilingual medical consultations with synchronized playback, word timings, language filters, and speaker/channel labels. Includes a Python serverless token broker, user-provided API keys, and Vercel deployment."
+    description: "Automatically transcribe uploaded audio or microphone recordings with Oak 1, then explore multilingual medical consultations with language-tagged paragraphs, synchronized playback, word timings, and speaker/channel labels. Includes optional expected-language settings, a Python serverless token broker, user-provided API keys, and Vercel deployment."
     category: "use-cases"
     difficulty: "intermediate"
     languages: ["python", "javascript"]
@@ -591,8 +591,8 @@ examples:
     integrations: []
     path: "use-cases/11-oak-consultation-studio"
     readme: "use-cases/11-oak-consultation-studio/README.md"
-    tags: ["oak", "oak-1", "medical", "healthcare", "multilingual", "code-switching", "batch", "microphone", "audio-upload", "word-timestamps", "language-identification", "serverless", "vercel", "bring-your-own-key"]
-    last_updated: "2026-10-13"
+    tags: ["oak", "oak-1", "medical", "healthcare", "multilingual", "code-switching", "batch", "microphone", "audio-upload", "word-timestamps", "language-identification", "language-hints", "serverless", "vercel", "bring-your-own-key"]
+    last_updated: "2026-10-14"
     estimated_time: "20 minutes"
 
 # Integration Frameworks

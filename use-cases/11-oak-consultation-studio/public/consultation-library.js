@@ -49,7 +49,7 @@ export function createConsultationLibrary({
     finally { if (pending.get(id) === promise) pending.delete(id); }
   }
 
-  function add(file, media, { source = 'upload', apiKey = '' } = {}) {
+  function add(file, media, { source = 'upload', apiKey = '', hints = [] } = {}) {
     if (disposed) throw new Error('This consultation library has been released.');
     if (!file || typeof file.name !== 'string' || !media || !Number.isFinite(media.duration) || media.duration <= 0) {
       throw new Error('A valid audio file and its playable media are required.');
@@ -66,6 +66,8 @@ export function createConsultationLibrary({
       })}` : file.name,
       description: 'Your recording, ready for multilingual transcription with Oak 1.',
       duration: media.duration, languages: [], speakerNames: {},
+      // Settings can change while this consultation is running or awaiting retry.
+      hints: [...hints],
       specialty: 'Local audio · ready to transcribe', region: DEFAULT_BATCH_REGION, locale: 'en-GB',
       diarization: 'speaker', isDemo: false, utterances: [],
     };
