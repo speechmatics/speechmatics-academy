@@ -4,17 +4,18 @@
 
 # Outbound Dialer - Twilio + Speechmatics
 
-**Make your AI voice assistant call any phone number using the Twilio REST API.**
+**Build a local demo that starts an outbound call with Twilio and processes the conversation with Speechmatics, OpenAI, and ElevenLabs.**
 
 </div>
 
-This example shows how to programmatically initiate outbound calls. The assistant calls the user, making it perfect for appointment reminders, notifications, or proactive customer outreach.
+The application combines Speechmatics Speech to Text (STT), an OpenAI large language model (LLM), and ElevenLabs Text to Speech (TTS). Twilio initiates the call and carries audio through Media Streams.
 
 > [!NOTE]
-> **New voice agent work is moving to Agent STT, powered by Linden 1.** The Voice SDK used here
-> still works, but [`speechmatics-agent-stt`](../../../basics/13-agent-stt/) is the current
-> starting point for agents: it returns whole segments plus the speech and turn events that tell
-> an agent when to respond.
+> This example uses the **deprecated Voice SDK** (`speechmatics-voice`) with its
+> existing turn-detection presets. For new work, start with
+> [agent STT, powered by Linden 1](../../../basics/13-agent-stt/). Migrating this
+> example requires adapting its audio handling and event callbacks; changing
+> the package name alone is not sufficient.
 
 ## What You'll Learn
 
@@ -25,12 +26,12 @@ This example shows how to programmatically initiate outbound calls. The assistan
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
-- **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **ElevenLabs API key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
 - **Twilio Account**: Get one from [twilio.com](https://www.twilio.com/)
 - **Twilio Phone Number**: See [Twilio Setup](#twilio-setup) below
-- **Python 3.10+**
+- **Python 3.10–3.12** (Python 3.12 recommended). The code imports `audioop`; Python 3.13+ requires the `audioop-lts` backport, which is not installed by the requirements file
 - **ngrok** (for local development)
 
 ## Twilio Setup
@@ -46,10 +47,10 @@ This example shows how to programmatically initiate outbound calls. The assistan
 2. Navigate to **Phone Numbers** > **Manage** > **Buy a number**
 3. Select your country and click **Search**
 4. Choose a number with **Voice** capability
-5. Click **Buy** (free trial accounts get a free number)
+5. Review the displayed price and trial restrictions, then complete the purchase
 
 > [!TIP]
-> Trial accounts can only call verified phone numbers. To call any number, upgrade your account.
+> Check your account's trial restrictions and allowed destinations before testing a call.
 
 ### Step 3: Get Your Credentials
 
@@ -60,6 +61,13 @@ This example shows how to programmatically initiate outbound calls. The assistan
 3. Your phone number is in **Phone Numbers** > **Manage** > **Active numbers**
 
 ## Quick Start
+
+> [!IMPORTANT]
+> The sample has no authentication on `/dial`, and it does not validate Twilio
+> signatures on `/twiml` or `/media-stream`. Exposing it gives other callers a
+> path to use your paid services. Before using a public tunnel, protect `/dial`
+> with authentication and destination limits, and validate Twilio signatures on
+> its HTTP and WebSocket callbacks. See [Twilio request validation](https://www.twilio.com/docs/usage/security#validating-requests).
 
 ### Python
 
@@ -111,9 +119,9 @@ TWILIO_PHONE_NUMBER=+14155551234
 python main.py
 ```
 
-**Step 5: Start ngrok**
+**Step 5: Expose the protected callback server with ngrok**
 
-In a new terminal:
+After adding the access controls described above, open a new terminal:
 
 **On Windows:**
 ```bash
@@ -229,7 +237,7 @@ flowchart LR
 
 | Feature | Description |
 |---------|-------------|
-| **Outbound Calls** | Programmatically call any phone number via Twilio REST API |
+| **Outbound Calls** | Initiate a call to a permitted destination through the Twilio REST API |
 | **Media Streams** | Bidirectional WebSocket audio streaming |
 | **Speechmatics STT** | Real-time speech-to-text with turn detection |
 | **ElevenLabs TTS** | Low-latency streaming text-to-speech |
@@ -273,7 +281,7 @@ Health check endpoint.
 
 The `dial.py` script provides two modes:
 
-### Via Server (Recommended)
+### Via the protected server
 
 ```bash
 # Server handles Twilio API internally
@@ -316,13 +324,12 @@ call = twilio_client.calls.create(
 )
 ```
 
-## Use Cases
+## Extending the example
 
-- **Appointment Reminders**: Call patients/clients before their appointments
-- **Delivery Notifications**: Call customers when delivery is arriving
-- **Survey Collection**: Outbound calls to collect feedback
-- **Emergency Alerts**: Mass notification system
-- **Personal Assistant**: "Call me back in 5 minutes"
+The sample demonstrates call initiation and audio transport. Before adapting it
+for a calling workflow, add destination controls, call lifecycle handling, and
+response-task cancellation. The current implementation starts a response task on
+each user turn, so consecutive turns can produce overlapping replies.
 
 ## Troubleshooting
 
@@ -342,14 +349,15 @@ call = twilio_client.calls.create(
 
 ## Next Steps
 
-- **[Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/)** - Learn about turn detection presets
+- **[Agent STT](../../../basics/13-agent-stt/)** - Current SDK and events for the STT stage
+- **[Legacy Voice SDK turn detection](../../../basics/08-voice-agent-turn-detection/)** - Understand the presets used by this example
 - **[LiveKit Voice Assistant](../../livekit/01-simple-voice-assistant/)** - WebRTC-based voice assistant
 
 ## Resources
 
 - [Twilio REST API - Create Call](https://www.twilio.com/docs/voice/api/call-resource#create-a-call-resource)
 - [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams)
-- [Speechmatics Voice Agent](https://docs.speechmatics.com/voice-agent)
+- [Speechmatics Voice SDK (deprecated)](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk)
 - [ElevenLabs API](https://elevenlabs.io/docs)
 - [OpenAI API Docs](https://platform.openai.com/docs)
 
@@ -365,6 +373,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Advanced
+**API Mode**: Realtime — legacy Voice SDK
 **Integration**: Twilio
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

@@ -3,31 +3,33 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../logo/vapi-light.png">
   <source media="(prefers-color-scheme: light)" srcset="../logo/vapi-dark.png">
-  <img alt="VAPI" src="../logo/vapi-dark.png" width="80">
+  <img alt="Vapi" src="../logo/vapi-dark.png" width="80">
 </picture>
 
-# VAPI Voice Assistant with Speechmatics
+# Vapi Voice Assistant with Speechmatics
 
-**Build voice assistants using VAPI with Speechmatics as the transcription provider.**
+**Build a Vapi assistant with Speechmatics Speech to Text (STT) as its transcription provider.**
+
+Vapi coordinates the STT, OpenAI large language model (LLM), and ElevenLabs Text to Speech (TTS) stages. This example selects the Speechmatics Enhanced model through Vapi's streaming transcription integration; it does not configure agent STT or Linden 1.
 
 </div>
 
 ## What You'll Learn
 
-- Creating VAPI assistants with Speechmatics transcriber
+- Creating Vapi assistants with Speechmatics transcriber
 - Configuring transcription settings (language, operating point, diarization)
-- Managing assistants via the VAPI Server SDK
+- Managing assistants via the Vapi Server SDK
 
 ## Prerequisites
 
-- **VAPI Account**: Sign up at [vapi.ai](https://vapi.ai/)
-- **VAPI Private Key**: Get from [dashboard.vapi.ai](https://dashboard.vapi.ai/)
-- **Speechmatics API Key**: Add to VAPI Dashboard under **Provider Keys**
-- **Docker** (recommended) or **Python 3.9+**
+- **Vapi Account**: Sign up at [vapi.ai](https://vapi.ai/)
+- **Vapi Private Key**: Get from [dashboard.vapi.ai](https://dashboard.vapi.ai/)
+- **Speechmatics API key**: Add to Vapi Dashboard under **Provider Keys**
+- **Docker** or **Python 3.10+** (Python 3.12 recommended)
 
 ## Quick Start
 
-### Step 1: Configure API Key
+### Step 1: Configure API key
 
 ```bash
 cp .env.example .env
@@ -45,18 +47,29 @@ docker compose run --rm vapi python main.py
 
 **Using Python directly:**
 
-```bash
+On Windows (PowerShell):
+```powershell
 cd python
 python -m venv .venv
-#source .venv/bin/activate
-Windows: .venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python main.py
 ```
 
+On Mac/Linux:
+```bash
+cd python
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python main.py
+```
+
+The script loads the example-root `.env` created in Step 1.
+
 ### Step 3: Test Your Assistant
 
-After creating an assistant, test it in the [VAPI Dashboard](https://dashboard.vapi.ai/):
+After creating an assistant, test it in the [Vapi Dashboard](https://dashboard.vapi.ai/):
 
 1. Go to **Assistants**
 2. Select your assistant
@@ -86,8 +99,8 @@ flowchart LR
         USER[User Browser/Phone]
     end
 
-    subgraph VAPI Platform
-        ROOM[VAPI Call]
+    subgraph Vapi Platform
+        ROOM[Vapi Call]
         STT[Speechmatics STT]
         LLM[OpenAI LLM]
         TTS[ElevenLabs TTS]
@@ -102,8 +115,8 @@ flowchart LR
 
 ### Pipeline Flow
 
-1. **User** speaks into browser or phone via VAPI Dashboard
-2. **VAPI Call** handles WebRTC connection and audio streaming
+1. **User** speaks into browser or phone via Vapi Dashboard
+2. **Vapi Call** handles WebRTC connection and audio streaming
 3. **Speechmatics STT** transcribes speech to text with diarization
 4. **OpenAI LLM** generates intelligent responses
 5. **ElevenLabs TTS** converts text to natural speech
@@ -157,15 +170,15 @@ assistant = client.assistants.create(
 |-----------|------|-------------|
 | `provider` | string | Must be `"speechmatics"` |
 | `model` | string | `"default"` |
-| `language` | string | ISO code: `"en"`, `"es"`, `"fr"`, etc. (50+ languages) |
-| `operating_point` | string | `"standard"` or `"enhanced"` (best accuracy) |
+| `language` | string | A language code supported by Vapi's Speechmatics transcriber, such as `"en"` |
+| `operating_point` | string | `"standard"` selects Standard; `"enhanced"` selects Enhanced |
 | `region` | string | `"eu"` or `"us"` (choose closest to users) |
 
-### Speaker Diarization
+### Speaker diarization
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `enable_diarization` | boolean | Enable speaker identification |
+| `enable_diarization` | boolean | Separate the transcript into distinct speakers |
 
 ### Transcription Behavior
 
@@ -180,19 +193,19 @@ assistant = client.assistants.create(
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `end_of_turn_sensitivity` | number | Sensitivity for detecting end of speech (0.0-1.0) |
-| `minimum_speech_duration` | number | Min speech duration threshold |
+| `minimum_speech_duration` | number | Minimum speech-segment duration in seconds |
 
-### Custom Vocabulary
+### Custom dictionary
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `custom_vocabulary` | array | List of custom words with optional `sounds_like` |
+| `custom_vocabulary` | array | Vapi's field for custom dictionary entries, with optional `sounds_like` |
 
 ### Fallback Plan (advanced)
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `fallback_plan` | object | Configures backup transcriber providers if Speechmatics is unavailable. See [VAPI fallback docs](https://docs.vapi.ai/api-reference/types/server/fallback-transcriber-plan). Omitted from this example for brevity. |
+| `fallback_plan` | object | Configures backup transcriber providers if Speechmatics is unavailable. See [Vapi fallback docs](https://docs.vapi.ai/api-reference/types/server/fallback-transcriber-plan). Omitted from this example for brevity. |
 
 ### Full Example
 
@@ -218,18 +231,25 @@ transcriber = SpeechmaticsTranscriber(
 )
 ```
 
-## Why Speechmatics on VAPI?
+## Expected Output
 
-- **Speaker Diarization**: Only transcriber on VAPI with speaker identification
-- **55+ Languages**: Broadest language coverage
-- **Sub-second Latency**: Real-time transcription
-- **Enhanced Accuracy**: Industry-leading accuracy
+After creating an assistant, the script prints its name and identifier:
+
+```text
+Created: Speechmatics Assistant (<assistant-id>)
+Test at: https://dashboard.vapi.ai/
+```
+
+This configuration demonstrates speaker diarization, a custom dictionary, and
+smart formatting through Vapi's `numeral_style` field. Consult the
+[Vapi Speechmatics provider guide](https://docs.vapi.ai/providers/transcriber/speechmatics)
+for the current supported languages and provider options.
 
 ## Troubleshooting
 
 **"Invalid API key"**
 - Verify `VAPI_API_KEY` in `.env` is your **private** key
-- Ensure Speechmatics key is added in VAPI Dashboard under **Provider Keys**
+- Ensure Speechmatics key is added in Vapi Dashboard under **Provider Keys**
 
 **"Transcription not working"**
 - Check Speechmatics key has sufficient credits
@@ -238,10 +258,10 @@ transcriber = SpeechmaticsTranscriber(
 
 ## Resources
 
-- [VAPI Documentation](https://docs.vapi.ai/)
-- [VAPI Dashboard](https://dashboard.vapi.ai/)
-- [Speechmatics on VAPI](https://docs.vapi.ai/providers/transcriber/speechmatics)
-- [Speechmatics Languages](https://docs.speechmatics.com/introduction/supported-languages)
+- [Vapi Documentation](https://docs.vapi.ai/)
+- [Vapi Dashboard](https://dashboard.vapi.ai/)
+- [Speechmatics on Vapi](https://docs.vapi.ai/providers/transcriber/speechmatics)
+- [Speechmatics Languages](https://docs.speechmatics.com/speech-to-text/languages)
 
 ---
 
@@ -253,7 +273,9 @@ Help us improve this guide:
 
 ---
 
+**Time to Complete**: 15 minutes
 **Difficulty**: Beginner
+**API Mode**: Realtime — streaming through Vapi
 **Languages**: Python
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

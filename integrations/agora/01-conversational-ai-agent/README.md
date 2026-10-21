@@ -14,8 +14,10 @@
 
 This example includes a runnable Python FastAPI backend and Next.js client,
 adapted from Agora's [Python quickstart](https://github.com/AgoraIO-Conversational-AI/agent-quickstart-python).
-Speechmatics replaces the quickstart's default speech-to-text provider while
-the managed OpenAI LLM and MiniMax TTS remain unchanged.
+Speechmatics Speech to Text (STT) replaces the quickstart's default transcription provider.
+Agora coordinates the managed OpenAI large language model (LLM) and MiniMax
+Text to Speech (TTS). This example uses streaming transcription on the
+Speechmatics Realtime API; it does not configure the agent STT endpoint.
 
 ![Recording of the demo: the browser joins the Agora channel and Ada opens with a spoken greeting, a question about Speechmatics is transcribed into the live transcript as it is spoken, the agent answers aloud while the orb shows its talking state, and the header fills in real ASR, LLM and TTS latency for the turn](assets/agora-conversational-ai.gif)
 
@@ -23,14 +25,14 @@ the managed OpenAI LLM and MiniMax TTS remain unchanged.
 
 - How Speechmatics fits into an Agora Conversational AI pipeline
 - How the Python backend starts and stops managed Agora agent sessions
-- How RTC carries audio while RTM delivers transcripts, state, and metrics
+- How Agora Real-Time Communication (RTC) carries audio while Real-Time Messaging (RTM) delivers transcripts, state, and metrics
 - How to keep Agora and Speechmatics credentials on the server
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
 - **Agora project**: RTC, RTM, and Conversational AI must be enabled
-- **Python 3.10+**: invoked as `python3` on Mac/Linux and `python` on Windows
+- **Python 3.10+** (Python 3.12 recommended): invoked as `python3` on Mac/Linux and `python` on Windows
 - **Bun**
 - **Agora CLI** (optional): writes your Agora credentials for you; Step 2 covers the manual alternative
 
@@ -76,6 +78,13 @@ irm https://dl.agora.io/cli/install.ps1 | iex
 The implementation is in this Academy example: `server/` owns credentials,
 tokens, and the agent lifecycle; `web/` owns the browser call UI. The root
 `package.json` starts both processes together.
+
+> [!IMPORTANT]
+> Run this as a local learning demo. The backend issues tokens and starts or
+> stops agents without authenticating callers. Before exposing either the
+> backend or its Next.js proxy publicly, add caller authentication, channel and
+> agent ownership checks, request limits, and restricted CORS origins. Keeping
+> provider keys on the server does not protect these unauthenticated operations.
 
 > [!NOTE]
 > **Every Quick Start command is the same on Windows and Mac/Linux.** The
@@ -192,14 +201,11 @@ stt = SpeechmaticsSTT(
 )
 ```
 
-`additional_params` is merged into the provider `params` alongside `key`,
-`language`, and `uri`, so anything Speechmatics accepts in its
-`transcription_config` can be passed through. This demo uses it for a custom
-dictionary: recognition is accurate on clean audio, but microphone input only
-reaches the provider after Opus encoding and noise suppression on the RTC leg,
-where "Speechmatics" degrades to "speech Mattox". Listing the spellings you
-expect keeps the live transcript readable — add your own product terms the same
-way.
+`additional_params` is merged into the Agora provider `params` alongside `key`,
+`language`, and `uri`. This example uses `additional_vocab` to add a
+**custom dictionary** entry for “Speechmatics”. Check Agora's provider
+documentation before passing other Speechmatics configuration fields; the
+SDK's ability to serialize a field does not establish provider support.
 
 The demo pins `agora-agents==2.6.1` and passes the credential through `key`.
 Its regression tests verify that the SDK serializes this as `params.key`, not
@@ -207,7 +213,7 @@ the deprecated `api_key` field.
 
 See [`server/src/agent.py`](server/src/agent.py) for the provider configuration
 and [`web/src/components/QuickstartPipelineMetrics.tsx`](web/src/components/QuickstartPipelineMetrics.tsx)
-for the ASR/LLM/TTS latency display.
+for the STT/LLM/TTS latency display (Agora metrics may label STT as `asr`).
 
 ## Expected Output
 
@@ -238,11 +244,11 @@ The local services are:
 | `SPEECHMATICS_API_KEY` | Yes | Server-side Speechmatics STT credential |
 | `AGENT_GREETING` | No | Overrides the agent's opening message |
 | `PORT` | No | FastAPI port; defaults to `8000` |
-| `AGENT_BACKEND_URL` | Deployment only | Public FastAPI URL used by the Next.js server |
+| `AGENT_BACKEND_URL` | Web build / server | FastAPI URL reachable by the Next.js server; set it at build time |
 
 Process environment variables take precedence over values in `server/.env`.
-For lower latency, change the Speechmatics `uri` to the real-time endpoint
-closest to your users.
+To choose a region, set the Speechmatics `uri` to an available Realtime API
+streaming endpoint appropriate for your latency and data-location requirements.
 
 ## Verification
 
@@ -277,8 +283,8 @@ bun run verify:local
 **Browser API requests return 404**
 
 - Confirm the FastAPI process is running on port `8000`.
-- For deployment, set `AGENT_BACKEND_URL` for the Next.js server to the public
-  FastAPI URL.
+- For a hosted setup, first add the application access controls described above.
+  Set `AGENT_BACKEND_URL` to the FastAPI URL reachable by the Next.js server.
 - Set `AGENT_BACKEND_URL` when you **build**, not only when you start.
   `web/next.config.ts` reads it inside `rewrites()`, and Next evaluates that at
   build time: if the variable was unset then, the `/api/*` rewrites are baked
@@ -346,7 +352,7 @@ Get-NetTCPConnection -LocalPort 8000 -State Listen | ForEach-Object { Stop-Proce
 - [Quickstart license](LICENSE)
 - [Agora Conversational AI documentation](https://docs.agora.io/en/conversational-ai/overview/product-overview)
 - [Speechmatics documentation](https://docs.speechmatics.com/)
-- [Speechmatics Portal](https://portal.speechmatics.com/)
+- [Speechmatics portal](https://portal.speechmatics.com/)
 
 ---
 
@@ -361,6 +367,6 @@ Help us improve this guide:
 
 **Time to Complete**: 20 minutes
 **Difficulty**: Intermediate
-**API Mode**: Voice Agent
+**API Mode**: Realtime — streaming
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

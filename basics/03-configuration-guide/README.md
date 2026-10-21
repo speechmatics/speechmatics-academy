@@ -1,6 +1,6 @@
 # Configuration Guide - Common Configuration Options
 
-**Guide to common Speechmatics configuration options including diarization, custom vocabulary, and output formats.**
+**Guide to common Speechmatics configuration options including diarization, custom dictionary, and output formats.**
 
 Stop searching through docs - common config options explained with working examples in one place!
 
@@ -8,26 +8,26 @@ Stop searching through docs - common config options explained with working examp
 
 - Common configuration parameters
 - Speaker diarization setup
-- Custom vocabulary for accuracy
+- Custom dictionary for accuracy
 - Output format options
 - Punctuation and formatting controls
 - Language and dialect selection
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - Completed [Hello World](../01-hello-world/) example
 
 ## Quick Start
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -53,7 +53,7 @@ python main.py
 >
 > 1. **Create TranscriptionConfig** - Define all configuration parameters
 > 2. **Set Language & Diarization** - Configure speaker detection
-> 3. **Add Custom Vocabulary** - Improve accuracy for specific terms
+> 3. **Add Custom dictionary** - Improve accuracy for specific terms
 > 4. **Enable Entities** - Detect dates, numbers, currencies
 > 5. **Submit Transcription** - Send audio with configuration
 > 6. **Process Results** - Extract transcript and detected entities
@@ -61,13 +61,13 @@ python main.py
 > The configuration system is flexible - start with defaults and add only what you need.
 
 > [!TIP]
-> **For latency-sensitive applications**, consider using the **Realtime API** (`speechmatics-rt`) instead of batch. Real-time streaming provides sub-second latency with results as you speak, making it ideal for live captioning, voice agents, and interactive applications. See [Batch vs Real-time](../02-batch-vs-realtime/) for a comparison.
+> **For latency-sensitive applications**, consider using the **Realtime API** (`speechmatics-rt`) instead of batch. Realtime streaming provides results as you speak, with latency controlled by model and configuration, making it ideal for live captioning, voice agents, and interactive applications. See [Batch vs Realtime](../02-batch-vs-realtime/) for a comparison.
 
 ## Configuration Options
 
 ### 1. Speaker Diarization
 
-**What it does**: Identifies and labels different speakers in the audio
+**What it does**: Separates speech from different speakers and assigns labels; speaker identification is the separate feature for recognizing known voices.
 
 ```python
 config = TranscriptionConfig(
@@ -98,7 +98,7 @@ SPEAKER S2: I'm doing great, thanks for asking!
 > }
 > ```
 
-### 2. Custom Vocabulary
+### 2. Custom Dictionary
 
 **What it does**: Improves accuracy for domain-specific terms
 
@@ -141,7 +141,7 @@ config = TranscriptionConfig(
 > [!TIP]
 > **About `punctuation_sensitivity`**: This controls how frequently punctuation marks are inserted. A lower value (e.g., `0.2`) produces fewer punctuation marks, while a higher value (e.g., `0.8`) produces more. Useful for tuning output to your specific use case - for example, reducing punctuation for voice agent applications or increasing it for detailed transcripts.
 
-### 4. Output Locale & Domain
+### 4. Output Locale & Medical Sub-variant
 
 **What it does**: Customize output language format and optimize for specific domains
 
@@ -153,8 +153,7 @@ config = TranscriptionConfig(
 )
 ```
 
-**Available domains**:
-- `medical` - Medical terminology
+**Medical sub-variant**: `domain="medical"` selects the Medical sub-variant of Enhanced. It is distinct from the multilingual Batch model Oak 1; see [model selection](https://docs.speechmatics.com/speech-to-text/models).
 
 ### 5. Language Settings
 
@@ -165,7 +164,7 @@ from speechmatics.batch import JobConfig, JobType, TranscriptionConfig, Language
 
 config = JobConfig(
     type=JobType.TRANSCRIPTION,
-    transcription_config=TranscriptionConfig(language="en"),
+    transcription_config=TranscriptionConfig(language="auto"),
     language_identification_config=LanguageIdentificationConfig(
         expected_languages=["en", "es", "fr"]  # Optional: hint at expected languages
     )
@@ -175,11 +174,11 @@ config = JobConfig(
 > [!NOTE]
 > Language identification is configured at the `JobConfig` level, not inside `TranscriptionConfig`. The `expected_languages` parameter is optional - if omitted, all supported languages will be considered.
 
-**Supported languages**: 50+ languages including English, Spanish, French, German, Japanese, Chinese, and more.
+**Supported languages**: 50+ languages including English, Spanish, French, German, Japanese, Mandarin, and more.
 
-### 6. Operating Point
+### 6. Model Selection
 
-**What it does**: Balance between speed and accuracy
+**What it does**: Select the Standard or Enhanced model variant. The code below uses the older `operating_point` field for compatibility with this example. Current APIs prefer `model`; do not set both fields in one request.
 
 ```python
 config = TranscriptionConfig(
@@ -192,7 +191,7 @@ config = TranscriptionConfig(
 - `enhanced` - Slower, best accuracy
 
 > [!TIP]
-> **For batch processing**, stick with `enhanced`. The accuracy improvement is significant, and the latency difference is minimal since you're already waiting for file processing. Only use `standard` when processing large volumes where speed is critical.
+> Compare Standard and Enhanced on representative audio. Enhanced prioritizes accuracy; Standard prioritizes throughput. Turnaround and accuracy depend on your audio and configuration. See the [model comparison](https://docs.speechmatics.com/speech-to-text/models) for current capabilities.
 
 ## Complete Example
 
@@ -250,10 +249,10 @@ if __name__ == "__main__":
 | **Core Settings**          | Domain               | `domain`                     | `"medical"`, etc.                                   | Language pack optimized for specific domain                                 |
 | **Speech Recognition**     | Speaker Labels       | `diarization`                | `"speaker"`, `"channel"`, `"channel_and_speaker"`   | Type of diarization - identifies different speakers or channels             |
 | **Speech Recognition**     | Prefer Current Speaker | `speaker_diarization_config.prefer_current_speaker` | `True`/`False`                                | Bias towards current speaker - reduces label switching (great for captions) |
-| **Speech Recognition**     | Max Speakers         | `speaker_diarization_config.max_speakers`           | Integer (e.g., `2`, `4`)                      | Force speaker count - use only if exact count is known (can cause errors)   |
+| **Speech Recognition**     | Max Speakers         | `speaker_diarization_config.max_speakers`           | Integer (e.g., `2`, `4`)                      | Upper limit on detected speakers; does not force an exact count             |
 | **Speech Recognition**     | Speaker Sensitivity  | `speaker_diarization_config.speaker_sensitivity`    | Float `0.0`-`1.0`                             | Diarization sensitivity - higher values help distinguish similar voices     |
 | **Speech Recognition**     | Channel Labels       | `channel_diarization_labels` | List of strings (e.g., `["Agent", "Customer"]`)     | Custom labels for audio channels                                            |
-| **Speech Recognition**     | Custom Vocab         | `additional_vocab`           | List of dicts with `content`, `sounds_like`         | Additional vocabulary not in standard language pack                         |
+| **Speech Recognition**     | Custom dictionary    | `additional_vocab`           | List of dicts with `content`, `sounds_like`         | Additional vocabulary not in standard language pack                         |
 | **Formatting**             | Entity Detection     | `enable_entities`            | `True`/`False`                                      | Detect and format dates, times, numbers, currencies, etc.                   |
 | **Formatting**             | Punctuation Sensitivity | `punctuation_overrides.sensitivity`              | Float `0.0`-`1.0` (e.g., `0.4`)               | Control punctuation frequency - lower = fewer marks, higher = more marks    |
 | **Formatting**             | Permitted Marks      | `punctuation_overrides.permitted_marks`             | List (e.g., `[".", ",", "?"]`)                      | Limit which punctuation marks are allowed in output                         |
@@ -313,7 +312,7 @@ Detected Entities:
 - `prefer_current_speaker` for stable captioning (reduces label switching)
 - Optional `max_speakers` limit (use with caution)
 
-**Custom Vocabulary:**
+**Custom dictionary:**
 - Domain-specific term accuracy
 - Phonetic alternatives with sounds_like
 - Support for acronyms and product names
@@ -321,7 +320,7 @@ Detected Entities:
 **Entity Detection:**
 - Automatic formatting of dates, times, numbers
 - Currency detection and formatting
-- Named entity recognition
+- Structured spoken-value entities, such as dates and currencies; this is not general person or organization extraction
 
 **Quality Settings:**
 - Operating point configuration (Enhanced vs Standard)
@@ -346,20 +345,20 @@ Detected Entities:
 - For unknown speaker counts, omit `max_speakers` entirely and let auto-detection handle it
 - Consider using `prefer_current_speaker: True` instead for more stable speaker labels
 
-**"Custom vocabulary not working"**
+**"Custom dictionary not working"**
 - Ensure terms are spelled correctly
 - Use `sounds_like` for ambiguous terms
 - Limit to 1000 terms for best performance
 
 **"Output format not supported"**
-- Check you're using: `txt`, `json-v2`, `srt`, or `vtt`
+- The Batch API returns `txt`, `json-v2`, or `srt`. Convert SRT separately if you need WebVTT.
 - Some formats only available in batch mode
 
 ## Resources
 
-- [Formating Reference](https://docs.speechmatics.com/speech-to-text/formatting)
+- [Formatting Reference](https://docs.speechmatics.com/speech-to-text/formatting)
 - [Supported Languages](https://docs.speechmatics.com/speech-to-text/languages)
-- [Output Formats](https://docs.speechmatics.com/text-to-speech/quickstart#output-formats)
+- [Output Formats](https://docs.speechmatics.com/speech-to-text/batch/output)
 
 ---
 
@@ -373,6 +372,6 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Beginner
-**API Mode**: Batch (works with Real-time too)
+**API Mode**: Batch; Realtime settings are identified separately
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

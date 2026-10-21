@@ -12,13 +12,9 @@
 
 </div>
 
-A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (Groq), and text-to-speech (Cartesia) using the Pipecat AI framework - accessible via any web browser using WebRTC.
+Build a browser voice assistant with Pipecat and WebRTC. The pipeline uses Speechmatics Speech to Text (STT), a Groq-hosted large language model (LLM), and Cartesia Text to Speech (TTS). The Speechmatics adapter uses **agent STT**, powered by **Linden 1**, on the Realtime API.
 
-This example is optimized for low latency:
-
-- Speechmatics STT uses `EXTERNAL` turn detection mode (default) to minimize end-of-utterance delay
-- Groq is used for fast LLM responses
-- Cartesia is used for fast streaming TTS
+Pipecat finalizes STT segments using external voice activity detection (VAD), then uses a local smart-turn analyzer to decide when to send the user turn to the LLM. Groq generates the response and Cartesia streams the synthesized audio.
 
 > [!TIP]
 > **Looking for local microphone version?** See [01-simple-voice-bot](../01-simple-voice-bot/) for a version that uses your local microphone and speakers directly.
@@ -35,10 +31,10 @@ This example is optimized for low latency:
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Groq API Key**: Get one from [console.groq.com](https://console.groq.com/)
-- **Cartesia API Key**: Get one from [cartesia.ai](https://cartesia.ai/)
-- **Python 3.12+** (Python 3.12-3.13 supported)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **Groq API key**: Get one from [console.groq.com](https://console.groq.com/)
+- **Cartesia API key**: Get one from [cartesia.ai](https://cartesia.ai/)
+- **Python 3.12 recommended**. The checked-in `pyproject.toml` declares `>=3.12,<=3.13`, which excludes Python 3.13 patch releases after 3.13.0; use 3.12 for the `uv` instructions below
 - **macOS, Linux, or WSL2** (Windows native not supported for WebRTC)
 
 ## Quick Start
@@ -75,16 +71,16 @@ Open the `.env` file and add your API keys:
 SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
 GROQ_API_KEY=your_groq_api_key_here
 CARTESIA_API_KEY=your_cartesia_api_key_here
-SPEECHMATICS_RT_URL=wss://eu2.rt.speechmatics.com/v2
+SPEECHMATICS_RT_URL=wss://eu2.rt.speechmatics.com/v2/agent
 ```
 
-`SPEECHMATICS_RT_URL` controls which Speechmatics realtime endpoint is used. The default is the EU endpoint; set it to the US endpoint as needed
+`SPEECHMATICS_RT_URL` selects the agent STT endpoint. The adapter defaults to the EU endpoint. To use the US endpoint:
 
+```dotenv
+SPEECHMATICS_RT_URL=wss://us.rt.speechmatics.com/v2/agent
 ```
-SPEECHMATICS_RT_URL=wss://us.rt.speechmatics.com/v2
 
-Having the closest endpoint will reduce latency.
-```
+The SDK also accepts a base URL ending in `/v2` and appends `/agent`. Choose an available region appropriate for your application's latency and data-location requirements.
 
 **Step 4: Run the bot**
 
@@ -124,10 +120,10 @@ cd ~/projects/02-simple-voice-bot-web
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Sync dependencies (uses pyproject.toml)
-uv sync
+uv sync --python 3.12
 
 # Copy and configure your .env file
-cp /mnt/c/YOUR_PATH/02-simple-voice-bot-web/.env.example .env
+cp .env.example .env
 nano .env  # Add your API keys, then Ctrl+O to save, Ctrl+X to exit
 
 # Run
@@ -153,8 +149,8 @@ pip install --upgrade pip
 pip install -r requirements.txt
 
 # Copy and configure your .env file
-cp /mnt/c/YOUR_PATH/02-simple-voice-bot-web/.env.example ../.env
-nano ../.env  # Add your API keys, then Ctrl+O to save, Ctrl+X to exit
+cp ../.env.example .env
+nano .env  # Add your API keys, then Ctrl+O to save, Ctrl+X to exit
 
 # Run
 python main.py
@@ -212,7 +208,7 @@ flowchart LR
 | **Browser-Based** | Works from any browser - no local audio setup needed |
 | **WebRTC** | Low-latency peer-to-peer audio streaming |
 | **EXTERNAL Turn Detection** | Pipecat handles turn detection using external VAD (e.g., Silero) |
-| **Diarization** | Speaker identification tags each transcript segment with its speaker |
+| **Diarization** | Labels distinct speakers in transcript segments |
 | **Auto Greeting** | Bot greets user when connection is established |
 
 ### Code Highlights
@@ -229,26 +225,40 @@ stt = SpeechmaticsSTTService(
     ),
 )
 
-# WebRTC transport with external VAD
+# The aggregator runs VAD and broadcasts speech-stop events back to STT.
+context = LLMContext(messages)
+user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
+    context,
+    user_params=LLMUserAggregatorParams(
+        vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
+        user_turn_strategies=UserTurnStrategies(
+            stop=[TurnAnalyzerUserTurnStopStrategy(
+                turn_analyzer=LocalSmartTurnAnalyzerV3()
+            )]
+        ),
+    ),
+)
+
+# Transport handles audio; VAD is configured on the aggregator above.
 transport_params = {
     "webrtc": lambda: TransportParams(
         audio_in_enabled=True,
         audio_out_enabled=True,
-        vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
     ),
 }
 
-# Pipeline: browser -> STT -> LLM -> TTS -> browser
 pipeline = Pipeline([
     transport.input(),
     stt,
-    context_aggregator.user(),
+    user_aggregator,
     llm,
     tts,
     transport.output(),
-    context_aggregator.assistant(),
+    assistant_aggregator,
 ])
 ```
+
+See `python/main.py` for the imports and complete setup.
 
 ## Expected Output
 
@@ -274,9 +284,9 @@ After connecting in the browser, open the **Metrics** tab in the web UI.
 
 Use it to inspect per-component timings and validate latency improvements:
 
-- **Speech-to-Text (Speechmatics)**
+- **Speech to Text (Speechmatics)**
 - **LLM (Groq)**
-- **Text-to-Speech (Cartesia)**
+- **Text to Speech (Cartesia)**
 
 ## Customization
 
@@ -300,41 +310,29 @@ Edit `assets/agent.md` to change the bot's personality and capabilities. The def
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
-### Turn Detection Modes
+### Turn detection modes
 
-Speechmatics provides three turn detection modes that control how the system determines when a user has finished speaking:
+The pinned Pipecat adapter exposes two modes:
 
-| Mode | Description | External VAD |
-|------|-------------|--------------|
-| `EXTERNAL` | Default. Relies on Pipecat's VAD (e.g., Silero) for turn detection | Required |
-| `ADAPTIVE` | Speechmatics handles turn detection using silence-based detection | Must be disabled |
-| `SMART_TURN` | Speechmatics uses ML-based smart turn detection | Must be disabled |
-
-> [!IMPORTANT]
-> **VAD Compatibility:** When using `ADAPTIVE` or `SMART_TURN` mode, you must disable Pipecat's external VAD (e.g., Silero). If both are enabled, you'll see warnings in the logs when an external VAD call is received. This example uses `EXTERNAL` mode with external VAD.
+| Mode | Who closes the STT turn? |
+|------|-------------------------|
+| `EXTERNAL` | The application calls `finalize()`; in this example the aggregator's VAD broadcasts `VADUserStoppedSpeakingFrame` to the STT service |
+| `VAD` | The Speechmatics service detects the end of speech and emits turn events |
 
 ```python
-# EXTERNAL mode - Pipecat handles turn detection using external VAD
 stt = SpeechmaticsSTTService(
     api_key=os.getenv("SPEECHMATICS_API_KEY"),
     settings=SpeechmaticsSTTService.Settings(
         turn_detection_mode=SpeechmaticsSTTService.TurnDetectionMode.EXTERNAL,
     ),
 )
-
-# External VAD in transport params when using EXTERNAL mode
-transport_params = {
-    "webrtc": lambda: TransportParams(
-        audio_in_enabled=True,
-        audio_out_enabled=True,
-        vad_analyzer=SileroVADAnalyzer(params=VADParams(stop_secs=0.2)),
-    ),
-}
 ```
 
-### Speaker Diarization
+The running example combines `EXTERNAL` mode with `LLMUserAggregatorParams.vad_analyzer` and a local smart-turn stop strategy. Keep these roles separate: VAD finalizes STT output; the smart-turn strategy controls when the aggregated user turn reaches the LLM. `ADAPTIVE` and `SMART_TURN` are not members of the current Speechmatics adapter enum. See the [Pipecat Speechmatics guide](https://docs.pipecat.ai/server/services/stt/speechmatics) before changing the pipeline to service-driven `VAD` mode.
 
-The STT is configured to identify speakers and tag each transcript segment:
+### Speaker diarization
+
+The STT separates the transcript into speakers and tags each segment:
 
 ```python
 stt = SpeechmaticsSTTService(
@@ -349,7 +347,7 @@ stt = SpeechmaticsSTTService(
 
 | Parameter | Purpose |
 |-----------|---------|
-| `enable_diarization` | Identify different speakers in the audio |
+| `enable_diarization` | Separate the transcript into distinct speakers |
 | `speaker_active_format` | Format applied to each speaker's segment: `<S1>Hello</S1>` |
 
 ## Troubleshooting
@@ -419,8 +417,8 @@ EOF
 ## Next Steps
 
 - **[Simple Voice Bot (Local)](../01-simple-voice-bot/)** - Local microphone version
-- **[Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/)** - Learn about turn detection presets
-- **[Voice Agent Speaker ID](../../../basics/09-voice-agent-speaker-id/)** - Advanced speaker identification
+- **[Agent STT](../../../basics/13-agent-stt/)** - Use the current Speechmatics SDK directly
+- **[Speaker identification with the legacy Voice SDK](../../../basics/09-voice-agent-speaker-id/)** - Compare the earlier SDK approach
 
 ## Resources
 
@@ -443,6 +441,7 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
+**API Mode**: Realtime — agent STT
 **Integration**: Pipecat AI (WebRTC)
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

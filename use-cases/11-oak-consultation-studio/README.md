@@ -6,7 +6,7 @@ Upload a sound file or record a consultation, then explore its transcript by wor
 
 **[Try the live demo](https://oak-consultation-studio.vercel.app/)** — explore the scripted consultations, or add your own Speechmatics API key in **Settings** to transcribe audio.
 
-![Application walkthrough: explore scripted multilingual consultations, upload a synthetic WAV for real Oak transcription, seek through the transcript, rename the consultation, and inspect the API configuration](assets/oak-consultation-studio.gif)
+![Application walkthrough: explore scripted multilingual consultations, upload a synthetic WAV for real Oak 1 transcription, seek through the transcript, rename the consultation, and inspect the API configuration](assets/oak-consultation-studio.gif)
 
 ## What You'll Learn
 
@@ -15,6 +15,8 @@ Upload a sound file or record a consultation, then explore its transcript by wor
 - Send audio directly from the browser to Speechmatics and retrieve an asynchronous job's results.
 - Turn `json-v2` output into searchable transcripts with language labels, speaker controls, and audio seeking.
 - Separate static hosting and short Python functions without keeping a transcription worker running.
+
+Oak 1 is a standalone multilingual healthcare model for Batch transcription. It is distinct from Enhanced Medical, which selects a supported language pack with `domain="medical"`; do not add that domain flag to this Oak 1 request.
 
 ## Prerequisites
 
@@ -94,7 +96,7 @@ python dev_server.py --port 4173
 
 Open [http://127.0.0.1:4173](http://127.0.0.1:4173). Optionally open **Settings → Expected languages** and select the languages you expect, then save. Leave the selection empty for automatic detection. Select **New consultation**:
 
-1. Choose or drop an audio file. Transcription starts when it finishes loading.
+1. Choose or drop an audio file. Transcription starts when it finishes loading, using **EU1, British English spelling, and speaker diarization**. The current UI cannot change those defaults before the initial submission; see [request configuration](#oak-1-request-configuration).
 2. Alternatively, record through your microphone and select **Finish & transcribe**. Recordings are limited to five minutes.
 3. During playback, the transcript follows the highlighted word so it stays visible. Click a word or the audio timeline to seek; a timeline seek also reveals the corresponding text.
 4. Try search, language and speaker filters, the title edit button, and transcript download.
@@ -133,7 +135,7 @@ flowchart LR
 
 [public/audio-waveform.js](public/audio-waveform.js) decodes a separate, low-sample-rate preview in the browser and reduces it to normalized amplitude peaks. Only those peaks are retained for the timeline; the original audio used for playback and transcription is unchanged.
 
-### Oak request configuration
+### Oak 1 request configuration
 
 The actual configuration is built by [`createRequestConfig()` in public/transcript.js](public/transcript.js#L103):
 
@@ -168,7 +170,9 @@ For example, `createRequestConfig({ locale: 'en-US' })` produces:
 
 Expected languages persist in this browser through [public/language-preferences.js](public/language-preferences.js). Every consultation captures its own selection when audio is added, so later Settings changes do not alter an existing job or its retries. **See code** shows the current consultation's captured hints; demos retain their optional sample-language preview toggle.
 
-The regional endpoint is defined separately in [public/batch-endpoints.js](public/batch-endpoints.js). **EU1 is the default** (`https://eu1.asr.api.speechmatics.com/v2`); US1 is also available. Oak does not support the global Batch endpoint. **See code** previews region, English spelling, and diarization options. For a local consultation whose submission has not succeeded, you can adjust these before retrying; a submitted job keeps its original configuration and region.
+**First-upload limitation:** changing the scripted demo's request preview does not set defaults for your next upload. For a US1-only or channel-diarization workflow, change the defaults in `public/consultation-library.js` before adding audio; the current Settings panel does not expose them.
+
+The regional endpoint is defined separately in [public/batch-endpoints.js](public/batch-endpoints.js). **EU1 is the default** (`https://eu1.asr.api.speechmatics.com/v2`); US1 is also available. Oak 1 does not support the global Batch endpoint. **See code** previews region, English spelling, and diarization options. For a local consultation whose submission has not succeeded, you can adjust these before retrying; a submitted job keeps its original configuration and region.
 
 ### Serverless deployment
 
@@ -202,7 +206,7 @@ Four scripted consultations are available immediately: **Spanish–English**, **
 Without a configured key, the showcase banner offers **Add API key** and opens Settings. Once a saved browser key or the automatic environment key is available, it offers **Add your audio** and opens the upload/record dialog.
 
 > [!NOTE]
-> These are fictional, authored transcripts with synthetic timings. They have no bundled audio, so their timelines play silently. They demonstrate the interface, not recognition accuracy. Upload your own audio to see real Oak output; the app does not generate clinical summaries, diagnoses, or extracted medical entities.
+> These are fictional, authored transcripts with synthetic timings. They have no bundled audio, so their timelines play silently. They demonstrate the interface, not recognition accuracy. Upload your own audio to see real Oak 1 output; the app does not generate clinical summaries, diagnoses, or extracted medical entities.
 
 Audio, transcripts, and job state are held in page memory and are lost on refresh; the saved API key persists. A submitted Speechmatics job may continue after you close or reload the page. Download any transcript you want to keep.
 
@@ -216,7 +220,7 @@ Audio, transcripts, and job state are held in page memory and are lost on refres
 | Microphone cannot start | Open the app on localhost or HTTPS, grant microphone permission, and check the selected input device. You can upload a file instead. |
 | File cannot load or is too large | Use a browser-supported audio format, preferably WAV for a first test. The app limit is **100 MiB**. WebM is converted locally to PCM WAV, and the larger converted file must also fit the limit. |
 | Result checking was interrupted | Select **Resume transcription** to check the existing job without uploading again. Keep access to the original account; the job stays on its original region. |
-| Upload response was lost | Check the Speechmatics Portal before retrying: the remote job may have been accepted even though the browser did not receive its ID. |
+| Upload response was lost | Check the Speechmatics portal before retrying: the remote job may have been accepted even though the browser did not receive its ID. |
 | Sample playback is silent | Scripted examples contain no audio. Upload or record a consultation to test audible playback. |
 | PowerShell blocks virtual environment activation | You can skip activation: run `.\.venv\Scripts\python.exe -m pip install -r requirements.txt`, then `.\.venv\Scripts\python.exe dev_server.py --port 4173`. |
 
@@ -235,9 +239,9 @@ The suites cover transcript navigation, audio conversion, automatic transcriptio
 
 ## Next Steps
 
-- **[Melia Multilingual Transcription](../../basics/12-melia-multilingual/)** — learn a minimal multilingual Batch SDK workflow with Melia.
+- **[Melia 1 Multilingual Transcription](../../basics/12-melia-multilingual/)** — learn a minimal multilingual Batch SDK workflow with Melia 1.
 - **[Medical Microbatching](../07-medical-microbatching/)** — split continuous microphone audio into Batch jobs with Python.
-- **[Wall of Voices](../10-wall-of-voices/)** — explore multilingual language switching over the real-time API.
+- **[Wall of Voices](../10-wall-of-voices/)** — explore multilingual language switching over the Realtime API.
 
 ## Resources
 

@@ -1,4 +1,4 @@
-# Batch vs Real-time - Understanding API Modes
+# Batch vs Realtime - Understanding API Modes
 
 **Learn the difference between batch and real-time transcription modes and when to use each.**
 
@@ -13,8 +13,8 @@ This example shows both modes side-by-side so you understand which to use for yo
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - **Microphone** (for real-time example)
 - **PortAudio** (for real-time example): Required on Mac/Linux — see [Quick Start](#quick-start) Step 1
 
@@ -41,11 +41,11 @@ sudo apt-get install portaudio19-dev
 
 **Step 2: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -63,13 +63,13 @@ cp ../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
 
 # Try batch mode
-python3 batch_example.py
+python batch_example.py
 
 # Try real-time mode
-python3 realtime_example.py
+python realtime_example.py
 ```
 
-## Batch vs Real-time
+## Batch vs Realtime
 
 ### Batch Mode
 
@@ -77,8 +77,8 @@ python3 realtime_example.py
 - Pre-recorded audio/video files
 - Processing large volumes of files
 - When you can wait for results (minutes)
-- Highest accuracy (post-processing applied)
-- Cost-effective for large files
+- Model selection and speech-intelligence features for recorded audio
+- Bulk transcription workflows
 
 **How it works:**
 1. Upload entire audio file
@@ -92,11 +92,11 @@ python3 realtime_example.py
 - Video subtitle generation
 - Call center recordings
 
-### Real-time Mode
+### Realtime Mode
 
 **Best for:**
 - Live audio streams
-- When you need immediate results (< 1 second)
+- When you need results while audio is arriving
 - Interactive applications
 - Microphone input
 - Live captioning
@@ -186,7 +186,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-### Real-time Example
+### Realtime Example
 
 ```python
 import asyncio
@@ -291,13 +291,15 @@ if __name__ == "__main__":
 
 ## Performance Comparison
 
+Model and configuration affect accuracy, latency and cost. Check [current models](https://docs.speechmatics.com/speech-to-text/models) and [pricing](https://www.speechmatics.com/pricing) for your workload. Partial-result latency is different from final-result latency.
+
 | Feature | Batch | Real-time |
 |---------|-------|-----------|
-| **Latency** | Minutes | < 1 second |
-| **Accuracy** | Highest | Very high |
-| **Cost** | Lower | Higher |
+| **Results** | After job completion | Partial and final results while streaming |
+| **Accuracy** | Depends on model and audio | Depends on model, audio, and latency settings |
+| **Cost** | See current pricing | See current pricing |
 | **Use Case** | Pre-recorded | Live streams |
-| **Max Duration** | No limit | 48 hours per stream |
+| **Limits** | See [Batch limits](https://docs.speechmatics.com/speech-to-text/batch/limits) | Up to 48 hours per connection |
 | **Partial Results** | No | Yes |
 
 
@@ -307,7 +309,7 @@ if __name__ == "__main__":
 > **Use Batch if:**
 > - You have a complete audio file
 > - You can wait for results
-> - You want highest accuracy
+> - You need Batch features such as summarization
 > - You're processing in bulk
 >
 > **Use Real-time if:**
@@ -324,7 +326,7 @@ if __name__ == "__main__":
 - Enhanced accuracy with OperatingPoint configuration
 - Processing time measurement
 
-**Real-time Mode:**
+**Realtime Mode:**
 - WebSocket streaming with live audio
 - Partial and final transcript events
 - Microphone integration with PyAudio
@@ -413,8 +415,8 @@ Full transcript: Good morning,  everyone.  Let's  begin  today's  meeting.
 ## Resources
 
 - [Batch API Reference](https://docs.speechmatics.com/api-ref/batch/get-the-transcript-for-a-transcription-job)
-- [Realtime API Reference](https://docs.speechmatics.com/rt-api-ref)
-- [When to Use Which Mode](https://docs.speechmatics.com/speech-to-text/)
+- [Realtime API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
+- [When to Use Which Mode](https://docs.speechmatics.com/speech-to-text)
 
 ---
 
@@ -428,6 +430,6 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Beginner
-**API Modes**: Batch & Real-time
+**API Modes**: Batch & Realtime
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

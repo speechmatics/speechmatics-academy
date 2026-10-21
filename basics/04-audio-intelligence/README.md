@@ -2,7 +2,7 @@
 
 **Extract insights from audio: sentiment analysis, topic detection, and automatic summaries - all in one API call.**
 
-Go beyond transcription to understand WHAT was said and HOW it was said!
+Analyze transcript content with sentiment, topics, and summaries.
 
 ## What You'll Learn
 
@@ -13,19 +13,19 @@ Go beyond transcription to understand WHAT was said and HOW it was said!
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - Completed [Configuration Guide](../03-configuration-guide/)
 
 ## Quick Start
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -40,6 +40,7 @@ source .venv/bin/activate
 ```bash
 pip install -r requirements.txt
 cp ../.env.example .env
+# Edit .env and add your SPEECHMATICS_API_KEY
 python main.py
 ```
 
@@ -49,7 +50,7 @@ python main.py
 > This example demonstrates audio intelligence by:
 >
 > 1. **Create JobConfig** - Configure transcription with intelligence features
-> 2. **Enable Sentiment Analysis** - Detect emotional tone in speech
+> 2. **Enable Sentiment Analysis** - Classify sentiment in the transcript
 > 3. **Enable Topic Detection** - Identify discussion topics automatically
 > 4. **Enable Summarization** - Generate bullet-point summaries
 > 5. **Submit Job** - Process audio with all intelligence features
@@ -62,7 +63,7 @@ python main.py
 
 ### 1. Sentiment Analysis
 
-Detect the emotional tone of speech segments:
+Classify the sentiment of transcript segments:
 
 ```python
 from speechmatics.batch import (
@@ -535,7 +536,7 @@ Audio intelligence analysis complete!
 ### What You See:
 
 1. **Transcript** - Full conversation with speaker labels
-2. **Sentiment** - Overall emotional tone (positive/negative/neutral)
+2. **Sentiment** - Most frequent segment sentiment in this example (positive/negative/neutral)
 3. **Topics** - Detected categories from the 10 standard topics
 4. **Summary** - Structured summary with:
    - Key topics section (bullet points)
@@ -550,7 +551,7 @@ The summary format changes based on your config:
 ## Key Features Demonstrated
 
 **Sentiment Analysis:**
-- Segment-level emotion detection
+- Segment-level sentiment classification
 - Positive, negative, neutral classification
 - Confidence scores for each segment
 
@@ -567,7 +568,7 @@ The summary format changes based on your config:
 **Job Management:**
 - Asynchronous batch processing
 - Job status tracking with wait_for_completion
-- Timeout handling for long files
+- Configurable wait timeout for long files
 
 ## Troubleshooting
 
@@ -577,9 +578,9 @@ The summary format changes based on your config:
 - Very large files may take several minutes
 
 **"No sentiment detected"**
-- Sentiment requires clear emotional cues in speech
+- Sentiment describes transcript content, not acoustic emotion or tone of voice
 - Works best with conversational audio
-- May return neutral for factual/monotone content
+- May return neutral for factual content
 
 **"Summary too short/long"**
 - Adjust `summary_length` parameter ("brief" vs "detailed")
@@ -615,6 +616,6 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Batch (sentiment, topics, summary, chapters) | Batch + RT (translations, audio events)
+**API Mode**: Batch (sentiment, topics, summary, chapters) | Batch + Realtime (translations, audio events)
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

@@ -2,30 +2,32 @@
 
 **A magical voice agent where adults can call Santa Claus and reconnect with Christmas magic.**
 
-Build an immersive Santa Claus experience using LiveKit, Speechmatics STT, ElevenLabs TTS with a custom Santa voice, and OpenAI for natural conversations. Santa is witty, warm, and helps grown-ups rediscover the joy of the holidays.
+Build an immersive Santa Claus experience using LiveKit, Speechmatics Speech to Text (STT) via agent STT, ElevenLabs Text to Speech (TTS) with a custom Santa voice, and OpenAI for natural conversations. Santa is witty, warm, and helps grown-ups rediscover the joy of the holidays.
 
 ## What You'll Learn
 
-- Building character voice agents that never break character
+- Writing character prompts for a voice agent
 - ElevenLabs TTS integration with custom voices
-- Speechmatics STT with custom vocabulary
+- Speechmatics STT with custom dictionary
 - Designing conversational flows with humor and warmth
 - Voice settings optimization for realistic character voices
 - Setting up Twilio + LiveKit SIP for real phone calls
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **ElevenLabs API key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **LiveKit Cloud Account**: Sign up at [livekit.io](https://livekit.io/)
-- **Python 3.9+**
+- **Python 3.12+**
 
 **For phone calls (optional):**
 - **Twilio Account**: Get one from [twilio.com](https://www.twilio.com/)
 - **Twilio Phone Number**: Purchase a phone number in the Twilio Console
 
 ## Quick Start
+
+Start in `use-cases/05-santa-voice-agent/` after cloning the Academy. Commands below are relative to this directory.
 
 ### Python
 
@@ -61,7 +63,9 @@ cp ../.env.example .env
 > [!IMPORTANT]
 > **Why `.env`?** Never commit API keys to version control. The `.env` file keeps secrets out of your code.
 
-**Step 4: Run Santa**
+**Step 4: Select an accessible voice and run Santa**
+
+The script uses a custom ElevenLabs `voice_id`. Replace it in `main.py` from the current `python/` directory with a voice available to your account if you do not have access to that voice. See [Creating Your Own Santa Voice](#creating-your-own-santa-voice).
 
 ```bash
 python main.py dev
@@ -128,7 +132,7 @@ flowchart LR
    - **Trunk name**: `Santa Hotline Inbound`
    - **Trunk direction**: Select **Inbound**
    - **Numbers**: Enter your Twilio phone number (e.g., `+14155551234`)
-   - **Allowed addresses**: Leave as `0.0.0.0/0` to allow all IPs
+   - **Inbound access**: Use provider authentication or restrict the trunk to your provider's documented SIP source addresses; follow the [LiveKit SIP guidance](https://docs.livekit.io/sip/).
 5. Click **Create** and copy the **SIP URI** (e.g., `sip:xxxxx.sip.livekit.cloud`)
 
 ### Step 3: Create Twilio Elastic SIP Trunk
@@ -213,7 +217,7 @@ flowchart LR
 > [!NOTE]
 > This example demonstrates:
 >
-> 1. **Character Voice Agent** - Santa never breaks character
+> 1. **Character Voice Agent** - The prompt asks Santa to stay in character
 > 2. **ElevenLabs TTS** - Custom Santa voice with optimized settings
 > 3. **Speechmatics STT** - Custom vocabulary for Christmas terms
 
@@ -230,7 +234,7 @@ tts = elevenlabs.TTS(
         similarity_boost=0.8,    # Good voice match
         style=0.9,               # High for maximum jolly expressiveness
         use_speaker_boost=True,  # Enhanced clarity
-        speed=0.9,               # Slightly faster for energy
+        speed=0.9,               # Slightly slower than the default speed
     ),
 )
 ```
@@ -243,20 +247,20 @@ tts = elevenlabs.TTS(
 | `similarity_boost` | 0.8 | Good balance of voice matching |
 | `style` | 0.9 | High expressiveness for maximum jolly energy |
 | `use_speaker_boost` | True | Enhances clarity and reduces background noise |
-| `speed` | 0.9 | Slightly faster for energetic delivery |
+| `speed` | 0.9 | Slightly slower than the default speed of 1.0 |
 
 ### ElevenLabs Models
 
 | Model | Quality | Speed | Best For |
 |-------|---------|-------|----------|
 | `eleven_multilingual_v2` | Highest | Slower | Character voices, maximum realism |
-| `eleven_turbo_v2_5` | High | Fast | Real-time conversations |
+| `eleven_turbo_v2_5` | High | Fast | Realtime conversations |
 | `eleven_flash_v2_5` | Good | Fastest | Low-latency applications |
 
 > [!TIP]
 > For Santa, use `eleven_multilingual_v2` for the most realistic, warm voice quality.
 
-## Custom Vocabulary
+## Custom dictionary
 
 Christmas terms for better recognition:
 
@@ -273,9 +277,9 @@ additional_vocab=[
 
 ## Character Design
 
-### Never Breaking Character
+### Staying in Character
 
-The agent prompt ensures Santa never breaks character:
+The prompt asks Santa to stay in character, but model behavior is not guaranteed. Present the hotline as an AI character experience to callers:
 
 ```markdown
 You ARE Santa Claus. Never break character under any circumstances.
@@ -337,8 +341,7 @@ Santa: "*laughs warmly* You know what? Talking to you made MY day brighter.
 - Enable `use_speaker_boost`
 
 **Voice too monotone**
-- Increase `style` to 0.5-0.6
-- Decrease `stability` slightly to 0.65
+- Adjust `style` and `stability` while listening to sample output; this example starts at `style=0.9` and `stability=0.4`
 
 **Speech not recognized well**
 - Add more terms to `additional_vocab`
@@ -421,7 +424,7 @@ Help us improve this guide:
 
 **Time to Complete**: 20 minutes
 **Difficulty**: Advanced
-**API Mode**: LiveKit Voice Agent
+**API Mode**: Realtime (agent STT), with LiveKit, OpenAI and ElevenLabs
 **Languages**: Python
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)

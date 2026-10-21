@@ -2,7 +2,7 @@
 
 **Projects built by the Speechmatics community.**
 
-This section showcases projects, tools, and experiments contributed by developers using Speechmatics. Whether you've built an integration, a creative use case, or a benchmarking tool — we'd love to feature it here.
+Share projects, tools, and experiments that help other developers build with Speechmatics. Include a reproducible setup and explain which APIs, models, and features the project uses.
 
 ## How to Submit
 
@@ -12,7 +12,7 @@ This section showcases projects, tools, and experiments contributed by developer
 4. **Submit a PR** and a maintainer will review it
 
 > [!TIP]
-> You can also submit a PR directly without a proposal — your project will be merged with **Community** status after a light review.
+> You can also submit a PR directly without a proposal. Maintainers review the submission and assign **Community** or **Verified** status based on the review completed.
 
 ## Project Categories
 
@@ -32,10 +32,14 @@ This section showcases projects, tools, and experiments contributed by developer
 
 Community projects can be **promoted to Verified** via a follow-up PR that brings the project into full compliance. Exceptional projects may be **graduated** into the official `use-cases/` or `integrations/` categories.
 
+Verified describes the review performed on the submitted version. It does not guarantee compatibility with future SDK releases or establish that an application is ready for production.
+
+The current repository-wide Python checks also run on community code, so Ruff lint and formatting failures can block a pull request. See the [current CI coverage](../docs/CONTRIBUTING.md#what-ci-currently-checks) before submitting.
+
 ## Community Projects
 
 > [!NOTE]
-> No community projects yet — yours could be the first! See [How to Submit](#how-to-submit) above.
+> No community projects are currently included. See [How to Submit](#how-to-submit) to add one.
 
 <!-- As projects are added, they will be listed here:
 | Project | Category | Description | Language | Author | Status |
@@ -52,7 +56,7 @@ Community projects can be **promoted to Verified** via a follow-up PR that bring
 
 ## Languages
 
-Community projects can be written in **any language** — Python, TypeScript, Go, Rust, C#, and more. See [COMMUNITY_TEMPLATE.md](COMMUNITY_TEMPLATE.md) for language-specific directory structure.
+Community projects can use **any language**, including Python, TypeScript, Go, Rust, and C#. See [COMMUNITY_TEMPLATE.md](COMMUNITY_TEMPLATE.md) for directory conventions, and use the [documentation terminology](../docs/CONTRIBUTING.md#use-documentation-terminology) in your README while preserving exact API identifiers in code.
 
 ---
 

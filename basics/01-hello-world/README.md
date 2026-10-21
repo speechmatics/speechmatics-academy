@@ -12,8 +12,8 @@ Get your first transcription working in under 5 minutes with minimal setup.
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - **Audio file**: We'll use a sample WAV file (provided)
 
 ## Quick Start
@@ -28,11 +28,11 @@ Get your first transcription working in under 5 minutes with minimal setup.
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -109,7 +109,7 @@ async def main():
     try:
         # Initialize client and transcribe
         async with AsyncClient(api_key=api_key) as client:
-            # Transcribe with custom vocabulary
+            # Transcribe with custom dictionary
             result = await client.transcribe(str(audio_file), transcription_config=config)
             # Print the transcript
             print(result.transcript_text)
@@ -134,7 +134,7 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 **Minimal Setup:**
 - Single API call for transcription
 - Automatic audio format detection
-- Custom vocabulary via `TranscriptionConfig.additional_vocab`
+- Custom dictionary via `TranscriptionConfig.additional_vocab`
 
 **Async/Await Pattern:**
 - Non-blocking I/O for better performance
@@ -147,7 +147,7 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 ## How the Code Works
 > [!NOTE]
 > 1. **Load Environment** - Load your API key from `.env` file using dotenv
-> 2. **Get API Key** - Retrieve API key from environment variables with validation
+> 2. **Get API key** - Retrieve API key from environment variables with validation
 > 3. **Locate Audio File** - Use Path to find the sample audio file
 > 4. **Build Config** - Create a `TranscriptionConfig` with `additional_vocab` for custom terms
 > 5. **Create Async Client** - Initialize AsyncClient with your API key
@@ -160,8 +160,8 @@ Hello, this is a sample audio transcription. Welcome to Speechmatics!
 
 Now that you have basic transcription working, explore:
 
-- **[Batch vs Real-time](../02-batch-vs-realtime/)** - Understand different API modes
-- **[Configuration Guide](../03-configuration-guide/)** - Add diarization, custom vocabulary, etc.
+- **[Batch vs Realtime](../02-batch-vs-realtime/)** - Understand different API modes
+- **[Configuration Guide](../03-configuration-guide/)** - Add diarization, custom dictionary, etc.
 - **[Audio Intelligence](../04-audio-intelligence/)** - Get sentiment, topics, and summaries
 
 ## Troubleshooting
@@ -181,9 +181,9 @@ Now that you have basic transcription working, explore:
 
 ## Resources
 
-- [Speechmatics Batch API Docs](https://docs.speechmatics.com/introduction/batch-guide)
+- [Speechmatics Batch API Docs](https://docs.speechmatics.com/speech-to-text/batch/quickstart)
 - [Supported Audio Formats](https://docs.speechmatics.com/speech-to-text/batch/input#supported-file-types)
-- [API Reference](https://docs.speechmatics.com/api-ref/)
+- [API Reference](https://docs.speechmatics.com/api-ref)
 
 ---
 

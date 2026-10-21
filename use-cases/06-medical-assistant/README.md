@@ -1,31 +1,36 @@
-# Medical Assistant - Real-Time Clinical Transcription
+# Medical Assistant - Realtime Clinical Transcription
 
 **Live bilingual (Arabic + English) medical transcription with speaker diarization, AI form extraction, clinical decision support, and SOAP note generation.**
 
-Combines Speechmatics RT SDK for speech-to-text with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
+Combines the Speechmatics Realtime SDK for Speech to Text (STT) with OpenAI GPT-4o for structured medical data extraction — all in a full-stack web application with a three-panel clinical dashboard.
+
+> [!IMPORTANT]
+> This is a local demonstration, not a clinical decision system. Use synthetic or appropriately de-identified data. The backend sends transcripts to OpenAI, logs transcript/extraction details, and has no user authentication. Review all generated notes and code suggestions; the displayed ICD confidence is model-generated, not a calibrated probability.
 
 ## What You'll Learn
 
-- Real-time bilingual transcription with `ar_en` (Arabic + English) language pack
-- Speaker diarization to identify Doctor vs Patient in clinical conversations
+- Realtime bilingual transcription with `ar_en` (Arabic + English) language pack
+- Speaker diarization plus an application heuristic for doctor/patient labels
 - Diarization tuning with `speaker_sensitivity` and `prefer_current_speaker`
-- Medical domain configuration with custom vocabulary (English + Arabic terms)
+- Enhanced Medical configuration with a custom dictionary (English + Arabic terms)
 - Turn detection with `ConversationConfig(end_of_utterance_silence_trigger=0.7)` — automatic silence-based end-of-utterance
-- `OperatingPoint.ENHANCED` for highest accuracy transcription
+- `OperatingPoint.ENHANCED` to select the Enhanced model
 - `audio_filtering_config` for background noise filtering
 - Streaming audio from browser microphone via AudioWorklet API
 - Building a WebSocket pipeline: Browser → FastAPI → Speechmatics RT SDK
-- Combining speech-to-text output with LLM-based entity extraction
+- Combining STT output with LLM-based entity extraction
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
-- **Python 3.11+**
-- **`speechmatics-rt` package** (`pip install speechmatics-rt>=0.5.0`)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **Python 3.12+**
+- **Dependencies from `requirements.txt`**, including `speechmatics-rt>=1.2.1`
 - A modern browser with microphone access (Chrome, Edge, Firefox)
 
 ## Quick Start
+
+Start in `use-cases/06-medical-assistant/` after cloning the Academy. Commands below are relative to this directory.
 
 **Step 1: Create and activate a virtual environment**
 
@@ -66,7 +71,7 @@ uvicorn backend.main:app --port 7860 --reload
 Open **http://localhost:7860** in your browser.
 
 > [!TIP]
-> Click **Run Demo** to test the full pipeline without a microphone. The demo simulates a bilingual doctor-patient encounter and triggers all AI features.
+> Click **Run Demo** to test the full pipeline without a microphone. The demo simulates a bilingual doctor-patient encounter. It skips Speechmatics transcription, but still requires a valid OpenAI key and makes billable OpenAI requests.
 
 ## How It Works
 
@@ -166,17 +171,19 @@ async with AsyncClient(
 ```
 
 > [!TIP]
-> **For medical transcription**, always use `domain="medical"`. The medical domain includes a specialized language pack optimized for clinical terminology, drug names, and medical procedures.
+> The code selects **Enhanced Medical** with `operating_point=OperatingPoint.ENHANCED` and `domain="medical"` and uses the preview endpoint for its bilingual configuration. Verify access and supported language-pack combinations before use. **Oak 1** is a separate multilingual healthcare model for Batch transcription; it uses `model="oak-1"`, `language="multi"`, and no domain flag. See the [current model capabilities](https://docs.speechmatics.com/speech-to-text/models).
 >
 > **Turn detection** uses `ConversationConfig(end_of_utterance_silence_trigger=0.7)` — the server fires `END_OF_UTTERANCE` events after 0.7 seconds of silence, signaling the speaker has finished. Combined with `enable_partials=True`, you get real-time feedback during speech and clean final transcripts at utterance boundaries.
 
 ### Speaker Role Inference
 
-The application identifies who is speaking using:
+The application assigns tentative clinical roles using:
 
 1. **Speechmatics diarization** — assigns speaker IDs (S1, S2)
 2. **Pattern matching** — clinical language patterns in both English and Arabic determine doctor vs patient
-3. **Speaker history** — once identified, roles persist for the session
+3. **Speaker history** — used as a fallback when keyword scores tie; S1 defaults to doctor and S2 to patient
+
+These are unverified role guesses. Diarization distinguishes voices; it does not establish who is the clinician or patient.
 
 ### Utterance Accumulation
 
@@ -233,8 +240,8 @@ ICD-10 CODES:
 **Speechmatics RT SDK Features:**
 - Bilingual `ar_en` transcription (Arabic + English in single stream)
 - Speaker diarization with `SpeakerDiarizationConfig(max_speakers=2, speaker_sensitivity=0.7, prefer_current_speaker=True)`
-- Medical domain with `domain="medical"`
-- `OperatingPoint.ENHANCED` for highest accuracy transcription
+- Enhanced Medical selected with `domain="medical"` for a supported language pack
+- `OperatingPoint.ENHANCED` to select the Enhanced model
 - Custom vocabulary with `sounds_like` phonetic hints (plain dicts)
 - Partial transcripts for live typing indicators (`enable_partials=True`)
 - Turn detection with `ConversationConfig(end_of_utterance_silence_trigger=0.7)` + `END_OF_UTTERANCE` events
@@ -244,7 +251,7 @@ ICD-10 CODES:
 - FastAPI WebSocket backend with session management
 - Browser audio capture via AudioWorklet API (modern, non-deprecated)
 - Three-panel clinical dashboard with dark theme
-- Live reasoning stream showing AI processing steps
+- Scripted processing-status messages in demo mode; these are not the model's internal reasoning
 - Collapsible suggestion groups and SOAP note sections
 
 ## Configuration Options
@@ -254,11 +261,11 @@ ICD-10 CODES:
 | Parameter | Default | Options | Description |
 |-----------|---------|---------|-------------|
 | `language` | `ar_en` | `en`, `ar`, `ar_en` | Transcription language |
-| `operating_point` | `ENHANCED` | `OperatingPoint.ENHANCED`, `OperatingPoint.STANDARD` | Highest accuracy transcription model |
+| `operating_point` | `ENHANCED` | `OperatingPoint.ENHANCED`, `OperatingPoint.STANDARD` | Enhanced model; Medical requires a supported language/configuration |
 | `domain` | `medical` | `medical`, (none) | Medical vocabulary optimization |
 | `enable_entities` | `True` | `True`, `False` | Structured entity recognition |
-| `enable_partials` | `True` | `True`, `False` | Real-time partial transcripts |
-| `diarization` | `speaker` | `none`, `speaker`, `channel` | Diarization mode |
+| `enable_partials` | `True` | `True`, `False` | Realtime partial transcripts |
+| `diarization` | `speaker` | `none`, `speaker` | Realtime diarization modes; this microphone path is mono |
 | `speaker_diarization_config` | see below | `SpeakerDiarizationConfig(...)` | Speaker diarization tuning |
 | `additional_vocab` | medical terms | `list[dict]` | Custom vocabulary with `sounds_like` hints |
 | `audio_filtering_config` | `volume_threshold: 3.4` | `dict` | Background noise filtering |
@@ -313,7 +320,7 @@ medical-assistant/
 | `{ type: "reset" }` | Stop active session, cancel pending extractions, and clear all data |
 | `{ type: "set_patient", name: "..." }` | Set patient name for the session |
 | `{ type: "generate_soap" }` | Request SOAP note + ICD-10 code generation |
-| `{ type: "start_demo" }` | Start demo mode — sent to `/ws/demo` endpoint (simulated encounter, no API key needed) |
+| `{ type: "start_demo" }` | Start demo mode — sent to `/ws/demo` endpoint (simulated transcript; OpenAI API key required) |
 | `{ type: "ping" }` | Keepalive heartbeat (server responds with `pong`) |
 | Binary data | Raw PCM audio chunks (16-bit LE, 16kHz) |
 
@@ -322,14 +329,14 @@ medical-assistant/
 | Message | Description |
 |---------|-------------|
 | `connected` | Session started — echoes `language`, `session_id`, `diarization_enabled`, `speaker_sensitivity`, `prefer_current_speaker` |
-| `partial` | Real-time partial transcript with speaker info |
+| `partial` | Realtime partial transcript with speaker info |
 | `final` | Confirmed transcript segment with diarization |
 | `form_update` | Extracted medical form data (vitals, symptoms, etc.) |
 | `suggestions_update` | AI clinical suggestions (questions, diagnoses, tests) |
 | `soap_update` | Generated SOAP note (S/O/A/P sections) |
 | `icd_codes_update` | Suggested ICD-10 diagnostic codes with confidence |
 | `ai_processing` | Processing indicator start/stop |
-| `reasoning` | Live reasoning stream messages |
+| `reasoning` | Scripted demo processing-status messages |
 | `demo_complete` | Demo mode finished playing all simulated segments |
 | `error` | Server-side error message |
 | `reset_complete` | Transcript buffer cleared |
@@ -339,10 +346,15 @@ medical-assistant/
 
 ## Next Steps
 
-- **[01 - Medical Transcription (Real-Time)](../01-medical-transcription-realtime/)** — Simpler example focusing on real-time medical transcription with custom vocabulary
-- **[03 - Call Center Analytics](../03-call-center-analytics/)** — Batch processing with speaker diarization and sentiment analysis
+- **[01 - Medical Transcription (Realtime)](../01-medical-transcription-realtime/)** — Simpler example focusing on real-time medical transcription with custom dictionary
+- **[03 - Call Center Analytics](../03-call-center-analytics/)** — Batch processing with channel diarization and sentiment analysis
 
 ## Troubleshooting
+
+**Current lifecycle limitations**
+- Stop can omit words still being finalized upstream; wait for final text before stopping and verify against the recording.
+- If a WebSocket reconnects during recording, stop and restart recording to establish a new transcription session.
+- The current display inserts transcript/model text as HTML. Keep this demo local and use controlled synthetic input until those rendering paths are escaped.
 
 **"Microphone access denied"**
 - Ensure your browser has microphone permission for localhost
@@ -354,7 +366,7 @@ medical-assistant/
 
 **"Authentication failed" or "Invalid API key"**
 - Verify your `SPEECHMATICS_API_KEY` in `.env` is correct
-- Ensure your Speechmatics account has Real-Time API access
+- Ensure your Speechmatics account has Realtime API access
 
 **"OpenAI extraction not working"**
 - Check your `OPENAI_API_KEY` in `.env`
@@ -370,14 +382,14 @@ medical-assistant/
 
 **"Demo mode works but live recording doesn't"**
 - Demo mode doesn't require a Speechmatics API key (uses simulated transcripts)
-- Live mode requires a valid Speechmatics API key with Real-Time access
+- Live mode requires a valid Speechmatics API key with access to the configured preview endpoint and language pack
 
 ## Resources
 
-- [Speechmatics Real-Time API Documentation](https://docs.speechmatics.com/introduction/rt-guide)
-- [Custom Vocabulary Guide](https://docs.speechmatics.com/features/custom-dictionary)
-- [Speaker Diarization](https://docs.speechmatics.com/features/diarization)
-- [Medical Domain](https://docs.speechmatics.com/features/language-packs)
+- [Speechmatics Realtime API Documentation](https://docs.speechmatics.com/speech-to-text/realtime/quickstart)
+- [Custom dictionary guide](https://docs.speechmatics.com/speech-to-text/features/custom-dictionary)
+- [Speaker Diarization](https://docs.speechmatics.com/speech-to-text/features/diarization)
+- [Medical language packs](https://docs.speechmatics.com/speech-to-text/languages)
 - [OpenAI GPT-4o API Reference](https://platform.openai.com/docs/guides/text-generation)
 
 ---
@@ -392,6 +404,6 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Advanced
-**API Mode**: Real-Time
+**API Mode**: Realtime
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)

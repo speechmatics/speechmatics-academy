@@ -7,7 +7,7 @@ This document describes the standard structure and content for **official** Acad
 
 ## Directory Structure
 
-Every example should follow this structure:
+Small Python examples usually follow this structure. For web or mobile applications, use the framework's layout and document the working directory and entry points:
 
 ```
 example-name/
@@ -23,13 +23,15 @@ example-name/
 ```
 
 > [!NOTE]
-> TypeScript examples are coming soon. For now, focus on Python implementations.
+> Official examples already include Python, JavaScript, TypeScript, and Dart. Use the layout and package manager appropriate to your implementation.
 
 ## Main README.md Template
 
+Use the [documentation terminology](CONTRIBUTING.md#use-documentation-terminology) and describe the API, model, and SDK actually used by the code. A voice agent is the application built around Speech to Text, an LLM, and Text to Speech. Identify deprecated SDKs and preview protocols explicitly.
+
 The main README.md should follow this structure:
 
-```markdown
+````markdown
 # [Example Title]
 
 **[One-line description in bold]**
@@ -44,8 +46,8 @@ The main README.md should follow this structure:
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+** (or 3.9+/3.10+ if using Voice SDK or LiveKit)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12** (the repository CI version; state any different runtime you have verified)
 - [Any other requirements]
 
 ## Quick Start
@@ -54,14 +56,14 @@ The main README.md should follow this structure:
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
-**On Mac/Linux:**
+**On macOS/Linux:**
 ```bash
 cd python
 python3 -m venv .venv
@@ -71,15 +73,24 @@ source .venv/bin/activate
 **Step 2: Install dependencies**
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 **Step 3: Configure your API key**
 
+**PowerShell:**
+
+```powershell
+Copy-Item ..\.env.example .env
+```
+
+**macOS/Linux:**
+
 ```bash
 cp ../.env.example .env
-# Edit .env and add your SPEECHMATICS_API_KEY
 ```
+
+Edit `.env` and set `SPEECHMATICS_API_KEY`. State the directory where your implementation loads this file.
 
 > [!IMPORTANT]
 > **Why `.env`?** Never commit API keys to version control. The `.env` file keeps secrets out of your code.
@@ -155,16 +166,16 @@ python main.py
 
 Help us improve this guide:
 - Found an issue? [Report it](https://github.com/speechmatics/speechmatics-academy/issues)
-- Have suggestions? [Open a discussion](https://github.com/orgs/speechmatics/discussions/categories/academy)
+- Have suggestions? [Open a discussion](https://github.com/speechmatics/community/discussions/categories/academy)
 
 ---
 
 **Time to Complete**: X minutes
 **Difficulty**: Beginner | Intermediate | Advanced
-**API Mode**: Batch | Real-time | Voice Agent
+**APIs used**: Batch API | Realtime API | Agent STT | Text to Speech (keep the applicable entries)
 
 [Back to SECTION](../) | [Back to Academy](../../README.md)
-```
+````
 
 > [!NOTE]
 > Replace `SECTION` with the appropriate section name:
@@ -217,7 +228,7 @@ For integration examples (LiveKit, Pipecat, Twilio, etc.), add a logo header:
 
 For integration examples, include a Mermaid architecture diagram:
 
-```markdown
+````markdown
 ## Architecture
 
 ```mermaid
@@ -237,7 +248,7 @@ flowchart LR
     LLM --> TTS
     TTS --> USER
 ```
-```
+````
 
 ## Code File Requirements
 
@@ -253,7 +264,6 @@ flowchart LR
 
 import asyncio
 import os
-from pathlib import Path
 
 from dotenv import load_dotenv
 from speechmatics.batch import AsyncClient, AuthenticationError
@@ -292,7 +302,7 @@ if __name__ == "__main__":
 ## .env.example Template
 
 ```bash
-# Speechmatics API Key (required)
+# Speechmatics API key (required)
 # Get yours at: https://portal.speechmatics.com/
 SPEECHMATICS_API_KEY=your_api_key_here
 
@@ -305,16 +315,19 @@ SPEECHMATICS_API_KEY=your_api_key_here
 
 ```txt
 # Speechmatics SDK - choose the package for your use case:
-# speechmatics-batch>=0.4.4    # For batch transcription
-# speechmatics-rt>=0.2.0       # For real-time transcription
-# speechmatics-voice>=0.1.27   # For voice agents
+# speechmatics-batch>=1.1.0       # Batch API
+# speechmatics-rt>=1.2.1          # Realtime API
+# speechmatics-agent-stt>=0.3.0   # Agent STT
+# speechmatics-tts>=0.1.2         # Text to Speech
 
 # Environment variables
-python-dotenv>=1.0.0
+python-dotenv>=1.2.4
 
 # Example-specific dependencies
 # [Add any example-specific dependencies here]
 ```
+
+Use versions you have tested together and document the supported Python version. The Voice SDK is deprecated; new agent STT examples should use `speechmatics-agent-stt`. Dependency resolution alone does not exercise audio devices or live APIs.
 
 ## Metadata Entry (index.yaml)
 
@@ -344,16 +357,18 @@ Add your example to `docs/index.yaml`:
 Before submitting your example:
 
 - [ ] README.md follows the template structure
-- [ ] Python implementation works end-to-end
+- [ ] Each language implementation works with its documented runtime and setup
 - [ ] .env.example includes all required variables
 - [ ] requirements.txt lists all dependencies
 - [ ] Code includes helpful comments
 - [ ] Code follows PEP 8 style guidelines
-- [ ] Error handling is demonstrated
+- [ ] Error handling and resource cleanup are demonstrated
+- [ ] Model and API feature claims link to current documentation
+- [ ] Existing tests and applicable build checks pass; untested live steps are stated
 - [ ] No hardcoded API keys or secrets
 - [ ] Metadata added to docs/index.yaml
 - [ ] Feedback section included with GitHub links
-- [ ] Footer includes Time/Difficulty/API Mode
+- [ ] Footer includes time, difficulty, and APIs used
 - [ ] Footer includes section link and "Back to Academy" link
 
 ## Best Practices

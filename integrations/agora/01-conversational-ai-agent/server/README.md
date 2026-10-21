@@ -1,6 +1,6 @@
 # Agora Agent Service
 
-Agora Conversational AI Agent service built with FastAPI.
+A FastAPI backend for the Agora Conversational AI example. Speechmatics Speech to Text (STT) supplies streaming transcription on the Realtime API. Agora coordinates the OpenAI large language model (LLM) and MiniMax Text to Speech (TTS).
 
 ## Quick Start
 
@@ -95,7 +95,13 @@ For deployment, set these variables through the host, container, or secret
 manager. The process environment takes precedence; do not ship a production
 `.env` file.
 
-**Note**: The service uses Token007 authentication generated from `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE`. Its pipeline is `SpeechmaticsSTT` + managed `OpenAI` (`gpt-4o-mini`) + managed `MiniMaxTTS` (`speech_2_6_turbo` / `English_captivating_female1`). The FastAPI sample uses `AsyncAgora` so the request path remains non-blocking.
+The sample binds to `0.0.0.0` and has no application authentication. Its token,
+start, and stop endpoints must be protected before public exposure: authenticate
+callers, authorize channel and agent ownership, apply request limits, and restrict
+CORS origins. Provider credentials remain server-side, but callers can otherwise
+use those credentials indirectly through the endpoints.
+
+**Note**: The service uses Token007 authentication generated from `AGORA_APP_ID` and `AGORA_APP_CERTIFICATE`. Its pipeline is `SpeechmaticsSTT` + managed `OpenAI` (`gpt-4o-mini`) + managed `MiniMaxTTS` (`speech_2_6_turbo` / `English_captivating_female1`). The FastAPI sample uses `AsyncAgora` for asynchronous provider requests.
 
 ### 2. Install Dependencies
 
@@ -175,11 +181,11 @@ curl -X POST http://localhost:8000/stopAgent \
 
 `/get_config` now issues one-hour RTC plus RTM tokens. The web client renews both before expiry, matching the reference Next.js session model.
 
-The repo-level `bun run verify:local:fastapi` check exercises this FastAPI app through the Next proxy path, but it swaps in a fake agent implementation so route wiring can be verified without depending on a live agent start.
+The repo-level `bun run verify:local:fastapi` check starts FastAPI with a fake agent, resolves the rewrite mappings from `next.config.ts`, and requests the mapped backend URLs. It checks the route contracts without starting a real agent or a Next.js proxy server.
 
 ## Requirements
 
-- Python >= 3.10
+- Python >= 3.10 (Python 3.12 recommended)
 - Dependencies listed in `requirements.txt`
 
 ## SDK

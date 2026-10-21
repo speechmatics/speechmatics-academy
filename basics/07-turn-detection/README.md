@@ -14,8 +14,8 @@ Perfect for voice AI, conversational agents, dictation systems, and interactive 
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - **Microphone**: Built-in or external microphone
 - **PyAudio**: For microphone access
 - Completed previous basics examples
@@ -24,11 +24,11 @@ Perfect for voice AI, conversational agents, dictation systems, and interactive 
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -114,8 +114,7 @@ def handle_end_of_utterance(message):
 ```
 
 > [!Important]
-> The `metadata.start_time` represents when speech was started.
-> The `metadata.end_time` represents when silence was detected, not the utterance duration. To calculate duration, track both start and end times.
+> The event timestamps describe the silence-detection boundary. Track the first transcript's start time separately to estimate elapsed utterance time; subtracting it from this boundary includes the trailing silence.
 
 ### Calculating Utterance Duration
 
@@ -329,6 +328,8 @@ async def monitor_utterance_timeout():
 
 ## Advanced Turn Detection
 
+For new voice-agent applications, see [agent STT](../13-agent-stt/). The silence-based `EndOfUtterance` example here uses the Realtime SDK and is distinct from the `EndOfTurn` events in agent STT.
+
 Want more sophisticated turn detection? Check out the **[Voice Agent Turn Detection](../08-voice-agent-turn-detection/)** example which demonstrates:
 
 - **ADAPTIVE mode** - Adjusts to speaker's speech patterns
@@ -336,7 +337,7 @@ Want more sophisticated turn detection? Check out the **[Voice Agent Turn Detect
 - **EXTERNAL mode** - Manual turn control for custom workflows
 - Preset configurations for common use cases
 
-The Voice SDK provides a higher-level abstraction with intelligent segmentation and automatic turn detection.
+The Voice SDK is deprecated. Its examples remain useful for understanding the older client-side segmentation logic; for new applications, start with [Agent STT Linden 1](../13-agent-stt/).
 
 ## Next Steps
 
@@ -349,8 +350,7 @@ The Voice SDK provides a higher-level abstraction with intelligent segmentation 
 
 **Windows:**
 ```bash
-pip install pipwin
-pipwin install pyaudio
+python -m pip install pyaudio
 ```
 
 **Mac:**
@@ -381,8 +381,8 @@ pip install pyaudio
 ## Resources
 
 - [Turn Detection Docs](https://docs.speechmatics.com/speech-to-text/realtime/turn-detection)
-- [Realtime API Guide](https://docs.speechmatics.com/introduction/realtime-guide)
-- [WebSocket API Reference](https://docs.speechmatics.com/rt-api-ref)
+- [Realtime API Guide](https://docs.speechmatics.com/speech-to-text/realtime/quickstart)
+- [WebSocket API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 
 ---
 
@@ -396,7 +396,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-time
+**API Mode**: Realtime
 
 [Back to Basics](../) | [Back to Academy](../../README.md)
 

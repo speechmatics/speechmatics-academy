@@ -1,6 +1,6 @@
-# Text-to-Speech - Your First TTS
+# Text to Speech - Your First Speech Synthesis
 
-**Convert text to natural-sounding speech using Speechmatics TTS API.**
+**Convert text to speech using the Speechmatics Text to Speech (TTS) API.**
 
 Generate high-quality speech audio from text in under 5 minutes with minimal setup.
 
@@ -13,8 +13,8 @@ Generate high-quality speech audio from text in under 5 minutes with minimal set
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 
 ## Quick Start
 
@@ -22,11 +22,11 @@ Generate high-quality speech audio from text in under 5 minutes with minimal set
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 | **Jack** | English (US) | Male | `jack` |
 
 > [!NOTE]
-> More voices coming soon! Check the [Speechmatics TTS documentation](https://docs.speechmatics.com/text-to-speech/quickstart#voices) for the latest available voices.
+> Check the [Speechmatics TTS documentation](https://docs.speechmatics.com/text-to-speech/quickstart#voices) for the latest available voices.
 
 ### Using Different Voices
 
@@ -130,7 +130,7 @@ voice = "jack"
 ```
 
 > [!NOTE]
-> The `jack` voice may not be available in the Voice enum yet. Use the string `"jack"` directly.
+> The snippet uses the string voice ID `"jack"`; voice IDs are distinct from the display names above.
 
 ## Output Formats
 
@@ -162,7 +162,7 @@ Available voices:
 
 | Feature | Description |
 |---------|-------------|
-| **Low Latency** | Under 200ms initial latency for streaming |
+| **Streaming** | Receive audio chunks as they become available |
 | **Natural Speech** | High-quality, natural-sounding voices |
 | **Multiple Voices** | UK and US English male/female options |
 | **Simple API** | Single method call to generate speech |
@@ -181,7 +181,7 @@ Available voices:
 Now that you have basic TTS working, explore:
 
 - **[Hello World](../01-hello-world/)** - Transcribe audio (STT)
-- **[Batch vs Real-time](../02-batch-vs-realtime/)** - Understand different STT modes
+- **[Batch vs Realtime](../02-batch-vs-realtime/)** - Understand different STT modes
 - **[LiveKit Voice Assistant](../../integrations/livekit/01-simple-voice-assistant/)** - Build a complete voice agent with STT + LLM + TTS
 
 ## Troubleshooting
@@ -203,7 +203,7 @@ Now that you have basic TTS working, explore:
 
 - [Speechmatics TTS Quickstart](https://docs.speechmatics.com/text-to-speech/quickstart)
 - [Speechmatics TTS Product Page](https://www.speechmatics.com/text-to-speech)
-- [API Reference](https://docs.speechmatics.com/api-ref/)
+- [API Reference](https://docs.speechmatics.com/api-ref)
 
 ---
 

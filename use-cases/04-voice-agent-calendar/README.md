@@ -2,7 +2,10 @@
 
 **An intelligent voice agent that handles inbound calls, books appointments to Google Calendar, and answers business questions.**
 
-Learn how to build a production-ready AI receptionist using LiveKit, Speechmatics STT/TTS, OpenAI function calling, and Google Calendar API.
+Build a demonstration receptionist with LiveKit, Speechmatics Speech to Text (STT) via agent STT, Speechmatics Text to Speech (TTS), OpenAI function calling, and the Google Calendar API. LiveKit and the application combine these services into the voice agent.
+
+> [!IMPORTANT]
+> Use a dedicated test calendar. The example can create, move and delete real events, and cancellation/rescheduling selects the first name match without verifying ownership. It also lacks strict input validation and enforced business hours. Add these controls before using it with real customers.
 
 ## What You'll Learn
 
@@ -15,14 +18,16 @@ Learn how to build a production-ready AI receptionist using LiveKit, Speechmatic
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **LiveKit Cloud Account**: Sign up at [livekit.io](https://livekit.io/)
 - **Twilio Account**: For phone number and SIP trunking at [twilio.com](https://www.twilio.com/)
 - **Google Cloud Account**: For Calendar API access
-- **Python 3.9+**
+- **Python 3.12+**
 
 ## Quick Start
+
+Start in `use-cases/04-voice-agent-calendar/` after cloning the Academy. Commands below are relative to this directory.
 
 ### Python
 
@@ -61,7 +66,24 @@ cp ../.env.example .env
 
 **Step 5: Customize the agent**
 
-Edit `assets/agent.md` with your business name, services, and hours.
+Edit `../assets/agent.md` from the `python/` directory with your business name, services, and hours.
+
+> [!NOTE]
+> The current script imports calendar settings before loading `.env`. Until that import order is corrected, set `GOOGLE_CALENDAR_ID`, `TIMEZONE`, and `APPOINTMENT_DURATION_MINUTES` in the process environment before running it. Use the actual shared calendar ID, not `primary` for a service account.
+
+**PowerShell:**
+```powershell
+$env:GOOGLE_CALENDAR_ID = "your-shared-calendar-id"
+$env:TIMEZONE = "Europe/London"
+$env:APPOINTMENT_DURATION_MINUTES = "60"
+```
+
+**Mac/Linux:**
+```bash
+export GOOGLE_CALENDAR_ID="your-shared-calendar-id"
+export TIMEZONE="Europe/London"
+export APPOINTMENT_DURATION_MINUTES="60"
+```
 
 **Step 6: Run the agent**
 
@@ -119,10 +141,8 @@ vad = silero.VAD.load(min_silence_duration=0.5)
 stt = speechmatics.STT(
     vad=vad,
     enable_diarization=True,
-    operating_point="enhanced",
-    enable_partials=True,
-    focus_speakers=["S1"],
-    max_delay=0.7,
+    include_partials=True,
+    speaker_format="<{speaker_id}>{text}</{speaker_id}>",
     additional_vocab=[
         speechmatics.AdditionalVocabEntry(content="Swedish Massage"),
         speechmatics.AdditionalVocabEntry(content="Deep Tissue Massage"),
@@ -141,10 +161,10 @@ receptionist = Agent(
 
 > [!NOTE]
 > Key STT settings:
-> - `enable_diarization` - Identify different speakers
-> - `operating_point="enhanced"` - Higher accuracy mode
-> - `focus_speakers=["S1"]` - Focus on caller, ignore TTS playback
-> - `vad=silero.VAD.load(min_silence_duration=0.5)` - VAD-driven turn finalization (faster turns)
+> - `enable_diarization` - Distinguish speakers; this does not verify caller identity
+> - `include_partials=True` - Request partial transcript updates
+> - `speaker_format` - Include diarization labels in the text supplied to the agent
+> - `vad=silero.VAD.load(min_silence_duration=0.5)` - VAD-driven turn finalization after silence
 
 ### 2. Calendar Functions (calendar_tools.py)
 
@@ -219,7 +239,7 @@ hours = {
 
 #### Date Correction
 
-The LLM sometimes sends past dates. `parse_date()` auto-corrects:
+The current `parse_date()` moves past dates into a future year and falls back to today for invalid input; invalid times fall back to 09:00. This is demo behavior, not safe booking validation. Validate the requested date/time and ask for clarification before using these tools with real appointments:
 
 ```python
 # LLM sends "2023-12-02" (past year)
@@ -229,7 +249,7 @@ The LLM sometimes sends past dates. `parse_date()` auto-corrects:
 # Corrected to next year
 ```
 
-### 3. Custom Vocabulary
+### 3. Custom dictionary
 
 Add business-specific terms for better recognition:
 
@@ -283,7 +303,7 @@ TIMEZONE=Europe/London
 APPOINTMENT_DURATION_MINUTES=60
 ```
 
-If you created a different calendar (for example, a dedicated "AI Receptionist" calendar), open its **Settings and sharing** page in Google Calendar and, under **Integrate calendar**, copy the **Calendar ID** value and use that for `GOOGLE_CALENDAR_ID` in your `.env` file.
+For the calendar shared with the service account (preferably a dedicated test calendar), open its **Settings and sharing** page in Google Calendar and, under **Integrate calendar**, copy the **Calendar ID** value and use that for `GOOGLE_CALENDAR_ID` in `.env` and in the process environment as shown in Quick Start.
 
 ## Twilio + LiveKit SIP Setup
 
@@ -298,7 +318,7 @@ To receive phone calls, you need to connect Twilio to LiveKit via SIP trunking.
    - **Trunk name**: Give it a name (e.g., "Twilio Inbound")
    - **Trunk direction**: Select **Inbound**
    - **Numbers**: Enter your Twilio phone number (e.g., `+14155551234`)
-   - **Allowed addresses**: Leave as `0.0.0.0/0` to allow all IPs
+   - **Inbound access**: Configure provider authentication or restrict the trunk to your provider's documented SIP source addresses; follow the [LiveKit SIP guidance](https://docs.livekit.io/sip/).
 5. Click **Create** and copy the SIP URI (e.g., `sip:xxxxx.sip.livekit.cloud`)
 
 ### 2. Create Twilio Elastic SIP Trunk
@@ -463,7 +483,7 @@ Help us improve this guide:
 
 **Time to Complete**: 30 minutes
 **Difficulty**: Advanced
-**API Mode**: LiveKit Voice Agent
+**API Mode**: Realtime (agent STT) + Text to Speech, orchestrated by LiveKit
 **Languages**: Python
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)

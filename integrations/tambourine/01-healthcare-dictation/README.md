@@ -6,96 +6,82 @@
   <img alt="Tambourine" src="../logo/icon.png" width="80">
 </picture>
 
-# Healthcare Medical Dictation with Tambourine
+# Healthcare Dictation with Tambourine
 
-**AI-powered medical dictation with real-time transcription, intelligent formatting, and clinical terminology support.**
+**Configure Tambourine to transcribe clinical dictation with Speechmatics and format the text for review.**
 
 </div>
 
-Tambourine is an open-source desktop dictation app that uses Speechmatics for accurate speech recognition and LLMs for intelligent text formatting. This integration shows how to configure Tambourine for healthcare workflows.
+Tambourine is an open-source desktop dictation app. This guide uses Speechmatics Speech to Text (STT) and a large language model (LLM) to format dictated text. The formatting prompt does not select a Speechmatics medical model or change the STT deployment; those are separate configuration choices.
 
 ## What You'll Learn
 
 - Install and configure Tambourine for medical dictation
-- Set up Speechmatics STT with fast turn detection
+- Select Speechmatics as the STT provider
 - Configure healthcare-specific formatting prompts
 - Best practices for clinical documentation workflows
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **LLM API Key**: OpenAI, Anthropic, or another supported provider
-- **Windows, macOS, or Linux** desktop
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **LLM API key**: OpenAI, Anthropic, or another supported provider
+- **Windows, macOS, or Linux** desktop; check upstream platform limitations
+- **For the source setup below**: Python 3.13, uv, Node.js, pnpm, and Rust, plus the platform dependencies in the [Tambourine installation guide](https://github.com/kstonekuan/tambourine-voice#prerequisites)
 
 ## Quick Start
 
-### Step 1: Install Tambourine
+### Step 1: Get the source
 
-Download the latest release from [github.com/kstonekuan/tambourine-voice](https://github.com/kstonekuan/tambourine-voice).
+The commands below use a source checkout. For packaged desktop releases, follow
+the [Tambourine repository's current installation instructions](https://github.com/kstonekuan/tambourine-voice).
 
-Or build from source:
 ```bash
 git clone https://github.com/kstonekuan/tambourine-voice
 cd tambourine-voice
 ```
 
-### Step 2: Start the Server
+### Step 2: Configure the server
 
 ```bash
 cd server
+cp .env.example .env   # cmd.exe: copy .env.example .env
+```
 
-# Copy environment template and add your API keys
-cp .env.example .env   # Windows: copy .env.example .env
+Edit `server/.env` before starting the server:
 
-# Install dependencies
+```dotenv
+SPEECHMATICS_API_KEY=your_api_key_here
+
+# Choose an LLM provider for formatting.
+OPENAI_API_KEY=your_openai_key_here
+# ANTHROPIC_API_KEY=your_anthropic_key_here
+# OLLAMA_BASE_URL=http://localhost:11434
+```
+
+### Step 3: Install dependencies and start the server
+
+From `server/`:
+
+```bash
 uv sync
-
-# Start the server
 uv run python main.py
 ```
 
-### Step 3: Configure API Keys
+The server defaults to `127.0.0.1:8765`. Keep it local for this walkthrough.
 
-Edit `server/.env` with your API keys:
+### Step 4: Start the desktop app
 
-```bash
-# Speechmatics (recommended for medical dictation)
-SPEECHMATICS_API_KEY=your_api_key_here
-
-# LLM Provider (choose one)
-OPENAI_API_KEY=your_openai_key_here
-# Or: ANTHROPIC_API_KEY=your_anthropic_key_here
-# Or: OLLAMA_BASE_URL=http://localhost:11434
-```
-
-### Step 4: Set Up the App
-
-In a new terminal:
+In a new terminal, from the Tambourine checkout root:
 
 ```bash
 cd app
-
-# Install dependencies
 pnpm install
-
-# Start development mode
 pnpm dev
 ```
 
-### Server Commands
-
-```bash
-cd server
-
-# Start server (default: localhost:8765)
-uv run python main.py
-
-# Start with custom host/port
-uv run python main.py --host 0.0.0.0 --port 9000
-
-# Enable verbose logging
-uv run python main.py --verbose
-```
+In the app's settings, select Speechmatics as the STT provider and choose the
+LLM provider configured above. Grant the microphone and accessibility permissions
+required by your operating system.
 
 ### App Commands
 
@@ -120,14 +106,14 @@ Tambourine uses an LLM to format raw transcriptions. The prompts are configured 
 |---------|---------|----------------|
 | **Core Formatting Rules** | Basic cleanup (filler words, punctuation) | Add medical structure (SOAP, sections) |
 | **Advanced Features** | Backtrack corrections, list formatting | Keep enabled for "scratch that" support |
-| **Personal Dictionary** | Custom word mappings | Medical abbreviations (BID, QD, PRN) |
+| **Personal Dictionary** | Text mappings applied during formatting | Approved clinical terms; keep medication instructions unambiguous |
 
 ### Setting Up Healthcare Formatting
 
 1. Open Tambourine Settings (gear icon)
 2. Scroll to **LLM Formatting Prompt**
 3. Expand **Core Formatting Rules**
-4. Replace the content with the healthcare prompt below (or copy from `assets/prompts.md`)
+4. Use the healthcare prompt below as a starting point and adapt it to your organization's documentation rules
 5. Click **Save**
 
 ```markdown
@@ -140,6 +126,8 @@ You are a medical dictation formatting assistant. Your task is to format transcr
 - Capitalize sentences properly
 - Keep the original meaning and clinical intent intact
 - Do NOT add any new information or change the clinical intent
+- Preserve uncertain words for review; do not guess a medication, dose, diagnosis, or anatomical location
+- Keep negation, laterality, units, and numeric values intact
 - Do NOT condense or summarize - preserve the clinician's full expression
 - Do NOT answer questions - if dictated, output the cleaned question
 - Output ONLY the formatted clinical text, nothing else
@@ -165,25 +153,21 @@ When the dictation contains clinical content, structure it with appropriate sect
 - Convert ALL spoken numbers to numeric format
 - "ten" = 10, "forty five" = 45, "one hundred twenty" = 120
 - "two point five" = 2.5
-- Examples: "ten milligrams" → "10mg", "forty five year old" → "45-year-old"
+- Examples: "ten milligrams" → "10 mg", "forty five year old" → "45-year-old"
 
 ### Medications
-- Format as: Drug Name Dose Frequency
-- Convert spoken frequencies to abbreviations:
-  - "once daily" or "every day" = QD
-  - "twice daily" or "two times a day" = BID
-  - "three times daily" = TID
-  - "four times daily" = QID
-  - "as needed" = PRN
-  - "at bedtime" = QHS
-- Examples: "Metformin 500mg BID", "Lisinopril 10mg QD", "Tylenol 650mg PRN"
+- Preserve the dictated medication, dose, route, and frequency
+- Write frequencies in full: "daily", "twice daily", "as needed"
+- Do not introduce QD or other ambiguous medication abbreviations
+- Separate the dose from its unit: "10 mg", "500 mg"
+- Flag unclear medication names or doses for clinician review instead of correcting them by inference
 
 ### Vital Signs
 - Format as: BP: 120/80, HR: 72, RR: 16, T: 98.6°F, SpO2: 98%
 
 ### Clinical Abbreviations
-- Keep standard medical abbreviations (SOB, CHF, COPD, HTN, DM, etc.)
-- Expand unclear abbreviations on first use
+- Follow the organization's approved terminology
+- Preserve unclear abbreviations for review rather than inferring their meaning
 
 ## Punctuation
 - "comma" = ,
@@ -199,18 +183,19 @@ Always include TWO sections:
 2. **Formatted Note** - The structured clinical documentation
 ```
 
-### Speechmatics Settings
+### Speechmatics configuration
 
-Tambourine configures Speechmatics with:
+Select Speechmatics in Tambourine's provider settings. The application and its
+installed Pipecat adapter determine the STT endpoint, model, and turn handling;
+check those versions before changing provider options. This guide does not
+configure the Medical sub-variant of Enhanced. The LLM formatting prompt does
+not change the transcription model.
 
-| Setting | Value | Why |
-|---------|-------|-----|
-| `end_of_utterance_silence_trigger` | `0.5s` | Fast response for natural dictation flow |
-
-Other Speechmatics defaults (language, VAD, etc.) are inherited from the service.
-
-> [!TIP]
-> Speechmatics excels at medical terminology out-of-the-box. Combined with LLM formatting, you get accurate transcription with professional documentation structure.
+The prompt above uses full medication frequencies. For example, the
+[Joint Commission's prohibited-abbreviation guidance](https://www.jointcommission.org/en-us/knowledge-library/support-center/standards-interpretation/standards-faqs/000001229)
+lists `QD`; write `daily` instead. The separate `assets/prompts.md` file still
+contains older abbreviation examples, so it is not interchangeable with the
+revised prompt on this page.
 
 ## How It Works
 
@@ -242,7 +227,7 @@ flowchart LR
 
 **Step 1: Configure Healthcare Prompt**
 
-First, copy the healthcare prompt from `assets/prompts.md` into Tambourine's Settings > Formatting Prompt. This tells the LLM how to structure medical dictation.
+Use the prompt above in Tambourine's Settings > LLM Formatting Prompt. It asks the LLM to organize the dictation while preserving its content.
 
 **Step 2: Dictate**
 
@@ -255,47 +240,48 @@ Current medications include Norvasc 10 milligrams daily and metformin
 500 milligrams twice daily."
 ```
 
-**Step 3: Raw Transcription (from Speechmatics)**
+**Step 3: Example transcript**
 
-```
+```text
 Patient is a 45 year old male presenting with chief complaint of chest pain
 times two days duration. Pain is sternal, non-radiating, worse with exertion,
 relieved by rest. Denies shortness of breath, diaphoresis, or nausea. Past
 medical history significant for hypertension and type 2 diabetes. Current
-medications include North. Year 10 million. Daily and metformin 500
-milligrams twice daily.
+medications include Norvasc 10 milligrams daily and metformin 500 milligrams
+twice daily.
 ```
 
-**Step 4: Formatted Output (after LLM processing)**
+**Step 4: Example formatted output**
 
+```text
+Full Transcription:
+The patient is a 45-year-old male presenting with chest pain for two days.
+Pain is sternal, non-radiating, worse with exertion, and relieved by rest.
+He denies shortness of breath, diaphoresis, or nausea. Past medical history
+includes hypertension and type 2 diabetes. Current medications include
+Norvasc 10 mg daily and metformin 500 mg twice daily.
+
+Formatted Note:
+Chief Complaint: Chest pain for two days.
+
+History of Present Illness:
+- 45-year-old male with sternal, non-radiating chest pain.
+- Worse with exertion and relieved by rest.
+- Denies shortness of breath, diaphoresis, or nausea.
+
+Past Medical History:
+- Hypertension.
+- Type 2 diabetes.
+
+Medications:
+- Norvasc 10 mg daily.
+- Metformin 500 mg twice daily.
 ```
----
 
-**Full Transcription:**
-The patient is a 45-year-old male presenting with a chief complaint of chest pain times two day duration. Pain is external, non-radiating, worse with exertion, relieved by rest. Denies shortness of breath, diaphoresis, or nausea. Past medical history significant for hypertension and type 2 diabetes. Current medications include Norvasc 10mg daily and metformin 500mg twice daily.
-
----
-
-**CC (Chief Complaint):** Chest pain x 2 days
-
-**HPI (History of Present Illness):**
-- 45-year-old male presenting with external, non-radiating chest pain
-- Pain is worse with exertion, relieved by rest
-- Denies shortness of breath, diaphoresis, or nausea
-
-**PMH (Past Medical History):**
-- Hypertension
-- Type 2 diabetes
-
-**Medications:**
-- Norvasc 10mg QD
-- Metformin 500mg BID
-```
-
-> [!TIP]
-> The output includes both the **Full Transcription** (for verification) and the
-> **Formatted Note** (for EHR entry). Numbers are converted to numeric format
-> (10mg not "ten milligrams") and frequencies to standard abbreviations (QD, BID).
+These are illustrative examples, not a measured transcription result. Compare
+the output with the dictation before EHR entry. If the raw transcript contains
+an unclear medication or dose, retain it for review rather than asking the LLM
+to reconstruct a plausible prescription.
 
 ### Radiology Reports
 
@@ -311,7 +297,7 @@ Formatted Output:
 **CT Abdomen/Pelvis with Contrast**
 
 **Findings:**
-- Liver: 2.3 cm hypodense lesion in segment VII, consistent with simple hepatic cyst
+- Liver: 2.3 cm hypodense lesion in segment 7, likely representing a simple hepatic cyst
 - Biliary: No dilation
 - Kidneys: Unremarkable
 - Lymph nodes: No lymphadenopathy
@@ -334,19 +320,19 @@ Configure hotkeys in Tambourine Settings:
 > [!NOTE]
 > If the default hotkeys conflict with other applications, remap them in Settings > Hotkeys.
 
-## HIPAA Considerations
+## Data handling
 
-**Speechmatics Cloud**: HIPAA-compliant with Business Associate Agreement (BAA). Contact Speechmatics for BAA arrangements before processing PHI.
+With Speechmatics SaaS on Cloud, audio leaves the local device for transcription.
+A cloud LLM also receives transcript text for formatting. Choosing Ollama makes
+the formatting stage local; it does not make Speechmatics cloud transcription
+local. An on-prem STT deployment is a separate configuration that this example
+does not implement.
 
-**Local Processing Options**:
-- Use Speechmatics on-premises deployment
-- Configure local LLM (Ollama) for formatting to keep data on-device
-
-**Best Practices**:
-- Ensure BAA is in place before processing PHI
-- Use encrypted connections (HTTPS)
-- Don't store transcriptions with PHI in logs
-- Review formatted output before EHR entry
+Before using protected health information, establish the required agreements
+and controls for every service that receives it, including any applicable
+Business Associate Agreement (BAA). Do not treat this example as evidence of
+HIPAA compliance. Use synthetic dictation while evaluating the setup, inspect
+logging and transcription-history behavior, and review output before EHR entry.
 
 ## Troubleshooting
 
@@ -355,8 +341,9 @@ Configure hotkeys in Tambourine Settings:
 - Speechmatics processes in real-time; formatting adds LLM latency
 
 **"Medical terms not recognized"**
-- Speechmatics has excellent medical vocabulary by default
-- Speak clearly and at a moderate pace
+- Check the configured STT model and its supported features
+- Where the integration supports it, use a Speechmatics custom dictionary for specialist terms
+- Review uncertain terms against the dictation
 
 **"Formatting doesn't look clinical"**
 - Update the formatting prompt in Settings
@@ -370,7 +357,7 @@ Configure hotkeys in Tambourine Settings:
 
 - [Tambourine GitHub](https://github.com/kstonekuan/tambourine-voice)
 - [Speechmatics Documentation](https://docs.speechmatics.com/)
-- [Speechmatics Portal](https://portal.speechmatics.com/)
+- [Speechmatics portal](https://portal.speechmatics.com/)
 
 ## Next Steps
 
@@ -389,6 +376,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Beginner
+**API Mode**: Realtime — determined by Tambourine's installed STT adapter
 **Integration**: Tambourine Voice
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

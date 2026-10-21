@@ -1,9 +1,9 @@
-# Voice API Explorer - Unified WebSocket API Demo
+# Preview WebSocket API Explorer
 
-**Explore every feature of the Speechmatics Voice API - a single WebSocket endpoint for both real-time transcription and voice agent modes.**
+**Explore the experimental WebSocket transcription protocol used by this example, including transcription, segments, and turn events.**
 
 > [!WARNING]
-> The Voice API is currently in **preview** and is an **experimental feature**. Endpoints, message formats, and behaviour may change without notice. Do not use in production workloads.
+> This example targets an **experimental preview protocol** at `preview.rt.speechmatics.com`, with `/v2/agent/{profile}` routes. It is distinct from the current [Agent STT Linden 1 example](../13-agent-stt/) and its `/v2/agent` API. Preview access, endpoints and message formats require confirmation; do not use this example in production workloads.
 >
 > We value your feedback - [submit feedback](https://docs.google.com/forms/d/e/1FAIpQLSc-6GQXYx_0M-X0Uu_uB_4XyDL009jMv3hBJAFw7kD98AILJg/viewform). Areas of interest:
 > - **Integration experience** - documentation, SDKs, API messages/metadata
@@ -25,8 +25,8 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+** or **Node.js 18+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12** or **Node.js 18+**
 - **Microphone**: Any working input device (built-in or USB) - used by default
 - **PyAudio** (Python): Installed automatically with `pip install -r requirements.txt` (see platform notes below)
 - **SoX** (JavaScript, Mac/Linux only): Required for microphone recording on Mac/Linux (see platform notes below). Windows uses native audio APIs - no extra install needed.
@@ -40,11 +40,11 @@ The Voice API is a unified WebSocket endpoint for real-time transcription and vo
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -169,7 +169,7 @@ Both implementations split the code into three files with the same responsibilit
 │   ├── core.js              # Session runner, audio utils, message formatter
 │   └── package.json
 ├── assets/
-│   └── sample_mono.wav      # Sample audio for testing
+│   └── sample_mono.wav      # Your own converted audio (not bundled)
 ├── .env.example
 └── README.md
 ```
@@ -212,17 +212,17 @@ The mode is selected by the URL path:
 | *(none)* | RT | `/v2` | All | Real-time transcription with partials |
 | `agile` | Voice | `/v2/agent/agile` | All | Fastest response, VAD-based turn detection |
 | `adaptive` | Voice | `/v2/agent/adaptive` | All | Adapts to speaker pace and disfluency |
-| `smart` | Voice | `/v2/agent/smart` | Limited (22) | Acoustic model for turn completion |
+| `smart` | Voice | `/v2/agent/smart` | See preview documentation | Acoustic model for turn completion |
 | `external` | Voice | `/v2/agent/external` | All | Client-controlled turn detection |
 
 > [!NOTE]
-> The `smart` profile uses an acoustic model for turn prediction and only supports: Arabic, Bengali, Chinese, Danish, Dutch, English, Finnish, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Marathi, Norwegian, Polish, Portuguese, Russian, Spanish, Turkish, Ukrainian, Vietnamese. All other profiles support all languages.
+> The `smart` profile uses an acoustic model for turn prediction and only supports: Arabic, Bengali, Mandarin, Danish, Dutch, English, Finnish, French, German, Hindi, Indonesian, Italian, Japanese, Korean, Marathi, Norwegian, Polish, Portuguese, Russian, Spanish, Turkish, Ukrainian, Vietnamese. All other profiles support all languages.
 
 Profiles support versioning: `adaptive:latest`, `adaptive:2026-02-10`.
 
 ### RT Mode vs Voice Mode
 
-**RT mode** (`/v2`) gives you raw transcription - partials stream in as you speak, finals arrive when words are confirmed, and `EndOfUtterance` fires at silence gaps. You get word-level timestamps, confidence scores, and optional translation. There is no concept of turns or speakers - just a continuous stream of text.
+**RT mode** (`/v2`) gives you raw transcription - partials stream in as you speak, finals arrive when words are confirmed, and `EndOfUtterance` fires at silence gaps. You get word-level timestamps, confidence scores, and optional translation. Speaker diarization is available when configured; the continuous transcript interface differs from the preview segment/turn interface.
 
 **Voice mode** (`/v2/agent/{profile}`) adds a conversation layer on top. Instead of individual transcript chunks, you get **segments** that accumulate the full utterance, **turns** that group segments into conversational units, and **speaker tracking** that identifies who is talking. Voice mode also provides rich annotations (`has_disfluency`, `ends_with_eos`, `fast_speaker`) and metrics (`SpeakerMetrics`, `SessionMetrics`) not available in RT mode.
 
@@ -426,7 +426,7 @@ Choice [1-5]: 1
 
 **Microphone (default):** The demo records from your default input device using PyAudio (Python) or native APIs (Node.js on Windows) / SoX (Node.js on Mac/Linux). Select a demo, speak, then press Enter - the recorded buffer is replayed to the API for each session.
 
-**WAV file (`--audio`):** Pass `--audio path/to/file.wav` to use a pre-recorded file instead. The file must be 16-bit mono WAV (any sample rate; 16 kHz recommended).
+**WAV file (`--audio`):** Pass `--audio path/to/file.wav` to use a pre-recorded file instead. Use a 16 kHz, 16-bit mono PCM WAV file for the preview profiles. The parser accepts other sample rates, but that does not establish server support.
 
 Convert with ffmpeg:
 ```bash
@@ -451,12 +451,12 @@ node main.js --debug voice
 Debug mode outputs:
 - **WebSocket URL** - the exact URL being connected to (e.g. `wss://preview.rt.speechmatics.com/v2/agent/adaptive`)
 - **StartRecognition payload** - the full JSON config sent as the first frame
-- **Raw JSON for every message** - complete server responses, not just formatted summaries
+- **Raw JSON for every message** - truncated previews of server responses
 
 > [!TIP]
-> Combine `--debug` with `--audio` for reproducible bug reports:
-> - Python: `python main.py --debug --audio ../assets/sample_mono.wav rt`
-> - Node.js: `node main.js --debug --audio ../assets/sample_mono.wav rt`
+> Supply your own 16-bit mono WAV file, then combine `--debug` with `--audio` for reproducible bug reports:
+> - Python: `python main.py --debug --audio path/to/your-audio.wav rt`
+> - Node.js: `node main.js --debug --audio path/to/your-audio.wav rt`
 
 ## Next Steps
 
@@ -504,9 +504,9 @@ Debug mode outputs:
 
 ## Resources
 
-- [Speechmatics Portal](https://portal.speechmatics.com/) - get your API key
+- [Speechmatics portal](https://portal.speechmatics.com/) - get your API key
 - [Voice API Documentation](https://docs.speechmatics.com/private/voice-agent-api)
-- [Voice SDK Documentation](https://docs.speechmatics.com/voice-agents/voice-sdk)
+- [Voice SDK Documentation](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)
 - [Speechmatics JavaScript SDK](https://github.com/speechmatics/speechmatics-js-sdk)
 
@@ -523,6 +523,6 @@ Help us improve this guide:
 
 **Time to Complete**: 20 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-Time + Voice (WebSocket)
+**API Mode**: Realtime and experimental preview profiles (WebSocket)
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

@@ -2,7 +2,7 @@
 
 **A cross-platform Flutter app (Android and iOS) that records or uploads audio, transcribes it with the Speechmatics Batch API, then translates, diarizes, and analyses it, all from a phone.**
 
-This is the academy's first mobile example. It shows how to drive the Speechmatics Batch REST API end-to-end from a Flutter client: submit a job, poll it to completion, and render a rich result with multilingual transcription, speaker diarization and identification, translation, and speech-intelligence add-ons (summary, topics, chapters, subtitles). The full pipeline runs on-device against the cloud API, so no backend of your own is required.
+This is the academy's first mobile example. It shows how to drive the Speechmatics Batch API end-to-end from a Flutter client: submit a job, poll it to completion, and render a rich result with multilingual transcription, speaker diarization and identification, translation, and speech-intelligence add-ons (summary, topics, chapters, subtitles). The app orchestrates the pipeline on the phone; transcription runs on Speechmatics SaaS on Cloud and optional translation runs on Google Cloud. This example does not require your own backend.
 
 <p align="center">
   <img src="assets/home.jpg" width="23%" alt="Home screen" />
@@ -12,22 +12,22 @@ This is the academy's first mobile example. It shows how to drive the Speechmati
 </p>
 
 > [!NOTE]
-> Omnilingual transcription in this app runs on **Melia 1**, Speechmatics' newest multilingual speech-to-text model. Melia handles code-switching across 55+ languages in a single file, so a recording that moves between languages comes back as one continuous transcript with no language to choose in advance and no language packs to manage. Pick it as **Melia-1** in Settings (the app sends `melia-1` to the Batch API), or choose the classic Enhanced or Standard models for single-language jobs.
+> Omnilingual transcription in this app runs on **Melia 1**, Speechmatics' multilingual Speech to Text model. Melia 1 handles code-switching across 55+ languages in a single file, so a recording that moves between languages comes back as one continuous transcript with no language to choose in advance and no language packs to manage. Pick the app's **`Melia-1`** option in Settings (the app sends `melia-1` to the Batch API), or choose the classic Enhanced or Standard models for single-language jobs.
 
 ## What You'll Learn
 
 - **Calling the Speechmatics Batch API from a mobile client**: multipart job submission, fault-tolerant polling to completion, and fetching the `json-v2` transcript, with no SDK, just `http`.
-- **Choosing the right model per job**: the omnilingual **Melia-1** model (one clip, many languages, code-switching) versus the classic **Enhanced** and **Standard** operating points, and how each maps to a different `transcription_config`.
+- **Choosing the right model per job**: the omnilingual **Melia 1** model (one clip, many languages, code-switching) versus the **Enhanced** and **Standard** model variants, and how each maps to a different `transcription_config`.
 - **Speaker diarization and identification**: labelling Speaker 1 and Speaker 2, plus enrolling a voice once (`get_speakers`) so future transcripts label that person by name.
 - **Speech-intelligence add-ons**: summary, topic detection, auto-chapters, audio events, and SRT subtitles, requested per job and rendered in an Insights view.
 - **Keeping secrets out of source**: supplying API keys via secure on-device storage or build-time `--dart-define`, never hardcoded.
 
 ## Prerequisites
 
-- **Flutter SDK 3.4+** (developed on 3.44 / Dart 3.12). See the [install guide](https://docs.flutter.dev/get-started/install).
+- **Flutter SDK 3.44 with Dart 3.12** (the documented development baseline; verify with the checked-in dependency lockfile). See the [install guide](https://docs.flutter.dev/get-started/install).
 - **An Android device or emulator**, plus the **Android SDK** (bundled with [Android Studio](https://developer.android.com/studio)). iOS builds additionally require **macOS and Xcode**.
-- **Speechmatics API Key**. Sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**. Jobs run against the paid Batch API, so check your plan's limits.
-- **Google Cloud Translation v2 API Key** *(optional)*. Only needed for the translation feature; create one in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
+- **Speechmatics API key**. Sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API keys**. Jobs run against the paid Batch API, so check your plan's limits.
+- **Google Cloud Translation v2 API key** *(optional)*. Only needed for the translation feature; create one in the [Google Cloud Console](https://console.cloud.google.com/apis/credentials).
 
 Verify your toolchain before you start:
 
@@ -88,10 +88,10 @@ The release build is signed with the Flutter debug keystore by default, which is
 
 ### Optional: bake keys in at build time
 
-Instead of entering keys in the app, you can inject them at build time so the app starts ready to use. Copy the template and fill it in:
+For a private local build, you can pass development keys with `--dart-define`. Build-time values are embedded in the application and can be extracted from a distributed APK; do not share a build containing your keys. The optional template is a reference file, not an automatically loaded configuration:
 
 ```bash
-cp .env.example .env      # then edit .env with your real keys
+cp ../.env.example .env   # optional reference file; the app does not load .env
 ```
 
 Then pass them as dart-defines (the app reads `SM_API_KEY` and `GOOGLE_API_KEY`):
@@ -119,16 +119,18 @@ flowchart LR
 
 1. The user records audio in-app or picks a file. Settings are snapshotted into an immutable `JobConfig`.
 2. `ConfigMapper` turns that config into the exact `transcription_config` for the chosen model and submits it as a multipart `POST /v2/jobs`.
-3. The client polls `GET /v2/jobs/{id}` until the job is `done`. Polling is resilient to brief network drops (for example, the screen locking) so long jobs do not fail.
+3. The client polls `GET /v2/jobs/{id}` until the job is `done`. Polling retries some transient network failures. It is not resumable after app termination, and individual HTTP requests currently have no explicit timeout.
 4. The `json-v2` transcript is fetched and parsed into code-switching segments, per-word timings, speaker labels, and speech-intelligence blocks.
 5. If a Google Translate key is set, each segment is translated.
 6. The result is persisted to local history and shown with Original, Translation, Split, and Insights views, with synced audio playback.
 
 ## Model Configuration
 
+The app retains some older UI labels and internal identifiers (`omni-v1`, “Melia-1”, and “Classic Mode”). The current model name is **Melia 1** and its API value is `melia-1`. Model-specific availability should be checked against the [current model documentation](https://docs.speechmatics.com/speech-to-text/models); the app's disabled controls describe this implementation, not the full service offering.
+
 `lib/data/config_mapper.dart` is the single place a job config is built. It branches by model.
 
-### Melia-1: omnilingual (`model: "melia-1"`)
+### Melia 1: omnilingual (`model: "melia-1"`)
 
 One clip can contain several languages, detected automatically with code-switching.
 
@@ -147,7 +149,7 @@ One clip can contain several languages, detected automatically with code-switchi
 
 ### Enhanced and Standard: classic engine (`model: "enhanced" | "standard"`)
 
-One language per job (auto-detected or pinned). These unlock extra config the omnilingual model does not support: custom dictionary, punctuation control, audio filtering, audio events, domains (medical and finance, Enhanced only), and the speech-intelligence add-ons.
+One language per job (auto-detected or pinned). These unlock extra config the omnilingual model does not support: custom dictionary, punctuation control, audio filtering, audio events, the Medical sub-variant of Enhanced, and the speech-intelligence add-ons.
 
 ```jsonc
 {
@@ -201,7 +203,7 @@ The word boundaries (`start_time` / `end_time`) drive the playback highlight, th
 ## Key Features
 
 - Record in-app or upload audio (WAV / MP3 / M4A / FLAC / OGG)
-- Three models: Melia-1 (omnilingual) plus Enhanced and Standard (classic)
+- Three models: Melia 1 (omnilingual) plus Enhanced and Standard (classic)
 - Speaker diarization and speaker identification (enrol a voice, get it named)
 - Language hints, strict mode, and classic auto-detect with bilingual packs
 - Speech intelligence: summary, topics, chapters, audio events, SRT subtitles
@@ -231,7 +233,7 @@ flutter/
   ios/                        iOS host project (build on macOS)
   test/                       Unit tests (config mapper, parser, models)
   pubspec.yaml
-  .env.example                copy to .env (never commit the real one)
+  # ../.env.example is at the example root; optional reference only
 ```
 
 ### Where each feature lives
@@ -269,6 +271,11 @@ flutter test
 
 ## Troubleshooting
 
+**Recovery limitations in this example**
+- A recorded clip is currently deleted from temporary storage before the job succeeds. Keep important original audio separately: missing keys, API errors, cancellation, or translation failure can prevent it from reaching History.
+- A Google translation error currently fails the whole pipeline even after transcription succeeds. Disable translation when testing transcription independently.
+- Cancel stops local result collection; it does not delete the submitted server job.
+
 **`flutter devices` does not list my phone**
 - Re-check that USB debugging is on and accept the authorization prompt on the device. Try a different cable or port. `adb devices` should show the device as `device`, not `unauthorized`.
 
@@ -290,7 +297,7 @@ flutter test
 ## Resources
 
 - [Speechmatics documentation](https://docs.speechmatics.com/)
-- [Speechmatics Batch API reference](https://docs.speechmatics.com/jobsapi)
+- [Speechmatics Batch API reference](https://docs.speechmatics.com/api-ref/batch/create-a-new-job)
 - [Speaker diarization and identification](https://docs.speechmatics.com/speech-to-text/batch/speaker-identification)
 - [Flutter install and first run](https://docs.flutter.dev/get-started/install)
 - [Flutter build and release for Android](https://docs.flutter.dev/deployment/android)

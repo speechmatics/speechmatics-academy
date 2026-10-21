@@ -2,22 +2,27 @@
 
 **A real-time voice agent that listens to a user speak personal details — names, emails, phone numbers, post codes, account numbers — and fills a web form live, no typing required.**
 
-Learn how to capture clean alphanumeric input over voice using Speechmatics real-time STT with VAD-driven turn detection, drive a browser DOM from an LLM via LiveKit RPC, and close the loop with Speechmatics TTS.
+Learn how to capture clean alphanumeric input over voice using Speechmatics Speech to Text (STT) via agent STT with VAD-driven turn detection, drive a browser DOM from an LLM via LiveKit RPC, and close the loop with Speechmatics Text to Speech (TTS).
+
+> [!NOTE]
+> This is a single-user local demo. Every browser joins the same LiveKit room, and there is no authentication or caller validation on the form tool. Use fictional details. The current prompt treats post codes as numeric; adapt it to preserve letters for alphanumeric postal codes before using that field.
 
 ## What You'll Learn
 
-- **VAD-driven turn detection** with Speechmatics real-time STT — the STT finalizes each turn from a shared Silero VAD, capturing full utterances without premature cut-offs.
+- **VAD-driven turn detection** with Speechmatics agent STT — the STT finalizes each turn from a shared Silero VAD; tune the silence threshold for your speakers.
 - **LLM function-tool → LiveKit RPC → browser DOM** — a clean three-hop pattern that lets an LLM update a web UI directly.
-- **Robust alphanumeric capture** — system-prompt rules so phone numbers, post codes, and account numbers are stored as one continuous digit string and read back digit-by-digit for confirmation.
+- **Spoken-field normalization** — prompt rules for numeric fields and read-back confirmation, with validation still needed for each field type.
 
 ## Prerequisites
 
 - **Python 3.12+**
-- **Speechmatics API Key** — sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**
-- **OpenAI API Key** — get one from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- **LiveKit Cloud account** — create a project at [cloud.livekit.io](https://cloud.livekit.io/) and generate API credentials (URL, API Key, API Secret)
+- **Speechmatics API key** — sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**
+- **OpenAI API key** — get one from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **LiveKit Cloud account** — create a project at [cloud.livekit.io](https://cloud.livekit.io/) and generate API credentials (URL, API key, API Secret)
 
 ## Quick Start
+
+Start in `use-cases/08-alphanumerics-form-filler/` after cloning the Academy. Commands below are relative to this directory.
 
 ### Python
 
@@ -83,7 +88,7 @@ flowchart LR
 ```
 
 1. The browser joins a LiveKit room and streams microphone audio.
-2. The agent transcribes speech with **Speechmatics real-time STT** using VAD-driven turn detection — the shared Silero VAD signals end-of-speech and the STT finalizes the turn.
+2. The agent transcribes speech with **Speechmatics agent STT** using VAD-driven turn detection — the shared Silero VAD signals end-of-speech and the STT finalizes the turn.
 3. **GPT-4o-mini** interprets the transcript and decides whether to call `fill_form_field` for each detail it heard.
 4. The agent issues a **LiveKit RPC** to the browser, which writes the value into the matching `<input>` element.
 5. The agent speaks back via **Speechmatics TTS** and asks for the next field.
@@ -108,7 +113,7 @@ session = AgentSession(stt=stt, llm=llm, tts=tts, vad=vad)
 ```
 
 > [!NOTE]
-> Omitting `base_url` lets the plugin default to the production endpoint `wss://eu2.rt.speechmatics.com/v2`. Set the `SPEECHMATICS_RT_URL` environment variable to override the region.
+> The current LiveKit Speechmatics plugin uses agent STT and defaults to `wss://eu2.rt.speechmatics.com/v2/agent`. Override it with `SPEECHMATICS_RT_URL` or `base_url=`, using a compatible `/v2/agent` endpoint. General Realtime streaming uses a different endpoint. See the [plugin configuration](https://docs.livekit.io/agents/plugins/speechmatics/).
 
 ### 2. The bridge tool (`main.py`)
 
@@ -183,14 +188,14 @@ Agent: "Got it — phone five, five, five, one, two, three, four, five,
 
 - **VAD-driven turn detection** — the STT finalizes from a shared Silero VAD, with no manual `finalize()` glue.
 - **Function-tool → RPC → DOM** — a generalisable pattern for letting an LLM drive a web UI live.
-- **Alphanumeric robustness** — clean digit-string capture for IDs and codes, plus digit-by-digit read-back.
-- **End-to-end real-time loop** — STT, LLM, TTS, and browser update all run with sub-second latency.
+- **Prompted number formatting** — digit-string capture and read-back; validate model-produced values before accepting them.
+- **Conversational pipeline** — STT, LLM, TTS, and browser updates run through LiveKit; end-to-end latency depends on the services, network and turn settings.
 
 ## Configuration Options
 
 - **LLM**: swap `openai.LLM(model="gpt-4o-mini")` in `main.py` for any other LiveKit-supported LLM.
-- **Region**: set `SPEECHMATICS_RT_URL` in `.env` or pass `base_url=` to `speechmatics.STT(...)` to target a different Speechmatics region.
-- **Turn detection**: this example passes `vad=` to the STT for VAD-driven finalization. Alternatively, omit `vad` and set `turn_detection_mode` (`SMART_TURN`/`ADAPTIVE`/`FIXED`) — see the [LiveKit Speechmatics plugin docs](https://docs.livekit.io/agents/plugins/speechmatics/).
+- **Endpoint/region**: set `SPEECHMATICS_RT_URL` or pass `base_url=` with a compatible `/v2/agent` endpoint for the installed [LiveKit Speechmatics plugin](https://docs.livekit.io/agents/plugins/speechmatics/).
+- **Turn detection**: passing `vad=` selects `EXTERNAL` finalization. The older `SMART_TURN`, `ADAPTIVE`, and `FIXED` names are compatibility aliases, not distinct current modes. For current LiveKit integration, follow the plugin's `TurnHandlingOptions(turn_detection="stt")` setup; the shipped script does not yet set that option explicitly.
 - **Form fields**: extend the field list in the system prompt and the `fill_form_field` docstring, then add matching `<input>` elements in `assets/index.html`.
 
 ## Troubleshooting
@@ -211,7 +216,7 @@ Agent: "Got it — phone five, five, five, one, two, three, four, five,
 ## Resources
 
 - [Speechmatics docs](https://docs.speechmatics.com/)
-- [Speechmatics real-time API reference](https://docs.speechmatics.com/rt-api-ref)
+- [Speechmatics Realtime API reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 - [LiveKit Agents documentation](https://docs.livekit.io/agents/)
 - [LiveKit Speechmatics plugin](https://docs.livekit.io/agents/plugins/speechmatics/)
 - [OpenAI API reference](https://platform.openai.com/docs/api-reference)
@@ -228,7 +233,7 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-time (LiveKit Voice Agent)
+**API Mode**: Realtime (agent STT) + Text to Speech, orchestrated by LiveKit
 **Languages**: Python
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)
