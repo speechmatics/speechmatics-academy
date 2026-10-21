@@ -5,7 +5,7 @@
 Switching from Deepgram? This guide shows you equivalent features and code patterns to help you migrate smoothly.
 
 > [!NOTE]
-> **Migration Incentive**: Get **$200 free credit** with code `SWITCH200` when switching from Deepgram! [Learn more](https://www.speechmatics.com/how-we-compare/deepgram-alternative)
+> Check the [current migration offer](https://www.speechmatics.com/how-we-compare/deepgram-alternative) for eligibility, credit amounts and terms before applying a promotion.
 
 ---
 
@@ -16,8 +16,8 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
   - [Real-time Streaming & Voice Features](#real-time-streaming--voice-features)
   - [Batch Transcription Features](#batch-transcription-features)
   - [Output Formatting & Filtering](#output-formatting--filtering)
-  - [Text-to-Speech (TTS)](#text-to-speech-tts)
-- [Why Switch?](#why-switch)
+  - [Text to Speech (TTS)](#text-to-speech-tts)
+- [Evaluate the Migration](#evaluate-the-migration)
 - [Code Migration Examples](#code-migration-examples)
 - [Response Structure](#response-structure)
 - [Migration Checklist](#migration-checklist)
@@ -37,13 +37,13 @@ Switching from Deepgram? This guide shows you equivalent features and code patte
 | **Sample Rate** | `sample_rate=16000` | `sample_rate=16000` | Same parameter in AudioFormat |
 | **Encoding** | `encoding="linear16"` | `encoding="pcm_s16le"` | Slightly different naming |
 | **Channels** | `channels=1` | Via `diarization="channel"` + `AsyncMultiChannelClient` | Speechmatics uses separate streams per channel |
-| **API Key** | `DEEPGRAM_API_KEY` | `SPEECHMATICS_API_KEY` | Environment variable naming |
+| **API key** | `DEEPGRAM_API_KEY` | `SPEECHMATICS_API_KEY` | Environment variable naming |
 <br/>
 
 <details id="real-time-streaming--voice-features">
 <summary><strong style="font-size: 1.25em;">Real-time Streaming & Voice Features</strong> • Click to explore RealTime and Voice Features</summary>
 
-> **Speechmatics Packages:** `speechmatics-rt` for basic real-time streaming, `speechmatics-voice` for voice agent features (turn detection, segments, VAD events). Voice SDK is built on top of RT SDK.
+> **Speechmatics packages:** use `speechmatics-rt` for streaming transcription and [Agent STT Linden 1](../../../basics/13-agent-stt/) for current agent STT. `speechmatics-voice` is [deprecated](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk); its examples below describe the older client-side segmentation layer and are not a feature mapping for the current agent STT API.
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
@@ -143,22 +143,22 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 
 | Feature | Deepgram | Speechmatics | Package | Notes |
 |---------|----------|--------------|---------|-------|
-| **Diarization** | `diarize=True`, `diarize_version="latest"` | `diarization="speaker"` | `batch` | Speaker identification |
+| **Diarization** | `diarize=True`, `diarize_version="latest"` | `diarization="speaker"` | `batch` | Separate speech by speaker; identifying known speakers is a different feature |
 | **Multichannel** | `multichannel=True` | `diarization="channel"` or `"channel_and_speaker"` | `batch` | Channel-based diarization |
 | **Sentiment** | `sentiment=True` | `sentiment_analysis_config=SentimentAnalysisConfig()` | `batch` | Sentiment analysis |
 | **Topic Detection** | `topics=True` | `topic_detection_config=TopicDetectionConfig(topics=[...])` | `batch` | Automatic topic extraction |
 | **Summarization** | `summarize=True` | `summarization_config=`<br/>`SummarizationConfig(content_type, summary_length, summary_type)` | `batch` | AI-powered summaries |
 | **Intent Recognition** | `intents=True` | Not available | - | Detect user intents |
-| **Entity Detection** | `detect_entities=True` | `enable_entities=True` | `batch` | Detect named entities |
+| **Entity detection** | `detect_entities=True` | No direct named-entity extraction equivalent; `enable_entities=True` exposes smart-formatting entities | `batch` | Speechmatics entities represent spoken values such as dates, currencies, and measurements, rather than general person or organization names |
 | **Utterances** | `utterances=True`, `utt_split=0.8` | Not available | - | Split into utterances |
 | **Paragraphs** | `paragraphs=True` | Not available | - | Paragraph segmentation |
 | **Dictation** | `dictation=True` | Not available | - | Dictation mode formatting |
-| **Measurements** | `measurements=True` | `enable_entities=True` | `batch` | Format measurements (e.g., "10 km/s") |
+| **Measurements** | `measurements=True` | Smart formatting; `enable_entities=True` exposes the structured entity | `batch` | Formatting and structured entity output are separate; check model and language support |
 | **Auto Chapters** | Not available | `auto_chapters_config=AutoChaptersConfig()` | `batch` | Automatic chapter generation |
 | **Audio Events** | Not available | `audio_events_config=AudioEventsConfig(types=[...])` | `batch` | Detect laughter, applause, etc. |
 | **Translation** | Not available | `translation_config=TranslationConfig(target_languages=["es", "fr"])` | `batch` | Translate transcript |
-| **Language ID** | `detect_language=True` | `language_identification_config=`<br/>`LanguageIdentificationConfig(expected_languages=[...])` | `batch` | Identify spoken language |
-| **Domain** | Not available | `domain="medical"` | `batch` | Domain-optimized language pack |
+| **Language identification** | `detect_language=True` | `language="auto"` with optional `LanguageIdentificationConfig(expected_languages=[...])` | `batch` | Identify the predominant language with Standard or Enhanced; Melia 1 and Oak 1 instead use `language="multi"` |
+| **Medical** | Check the selected Deepgram model | `model="enhanced", domain="medical"` | `batch` | Select Enhanced Medical for a supported language; Oak 1 is a separate multilingual model |
 | **Output Locale** | Not available | `output_locale="en-US"` | `batch` | RFC-5646 locale for output |
 | **Output Format** | `?format=srt` | `get_transcript(job_id, format_type=FormatType.SRT)` | `batch` | JSON, TXT, SRT formats |
 | **Webhooks** | `callback="url"` | `notification_config=`<br/>`[NotificationConfig(url, contents, method)]` | `batch` | Job completion notifications |
@@ -258,7 +258,7 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 <br/>
 
 <details id="text-to-speech-tts">
-<summary><strong style="font-size: 1.25em;">Text-to-Speech (TTS)</strong> • Click to explore TTS Features</summary>
+<summary><strong style="font-size: 1.25em;">Text to Speech (TTS)</strong> • Click to explore TTS Features</summary>
 
 > **Speechmatics Package:** `speechmatics-tts`
 
@@ -304,66 +304,17 @@ async with AsyncClient(api_key="YOUR_KEY") as client:
 
 ---
 
-## Why Switch?
+## Evaluate the Migration
 
-### Superior Accuracy
+Compare both services on representative audio, the same languages, and the latency settings your application needs. Record model versions, date, dataset, and Word Error Rate (WER) methodology before publishing accuracy numbers.
 
-| Metric | Speechmatics | Deepgram |
-|--------|--------------|----------|
-| **Word Error Rate (WER)** | 6.8%| 16.5% |
-| **Medical Keyword Recall** | 96% | - |
-| **Noisy Environments** | Excellent | Standard |
-| **Accent Recognition** | Market-leading | Standard |
-| **Multi-speaker Accuracy** | Market-leading | Standard |
-
-### More Languages
-
-| Capability | Speechmatics | Deepgram |
-|------------|--------------|----------|
-| **Languages Supported** | 55+ | 30+ |
-| **Accuracy Consistency** | Industry-leading across all | Varies by language |
-| **Bilingual Packs** | Mandarin, Tamil, Malay, Tagalog + English | 10 European languages only |
-| **Real-time Translation** | 30+ languages | ❌ |
-| **Auto Language Detection** | ✅ | ✅ |
-
-
-
-### Advanced Features
-
-| Feature | Speechmatics | Deepgram |
-|---------|--------------|----------|
-| **Domain-Specific Models** | Medical, finance, and more | Limited |
-| **Custom Dictionary Size** | 1,000 words included | 100 words |
-| **Speaker Diarization** | Included | Extra charge |
-| **Speaker Identification** | Known speaker pre-registration | ❌ |
-| **Speaker Focus** | Focus/ignore specific speakers | ❌ |
-
-### Flexible Deployment Options
-
-| Deployment | Speechmatics | Deepgram |
-|------------|--------------|----------|
-| **SaaS/Cloud** | ✅ | ✅ |
-| **On-Premises** | ✅ | Limited |
-| **On-Device** | ✅ | ❌ |
-| **Air-Gapped** | ✅ | ❌ |
-
-### Enterprise-Grade Security
-- ISO 27001 certified
-- GDPR compliant
-- HIPAA compliant
-
-### Industries & Use Cases
-
-Speechmatics excels in:
-- **Healthcare** - 96% medical keyword recall with medical domain model
-- **Contact Centers** - Speaker ID, focus, and multi-speaker accuracy
-- **Media & Captioning** - High accuracy in noisy environments
-- **Finance** - Enterprise security with air-gapped deployment
-- **Education** - 55+ languages with consistent accuracy
-
----
+Check current [Speechmatics models](https://docs.speechmatics.com/speech-to-text/models), [Speechmatics pricing](https://www.speechmatics.com/pricing), and [Deepgram documentation](https://developers.deepgram.com/docs) for feature availability, language coverage, deployment options and charges. This guide does not establish a benchmark ranking or a continuing promotional offer.
 
 ## Code Migration Examples
+
+To run the supplied Speechmatics script, use Python 3.12, install `speechmatics-rt` and `python-dotenv`, set `SPEECHMATICS_API_KEY`, then run `python python/speechmatics_example.py` from this guide's directory. The optional Deepgram script additionally needs a compatible current `deepgram-sdk` and `DEEPGRAM_API_KEY`; that variable is missing from the supplied environment template, so add it locally. Neither script reads the template's `REALTIME_URL` setting.
+
+The Deepgram snippets using `PrerecordedOptions`, `LiveOptions`, and `listen.prerecorded` describe older SDK interfaces. The checked-in `python/deepgram_example.py` uses the newer `listen.v1.connect` interface. Choose and pin a Deepgram SDK version before adapting these snippets; consult its [current Python SDK](https://github.com/deepgram/deepgram-python-sdk).
 
 ### Batch Transcription
 
@@ -515,10 +466,10 @@ for item in result.results:
 ```
 
 **Advantages:**
-- Higher accuracy in multi-speaker scenarios (e.g. clinician vs patient)
+- Evaluate speaker attribution on representative multi-speaker audio
 - Automatic speaker count detection
 - Fine-grained diarization controls via `speaker_diarization_config`
-- Speaker diarization is **included**, not a paid add-on
+- Check current pricing and entitlements for speaker diarization
 
 > [!NOTE] 
 >`max_speakers`**: When set, the system consolidates all detected speakers into the specified number of groups. For example, `max_speakers=2` with 4 actual speakers will merge them into just 2 speaker labels. Only use this when you're certain about the exact speaker count (e.g., a two-person interview). For most scenarios, omit this setting for automatic detection.
@@ -561,7 +512,7 @@ async with VoiceAgentClient(api_key="YOUR_KEY", config=config) as client:
 
 ---
 
-### Custom Vocabulary
+### Custom dictionary
 
 **Deepgram:**
 ```python
@@ -575,7 +526,7 @@ options = PrerecordedOptions(
 ```python
 config = TranscriptionConfig(
     language="en",
-    domain="medical",  # medical-optimized language pack (no Deepgram equivalent)
+    domain="medical",  # Medical sub-variant of Enhanced
     additional_vocab=[
         {"content": "metformin"},
         {"content": "tachycardia", "sounds_like": ["tacky cardia"]},
@@ -587,7 +538,7 @@ config = TranscriptionConfig(
 
 **Features:**
 - Phonetic alternatives with `sounds_like` for pronunciation variants — ideal for drug and procedure names
-- 1,000 words included (vs Deepgram's 100) — room for a full clinical vocabulary
+- Check each model's current custom-dictionary limits before migrating a vocabulary
 - Pair with `domain="medical"` for a domain-optimized acoustic + language model
 
 ---
@@ -599,7 +550,7 @@ config = TranscriptionConfig(
 options = PrerecordedOptions(
     model="nova-3",
     profanity_filter=True,  # Removes profanities
-    filler_words=True,       # Removes filler words
+    filler_words=True,       # Includes filler words
     replace=["SSN:REDACTED", "password:REDACTED"]
 )
 ```
@@ -653,7 +604,7 @@ config = {
 }
 ```
 
-### Speechmatics Response
+### Speechmatics SDK Result (Simplified)
 
 ```json
 {
@@ -677,28 +628,28 @@ config = {
 ```
 
 **Key Differences:**
-- Speechmatics provides `transcript_text` at the top level for quick access
+- The Speechmatics Python SDK exposes `transcript_text` as a convenience property; it is not a field in the raw `json-v2` HTTP response
 - Results are flat arrays instead of nested channels
 - Speaker labels (`S1`, `S2`, …) live on each alternative — `result.results[i].alternatives[0].speaker`
 
 ---
 
-## Features Unique to Each Platform
+## Features to Check During Migration
 
-### Deepgram Only
+### Deepgram features to evaluate
 - Text-to-text search/keyword boosting
 
-### Speechmatics Only
+### Speechmatics features to evaluate
 - Phonetic hints (`sounds_like` in `additional_vocab`)
 - Real-time translation (`TranslationConfig`)
 - Turn detection for voice agents (Voice SDK) with FIXED, ADAPTIVE, and EXTERNAL modes, plus Smart Turn ML
-- Comprehensive audio intelligence (sentiment + topics + summary together)
+- Batch speech-intelligence features (sentiment, topics and summaries)
 - More granular speaker diarization controls (`SpeakerDiarizationConfig`)
 - Known speaker pre-registration (`speaker_diarization_config.speakers`)
 - Speaker Focus configuration - designate primary speakers, ignore others (e.g., assistant voice)
-- Voice SDK for conversational AI
+- Current agent STT for the Speech to Text layer of voice agents; older Voice SDK examples are deprecated
 - Auto-disfluency tagging (automatic for English)
-- On-device and air-gapped deployment
+- Deployment options depend on the product; check current deployment documentation
 
 ---
 
@@ -710,10 +661,10 @@ config = {
 -  Check language support for your use case
 -  Sign up at [portal.speechmatics.com](https://portal.speechmatics.com)
 -  Get API key from portal
--  Apply code `SWITCH200` for $200 free credit
+-  Check the current migration offer and its eligibility terms
 
 ### Code Migration
--  Install SDK: `pip install speechmatics-batch speechmatics-rt speechmatics-voice speechmatics-tts` (install only the packages you use)
+-  Install only the SDKs you use: `speechmatics-batch`, `speechmatics-rt`, `speechmatics-agent-stt`, or `speechmatics-tts`. The older Voice SDK examples require the deprecated `speechmatics-voice` package.
 -  Replace `DEEPGRAM_API_KEY` with `SPEECHMATICS_API_KEY`
 -  Update imports from `deepgram` to `speechmatics.batch` or `speechmatics.rt`
 -  Convert `PrerecordedOptions`/`LiveOptions` to `TranscriptionConfig`
@@ -789,7 +740,7 @@ config = TranscriptionConfig(language="en")  # Works for US, UK, AU, etc.
 # Mandarin uses output_locale for character formatting
 config = TranscriptionConfig(
     language="cmn",
-    output_locale="cmn-Hans"  # Simplified Chinese (or "cmn-Hant" for Traditional)
+    output_locale="cmn-Hans"  # Simplified Mandarin (or "cmn-Hant" for Traditional Mandarin)
 )
 ```
 Speechmatics' models are trained on diverse accents and don't require locale specification. Use `output_locale` for region-specific formatting (e.g., `"en-GB"` vs `"en-US"` spelling, or `"cmn-Hans"` vs `"cmn-Hant"` for Mandarin characters).
@@ -836,8 +787,8 @@ async def transcribe_consultation():
         config = TranscriptionConfig(
             language="en",
             operating_point="enhanced",
-            domain="medical",          # medical-optimized model — no Deepgram equivalent
-            diarization="speaker",      # included, not a paid add-on
+            domain="medical",          # Medical sub-variant of Enhanced
+            diarization="speaker",      # Separate speakers
             enable_entities=True,
             additional_vocab=[
                 {"content": "metformin"},
@@ -853,13 +804,13 @@ print(asyncio.run(transcribe_consultation()))
 ```
 
 **See complete working examples in:**
-- [Batch vs Real-time](../../../basics/02-batch-vs-realtime/) - Understand API modes
+- [Batch vs Realtime](../../../basics/02-batch-vs-realtime/) - Understand API modes
 - [Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/) - Voice SDK with presets
 
-**Healthcare use-cases (medical domain in action):**
-- [Medical Transcription (real-time)](../../../use-cases/01-medical-transcription-realtime/) - `domain="medical"` + medical custom vocabulary
+**Healthcare use cases (the Medical sub-variant of Enhanced):**
+- [Medical Transcription (real-time)](../../../use-cases/01-medical-transcription-realtime/) - `domain="medical"` + medical custom dictionary
 - [Medical Assistant](../../../use-cases/06-medical-assistant/) - bilingual clinical transcription, speaker diarization, SOAP notes & ICD-10
-- [Medical Microbatching](../../../use-cases/07-medical-microbatching/) - HIPAA-friendly on-prem batch pipeline with speaker identification
+- [Medical Microbatching](../../../use-cases/07-medical-microbatching/) - microphone chunking and speaker identification with the Batch API
 
 ---
 
@@ -872,12 +823,12 @@ print(asyncio.run(transcribe_consultation()))
 
 ### Related Academy Examples
 - [Hello World](../../../basics/01-hello-world/) - Start here
-- [Batch vs Real-time](../../../basics/02-batch-vs-realtime/) - Understand API modes
+- [Batch vs Realtime](../../../basics/02-batch-vs-realtime/) - Understand API modes
 - [Configuration Guide](../../../basics/03-configuration-guide/) - All config options
 
 ### Official Documentation
 - [Batch API Reference](https://docs.speechmatics.com/api-ref/batch/create-a-new-job)
-- [Realtime API Reference](https://docs.speechmatics.com/rt-api-ref)
+- [Realtime API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
 - [Python SDK GitHub](https://github.com/speechmatics/speechmatics-python-sdk)
 
 ---

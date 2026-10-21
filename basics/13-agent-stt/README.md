@@ -1,12 +1,12 @@
-# Agent STT - Segments, Turns and Speakers
+# Agent STT Linden 1 - Segments, Turns and Speakers
 
-**Transcribe for voice agents with the Agent STT service: whole segments instead of word groups, the speech and turn events that tell an agent when to respond, speaker labels, and a choice of who closes each turn.**
+**Use Agent STT Linden 1 as the Speech to Text (STT) layer for a voice agent: whole segments instead of word groups, the speech and turn events that tell an agent when to respond, speaker labels, and a choice of who closes each turn.**
 
 The `speechmatics-agent-stt` package is a thin client over `speechmatics-rt` aimed at one job: feeding a voice agent. Turn detection is the service's job by default: its VAD closes each turn and streaming audio is all you supply. `TurnDetectionMode.EXTERNAL` hands that decision to your application instead. This example registers a handler for every message the service sends, prints them as they arrive, and shows what the session leaves behind.
 
 ## What You'll Learn
 
-- **Segments, not word groups**: `AddSegment` replaces the Real-Time API's `AddTranscript`, and one turn usually produces several segments.
+- **Segments, not word groups**: `AddSegment` replaces the Realtime API's `AddTranscript`, and one turn usually produces several segments.
 - **Which event means "respond now"**: `EndOfTurn`, not `SpeechEnded` - a pause mid-sentence produces `SpeechEnded` while the turn stays open.
 - **Who closes the turn**: the service's VAD by default, or your own endpointing calling `finalize()`. This example wires up Silero VAD for the second case.
 - **Speaker labels and voiceprints**: segments carry a `speaker`, and `GetSpeakers` returns an identifier you can pass back to recognize the same person in a later session.
@@ -14,9 +14,9 @@ The `speechmatics-agent-stt` package is a thin client over `speechmatics-rt` aim
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+**
-- **16 kHz mono 16-bit PCM audio**: the service takes nothing else. The bundled `assets/sample.wav` already is - a 28-second two-speaker clip from the [Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)'s test fixtures.
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
+- **16 kHz mono 16-bit PCM audio**: required by this example's file validation and Silero VAD integration. The bundled `assets/sample.wav` already is - a 28-second two-speaker clip from the [Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)'s test fixtures.
 - **Silero VAD** (optional): `pip install silero-vad torch numpy`, only for `--external`.
 - **PyAudio** (optional): `pip install pyaudio`, only for `--mic`. Both extras stay out of `requirements.txt` so the default run installs light.
 
@@ -26,11 +26,11 @@ The `speechmatics-agent-stt` package is a thin client over `speechmatics-rt` aim
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -131,7 +131,7 @@ With `TurnDetectionMode.EXTERNAL` the service runs no VAD, sends no `SpeechStart
 ```python
 from silero_vad import VADIterator, load_silero_vad
 
-# The service exposes no silence trigger, so this is the dial that decides how long a
+# In this external-mode example, this is the dial that decides how long a
 # pause has to be before the turn closes.
 vad = VADIterator(load_silero_vad(), sampling_rate=16000, min_silence_duration_ms=500)
 ```
@@ -257,7 +257,7 @@ Turns closed by this script, via finalize()
 
 ## Configuration Options
 
-**Endpoint.** Resolution order is the `url` argument, then `SPEECHMATICS_RT_URL`, then the EU endpoint; the `/agent` path segment is appended when missing.
+**Endpoint.** The supplied script explicitly selects `wss://global.rt.speechmatics.com/v2`. That `url` argument takes precedence over `SPEECHMATICS_RT_URL`; edit or remove it to use the environment override in `.env.example`. The SDK appends `/agent` when missing. See the [current agent STT documentation](https://docs.speechmatics.com/speech-to-text/agent-stt) for deployment endpoints.
 
 ```python
 AgentSttAsyncClient(url="wss://eu2.rt.speechmatics.com/v2")  
@@ -267,39 +267,22 @@ AgentSttAsyncClient(app="pipecat/1.0")
 
 **Application name.** `app="pipecat/1.0"` is reported as `sm-app`. This example sends `speechmatics-academy/agent-stt`.
 
-**Audio.** 16 kHz raw PCM only, `pcm_s16le` (the default) or `pcm_f32le`. `mulaw` and every other sample rate are rejected, so telephony audio needs converting first.
+**Audio.** This script sends 16 kHz mono `pcm_s16le`. The current service also supports 8 kHz raw PCM; use a matching client configuration and adapt the local VAD before changing this example's sample rate. See the [audio-format reference](https://docs.speechmatics.com/api-ref/agent-stt-websocket).
 
 **Authentication.** `api_key=` builds a `StaticKeyAuth`. For short-lived tokens use `JWTAuth(api_key, ttl=60)`, which needs `pip install 'speechmatics-rt[jwt]'`.
 
-### What the service accepts
+### Current SDK and service options
 
-Agent STT takes a subset of the real-time transcription config, and **rejects the rest at `StartRecognition`** - the session fails to start rather than quietly ignoring the field.
+This example was originally written against SDK 0.1.0. [Version 0.3.0](https://pypi.org/project/speechmatics-agent-stt/0.3.0/) was released on 19 October 2026. Check the [current agent STT API reference](https://docs.speechmatics.com/api-ref/agent-stt-websocket) when adding configuration; older endpoint probes do not define the current contract.
 
-| Field | Accepted | Notes |
-|-------|----------|-------|
-| `language` | Yes | `"multi"` is rejected: Melia is not an Agent STT model |
-| `enable_partials` | Yes | off by default; no partials arrive without it |
-| `diarization` | Yes | `"speaker"` or `"none"` - `"channel"` is rejected |
-| `speaker_diarization_config` | Yes | `max_speakers`, `speaker_sensitivity`, `prefer_current_speaker`, `speakers` |
-| `additional_vocab` | Yes | |
-| `output_locale`, `domain` | Yes | |
-| `transcript_filtering_config` | Yes | |
-| `model` | Yes | `Model.LINDEN_1` only, and the default |
-| `conversation_config` | **No** | no engine silence trigger - that is what `EXTERNAL` mode is for |
-| `max_delay`, `max_delay_mode` | **No** | |
-| `enable_entities` | **No** | |
-| `punctuation_overrides` | **No** | |
-| `audio_filtering_config` | **No** | |
-| `streaming_mode` | **No** | |
-
-Two more worth knowing. `ForceEndOfUtterance` is **ignored** in `vad` mode, so switching modes is not something you can do halfway. And in `external` mode each timestamp must be later than the last, or the message comes back as a `Warning` - `audio_seconds_sent` is monotonic, so sending it as this example does is always safe.
-
-> [!NOTE]
-> `emit_sentences`, described under [Segmentation](https://docs.speechmatics.com/), is not usable from this example. SDK 0.1.0's `TranscriptionConfig` has no field for it, and the default `eu2` endpoint rejects it outright; it is accepted on the `preview` endpoint only.
+- **Sentence segmentation:** current SDK `TranscriptionConfig` exposes `emit_sentences` (default `False`). Set it before starting the session to split segments at sentence boundaries; it is fixed for that session.
+- **Audio:** the current service accepts raw PCM at 8 kHz or 16 kHz. This example intentionally validates and sends **16 kHz mono 16-bit PCM** because its bundled sample and Silero VAD use that format.
+- **Turn detection:** choose `vad` or `external` through `TurnConfig`. The external example calls `force_end_of_utterance()` when its local VAD finds an end of speech.
+- **Models and other fields:** use Linden 1 for agent STT and consult the current reference for the supported transcription, diarization and output settings. Do not copy an entire Realtime streaming configuration without checking the agent STT schema.
 
 ## Next Steps
 
-- **[Basic Turn Detection](../07-turn-detection/)** - The same problem on the RT SDK, with engine silence detection
+- **[Basic Turn Detection](../07-turn-detection/)** - The same problem on the Realtime SDK, with engine silence detection
 - **[Intelligent Turn Detection](../08-voice-agent-turn-detection/)** - Smart turn presets in the Voice SDK
 - **[Speaker ID and Speaker Focus](../09-voice-agent-speaker-id/)** - Deciding which speakers an agent should obey
 - **[Pipecat Voice Bot](../../integrations/pipecat/01-simple-voice-bot/)** - A framework that brings its own endpointing
@@ -317,10 +300,10 @@ Two more worth knowing. `ForceEndOfUtterance` is **ignored** in `vad` mode, so s
 - Convert it first: `ffmpeg -i input.wav -ar 16000 -ac 1 -sample_fmt s16 converted.wav`
 
 **A traceback ending in `TranscriptionError: Not Authorized`**
-- The service rejected the key. Two things to know. It arrives as `TranscriptionError`, not `AuthenticationError` - the latter only covers the `JWTAuth` token path, so a static-key session reports auth failures as an ordinary session error. And it is raised from `async with client`, before any audio device or file is touched, so it masks any other setup problem behind it. The most common cause is not a wrong key but no key at all: `.env` is only read because `load_dotenv()` runs, so check the file exists next to `main.py` and actually contains `SPEECHMATICS_API_KEY=`.
+- The service rejected the key. Two things to know. It arrives as `TranscriptionError`, not `AuthenticationError` - the latter only covers the `JWTAuth` token path, so a static-key session reports auth failures as an ordinary session error. And it is raised from `async with client`, before any audio device or file is touched, so it masks any other setup problem behind it. Also check that the key is present: `.env` is only read because `load_dotenv()` runs, so check the file exists next to `main.py` and actually contains `SPEECHMATICS_API_KEY=`.
 
 **`Additional property <name> is not allowed`**
-- The config carries a field this service does not take. See "What the service accepts".
+- The config carries a field this service does not take. Check the current agent STT API reference and your SDK version.
 
 **No `[speech]` lines appear**
 - You are in `--external` mode, where the service runs no VAD. Expected.
@@ -334,61 +317,20 @@ Two more worth knowing. `ForceEndOfUtterance` is **ignored** in `vad` mode, so s
 **`--external needs a VAD`**
 - `pip install silero-vad torch numpy`.
 
-**`FutureWarning: torch.jit.load is not supported in Python 3.14+`**
-- Silero loads a TorchScript model. Harmless; silence it with `python -W ignore::FutureWarning main.py --external`.
-
-**`PyAudio not installed`**
-- `pip install pyaudio`. On Mac add `brew install portaudio` first; on Ubuntu/Debian `sudo apt-get install portaudio19-dev`.
-
-**`Failed building wheel for pyaudio`, or `fatal error C1083: Cannot open include file: 'io.h'`**
-- PyAudio 0.2.14 is the latest release and its wheels stop at **CPython 3.13**, so on 3.14 pip falls back to building from source - and that needs two separate things Windows does not have out of the box. `io.h` is a Windows SDK (CRT) header: having Visual Studio is not enough, the SDK is a separate component. Install it from an **elevated** prompt (a non-elevated run fails with `0x80070642`, which is "user cancelled" because the UAC prompt could not be shown):
-
-```bash
-winget install --id Microsoft.WindowsSDK.10.0.26100 --accept-package-agreements --accept-source-agreements
-```
-
-**`fatal error C1083: Cannot open include file: 'portaudio.h'`**
-- This is the second half, and it appears *after* the Windows SDK is installed. PyAudio's sdist does not bundle PortAudio; it expects a prebuilt one and warns `VCPKG_PATH environment variable not set`. The Windows SDK never provides PortAudio. Supply it with [vcpkg](https://vcpkg.io/) and point PyAudio at it:
-
-```bash
-vcpkg install portaudio:x64-windows
-set VCPKG_PATH=C:\path\to\vcpkg\installed\x64-windows
-pip install --no-binary :all: pyaudio
-```
-
-> [!TIP]
-> On Windows the quickest way out of all of this is to avoid the source build. Either run the example on Python 3.9-3.13, where `pip install pyaudio` fetches an official wheel, or install [PyAudioWPatch](https://pypi.org/project/PyAudioWPatch/) - a Windows fork of PyAudio that does publish a CPython 3.14 wheel and bundles PortAudio, so it needs no compiler at all. It installs under the module name `pyaudiowpatch`, and the SDK's `Microphone` does `import pyaudio` internally, so alias it before importing anything from `speechmatics`:
->
-> ```python
-> import sys
-> import pyaudiowpatch
->
-> sys.modules["pyaudio"] = pyaudiowpatch
-> ```
->
-> Note it is Windows-only, so this is a local convenience rather than something to put in `requirements.txt`.
-
-**`Could not import the PyAudio C module 'pyaudio._portaudio'`**
-- PyAudio installed but its compiled extension cannot load, which on Windows almost always means the PortAudio DLL is not next to the `.pyd`. If you built PyAudio yourself, copy the PortAudio DLL into the `pyaudio/` directory inside `site-packages`. If you are not sure where the installed PyAudio came from, reinstall it cleanly - a locally built wheel can linger in pip's cache and get reused silently:
-
-```bash
-pip uninstall pyaudio
-pip cache remove "pyaudio*"
-```
-
-**`PyAudio not installed - install it with: pip install pyaudio`**
-- Only affects `--mic`; PyAudio is intentionally not in `requirements.txt`. On Mac: `brew install portaudio && pip install pyaudio`. On Ubuntu/Debian: `sudo apt-get install portaudio19-dev && pip install pyaudio`. Neither platform has the Windows problem above, because the PortAudio dev package provides the headers PyAudio needs.
+**Optional audio dependencies do not install**
+- Use the documented Python 3.12 environment, then install `pyaudio` for microphone capture or `silero-vad torch numpy` for external turn detection. Check each package's supported Python versions before choosing a different runtime.
+- On macOS, install PortAudio with `brew install portaudio` before PyAudio. On Ubuntu/Debian, use `sudo apt-get install portaudio19-dev`.
 
 **`Could not open the microphone`**
-- PyAudio is installed and working, but the device would not open: nothing is plugged in, another application holds it exclusively, or it does not support 16 kHz mono capture. This is a different error from the one above, which means PyAudio itself is missing.
+- Check that an input device is connected, permissions allow access, and the device supports 16 kHz mono capture. Try the bundled file to verify the API path independently.
 
 ## Resources
 
-- [Agent STT Quickstart](https://docs.speechmatics.com/speech-to-text/agent-stt/)
+- [Agent STT Quickstart](https://docs.speechmatics.com/speech-to-text/agent-stt)
 - [speechmatics-agent-stt on PyPI](https://pypi.org/project/speechmatics-agent-stt/)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk)
-- [API Reference](https://docs.speechmatics.com/api-ref/)
-- [Speechmatics Portal](https://portal.speechmatics.com/)
+- [API Reference](https://docs.speechmatics.com/api-ref)
+- [Speechmatics portal](https://portal.speechmatics.com/)
 
 ---
 
@@ -402,7 +344,7 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
-**API Mode**: Agent STT (Real-time)
+**API Mode**: Realtime (agent STT)
 **Languages**: Python
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

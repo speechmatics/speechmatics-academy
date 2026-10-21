@@ -12,25 +12,24 @@
 
 </div>
 
-A complete voice assistant using LiveKit's real-time WebRTC infrastructure with best-in-class speech recognition (Speechmatics), natural language processing (OpenAI), and text-to-speech (ElevenLabs).
+Build a voice assistant with LiveKit for WebRTC audio, Speechmatics Speech to Text (STT), an OpenAI large language model (LLM), and ElevenLabs Text to Speech (TTS). The Speechmatics plugin uses **agent STT**, powered by **Linden 1**, on the Realtime API. LiveKit coordinates the complete conversational pipeline.
 
 ## What You'll Learn
 
 - How to integrate Speechmatics STT with LiveKit Agents
 - Building a complete voice assistant with WebRTC
 - Using LiveKit's agent framework for real-time conversations
-- VAD-driven turn detection — the STT finalizes each turn from the shared Silero VAD
-- Voice Activity Detection (VAD) for natural turn-taking
+- Voice activity detection (VAD) with Silero to finalize each user turn
 - Labeling speakers in the transcript using diarization
 - **Speaker identification** — enroll and recognize returning users by name across sessions
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
-- **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **ElevenLabs API key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
 - **LiveKit Cloud Account**: Get one from [cloud.livekit.io](https://cloud.livekit.io/)
-- **Python 3.10+**
+- **Python 3.10+** (Python 3.12 recommended)
 
 ## Quick Start
 
@@ -86,12 +85,20 @@ lk cloud auth        # Opens browser to authenticate with LiveKit Cloud
 lk app env -w        # Writes LiveKit credentials to .env.local
 ```
 
-Then add your other API keys to `.env.local`:
+Then add your other API keys to `.env.local` (in `python/`):
 ```
 SPEECHMATICS_API_KEY=your_speechmatics_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ELEVEN_API_KEY=your_elevenlabs_api_key_here
 ```
+
+Copy the completed file to the location loaded by this example:
+
+```bash
+cp .env.local ../.env       # cmd.exe: copy .env.local ..\.env
+```
+
+The script reads the example-root `.env`; it does not load `.env.local`.
 
 </details>
 
@@ -176,22 +183,24 @@ flowchart LR
 |---------|-------------|
 | **WebRTC** | Real-time audio streaming via LiveKit infrastructure |
 | **Turn Detection** | VAD-driven finalization — the STT ends each turn from the shared Silero VAD |
-| **Diarization** | Speaker identification to distinguish different speakers |
+| **Diarization** | Separates the transcript into speakers, labeled `S1`, `S2`, and so on |
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
 | **Auto Greeting** | Agent greets user when session starts |
-| **Speaker Identification** | Enroll and recognize returning users by voiceprint across sessions |
-| **Cloud Ready** | Deploy to LiveKit Cloud for production |
+| **Speaker identification** | Enroll and recognize returning users by voiceprint across sessions |
+| **LiveKit Cloud** | Run a worker locally and connect it to a LiveKit room |
 
-### Speaker Identification
+### Speaker identification
 
-The assistant automatically captures voiceprints during conversation and saves them to `speakers.json`. On subsequent sessions, returning speakers are recognized by name.
+The assistant automatically captures speaker identifiers during conversation and saves them to `python/speakers.json`. On subsequent sessions, `known_speakers` enables attribution to saved labels. Obtain consent before enrolling people and protect the saved identifiers.
+
+The current greeting names all saved profiles before hearing any speech. Treat that greeting as demo behavior, not evidence that a particular person has been identified.
 
 **How enrollment works:**
 
 1. **First session** — speakers are labeled generically (`S1`, `S2`) by diarization
-2. **Background capture** — voiceprints are automatically captured via `GET_SPEAKERS` every 30 seconds and saved to `speakers.json`
-3. **Assign a name** — edit `"label": "S1"` to `"label": "Edgar"` (or any name) in `speakers.json`
-4. **Next session** — the saved voiceprint is loaded as a `known_speaker` and Speechmatics recognizes the returning user by name
+2. **Background capture** — the first `GET_SPEAKERS` request runs after 15 seconds, then repeats every 30 seconds; results are saved to `python/speakers.json`
+3. **Assign a name** — edit `"label": "Speaker_1"` to `"label": "Edgar"` (or another name) in `python/speakers.json`
+4. **Next session** — the saved profile is supplied through `known_speakers`, so matching transcript segments can use the person's name
 
 **`speakers.json` format:**
 ```json
@@ -284,7 +293,7 @@ Edit `assets/agent.md` to change the assistant's personality and capabilities. T
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
-### Speaker Diarization
+### Speaker diarization
 
 The STT is configured to label each speaker in the transcript:
 
@@ -297,7 +306,7 @@ stt = speechmatics.STT(
 
 | Parameter | Purpose |
 |-----------|---------|
-| `enable_diarization` | Identify different speakers in the audio |
+| `enable_diarization` | Separate the transcript into distinct speakers |
 | `speaker_format` | Template for embedding the speaker label in the transcript, e.g. `<S1>Hello</S1>` |
 
 **How it works:**
@@ -321,19 +330,23 @@ Alternatively, omit `vad` on the STT and let the service run its own VAD by sett
 `turn_detection_mode=TurnDetectionMode.VAD`:
 
 ```python
+from livekit.agents import TurnHandlingOptions
 from livekit.plugins.speechmatics import TurnDetectionMode
 
-stt = speechmatics.STT(
-    turn_detection_mode=TurnDetectionMode.VAD,
+stt = speechmatics.STT(turn_detection_mode=TurnDetectionMode.VAD)
+# Use this STT with the existing LLM, TTS, and session VAD.
+session = AgentSession(
+    stt=stt, llm=llm, tts=tts, vad=vad,
+    turn_handling=TurnHandlingOptions(turn_detection="stt"),
 )
 ```
 
 | Mode | Description |
 |------|-------------|
 | `EXTERNAL` | Default. Turn boundaries are controlled by the caller — an external VAD (e.g. the shared Silero instance) drives `finalize()` |
-| `VAD` | The STT service runs its own VAD and closes turns itself, no client-side VAD needed |
+| `VAD` | The STT service closes turns. Set the session turn detector to `"stt"`; a separate session VAD can still support interruptions |
 
-Older mode names (`SMART_TURN`, `ADAPTIVE`, `FIXED`) still work but now behave identically to `EXTERNAL`, and are scheduled for removal after 2026-10-05.
+Use `EXTERNAL` or `VAD` for new code. In the pinned plugin version, older mode names (`SMART_TURN`, `ADAPTIVE`, `FIXED`) are deprecated aliases that resolve to `EXTERNAL`.
 
 ## Running Modes
 
@@ -397,8 +410,8 @@ Visit [agents-playground.livekit.io](https://agents-playground.livekit.io) in yo
 
 ## Next Steps
 
-- **[Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/)** - Learn about turn detection presets
-- **[Voice Agent Speaker ID](../../../basics/09-voice-agent-speaker-id/)** - Speaker identification with the Voice SDK directly
+- **[Agent STT](../../../basics/13-agent-stt/)** - Use the current Speechmatics SDK directly
+- **[Speaker identification with the legacy Voice SDK](../../../basics/09-voice-agent-speaker-id/)** - Compare the earlier SDK approach
 
 ## Resources
 
@@ -420,6 +433,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
+**API Mode**: Realtime — agent STT
 **Integration**: LiveKit Agents
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

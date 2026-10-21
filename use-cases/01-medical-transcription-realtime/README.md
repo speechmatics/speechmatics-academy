@@ -1,24 +1,26 @@
-# Healthcare Medical - Real-Time Transcription
+# Healthcare Medical - Realtime Transcription
 
 **Live transcription for clinical notes, patient interviews, and telemedicine with custom medical vocabulary.**
 
-Supports on-premises deployment for HIPAA compliance.
+This example streams a recording through Realtime Enhanced Medical. It uses the hosted endpoint by default; see the data-handling notes before changing the deployment.
 
 ## What You'll Learn
 
-- Real-time transcription with medical vocabulary
+- Realtime transcription with medical vocabulary
 - Adding custom terminology (drugs, procedures, conditions)
 - Event-driven transcript handling
 - Streaming audio for live transcription
-- HIPAA-compliant deployment options
+- Selecting the correct endpoint for your deployment
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12+**
 - **Audio file**: Medical recording in WAV, MP3, or other supported format
 
 ## Quick Start
+
+Start in `use-cases/01-medical-transcription-realtime/` after cloning the Academy. Commands below are relative to this directory.
 
 **Step 1: Create and activate a virtual environment**
 
@@ -117,10 +119,10 @@ except (AuthenticationError, ValueError) as e:
 | `domain` | `"medical"` | Medical-optimized language pack with clinical terminology |
 | `enable_partials` | `True`, `False` | Show real-time partial transcripts |
 | `additional_vocab` | `[{...}]` | Custom medical terminology |
-| `diarization` | `"speaker"`, `"none"` | Identify doctor vs patient (enabled by default) |
+| `diarization` | `"speaker"`, `"none"` | Distinguish speakers as S1, S2, etc.; these labels do not identify clinical roles |
 
 > [!TIP]
-> **For medical transcription**, always use `domain="medical"` and `operating_point=OperatingPoint.ENHANCED`. The medical domain includes a specialized language pack optimized for clinical terminology, drug names, and medical procedures. Combined with enhanced operating point, this provides the highest accuracy for healthcare applications.
+> This example selects **Enhanced Medical** with `operating_point=OperatingPoint.ENHANCED` and `domain="medical"` for a supported language pack. **Oak 1** is a separate multilingual healthcare model for the Batch API, selected with `model="oak-1"` and `language="multi"` without a domain flag. Check the [model capabilities](https://docs.speechmatics.com/speech-to-text/models) when choosing between them.
 
 ## Expected Output
 
@@ -177,7 +179,7 @@ Transcript saved to: .../assets/transcript.txt
 
 ## Key Features Demonstrated
 
-**Real-Time Transcription:**
+**Realtime Transcription:**
 - WebSocket streaming connection
 - Partial transcripts for live feedback
 - Final transcripts with high accuracy
@@ -214,20 +216,17 @@ additional_vocab=[
 - Disease names
 - Lab tests
 
-## HIPAA Compliance
+## Handling Clinical Data and Endpoints
 
-**Cloud Deployment**: Speechmatics Cloud is HIPAA-compliant. Organizations with a Business Associate Agreement (BAA) can process PHI in the cloud. Contact Speechmatics for BAA arrangements.
+Use synthetic or appropriately de-identified recordings while learning. This script prints transcript text and writes `assets/transcript.txt`; protect those outputs and keep patient information out of version control.
 
-**On-Premises Deployment**: For organizations requiring data residency or additional control, set in `.env`:
+The script uses the SDK's default hosted endpoint unless you configure another one. To select an endpoint supplied by your on-prem deployment operator, set the SDK's supported variable in `.env`:
+
+```dotenv
+SPEECHMATICS_RT_URL=wss://your-realtime-host.example/v2
 ```
-SPEECHMATICS_ONPREMISE_URL=https://speechmatics.yourhospital.local
-```
 
-**Best Practices:**
-- Ensure BAA is in place before processing PHI in cloud
-- Use on-premises for strict data residency requirements
-- Encrypt data at rest and in transit
-- Never commit audio with PHI to version control
+The hostname, path, TLS and authentication requirements must match your actual deployment. `SPEECHMATICS_ONPREMISE_URL` is not read by this example. Verify the selected endpoint before sending clinical audio. On-prem hosting alone does not establish HIPAA compliance; confirm applicable contractual, access, retention and security requirements with your organization and provider.
 
 ## Supported Audio Formats
 
@@ -254,9 +253,9 @@ SPEECHMATICS_ONPREMISE_URL=https://speechmatics.yourhospital.local
 
 ## Resources
 
-- [Realtime API Documentation](https://docs.speechmatics.com/introduction/rt-guide)
-- [Custom Vocabulary Guide](https://docs.speechmatics.com/features/custom-dictionary)
-- [HIPAA Compliance](https://docs.speechmatics.com/security)
+- [Realtime API Documentation](https://docs.speechmatics.com/speech-to-text/realtime/quickstart)
+- [Custom dictionary guide](https://docs.speechmatics.com/speech-to-text/features/custom-dictionary)
+- [HIPAA Compliance](https://docs.speechmatics.com/administration/security-and-compliance)
 
 ---
 
@@ -270,6 +269,6 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-Time
+**API Mode**: Realtime
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)

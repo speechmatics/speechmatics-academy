@@ -5,10 +5,7 @@
 Learn how to use optimized preset configurations for different conversational AI use cases including voice assistants, note-taking, live captions, and multi-party conversations.
 
 > [!NOTE]
-> **New voice agent work is moving to Agent STT, powered by Linden 1.** The Voice SDK used here
-> still works, but [`speechmatics-agent-stt`](../13-agent-stt/) is the current starting point for
-> agents: it returns whole segments plus the speech and turn events that tell an agent when to
-> respond.
+> **This example uses the deprecated Speechmatics Voice SDK.** See the [deprecation notice](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk). For new applications, start with [Agent STT Linden 1](../13-agent-stt/), the Speech to Text layer for building voice agents. It returns segments and speech/turn events; it does not provide the LLM or speech synthesis stages.
 
 ## What You'll Learn
 
@@ -21,8 +18,8 @@ Learn how to use optimized preset configurations for different conversational AI
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+** (Voice SDK requires 3.9+)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12** (tested dependency baseline)
 - **Microphone**: Built-in or external microphone
 - **PyAudio**: For microphone access (installation instructions below)
 
@@ -32,11 +29,11 @@ Learn how to use optimized preset configurations for different conversational AI
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -306,7 +303,7 @@ Stopped. Captured 3 segments.
 ```
 
 > [!TIP]
-> EXTERNAL mode gives you full control over when turns end. Uses manual mode (Enter Key for demo) after each utterance to trigger finalization immediately. This is ideal for push-to-talk interfaces or custom turn detection logic.
+> This demo overlays the EXTERNAL preset with FIXED mode and a 2-second silence trigger. Enter requests finalization, but a long pause can also close the utterance automatically. It is not a strict manual-only turn detector.
 
 ## Key Features Demonstrated
 
@@ -407,9 +404,9 @@ Smart Turn dependencies are already included in `requirements.txt`. If installin
 
 ```bash
 # Install ML dependencies individually
-pip install certifi>=2025.10.5
-pip install onnxruntime>=1.19.0,<2
-pip install transformers>=4.57.0,<5
+pip install "certifi>=2026.7.22"
+pip install "onnxruntime>=1.30.0,<2"
+pip install "transformers>=5.17.0,<6"
 
 # Or use the Voice SDK bundle
 pip install speechmatics-voice[smart]
@@ -515,7 +512,7 @@ The Voice SDK incorporates Silero VAD for detecting speech presence:
 - **[Pipecat Integration](../../integrations/pipecat/01-simple-voice-bot/)** - Build voice agents with Pipecat framework
 - **[Real-time Translation](../05-multilingual-translation/)** - Add multilingual support
 - **[Audio Intelligence](../04-audio-intelligence/)** - Sentiment and topic detection
-- **[Turn Detection](../07-turn-detection/)** - Basic RT SDK turn detection
+- **[Turn Detection](../07-turn-detection/)** - Basic Realtime SDK turn detection
 
 ## Troubleshooting
 
@@ -524,11 +521,9 @@ The Voice SDK incorporates Silero VAD for detecting speech presence:
 **Windows:**
 ```bash
 # If pip install pyaudio fails, try:
-pip install pipwin
-pipwin install pyaudio
+python -m pip install pyaudio
 
-# Or download pre-built wheel from:
-# https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+# Use Python 3.12 for the documented dependency baseline.
 ```
 
 **Mac:**
@@ -548,7 +543,7 @@ pip install pyaudio
 ```bash
 # Dependencies should be installed from requirements.txt
 # If you skipped them, install manually:
-pip install certifi>=2025.10.5 onnxruntime>=1.19.0,<2 transformers>=4.57.0,<5
+pip install "certifi>=2026.7.22" "onnxruntime>=1.30.0,<2" "transformers>=5.17.0,<6"
 
 # Or use the Voice SDK bundle
 pip install speechmatics-voice[smart]
@@ -567,7 +562,7 @@ pip install speechmatics-voice[smart]
 **"Not detecting turn endings"**
 - Ensure you're pausing for the silence threshold duration
 - Check silence threshold for your selected preset
-- EXTERNAL mode requires pressing Enter key to trigger turn endings
+- This demo accepts Enter and also retains the 2-second automatic silence trigger
 
 **"Keyboard library permission error" (EXTERNAL mode)**
 
@@ -616,7 +611,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Voice Agent (Real-time)
+**API Mode**: Realtime (deprecated Voice SDK)
 **Languages**: Python
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

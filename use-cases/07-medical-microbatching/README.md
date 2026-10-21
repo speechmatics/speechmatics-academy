@@ -4,7 +4,7 @@
 
 Records audio from your microphone, splits it at natural speech boundaries using Silero VAD, and submits each chunk to the Speechmatics Batch API concurrently. When you press Ctrl+C, any remaining audio is submitted, all outstanding jobs are awaited, and the full transcript is printed in order.
 
-Supports on-premises deployment for HIPAA compliance.
+The scripts use Batch Enhanced by default; the Medical sub-variant is an optional configuration for supported language packs. They use hosted Speechmatics endpoints unless explicitly configured for another deployment.
 
 This use case contains two examples, each building on the last:
 
@@ -25,14 +25,16 @@ This use case contains two examples, each building on the last:
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12+**
 - A working microphone
 
 > [!NOTE]
 > Silero VAD requires **PyTorch**. On first run it will download the VAD model weights (~5 MB) automatically.
 
 ---
+
+Start in `use-cases/07-medical-microbatching/` after cloning the Academy. Each Quick Start below begins from that directory.
 
 ## Example 1: Simple Microbatch
 
@@ -92,7 +94,7 @@ Speak into your microphone. Press **Ctrl+C** to stop recording. The full transcr
 
 #### Why microbatching?
 
-Many customers — especially in healthcare — use a microbatching workflow. Hospital networks can be unreliable, and losing a connection mid-consultation can mean losing an entire transcript. Instead of relying on continuous WebSocket streaming, the client splits audio into short chunks and submits each one as a standard REST batch job. If a chunk fails, it can simply be retried.
+Many customers — especially in healthcare — use a microbatching workflow. Hospital networks can be unreliable, and losing a connection mid-consultation can mean losing an entire transcript. Instead of relying on continuous WebSocket streaming, the client splits audio into short chunks and submits each one as a standard REST batch job. A failed chunk can be retried in a fuller implementation. These scripts report failed chunks but do not persist or automatically retry them.
 
 #### VAD boundary detection
 
@@ -140,7 +142,7 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 | `POLLING_INTERVAL` | `2.0` | Seconds between Batch API job status polls |
 
 > [!TIP]
-> **Choosing the right chunk size** — Speechmatics research puts the sweet spot at **25–35 seconds**.
+> **Choosing a chunk size** — this example starts at **25 seconds**. Measure accuracy and completion delay on representative audio before changing it.
 > - **Too short (< 20s):** Less surrounding context reaches the acoustic model, which can reduce accuracy on ambiguous words and domain-specific terminology.
 > - **Too long (> 40s):** Transcription time scales with audio duration, so very large chunks increase the wall-clock wait before results appear.
 >
@@ -154,7 +156,7 @@ Each chunk is wrapped in an in-memory WAV container (`io.BytesIO`) — no tempor
 | `operating_point` | `OperatingPoint.STANDARD`, `ENHANCED` | `ENHANCED` gives higher accuracy at higher cost |
 
 > [!TIP]
-> For medical use, add `domain="medical"` to `TranscriptionConfig` to activate a specialised clinical vocabulary pack.
+> For a supported language pack, add `domain="medical"` to the Enhanced configuration to select **Batch Enhanced Medical**. For multilingual healthcare audio, see [Oak 1](../11-oak-consultation-studio/), which uses a different model configuration and does not take a domain flag.
 
 ### Expected Output
 
@@ -184,7 +186,7 @@ We'll order an ECG and troponin levels and review in thirty minutes.
 
 ## Example 2: Speaker ID Microbatch
 
-Builds directly on the simple example, adding speaker diarization that persists across chunk boundaries. The first speaker detected in the first chunk is automatically labelled **DOCTOR** in the transcript; all other speakers keep their default diarization labels.
+Builds directly on the simple example, adding speaker identification for one selected voice across chunk boundaries. The first speaker returned in the first chunk is labelled **DOCTOR** by this application; that assumption must be verified. Other speakers retain per-job diarization labels, which are not guaranteed to represent the same person across chunks.
 
 ### What changes from the simple example
 
@@ -233,7 +235,7 @@ python main.py
 
 ### How It Works
 
-The core capture-and-submit pipeline is identical to the simple example. The speaker ID logic layers on top without changing the chunk timing or submission flow.
+The core capture-and-submit pipeline is identical to the simple example. The speaker identification variant waits for chunk 0's identifiers before submitting subsequent chunks. This wait is currently inside the capture loop, so a slow first job can delay microphone reads.
 
 #### First chunk: discovering speakers
 
@@ -337,6 +339,9 @@ SPEAKER DOCTOR: We'll order an ECG and troponin levels and review in thirty minu
 
 ## Troubleshooting
 
+**Long sessions or speech without a boundary**
+- There is no maximum chunk duration, bounded queue, or durable retry store. A missing VAD boundary can grow the in-memory buffer until you stop; use short synthetic test sessions.
+
 **"SPEECHMATICS_API_KEY not set"**
 - Copy `.env.example` to `.env` and add your key
 - Ensure you are running the script from the correct `python/` subdirectory, or that `.env` is found on the path
@@ -358,7 +363,7 @@ SPEAKER DOCTOR: We'll order an ECG and troponin levels and review in thirty minu
 
 ## Resources
 
-- [Batch API Documentation](https://docs.speechmatics.com/introduction/batch-guide)
+- [Batch API Documentation](https://docs.speechmatics.com/speech-to-text/batch/quickstart)
 - [Speechmatics Batch Python SDK](https://github.com/speechmatics/speechmatics-python)
 - [Silero VAD](https://github.com/snakers4/silero-vad)
 

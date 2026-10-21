@@ -5,10 +5,7 @@
 Learn how to extract speaker voice IDs for reuse across sessions and control which speakers drive your voice agent conversations.
 
 > [!NOTE]
-> **New voice agent work is moving to Agent STT, powered by Linden 1.** The Voice SDK used here
-> still works, but [`speechmatics-agent-stt`](../13-agent-stt/) is the current starting point for
-> agents: it returns whole segments plus the speech and turn events that tell an agent when to
-> respond. Speaker identification carries over, including reusable voiceprints; speaker focus does not, and is not available there yet.
+> **This example uses the deprecated Speechmatics Voice SDK.** See the [deprecation notice](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk). For new applications, start with [Agent STT Linden 1](../13-agent-stt/), the Speech to Text layer for building voice agents. It returns segments and speech/turn events; it does not provide the LLM or speech synthesis stages. Speaker identification carries over, including reusable voiceprints; speaker focus does not, and is not available there yet.
 
 ## What You'll Learn
 
@@ -18,8 +15,8 @@ Learn how to extract speaker voice IDs for reuse across sessions and control whi
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+** (Voice SDK requires 3.9+)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12** (tested dependency baseline)
 - **Microphone**: Built-in or external microphone
 - **PyAudio**: For microphone access (installation instructions below)
 
@@ -29,11 +26,11 @@ Learn how to extract speaker voice IDs for reuse across sessions and control whi
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -56,9 +53,10 @@ cp ../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
 ```
 
-**Step 4: Run the example**
+**Step 4: Create the output directory and run the example**
 
 ```bash
+python -c "from pathlib import Path; Path('../assets').mkdir(exist_ok=True)"
 python main.py
 ```
 
@@ -313,8 +311,7 @@ config = VoiceAgentConfig(
 
 **Windows:**
 ```bash
-pip install pipwin
-pipwin install pyaudio
+python -m pip install pyaudio
 ```
 
 **Mac:**
@@ -362,7 +359,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Voice Agent (Real-time)
+**API Mode**: Realtime (deprecated Voice SDK)
 **Languages**: Python
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

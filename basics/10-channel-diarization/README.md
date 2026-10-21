@@ -1,6 +1,6 @@
 # Channel Diarization
 
-**Transcribe multi-channel audio with channel-based speaker attribution using the RT SDK.**
+**Transcribe multi-channel audio with channel-based speaker attribution using the Realtime SDK.**
 
 Learn how to process stereo or multi-track recordings where each channel represents a different audio source (e.g., call center recordings with agent on one channel, customer on another).
 
@@ -13,8 +13,8 @@ Learn how to process stereo or multi-track recordings where each channel represe
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.9+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - **Two mono WAV files** (one per channel) - samples provided in `assets/`
 
 ## Quick Start
@@ -23,11 +23,11 @@ Learn how to process stereo or multi-track recordings where each channel represe
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -46,7 +46,7 @@ pip install -r requirements.txt
 **Step 3: Configure API key**
 
 ```bash
-cp .env.example .env
+cp ../.env.example .env
 # Edit .env and add your SPEECHMATICS_API_KEY
 ```
 
@@ -150,7 +150,7 @@ Agent: Thank you for calling support. I'd be happy to help you with that.
 ## Troubleshooting
 
 **"File not found" error**
-- Ensure `Agent.wav` and `Customer.wav` exist in `assets/` folder
+- The bundled files are `agent.wav` and `customer.wav`. The current script uses capitalized filenames; on a case-sensitive filesystem, update `agent_file` and `customer_file` in `python/main.py` to match the lowercase assets.
 - Files must be WAV format
 
 **"Invalid audio format"**
@@ -168,8 +168,8 @@ Agent: Thank you for calling support. I'd be happy to help you with that.
 
 ## Resources
 
-- [Speechmatics Diarization Docs](https://docs.speechmatics.com/features/diarization)
-- [RT SDK Reference](https://github.com/speechmatics/speechmatics-python-sdk)
+- [Speechmatics Diarization Docs](https://docs.speechmatics.com/speech-to-text/features/diarization)
+- [Realtime SDK Reference](https://github.com/speechmatics/speechmatics-python-sdk)
 
 ---
 
@@ -183,7 +183,7 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Beginner
-**API Mode**: RT Multi-Channel
+**API Mode**: Realtime (channel diarization)
 **Languages**: Python
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

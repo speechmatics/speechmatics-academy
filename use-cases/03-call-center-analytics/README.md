@@ -14,11 +14,13 @@ Ideal for quality assurance, compliance monitoring, and customer experience impr
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12+**
 - **Stereo audio file**: Call recording with Agent on Channel 1 (left) and Customer on Channel 2 (right)
 
 ## Quick Start
+
+Start in `use-cases/03-call-center-analytics/` after cloning the Academy. Commands below are relative to this directory.
 
 **Step 1: Create and activate a virtual environment**
 
@@ -50,7 +52,7 @@ Place your stereo call recording as `sample.wav` in the `assets/` folder before 
 ## How It Works
 
 > [!NOTE]
-> This example uses the Batch API to process recorded calls with full audio intelligence:
+> This example uses the Batch API to process recorded calls with transcription and speech intelligence:
 >
 > 1. **Submit job** - Upload audio with analytics configuration
 > 2. **Process** - Speechmatics transcribes and analyzes
@@ -95,7 +97,7 @@ async with AsyncClient(api_key=api_key) as client:
 ```
 
 > [!TIP]
-> **Stereo call recordings**: Call center phone systems typically record Agent on one channel and Customer on the other. This example uses `diarization="channel"` to label each channel. For mono recordings with mixed audio, use `diarization="speaker"` instead.
+> **Stereo call recordings**: Call center phone systems typically record Agent on one channel and Customer on the other. This example uses `diarization="channel"` to label each channel. This script expects stereo channel diarization. To adapt it for mono recordings, use `diarization="speaker"`, remove `channel_diarization_labels`, and update `format_transcript()` to read `alternative.speaker`; changing the configuration alone currently produces no displayed transcript.
 
 > [!NOTE]
 > **Channel diarization response format**: With channel diarization, the speaker label appears in `result.channel` (at the result level), not in `alternative.speaker`. The example code handles this by iterating through results and grouping by channel label.
@@ -145,7 +147,7 @@ CALL SUMMARY
 
 ## Key Features Demonstrated
 
-**Audio Intelligence:**
+**Speech intelligence:**
 - Channel diarization for stereo recordings (Agent/Customer labels)
 - Segment-level sentiment analysis
 - Automatic topic detection
@@ -153,7 +155,7 @@ CALL SUMMARY
 
 **Batch Processing:**
 - Async job submission
-- Progress monitoring
+- Job completion polling
 - Result retrieval
 
 **Use Cases:**
@@ -189,10 +191,10 @@ CALL SUMMARY
 
 ## Resources
 
-- [Batch API Documentation](https://docs.speechmatics.com/introduction/batch-guide)
-- [Channel Diarization](https://docs.speechmatics.com/features/diarization/channel-diarization)
-- [Audio Intelligence Features](https://docs.speechmatics.com/features)
-- [Supported Languages](https://docs.speechmatics.com/introduction/supported-languages)
+- [Batch API Documentation](https://docs.speechmatics.com/speech-to-text/batch/quickstart)
+- [Channel Diarization](https://docs.speechmatics.com/speech-to-text/features/diarization)
+- [Audio Intelligence Features](https://docs.speechmatics.com/speech-to-text)
+- [Supported Languages](https://docs.speechmatics.com/speech-to-text/languages)
 
 ---
 

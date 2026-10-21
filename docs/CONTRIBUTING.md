@@ -1,483 +1,196 @@
 # Contributing to Speechmatics Academy
 
-Thank you for your interest in contributing to Speechmatics Academy! This document provides guidelines for contributing examples, integrations, and improvements.
+Contribute examples, integrations, bug fixes, or documentation that help developers use Speechmatics. Official examples live in `basics/`, `integrations/`, and `use-cases/`; migration guides live in `guides/`. Community projects have a separate [submission guide](../community/README.md) and [template](../community/COMMUNITY_TEMPLATE.md).
 
-## Ways to Contribute
+## Before you start
 
-1. **Add New Examples** - Create examples demonstrating Speechmatics features
-2. **Submit Community Projects** - Share your own projects built with Speechmatics (any language)
-3. **Improve Existing Examples** - Fix bugs, add features, improve documentation
-4. **Add Language Implementations** - Add TypeScript/C# to Python-only examples (coming soon)
-5. **Fix Documentation** - Improve README files, fix typos, clarify instructions
-6. **Report Issues** - Report bugs or suggest improvements
+Check the existing examples and [open issues](https://github.com/speechmatics/speechmatics-academy/issues). For a larger example or refactor, open an issue to discuss the scope first. Small fixes can go directly to a pull request.
 
-## Before You Start
+Use the [example template](EXAMPLE_TEMPLATE.md). Choose one clear learning outcome, the current API or SDK that supports it, and a setup a developer can reproduce from a fresh checkout.
 
-1. **Check existing examples** - Make sure your idea isn't already covered
-2. **Open a discussion** - For larger examples, share your idea first via [GitHub Issues](https://github.com/speechmatics/speechmatics-academy/issues)
-3. **Follow the template** - Use [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md)
+## Adding an example
 
-## Adding a New Example
+### Choose a location
 
-### Step 1: Choose a Category
+| Location | Purpose |
+|---|---|
+| `basics/NN-name/` | A focused API or SDK feature |
+| `integrations/framework/NN-name/` | A third-party framework or service |
+| `use-cases/NN-name/` | An application built around a specific workflow |
+| `guides/migration-guides/provider/` | A migration guide and supporting code |
+| `community/subcategory/project-name/` | A community-maintained project |
 
-Examples are organized into three categories:
+Use numbered prefixes for official examples and descriptive kebab-case names. Integration numbering is local to each framework. Community projects do not use numbered prefixes.
 
-| Category | Purpose | Typical Time |
-|----------|---------|--------------|
-| **basics/** | Fundamental SDK features | 5-15 minutes |
-| **integrations/** | Third-party framework integrations | 15-30 minutes |
-| **use-cases/** | Industry-specific applications | 20-30 minutes |
+Small Python examples usually use this structure:
 
-### Step 2: Create Directory Structure
-
-```bash
-# Create the example directory
-mkdir -p category/XX-your-example-name/python
-mkdir -p category/XX-your-example-name/assets
-```
-
-Use **numbered prefixes** (`01-`, `02-`, etc.) to maintain ordering within categories.
-
-Your structure should look like:
-
-```
-XX-your-example-name/
+```text
+NN-example-name/
 ├── python/
-│   ├── main.py             # Primary implementation
-│   ├── requirements.txt    # Dependencies
-│   └── .gitignore          # Ignore venv/, __pycache__/, .env
-├── assets/                 # Sample files (audio, images, agent prompts)
-│   └── sample.wav
-├── .env.example            # Environment variables template
-└── README.md               # Main documentation (REQUIRED)
+│   ├── main.py
+│   └── requirements.txt
+├── assets/
+├── .env.example
+└── README.md
 ```
 
-> [!NOTE]
-> TypeScript and C# implementations are coming soon. For now, focus on Python.
+Use a framework-appropriate structure for web and mobile applications. Existing examples include Python, JavaScript, TypeScript, and Dart. Document the entry point, working directory, package manager, and environment-file location for every implementation.
 
-### Step 3: Implement the Example
+### Implement the example
 
-Follow the detailed structure in [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md).
+- Use the current SDK and its documented configuration and error handling.
+- Use asynchronous calls and context managers where the client supports them.
+- Close microphone streams, WebSockets, files, and background tasks on success, error, and cancellation.
+- Read credentials from environment variables or a documented token service. Commit placeholder values only.
+- List all dependencies and the runtime version used to test the example.
+- Include or explain how to obtain each required sample asset. Match filename casing exactly.
+- Keep the example focused. Explain application-specific logic separately from Speechmatics behavior.
 
-**Key requirements:**
-- Use async/await pattern with context managers
-- Include error handling for `AuthenticationError`
-- Follow PEP 8 style guidelines
-- No hardcoded API keys
+Speechmatics provides transcription and speech synthesis. A voice-agent application also needs conversation logic, an LLM, and any tools it calls. Start new transcription integrations with [agent STT](https://docs.speechmatics.com/speech-to-text/agent-stt); identify examples that retain the [deprecated Voice SDK](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk).
 
-### Step 4: Write the README
+### Write the README
 
-Your README.md must include:
+Start with a title and a one-sentence description of what the example does. Include these sections:
 
-1. **Title** with bold one-line description
-2. **What You'll Learn** section
-3. **Prerequisites** section
-4. **Quick Start** with platform-specific setup (Windows/Mac/Linux)
-5. **How It Works** explanation
-6. **Expected Output**
-7. **Troubleshooting** section
-8. **Footer** with Time/Difficulty/API Mode
+1. What you'll learn
+2. Prerequisites
+3. Quick start
+4. How it works
+5. Key features demonstrated
+6. Expected output
+7. Next steps
+8. Troubleshooting
+9. Resources
 
-Use GitHub-flavored callouts for important information:
+Include estimated time, difficulty, APIs used, and navigation links in the footer. Follow the example's actual layout; do not paste commands that assume a different working directory. Give separate PowerShell and macOS/Linux instructions when commands differ. Quote package constraints such as `"package>=1.0,<2"` so shells do not interpret them as redirection.
 
-```markdown
-> [!NOTE]
-> Useful information users should know.
+Distinguish runnable commands from illustrative snippets. Keep snippets consistent with the checked-in implementation, and say when extra setup or code changes are required. Explain known example limitations where they affect the instructions.
 
-> [!TIP]
-> Helpful advice for doing things better.
+### Use documentation terminology
 
-> [!IMPORTANT]
-> Key information users need to know.
+Use the names and distinctions in the [official documentation](https://docs.speechmatics.com/) and [model comparison](https://docs.speechmatics.com/speech-to-text/models):
 
-> [!WARNING]
-> Urgent info that needs immediate user attention.
+- **Speech to Text (STT)** and **Text to Speech (TTS)** on first use; **Realtime API** and **Batch API**.
+- **Standard**, **Enhanced**, **Melia 1**, **Oak 1**, and **Linden 1** in prose. Preserve literal API values such as `melia-1` in code.
+- **agent STT** for the transcription interaction pattern; **Agent STT** at the beginning of a sentence or in a heading. Describe a voice agent as the application built around transcription, an LLM, and speech synthesis.
+- **Medical** for the sub-variant of Enhanced. Preserve `domain="medical"` in configuration and distinguish it from the standalone Oak 1 model.
+- **custom dictionary**, **smart formatting**, **speaker diarization**, **speaker identification**, **channel diarization**, **API key**, **portal**, **WebSocket**, and **on-prem**.
 
-> [!CAUTION]
-> Advises about risks or negative outcomes.
-```
+Define less familiar abbreviations on first use. Use direct instructions, sentence-case prose, and en-US spelling such as "diarization." Link feature names to their official documentation rather than copying large capability tables that will drift.
 
-### Step 5: Test Thoroughly
+Verify feature support for the selected model and API. Link current [release notes](https://speechmatics.featurebase.app/en/changelog) for release-sensitive claims. Avoid unsupported performance, pricing, compliance, production-readiness, or availability claims. Keep paths, package names, class names, configuration keys, and event names exact.
 
-```bash
-# Create and activate virtual environment
-cd python
-python -m venv .venv
+### Add catalog metadata
 
-# Windows:
-.venv\Scripts\activate
-
-# Mac/Linux:
-source .venv/bin/activate
-
-# Install and test
-pip install -r requirements.txt
-cp ../.env.example .env
-# Add your API key to .env
-python main.py
-```
-
-### Step 6: Add Metadata
-
-Add your example to `docs/index.yaml`:
+Add an entry to `docs/index.yaml` using the existing schema and update `total_examples`:
 
 ```yaml
 - id: "your-example-id"
-  title: "Your Example Title"
-  description: "Clear one-line description"
+  title: "Your example title"
+  description: "One sentence describing the learning outcome."
   category: "basics"
   difficulty: "beginner"
   languages: ["python"]
   features:
     - "batch-transcription"
   integrations: []
-  path: "basics/XX-your-example-id"
-  readme: "basics/XX-your-example-id/README.md"
-  tags: ["tag1", "tag2"]
-  last_updated: "2025-12-02"
+  path: "basics/NN-your-example-id"
+  readme: "basics/NN-your-example-id/README.md"
+  tags: ["batch", "getting-started"]
+  last_updated: "YYYY-MM-DD"
   estimated_time: "10 minutes"
 ```
 
-### Step 7: Create Pull Request
+Use an actual date and existing category, language, feature, and integration identifiers. Keep the root README's example list in sync. The current structure checker does not discover migration guides or arbitrary new integration framework folders, so include those additions explicitly in the review description.
 
-See [Pull Request Process](#pull-request-process) below for full details.
+## Testing and local checks
 
-## Example Quality Standards
+The repository's Python CI runs on **Python 3.12**. Use that version as the default development environment and state any different minimum you have verified. Install each example's dependencies in a separate environment.
 
-All examples must meet these standards:
-
-### Code Quality
-
-- [ ] Passes `ruff check` and `ruff format --check`
-- [ ] Code is clean, readable, and well-commented
-- [ ] Uses async/await pattern
-- [ ] Includes proper error handling
-- [ ] No hardcoded secrets or API keys
-- [ ] Uses environment variables for configuration
-
-### Documentation
-
-- [ ] Main README.md follows the template structure
-- [ ] Includes "What You'll Learn" section
-- [ ] Has platform-specific setup (Windows/Mac/Linux)
-- [ ] Shows expected output
-- [ ] Includes troubleshooting section
-- [ ] Has footer with Time/Difficulty/API Mode
-- [ ] Links to relevant documentation
-
-### Testing
-
-- [ ] Example has been tested end-to-end
-- [ ] Works with a fresh virtual environment
-- [ ] Includes .env.example with all required variables
-- [ ] Dependencies are correctly listed in requirements.txt
-
-### Completeness
-
-- [ ] Metadata added to `docs/index.yaml` (passes `python .github/scripts/check_structure.py`)
-- [ ] Follows directory structure template
-- [ ] Uses numbered prefix for ordering (e.g., `01-`, `02-`)
-- [ ] README follows the template format
-- [ ] All CI checks pass
-
-## Development Setup
-
-### Running CI Checks Locally
-
-Before opening a PR, run the same checks that CI will run:
+Run the repository checks from its root:
 
 ```bash
-# Install tools
-pip install ruff
-
-# Python linting and formatting
+python -m pip install ruff
 ruff check .
 ruff format --check .
-
-# Auto-fix lint issues
-ruff check --fix .
-ruff format .
-
-# Structure validation (checks index.yaml <-> disk sync)
 python .github/scripts/check_structure.py
-
-# JavaScript syntax check (if you modified JS files)
-cd basics/11-voice-api-explorer/javascript
-npm ci
-node --check main.js
+python .github/scripts/check_community_structure.py
 ```
 
-### Ruff Configuration
+Ruff configuration is in `ruff.toml`: Python 3.12 target, a 120-character line length, and pycodestyle, pyflakes, and import-order rules. Markdown is excluded from Ruff.
 
-The project uses [Ruff](https://docs.astral.sh/ruff/) for Python linting and formatting, configured in `ruff.toml` at the repo root. Key rules:
+Run the selected example's own tests and build commands, as documented in its README. Existing suites include the Agora backend/frontend tests, Flutter tests, and Oak Consultation Studio's JavaScript/Python tests. They are **not currently run by the root CI workflow**.
 
-- **E** (pycodestyle errors), **F** (pyflakes), **W** (warnings), **I** (isort)
-- Line length: 120 characters
-- Target: Python 3.12
+Test the documented quick start from a fresh checkout. For a microphone or streaming example, check startup, authentication failure, interruption, and final-transcript handling. For a UI, check that changing a setting changes the request it sends. Keep offline tests separate from live probes that need credentials and may incur usage.
 
-## Commit Conventions
+Include the actual commands, results, runtime, and any untested live-service steps in the pull request.
 
-Use descriptive commit messages with a type prefix:
+### What CI currently checks
 
-| Prefix | Purpose |
-|--------|---------|
-| `Feat:` | New features or examples |
-| `Fix:` | Bug fixes |
-| `Docs:` | Documentation changes |
-| `Chore:` | Maintenance, dependency updates |
-| `Refactor:` | Code refactoring without behavior changes |
+| Job | Current coverage |
+|---|---|
+| Python Checks | Repository-wide Ruff lint/format and Python syntax |
+| JavaScript Checks | Dependency installation and syntax checks for the Voice API Explorer's three JavaScript files |
+| Structure & Catalog Check | Catalog paths, README existence, declared count, and selected layout checks; some problems are warnings |
+| Dependency Resolution Check | Files named `requirements.txt` on Python 3.12, allowing prereleases; this does not run the applications |
+| Community Project Checks | Community structure and a separate warning-only lint step |
+| Docker Build | The Vapi example on Linux amd64 |
 
-**Examples:**
+The repository-wide Python job also includes community code, so Python lint and formatting can currently block community contributions despite the separate warning-only step. JavaScript/TypeScript web builds, Flutter analysis/tests, other Dockerfiles, `pyproject.toml`-only projects, and `requirements-dev.txt` are not covered by the corresponding root jobs. Passing CI does not replace testing the example.
 
-```
-Feat: add LiveKit telephony integration example
-Fix: resolve WebSocket timeout in voice-api-explorer
-Docs: improve Quick Start instructions for medical assistant
-Chore: update speechmatics-rt to 0.6.0
-Refactor: simplify error handling in batch examples
-```
+## Pull request process
 
-Keep the first line under 72 characters. Add a blank line and further detail in the body if needed.
+1. Fork the repository and create a branch from `main`.
+2. Make a focused change and run the relevant checks.
+3. Commit with a descriptive type prefix.
+4. Push to your fork and open a pull request.
+5. Explain the problem, resulting behavior, and validation. Address review feedback before merge.
 
-## Pull Request Process
+Use `feat/`, `fix/`, `docs/`, or `chore/` for branch names. Commit prefixes are `Feat:`, `Fix:`, `Docs:`, `Chore:`, and `Refactor:`. Keep the first line under 72 characters and add context in the body when needed.
 
-### 1. Fork and Branch
-
-```bash
-# Fork the repository on GitHub, then clone your fork
-git clone https://github.com/YOUR-USERNAME/speechmatics-academy.git
-cd speechmatics-academy
-
-# Create a feature branch from main
-git checkout -b feat/your-example-name
+```text
+Feat: add a Batch notification example
+Fix: close the microphone after a streaming failure
+Docs: clarify model support in the multilingual example
 ```
 
-**Branch naming convention:**
+Required checks must pass before merge. Maintainers review scope, correctness, documentation, and reproducibility; a passing resolver or syntax check alone does not establish runtime compatibility.
 
-| Prefix | Use for |
-|--------|---------|
-| `feat/` | New examples or features |
-| `fix/` | Bug fixes |
-| `docs/` | Documentation improvements |
-| `chore/` | Dependency updates, maintenance |
+### Submission checklist
 
-### 2. Make Your Changes
+- [ ] The implementation and README describe the same behavior.
+- [ ] Setup works from a fresh checkout with the documented runtime.
+- [ ] Dependencies, credentials, environment variables, and assets are documented.
+- [ ] Resources are cleaned up on normal exit and failure.
+- [ ] Required README sections and navigation links are present.
+- [ ] Model and API terminology matches current documentation.
+- [ ] Catalog metadata and the root example list are updated where applicable.
+- [ ] Relevant checks and existing tests pass; untested steps are disclosed.
+- [ ] No credentials or generated private data are committed.
 
-- Follow the [Style Guidelines](#style-guidelines) and [Example Quality Standards](#example-quality-standards)
-- Run CI checks locally (see [Development Setup](#development-setup))
-- Test your example end-to-end with a fresh virtual environment
+## Adding another language
 
-### 3. Commit and Push
+Use a language-specific directory or the framework's standard layout. Implement the same learning outcome, document the package manager and runtime, add setup and test commands, and update the catalog's `languages` array. Discuss larger ports in an issue before starting.
 
-```bash
-# Stage your changes
-git add .
+## Community projects
 
-# Commit with a descriptive message (see Commit Conventions above)
-git commit -m "Feat: add your-example-name example"
+Community projects can use any language and live under `community/{subcategory}/project-name/`. Include working code, `README.md`, `CONTRIBUTORS.md`, an environment template when credentials are needed, and catalog metadata with `category: "community"`.
 
-# Push to your fork
-git push origin feat/your-example-name
-```
+Open a [proposal](https://github.com/speechmatics/speechmatics-academy/issues/new?template=community-project-proposal.yml) or submit a pull request directly. Maintainers assign the review tier:
 
-### 4. Open the Pull Request
+- **Community**: basic structure and a light review of the submitted project.
+- **Verified**: full template review, maintainer code review, and end-to-end testing.
 
-- Go to the [repository](https://github.com/speechmatics/speechmatics-academy) and click **New Pull Request**
-- Select your fork and branch
-- Fill in the PR template with:
-  - **Summary** of what you added/changed
-  - **Testing** steps you performed
-  - **Checklist** confirming quality standards are met
+Submitting a proposal does not itself grant Verified status. Authors remain the primary maintainers, and projects can be promoted through a follow-up review. See the [community guide](../community/README.md) for the full process.
 
-### 5. CI Checks
+## Reporting issues and getting help
 
-Your PR will automatically run these checks:
+Include the example path, steps to reproduce, expected and actual behavior, runtime versions, and relevant sanitized logs. Do not include API keys or private audio/transcripts.
 
-| Check | What it validates |
-|-------|-------------------|
-| **Python Checks** | Ruff lint + format + syntax validation |
-| **JS Checks** | npm install + syntax check |
-| **Structure Check** | `index.yaml` catalog matches disk |
-| **Dependency Check** | All `requirements.txt` files resolve |
-| **Docker Build** | Dockerfiles build successfully |
+- [Report an issue](https://github.com/speechmatics/speechmatics-academy/issues)
+- [Ask a question in community discussions](https://github.com/speechmatics/community/discussions/categories/academy)
+- Email: devrel@speechmatics.com
 
-All checks must pass before merge. If a check fails, click on it to see the error details and fix accordingly.
-
-### 6. Review and Merge
-
-1. A maintainer will review your PR, usually within 2-3 business days
-2. Address any requested changes by pushing new commits to your branch
-3. Once approved, your PR will be merged
-
-## Style Guidelines
-
-### Python
-
-- Code must pass `ruff check` and `ruff format --check` (see `ruff.toml`)
-- Use async/await for all Speechmatics API calls
-- Include type hints where helpful
-- Use `python-dotenv` for environment variables
-- Place imports at top (stdlib, then third-party, then local)
-
-```python
-#!/usr/bin/env python3
-"""
-Example Title
-
-Brief description of what this example demonstrates.
-"""
-
-import asyncio
-import os
-from pathlib import Path
-
-from dotenv import load_dotenv
-from speechmatics.batch import AsyncClient, AuthenticationError
-
-load_dotenv()
-
-
-async def main():
-    """Function description."""
-    api_key = os.getenv("SPEECHMATICS_API_KEY")
-
-    try:
-        async with AsyncClient(api_key=api_key) as client:
-            # Your code here
-            pass
-
-    except (AuthenticationError, ValueError) as e:
-        print(f"\nError: {e}")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-### README Files
-
-- Use clear, concise language
-- Include code blocks with syntax highlighting
-- Use GitHub-flavored callouts (`> [!NOTE]`, `> [!TIP]`, etc.)
-- Add screenshots/GIFs where helpful
-- Link to official documentation
-- Be welcoming to beginners
-
-## Adding Language Implementations
-
-> [!NOTE]
-> TypeScript and C# support is coming soon. If you'd like to contribute implementations in these languages, please open an issue first to discuss.
-
-When adding a new language to an existing example:
-
-1. Create the language directory (`typescript/` or `csharp/`)
-2. Implement the same functionality as Python
-3. Add language-specific README if needed
-4. Update main README.md Quick Start section
-5. Update `languages` array in `docs/index.yaml`
-6. Test thoroughly
-
-## Improving Existing Examples
-
-Small improvements are always welcome:
-
-- Fix typos or unclear instructions
-- Update dependencies
-- Add missing error handling
-- Improve code comments
-- Add screenshots/demos
-- Fix bugs
-- Update to use GitHub callouts
-
-For small changes, just open a PR. For larger refactoring, open an issue first to discuss.
-
-## Reporting Issues
-
-Found a bug or have a suggestion?
-
-1. Check [existing issues](https://github.com/speechmatics/speechmatics-academy/issues)
-2. Open a new issue with:
-   - Clear title
-   - Example name (if applicable)
-   - Steps to reproduce (for bugs)
-   - Expected vs actual behavior
-   - Environment details (OS, Python version)
-
-## Code Review Process
-
-After submitting a PR:
-
-1. **CI checks** run automatically (Python lint/format, JS checks, structure validation, dependency resolution, Docker builds)
-2. **Maintainer review** - Usually within 2-3 business days
-3. **Feedback** - Address any requested changes by pushing new commits
-4. **Merge** - Once approved and all checks pass, your PR will be merged
-
-We aim to review PRs quickly, but please be patient during busy periods.
-
-## Contributing Community Projects
-
-In addition to official examples, we welcome **community-contributed projects** in any programming language. Community projects live in the `community/` directory and have lighter quality requirements than official examples.
-
-### Community vs Official Examples
-
-| Aspect | Official Examples | Community Projects |
-|--------|------------------|--------------------|
-| Location | `basics/`, `integrations/`, `use-cases/` | `community/` |
-| Language | Python only | Any language |
-| Template | [EXAMPLE_TEMPLATE.md](EXAMPLE_TEMPLATE.md) | [COMMUNITY_TEMPLATE.md](../community/COMMUNITY_TEMPLATE.md) |
-| Code style | Ruff lint/format (blocking) | Recommended, not enforced |
-| README sections | 9 required | 5 required |
-| Numbered prefix | Required (e.g., `01-`) | Not used |
-| CI checks | Full validation | Lightweight validation |
-
-### How to Submit a Community Project
-
-**Option A: Propose first (recommended for Verified status)**
-
-1. Open a [Community Project Proposal](https://github.com/speechmatics/speechmatics-academy/issues/new?template=community-project-proposal.yml) issue
-2. Wait for maintainer feedback
-3. Fork, implement following [COMMUNITY_TEMPLATE.md](../community/COMMUNITY_TEMPLATE.md)
-4. Submit PR — gets full review and `status: "verified"` on merge
-
-**Option B: Submit directly**
-
-1. Fork and create your project under `community/{subcategory}/your-project-name/`
-2. Include at minimum: `README.md`, working code, `CONTRIBUTORS.md`
-3. Add metadata to `docs/index.yaml` with `category: "community"` and `status: "community"`
-4. Submit PR — gets light review and `status: "community"` on merge
-
-### Quality Tiers
-
-- **Verified**: Full template compliance, maintainer code-reviewed, tested end-to-end
-- **Community**: Basic structure, working code, light review
-
-Community projects can be promoted to Verified via a follow-up PR. Exceptional projects may graduate into official categories.
-
-See the [Community Projects README](../community/README.md) for full details.
-
-## Community Guidelines
-
-- Be respectful and welcoming
-- Help others in discussions
-- Assume good intentions
-
-
-## Questions?
-
-- **General questions**: [GitHub Discussions](https://github.com/speechmatics/community/discussions/categories/academy)
-- **Bug reports**: [GitHub Issues](https://github.com/speechmatics/speechmatics-academy/issues)
-- **Email**: devrel@speechmatics.com
-
-## Recognition
-
-Contributors are recognized in:
-- Pull request comments
-- Release notes
-- README acknowledgments
-
-Thank you for contributing to Speechmatics Academy!
-
----
+Be respectful, welcome new contributors, and help others reproduce problems.
 
 [Back to Academy](../README.md)

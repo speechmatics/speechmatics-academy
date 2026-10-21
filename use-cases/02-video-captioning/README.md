@@ -2,23 +2,25 @@
 
 **Auto-generate accurate SRT captions for video content with timestamp synchronization.**
 
-Perfect for streaming platforms, video production, content creation, and accessibility compliance.
+Generate a draft caption file for video production, content creation, and accessibility workflows. Review caption accuracy and timing before publishing.
 
 ## What You'll Learn
 
 - Generating SRT subtitle files from video/audio
 - Using the Batch API for media processing
-- Working with different output formats (SRT, VTT, TXT)
+- Retrieving SRT output; the Batch API also supports JSON and plain text
 - Timestamp synchronization for captions
 - Batch processing video content
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
-- **Video/Audio file**: MP4, MOV, WAV, MP3, or other supported format
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12+**
+- **Video/Audio file**: MP4, MPEG, WAV, MP3, or another documented Batch input format
 
 ## Quick Start
+
+Start in `use-cases/02-video-captioning/` after cloning the Academy. Commands below are relative to this directory.
 
 **Step 1: Create and activate a virtual environment**
 
@@ -80,7 +82,7 @@ async with AsyncClient(api_key=api_key) as client:
 | Parameter | Options | Description |
 |-----------|---------|-------------|
 | `language` | `"en"`, `"es"`, `"fr"`, `"auto"` | Transcription language |
-| `format_type` | `FormatType.SRT`, `FormatType.VTT` | Output format |
+| `format_type` | `FormatType.SRT` | SRT output used by this example |
 | `diarization` | `"speaker"`, `"none"` | Add speaker labels |
 
 ## Expected Output
@@ -122,11 +124,11 @@ turn it into actual speech.
 **Media Processing:**
 - Video and audio file support
 - Async job submission
-- Multiple output formats
+- SRT output for this implementation
 
 **Use Cases:**
 - Streaming platform captions (Netflix, YouTube)
-- Accessibility compliance (ADA, WCAG)
+- Caption preparation for accessibility review
 - Video podcasts and educational content
 - Social media content
 - Film and documentary production
@@ -142,7 +144,7 @@ turn it into actual speech.
 ### With Media Players
 
 - **VLC**: Video > Subtitles > Add Subtitle File
-- **QuickTime**: View > Subtitles > Select your .srt file
+- For players without SRT sidecar support, use a compatible player or embed captions with a video editor.
 
 ### Embedding in Video
 
@@ -154,7 +156,7 @@ ffmpeg -i sample.mp4 -vf subtitles=sample.srt output_with_subs.mp4
 ## Supported Formats
 
 ### Video
-- MP4, MOV, AVI, MKV, WebM
+- MP4 and MPEG; convert other containers to a [documented Batch input format](https://docs.speechmatics.com/speech-to-text/batch/input) before submission
 
 ### Audio
 - WAV, MP3, FLAC, OGG, M4A, AAC
@@ -163,7 +165,7 @@ ffmpeg -i sample.mp4 -vf subtitles=sample.srt output_with_subs.mp4
 
 **"Video file not found"**
 - Ensure `sample.mp4` exists in the `assets/` folder
-- Or update `video_file` path in `media_captions.py`
+- Or update `video_file` path in `main.py`
 
 **"Authentication failed"**
 - Check your API key in the `.env` file
@@ -174,12 +176,12 @@ ffmpeg -i sample.mp4 -vf subtitles=sample.srt output_with_subs.mp4
 - Consider splitting very large files
 
 **"Unsupported format"**
-- Convert to MP4, MOV, or WAV
+- Convert to MP4, MPEG, or WAV; WebM requires conversion
 
 ## Resources
 
-- [Batch API Documentation](https://docs.speechmatics.com/introduction/batch-guide)
-- [Output Formats](https://docs.speechmatics.com/features/output-formats)
+- [Batch API Documentation](https://docs.speechmatics.com/speech-to-text/batch/quickstart)
+- [Output Formats](https://docs.speechmatics.com/speech-to-text/batch/output)
 - [SRT Format Specification](https://www.matroska.org/technical/subtitles.html)
 
 ---

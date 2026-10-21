@@ -12,22 +12,22 @@
 
 </div>
 
-A complete voice assistant pipeline combining best-in-class speech recognition (Speechmatics), natural language processing (OpenAI), and text-to-speech (ElevenLabs) using the Pipecat AI framework - all running locally with your microphone and speakers.
+Run a Pipecat voice assistant with a local microphone and speakers. Speechmatics Speech to Text (STT), an OpenAI large language model (LLM), and ElevenLabs Text to Speech (TTS) process the audio and responses through their hosted APIs. The Speechmatics adapter uses **agent STT**, powered by **Linden 1**, on the Realtime API.
 
 ## What You'll Learn
 
 - How to integrate Speechmatics STT with Pipecat AI
 - Building a complete voice assistant pipeline
-- Using local audio transport (no cloud infrastructure needed)
-- Voice Activity Detection (VAD) for natural conversations
+- Using local audio transport without a WebRTC server
+- Voice activity detection (VAD) to finalize user turns
 - Speaker diarization to label who is speaking in the transcript
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
-- **ElevenLabs API Key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
-- **Python 3.10+** (Python 3.12 recommended)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **ElevenLabs API key**: Get one from [elevenlabs.io](https://elevenlabs.io/)
+- **Python 3.11+** (Python 3.12 recommended)
 - **PortAudio**: Required for local audio (see installation below)
 
 ## Quick Start
@@ -57,7 +57,7 @@ sudo apt-get install portaudio19-dev
 **Step 2: Create and activate a virtual environment**
 
 > [!IMPORTANT]
-> **macOS Users**: Pipecat requires Python 3.10+. Your system Python may be older (e.g., Python 3.9.6). You must use Python 3.10+ when creating the virtual environment.
+> **macOS Users**: Pipecat requires Python 3.11+. Your system Python may be older (e.g., Python 3.9.6). You must use Python 3.11+ when creating the virtual environment.
 
 **On Windows:**
 ```bash
@@ -73,7 +73,7 @@ cd python
 # First, check your Python version
 python3 --version
 
-# If Python is below 3.10, install Python 3.12 via Homebrew (macOS)
+# If Python is below 3.11, install Python 3.12 via Homebrew (macOS)
 brew install python@3.12
 
 # Create venv with Python 3.12 explicitly
@@ -171,7 +171,7 @@ flowchart LR
 |---------|-------------|
 | **Local Audio** | Uses your microphone and speakers directly - no WebRTC needed |
 | **VAD** | Silero Voice Activity Detection for natural turn-taking |
-| **Diarization** | Speaker identification labels each speaker (S1, S2, ...) in the transcript |
+| **Diarization** | Separates the transcript into speakers labeled `S1`, `S2`, and so on |
 | **Interruptions** | User can interrupt the bot mid-response |
 
 ### Code Highlights
@@ -261,9 +261,9 @@ Edit `assets/agent.md` to change the bot's personality and capabilities. The def
 - Multi-speaker awareness (active listener in group conversations)
 - Spoken format optimizations (no emojis, numbers as words, expanded acronyms)
 
-### Speaker Diarization
+### Speaker diarization
 
-The STT is configured to identify speakers and label them in the transcript:
+The STT separates the transcript into speakers and adds a label to each segment:
 
 ```python
 stt = SpeechmaticsSTTService(
@@ -278,7 +278,7 @@ stt = SpeechmaticsSTTService(
 
 | Parameter | Purpose |
 |-----------|---------|
-| `enable_diarization` | Identify different speakers in the audio |
+| `enable_diarization` | Separate the transcript into distinct speakers |
 | `speaker_active_format` | Wraps each speaker's text in a tag, e.g. `<S1>Hello</S1>` |
 
 **How it works:**
@@ -316,18 +316,18 @@ If you're on a remote VM, Windows, or prefer browser-based testing, see **[02-si
 
 **Symptom:** `pip install` shows errors like:
 ```
-ERROR: Ignored the following versions that require a different python version: 0.0.37 Requires-Python >=3.10 ...
+ERROR: Ignored the following versions that require a different python version: 1.11.0 Requires-Python >=3.11 ...
 ERROR: No matching distribution found for pipecat-ai
 ```
 
-**Cause:** Your virtual environment was created with Python 3.9 (macOS system Python), but Pipecat requires Python 3.10+.
+**Cause:** Your virtual environment was created with Python 3.9 (macOS system Python), but Pipecat requires Python 3.11+.
 
 **Fix:**
 ```bash
 # Check your current Python version
 python3 --version
 
-# If below 3.10, install Python 3.12 via Homebrew
+# If below 3.11, install Python 3.12 via Homebrew
 brew install python@3.12
 
 # Recreate the virtual environment with Python 3.12
@@ -348,10 +348,12 @@ pip install -r requirements.txt
 ```
 
 **Fix:**
+
+Install the trusted CA certificates for the Python interpreter used by your virtual environment. With the python.org macOS installer, run its `Install Certificates.command`; on a managed network, configure the certificate bundle supplied by your administrator. Then retry the download with certificate verification enabled:
+
 ```bash
-# Install certifi and download NLTK data with SSL workaround
-pip install certifi
-python3 -c "import ssl; ssl._create_default_https_context = ssl._create_unverified_context; import nltk; nltk.download('punkt_tab')"
+python -m pip install --upgrade certifi
+python -m nltk.downloader punkt_tab
 ```
 
 #### Dotfiles Missing After ZIP Download
@@ -424,8 +426,8 @@ pip install "numpy>=1.24,<2.3"
 ## Next Steps
 
 - **[Simple Voice Bot (Web)](../02-simple-voice-bot-web/)** - Browser-based version with WebRTC
-- **[Voice Agent Turn Detection](../../../basics/08-voice-agent-turn-detection/)** - Learn about turn detection presets
-- **[Voice Agent Speaker ID](../../../basics/09-voice-agent-speaker-id/)** - Advanced speaker identification
+- **[Agent STT](../../../basics/13-agent-stt/)** - Use the current Speechmatics SDK directly
+- **[Speaker identification with the legacy Voice SDK](../../../basics/09-voice-agent-speaker-id/)** - Compare the earlier SDK approach
 
 ## Resources
 
@@ -447,6 +449,7 @@ Help us improve this guide:
 
 **Time to Complete**: 10 minutes
 **Difficulty**: Intermediate
+**API Mode**: Realtime — agent STT
 **Integration**: Pipecat AI
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

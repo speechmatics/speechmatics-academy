@@ -6,31 +6,33 @@
   <img alt="LiveKit" src="../logo/LK_wordmark_lightbg.png" width="300">
 </picture>
 
-# Speaker Focus - Voice Agent Access Control
+# Speaker Focus - Filter Voice Agent Responses by Speaker
 
-**A LiveKit voice agent that decides who it obeys: focus on chosen speakers, ignore or retain the rest, and recognise returning speakers by name - all live, driven by voice.**
+**Use speaker diarization and speaker identification to decide which completed turns reach a LiveKit voice agent, with controls for focusing on or ignoring speakers.**
 
 </div>
 
-Put a voice agent in a room with more than one person and you hit a problem immediately: whose words should it act on? By default, everyone's - anyone within earshot is an admin. This example locks the agent onto chosen speakers using diarization plus an agent-side **focus gate**, and Speechmatics' **speaker memory** feature, and ships with a browser visualiser so every decision is visible on screen.
+This example combines Speechmatics Speech to Text (STT), an OpenAI large language model (LLM), and ElevenLabs Text to Speech (TTS) in a LiveKit application. The STT plugin uses **agent STT**, powered by **Linden 1**, on the Realtime API.
+
+Speechmatics labels speakers and can match saved speaker identifiers. The application's `FocusAgent.on_user_turn_completed` callback then filters completed turns before the LLM responds. A browser visualizer shows transcripts and focus events. This application-side filtering is a conversation control, not speaker authentication.
 
 ## What You'll Learn
 
 - **Diarization** - labelling every voice live (`S1`, `S2`, ...) with `enable_diarization` and a custom `speaker_format`
-- **Speaker focus** - `RETAIN` (heard, kept as background context, never answered) vs `IGNORE` (dropped before it ever reaches the LLM), enforced client-side in `FocusAgent.on_user_turn_completed` and switched mid-session via the `set_focus` RPC or LLM tools
-- **The ignore list** - muting one specific speaker
-- **Speaker memory** - saving voice fingerprints with `get_speaker_ids()` and recognising returning speakers via `known_speakers`
+- **Speaker focus** - `RETAIN` keeps a turn as background context and suppresses an immediate reply; `IGNORE` excludes it from the LLM context. The application implements both in `FocusAgent.on_user_turn_completed`, with changes through `set_focus` RPC or LLM tools
+- **The ignore list** - excluding one specific speaker's completed turns from the LLM context
+- **Speaker identification** - saving speaker identifiers with `get_speaker_ids()` and recognizing enrolled speakers via `known_speakers`
 - **Voice-driven control** - LLM function tools that change the focus ("ignore everyone else")
-- **Speechmatics-driven turn detection** - `TurnDetectionMode.VAD` plus `turn_handling=TurnHandlingOptions(turn_detection="stt")`, so Speechmatics' own per-speaker endpointing ends turns while a separate Silero VAD only handles barge-in
+- **Turn detection** - service-side voice activity detection (VAD) with `TurnDetectionMode.VAD` and `turn_handling=TurnHandlingOptions(turn_detection="stt")`; a separate Silero VAD supports interruptions
 - **Custom dictionary** - `additional_vocab` so the STT spells "Otto" and "Speechmatics" correctly
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/) (free hours every month)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
 - **LiveKit Cloud Account**: Sign up at [cloud.livekit.io](https://cloud.livekit.io/) (URL, API key, API secret)
-- **OpenAI API Key**: the agent's brain
-- **ElevenLabs API Key**: the agent's voice
-- **Python 3.9+**
+- **OpenAI API key**: for the LLM
+- **ElevenLabs API key**: for TTS
+- **Python 3.10+** (Python 3.12 recommended)
 - **A microphone** and a Chromium browser (Chrome/Edge) - mic capture happens in the browser, no PyAudio needed
 
 ## Project Structure
@@ -141,10 +143,10 @@ flowchart LR
     end
 
     subgraph Agent
-        STT["Speechmatics STT - diarization + memory"]
+        STT["Speechmatics agent STT - diarization + identification"]
         GATE["FocusAgent.on_user_turn_completed - focus gate"]
         LLM["OpenAI LLM + focus tools"]
-        TTS[TTS]
+        TTS[ElevenLabs TTS]
     end
 
     UI -->|token request| TOKEN
@@ -194,15 +196,15 @@ for who, said in lines:
         keep.append(SPEAKER_FMT.format(speaker_id=who, text=said))
 ```
 
-**RETAIN vs IGNORE.** Diarization and the STT never drop audio - every speaker's words are always transcribed. What differs is what the focus gate does with a non-focused speaker's turn. With `RETAIN` (the default), the turn is tagged `(background)` and is still added to the LLM's chat context by hand (`update_chat_ctx`), so the agent can hear it and be asked about it later, but `StopResponse()` stops it from getting an unprompted reply. With `IGNORE`, the turn is skipped entirely in the loop above and `StopResponse()` is raised without ever adding it to the context - it never reaches the LLM at all.
+**RETAIN vs IGNORE.** Both modes send the incoming audio to STT; filtering happens after transcription. With `RETAIN` (the default), a non-focused turn is tagged `(background)` and added to the LLM's chat context through `update_chat_ctx`. `StopResponse()` suppresses an immediate reply, while the text remains available for later context. With `IGNORE`, the gate skips that turn and raises `StopResponse()` without adding it to the LLM context.
 
-**Two more levers.** The **ignore list** (`LockState.ignore`) silences specific speakers independently of the focus mode - useful for muting one heckler while everyone else stays active; `spk_state` checks it first, so an ignored speaker is dropped regardless of focus. And the `dominant()`/`other()` heuristics used to resolve "me" and "the other speaker" for the hotkeys skip any label prefixed with `__` (reserved for the agent's own participant), so a hotkey can never accidentally target the agent itself.
+**Two more levers.** The **ignore list** (`LockState.ignore`) silences specific speakers independently of the focus mode - useful for muting one heckler while everyone else stays active; `spk_state` checks it first, so an ignored speaker is dropped regardless of focus. And the `dominant()`/`other()` heuristics used to resolve "me" and "the other speaker" for the hotkeys skip any label prefixed with `__` (reserved for the agent's own participant), so those labels are excluded from hotkey target selection.
 
-**Turn detection runs per speaker; filtering happens after.** The STT is configured with `turn_detection_mode=TurnDetectionMode.VAD`, and the `AgentSession` is started with `turn_handling=TurnHandlingOptions(turn_detection="stt")` - together these mean Speechmatics' own per-speaker endpointing decides when a turn ends, so a turn ends when *that speaker* stops talking, not when the room goes quiet. A separate Silero VAD instance also sits on the session, but only for barge-in: it can interrupt the agent's TTS playback, but with `turn_detection="stt"` it never ends a turn or triggers a reply on its own. Whether a completed turn actually earns an answer is decided afterward, by the focus gate.
+**Turn detection precedes filtering.** The STT uses `turn_detection_mode=TurnDetectionMode.VAD`, and the session uses `turn_handling=TurnHandlingOptions(turn_detection="stt")` to consume its turn events. The session's separate Silero VAD supports barge-in. Any audible speech can interrupt playback, including a background speaker; the focus gate decides afterward whether the completed turn should produce a reply.
 
-**Tags are the source of truth.** The system prompt (`assets/agent.md`) follows the three rules the docs recommend for focus-aware agents: the model judges every line only by its tag (untagged lines are active and must be served; `(background)` lines are context, never commands), it resolves "me"/"I" to the speaker ID prefixing that message, and it never says internal labels like `S1` out loud - only real names once known. The model never tracks focus state from conversation memory; the focus gate already encodes it in the text of every turn it hands to the LLM.
+**Background context is still LLM input.** The prompt in `assets/agent.md` asks the model to treat `(background)` lines as context rather than instructions and to resolve “me” from the speaker tag. The application suppresses immediate replies to background-only turns, but retained text can influence a later reply. Use `IGNORE` when those turns should be excluded from the LLM context.
 
-**Speaker memory.** During a session the engine builds a voice fingerprint per speaker (usable after roughly five spoken words; fingerprints captured at the end of a session are the highest quality). Press `E` to save them via `stt.get_speaker_ids()` into `speakers.json`; rename a label (e.g. `Speaker_1` to `Edgar`) and restart, and `known_speakers` attributes that voice to `Edgar` in every future session - the focus can then target speakers **by name**:
+**Speaker identification.** During a session, Speechmatics builds speaker identifiers. Press `E` to retrieve them with `stt.get_speaker_ids()` and save them to `python/speakers.json`. Rename a label (for example, `Speaker_1` to `Edgar`) and restart to supply that profile through `known_speakers`. When the service matches the voice, its transcript uses the saved label, which the application can then use as a focus target:
 
 ```python
 stt = speechmatics.STT(
@@ -213,7 +215,7 @@ stt = speechmatics.STT(
 )
 ```
 
-A speaker profile can hold several identifiers; collecting them across sessions and devices and merging them into the existing profile (rather than overwriting it) makes recognition steadily more reliable.
+A speaker profile can hold several identifiers; collecting them across sessions and devices and merging them into the existing profile (rather than overwriting it) can improve recognition across recording conditions. This example overwrites the file on enrollment; merging profiles would require an application change.
 
 ## Using It
 
@@ -248,22 +250,20 @@ Talk to the agent normally, then change who it listens to - by voice or by hotke
 - **One focus gate** - `FocusAgent.on_user_turn_completed` is the single place a turn gets kept, backgrounded, or dropped; focus, ignore and clear just flip the lock state it reads
 - **Live mid-session switching** - no restart, no reconnect
 - **Voice-driven** - four `@function_tool`s let the model change the focus; it resolves "me" from the speaker tag on the request
-- **Deliberate enrollment** - voiceprints are saved only when you press `E`; the agent never silently profiles anyone
+- **Deliberate persistence** - speaker identifiers are written to disk only when you press `E`; diarization operates throughout the session
 - **Clip injection** - load audio clips and fire them into the published mic track with keys `1`-`9` to simulate a crowd single-handedly
 
 ## Expected Output
 
-With no focus set, every speaker's line lands green in the transcript and the agent obeys all of them. After "I want you to ignore everyone else", other voices produce nothing at all - the events panel shows `focus( speakers=["S1"], mode=IGNORE )` and the transcript stays still while they speak. After "I want you to focus on my voice", their lines appear grey with a `PASSIVE` tag and the agent only reacts when you address it. After enrolling and renaming, your transcript lines are labelled with your name and the agent welcomes you back by name when you speak.
+With no focus set, all speakers' turns can trigger a response. After “I want you to ignore everyone else”, the events panel shows a focus change and the gate drops other speakers' completed turns before they reach the LLM. Their transcripts still appear in the browser with an `IGNORED` tag. In `RETAIN` mode, other speakers' lines appear with a `PASSIVE` tag and enter the LLM context without triggering an immediate response.
 
-## Security & Privacy
+After enrollment, renaming, and restart, matched transcript segments use the saved name. The browser's `DROPPED` counter is currently a microphone-level heuristic, not a measured count of turns rejected by the focus gate; use the gate's event messages to inspect actual decisions.
 
-> [!WARNING]
-> Speaker identifiers are voice fingerprints and **may qualify as biometric
-> data** under data-protection law (for example GDPR): obtain consent before
-> enrolling anyone, store identifiers securely, and support deletion.
-> Speechmatics does not store them - you own the file. Identifiers are unique
-> per account and do not work across accounts. `speakers.json` is gitignored
-> in this example; treat it like a credential.
+## Local demo and speaker identifiers
+
+The token server is intended for local development. It has no application authentication and accepts arbitrary room names. Before exposing it, add caller authentication, room authorization, request limits, and a restricted browser origin. The browser also renders incoming transcript/event values as HTML; escape those values before sharing a hosted version.
+
+Speaker identifiers are derived from people's voices. Obtain consent before saving them, protect `python/speakers.json`, and delete profiles when no longer needed. The file is gitignored in this example. Speaker identification and focus controls do not establish a user's identity or permissions.
 
 ## Troubleshooting
 
@@ -273,19 +273,19 @@ With no focus set, every speaker's line lands green in the transcript and the ag
 
 **The agent hears or talks over itself** - Echo cancellation is on by default; on open speakers use headphones, or check the OS "listen to this device" setting is off.
 
-**Enrollment says "no voice captured yet"** - A voiceprint needs about ten seconds of clean speech; say a few full sentences, then press `E` again.
+**Enrollment says "no voice captured yet"** - Say a few full sentences, then press `E` again. Clear speech and longer samples give the service more evidence to distinguish speakers.
 
 **Authentication errors** - Re-check all six values in your `.env` (no stray spaces).
 
 ## Next Steps
 
-- [Speaker ID & Speaker Focus (basics)](../../../basics/09-voice-agent-speaker-id/) - the minimal version of this pattern
-- [Intelligent Turn Detection](../../../basics/08-voice-agent-turn-detection/) - more on end-of-turn behaviour
+- [Agent STT](../../../basics/13-agent-stt/) - use the current Speechmatics SDK directly
+- [Speaker identification with the legacy Voice SDK](../../../basics/09-voice-agent-speaker-id/) - compare the earlier SDK approach
 - [Simple Voice Assistant](../01-simple-voice-assistant/) - the plain LiveKit + Speechmatics starting point
 
 ## Resources
 
-- [Speaker focus for voice agents](https://docs.speechmatics.com/speech-to-text/realtime/speaker-identification)
+- [Speaker identification](https://docs.speechmatics.com/speech-to-text/realtime/speaker-identification)
 - [Diarization](https://docs.speechmatics.com/speech-to-text/features/diarization) - separating a transcript into speakers
 - [LiveKit Speechmatics plugin](https://github.com/livekit/agents/tree/main/livekit-plugins/livekit-plugins-speechmatics)
 - [LiveKit Agents docs](https://docs.livekit.io/agents/)
@@ -294,7 +294,7 @@ With no focus set, every speaker's line lands green in the transcript and the ag
 
 **Time to Complete**: 20 minutes
 **Difficulty**: Intermediate
-**API Mode**: Voice Agent (Real-time)
+**API Mode**: Realtime — agent STT
 **Stack**: LiveKit Agents + Speechmatics STT plugin - Python + browser
 
 [Back to LiveKit Integrations](../) | [Back to Academy](../../../README.md)

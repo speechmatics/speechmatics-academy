@@ -14,8 +14,8 @@ Demonstrate multilingual capabilities by transcribing live audio and translating
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **Python 3.8+**
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **Python 3.12**
 - **Microphone**: Built-in or external microphone
 - **PyAudio**: For microphone access (installation instructions below)
 
@@ -25,11 +25,11 @@ Demonstrate multilingual capabilities by transcribing live audio and translating
 
 **Step 1: Create and activate a virtual environment**
 
-**On Windows:**
-```bash
+**On Windows (PowerShell):**
+```powershell
 cd python
 python -m venv .venv
-.venv\Scripts\activate
+.\.venv\Scripts\Activate.ps1
 ```
 
 **On Mac/Linux:**
@@ -226,7 +226,7 @@ This is expected behavior - the translation engine batches words together to pro
 
 ### Change Target Languages
 
-Modify the `TranslationConfig` to translate to different languages:
+To change the target languages, update `TranslationConfig`, the `translations` dictionary, the language labels in both handlers, and the final-summary loop together. The supplied script currently assumes Spanish and Russian; changing only the configuration will raise `KeyError` for other targets.
 
 ```python
 translation_config = TranslationConfig(
@@ -266,20 +266,22 @@ translation_config = TranslationConfig(
 
 ### Translation Support
 
-**Source Languages (55+):**
+Availability depends on the source/target pair and model. Check the [current translation language list](https://docs.speechmatics.com/speech-to-text/languages#translation-languages) before changing the configuration.
+
+**Example source languages:**
 - English (en), Spanish (es), French (fr), German (de), Italian (it)
 - Portuguese (pt), Dutch (nl), Russian (ru), Japanese (ja), Korean (ko)
-- Chinese (zh), Arabic (ar), Hindi (hi), and 40+ more
+- Mandarin (`cmn`), Arabic (`ar`), Hindi (`hi`), and other supported languages
 
-**Target Languages (55+):**
+**Target languages:**
 - All major European languages
-- Asian languages (Chinese, Japanese, Korean)
+- Asian languages (Mandarin, Japanese, Korean)
 - Middle Eastern languages (Arabic, Hebrew)
 - View full list: [Supported Languages](https://docs.speechmatics.com/speech-to-text/languages#translation-languages)
 
 ## Next Steps
 
-- **[Text-to-Speech](../06-text-to-speech/)** - Convert translated text back to speech
+- **[Text to Speech](../06-text-to-speech/)** - Convert translated text back to speech
 - **[Audio Intelligence](../04-audio-intelligence/)** - Extract insights from transcribed content
 - **[Video Captioning](../../use-cases/02-video-captioning/)** - Generate subtitles with translation
 - **[Call Center Analytics](../../use-cases/03-call-center-analytics/)** - Analyze multilingual customer calls
@@ -291,12 +293,8 @@ translation_config = TranslationConfig(
 **Windows:**
 ```bash
 # If pip install pyaudio fails, try:
-pip install pipwin
-pipwin install pyaudio
-
-# Or download pre-built wheel from:
-# https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
-pip install PyAudio‑0.2.11‑cp39‑cp39‑win_amd64.whl
+python -m pip install pyaudio
+# Use the documented Python 3.12 environment for official Windows wheels.
 ```
 
 **Mac:**
@@ -333,7 +331,7 @@ pip install pyaudio
 
 ## Resources
 
-- [Speechmatics Real-time](https://docs.speechmatics.com/speech-to-text/realtime/quickstart)
+- [Speechmatics Realtime](https://docs.speechmatics.com/speech-to-text/realtime/quickstart)
 - [Translation Documentation](https://docs.speechmatics.com/speech-to-text/features/translation)
 - [Languages Models](https://docs.speechmatics.com/speech-to-text/languages)
 - [WebSocket API Reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
@@ -350,7 +348,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-time
+**API Mode**: Realtime
 **Languages**: Python
 
 [Back to Basics](../) | [Back to Academy](../../README.md)

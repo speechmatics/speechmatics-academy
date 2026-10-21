@@ -52,13 +52,13 @@ Your project README must include at minimum these 5 sections:
 
 ## Speechmatics Features Used
 
-- [Feature 1] (e.g., batch-transcription, realtime-transcription, voice-agents)
+- [Feature 1] (for example, Batch transcription, Realtime transcription, or agent STT; keep catalog identifiers in the metadata)
 - [Feature 2]
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **[Language runtime]** (e.g., Python 3.10+, Node.js 18+)
+- **Speechmatics API key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
+- **[Language runtime]** (state the version you tested and the minimum required by your dependencies)
 - [Other requirements]
 
 ## Quick Start
@@ -73,7 +73,7 @@ Your project README must include at minimum these 5 sections:
 
 **Difficulty**: Beginner | Intermediate | Advanced
 
-[Back to Community Projects](../) | [Back to Academy](../../../README.md)
+[Back to Community Projects](../../README.md) | [Back to Academy](../../../README.md)
 ```
 
 ### Optional Sections
@@ -105,7 +105,7 @@ These are encouraged but not required:
 ## .env.example Template
 
 ```bash
-# Speechmatics API Key (required)
+# Speechmatics API key (required)
 # Get yours at: https://portal.speechmatics.com/
 SPEECHMATICS_API_KEY=your_api_key_here
 
@@ -151,9 +151,10 @@ Before submitting:
 
 ## Code Style
 
-- **Python**: We recommend following PEP 8 and passing `ruff check`, but this is not enforced for community projects
+- **Python**: Follow PEP 8 and run `ruff check` and `ruff format --check`. The repository-wide Python job currently checks community code too.
 - **Other languages**: Follow the language's standard conventions
-- Community projects receive **warning-only** lint checks in CI, not blocking errors
+- The dedicated community lint step is warning-only, but the repository-wide job can still block a pull request. See [current CI coverage](../docs/CONTRIBUTING.md#what-ci-currently-checks).
+- Follow the [documentation terminology](../docs/CONTRIBUTING.md#use-documentation-terminology) and preserve exact API identifiers in code.
 
 ---
 

@@ -8,11 +8,11 @@
 
 # Telephony Voice Assistant - Twilio + LiveKit + Speechmatics
 
-**Build a conversational voice assistant for phone calls using LiveKit SIP with Twilio and Speechmatics speech recognition and text-to-speech.**
+**Build an inbound phone assistant with Twilio, LiveKit SIP, and Speechmatics Speech to Text and Text to Speech.**
 
 </div>
 
-A complete voice assistant that handles inbound phone calls using LiveKit's SIP integration with Twilio, best-in-class speech recognition (Speechmatics STT), natural language processing (OpenAI), and text-to-speech (Speechmatics TTS).
+The application combines Speechmatics Speech to Text (STT), an OpenAI large language model (LLM), and Speechmatics Text to Speech (TTS). LiveKit's Speechmatics STT plugin uses **agent STT**, powered by **Linden 1**, on the Realtime API; LiveKit and Twilio handle the call transport.
 
 ## What You'll Learn
 
@@ -20,16 +20,16 @@ A complete voice assistant that handles inbound phone calls using LiveKit's SIP 
 - Setting up Twilio Elastic SIP Trunking with LiveKit
 - Handling inbound phone calls with LiveKit SIP
 - Using LiveKit's agent framework for phone-based conversations
-- Voice Activity Detection (VAD) for natural turn-taking
+- Voice activity detection (VAD) to finalize user turns
 
 ## Prerequisites
 
-- **Speechmatics API Key**: Get one from [portal.speechmatics.com](https://portal.speechmatics.com/)
-- **OpenAI API Key**: Get one from [platform.openai.com](https://platform.openai.com/)
+- **Speechmatics API key**: Create one in the [Speechmatics portal](https://portal.speechmatics.com/)
+- **OpenAI API key**: Get one from [platform.openai.com](https://platform.openai.com/)
 - **LiveKit Cloud Account**: Get one from [cloud.livekit.io](https://cloud.livekit.io/)
 - **Twilio Account**: Get one from [twilio.com](https://www.twilio.com/)
 - **Twilio Phone Number**: Purchase a phone number in the Twilio Console
-- **Python 3.10+**
+- **Python 3.10+** (Python 3.12 recommended)
 
 ## Quick Start
 
@@ -133,9 +133,9 @@ flowchart LR
 1. **Incoming Call** - Caller dials your Twilio phone number
 2. **SIP Routing** - Twilio routes call via SIP to LiveKit
 3. **Room Connection** - LiveKit SIP creates a room participant for the caller
-4. **Speech-to-Text** - Speechmatics transcribes the caller's speech
+4. **Speech to Text** - Speechmatics transcribes the caller's speech
 5. **LLM Processing** - OpenAI generates a response
-6. **Text-to-Speech** - Speechmatics converts response to audio
+6. **Text to Speech** - Speechmatics converts response to audio
 7. **Audio Playback** - Audio streams back through LiveKit SIP to the caller
 
 ### Key Components
@@ -145,9 +145,9 @@ flowchart LR
 | **LiveKit Agents** | Framework for building real-time voice AI applications |
 | **LiveKit SIP** | Bridges PSTN calls to LiveKit rooms via SIP |
 | **Twilio Elastic SIP** | Routes phone calls to LiveKit's SIP endpoint |
-| **Speechmatics STT** | Real-time speech-to-text transcription |
+| **Speechmatics STT** | Agent STT for the speech recognition stage |
 | **OpenAI GPT-4o-mini** | Language model for generating responses |
-| **Speechmatics TTS** | Text-to-speech for natural voice output |
+| **Speechmatics TTS** | Converts the LLM response to speech |
 | **Silero VAD** | Voice Activity Detection for turn-taking |
 
 ### Code Highlights
@@ -170,7 +170,7 @@ async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
         stt=speechmatics.STT(vad=vad),
         llm=openai.LLM(model="gpt-4o-mini"),
-        tts=speechmatics.TTS(),
+        tts=speechmatics.TTS(voice="megan"),
         vad=vad,
     )
 
@@ -191,7 +191,7 @@ First, create a SIP trunk in LiveKit to receive calls:
    - **Trunk name**: Give it a name (e.g., "Twilio Inbound")
    - **Trunk direction**: Select **Inbound**
    - **Numbers**: Enter your Twilio phone number (e.g., `+14155551234`)
-   - **Allowed addresses**: Leave as `0.0.0.0/0` to allow all IPs
+   - **Allowed addresses**: Restrict incoming calls to the addresses used by your SIP provider; use [Twilio's current SIP trunking network requirements](https://www.twilio.com/docs/sip-trunking/ip-addresses)
 5. Click **Create** and copy the **SIP URI** (e.g., `sip:xxxxx.sip.livekit.cloud`)
 
 ### Step 2: Create Twilio Elastic SIP Trunk
@@ -239,34 +239,11 @@ Route incoming calls to your agent:
 
 Edit `assets/agent.md` to change the assistant's personality. The default configures Roxie as a standup comedian optimized for phone conversations.
 
-### Enable Noise Cancellation
+### Enable noise cancellation
 
-For better call quality, enable Krisp noise cancellation in your LiveKit dispatch rule:
+Enable Krisp on the **inbound SIP trunk**, following the [LiveKit inbound trunk guide](https://docs.livekit.io/telephony/accepting-calls/inbound-trunk/). In the trunk's JSON editor, set `krispEnabled` to `true`; the Python SDK field is `krisp_enabled`.
 
-1. Go to [LiveKit Cloud Console](https://cloud.livekit.io/)
-2. Navigate to **Telephony Configuration** > **Dispatch Rules**
-3. Select your dispatch rule and click **Edit**
-4. Add `krispEnabled: true` to the `roomConfig` object:
-
-```json
-{
-  "sipDispatchRuleId": "SDR_yourRuleId",
-  "rule": {
-    "dispatchRuleIndividual": {
-      "roomPrefix": "call-"
-    }
-  },
-  "trunkIds": [
-    "ST_yourTrunkId"
-  ],
-  "name": "Your Rule Name",
-  "roomConfig": {
-    "krispEnabled": true
-  }
-}
-```
-
-This enables Krisp AI noise cancellation, which filters out background noise from the caller's phone for clearer audio to your STT.
+This setting filters the caller's audio before it reaches the room. It belongs to the inbound trunk, not the dispatch rule's `roomConfig`.
 
 ## Running Modes
 
@@ -278,13 +255,13 @@ This enables Krisp AI noise cancellation, which filters out background noise fro
 
 ## Comparison: LiveKit SIP vs Direct Twilio Media Streams
 
-| Feature | LiveKit SIP (This Sample) | Direct Twilio (01-voice-assistant) |
+| Feature | LiveKit SIP (This Sample) | Direct Twilio (01-outbound-dialer) |
 |---------|--------------------------|-------------------------------------|
 | **Infrastructure** | LiveKit Cloud handles SIP | Your server handles WebSocket |
 | **Scaling** | Built-in via LiveKit | Manual server scaling |
 | **Audio Format** | Handled by LiveKit | Manual mulaw conversion |
 | **Setup Complexity** | SIP trunk configuration | Webhook + ngrok setup |
-| **Best For** | Production deployments | Learning/prototyping |
+| **Focus** | SIP routing and LiveKit-managed transport | Direct Media Streams handling |
 
 ## Troubleshooting
 
@@ -308,7 +285,7 @@ This enables Krisp AI noise cancellation, which filters out background noise fro
 ## Next Steps
 
 - **[Simple Voice Assistant - LiveKit](../01-simple-voice-assistant/)** - WebRTC-based voice assistant
-- **[Voice Assistant - Direct Twilio](../../twilio/01-voice-assistant/)** - Compare with direct Twilio integration
+- **[Outbound Dialer - Direct Twilio](../../twilio/01-outbound-dialer/)** - Compare with direct Twilio integration
 
 ## Resources
 
@@ -331,6 +308,7 @@ Help us improve this guide:
 
 **Time to Complete**: 30 minutes
 **Difficulty**: Advanced
+**API Mode**: Realtime — agent STT; Text to Speech
 **Integration**: LiveKit + Twilio SIP
 
 [Back to Integrations](../../) | [Back to Academy](../../../README.md)

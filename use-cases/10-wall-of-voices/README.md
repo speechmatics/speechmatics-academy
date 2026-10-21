@@ -1,8 +1,8 @@
 # Wall of Voices
 
-**A stage demo for a room full of languages. One microphone goes around the audience, each person speaks a sentence in their own language, and their words land on a shared screen: coloured, labelled and correctly oriented by the language Melia detected, word by word.**
+**A stage demo for a room full of languages. One microphone goes around the audience, each person speaks a sentence in their own language, and their words land on a shared screen: coloured, labelled with colors and labels derived from Melia 1's per-word language tags.**
 
-Melia (`model: "melia-1"`, `language: "multi"`) tags every word with its own ISO code, on partials as well as finals. Everything on this screen is a direct rendering of `alternatives[0].language`: colour, label, text direction. Nobody configures anything, and nothing is told which languages to expect.
+Melia 1 (`model: "melia-1"`, `language: "multi"`) tags every word with its own ISO code, on partials as well as finals. Everything on this screen is a direct rendering of `alternatives[0].language`: colour, label, text direction. Nobody configures anything, and nothing is told which languages to expect.
 
 ![Recording of the app: an English sentence lands on the wall, then one drops mid-sentence into Bulgarian and the colour flips at the exact word, then nine more speakers fill the wall and the counter reaches eleven languages](assets/wall-of-voices.gif)
 
@@ -10,21 +10,23 @@ The moment worth rehearsing is the code-switch. Open in English, drop one clause
 
 ## What You'll Learn
 
-- **`enable_partials` is required, and the Melia quickstart omits it.** Without it the endpoint sends finals only, and it fails silently.
+- **`enable_partials=True` requests partial transcripts.** The wall uses these interim hypotheses for live feedback before the final transcript.
 - **Per-word language routing.** Colour, label and writing direction all come from one field, with no classifier and no post-processing.
 - **Bring-your-own-key in a browser app.** The visitor pastes a key, the browser exchanges it for a short-lived one, and no long-lived credential is stored anywhere but their own browser.
-- **Where the audio path belongs.** The microphone is in the browser, so the browser opens the Melia socket. Python only exchanges keys.
+- **Where the audio path belongs.** The microphone is in the browser, so the browser opens the Melia 1 socket. Python only exchanges keys.
 - **Right-to-left as a data-driven property.** Arabic, Hebrew, Persian, Urdu and Uyghur render RTL because the per-word code says so, not because anyone picked a locale.
 
 ## Prerequisites
 
 - **Python 3.12.** `dev_server.py` and `api/token.py` import the standard library only.
-- **Speechmatics API Key.** Sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**. It needs access to the Melia preview. You paste it into the page; see [Bring your own key](#bring-your-own-key).
+- **Speechmatics API key.** Sign up at [portal.speechmatics.com](https://portal.speechmatics.com/) and create a key under **API Keys**. The code currently targets the preview Realtime endpoint; confirm that your key can access that endpoint. You paste it into the page; see [Bring your own key](#bring-your-own-key).
 - **A browser with microphone access**, Chrome or Edge. There is no build step and no `npm`: the page loads ES modules directly.
 - **One microphone**, wired if you can, plus a projector or large display. Bluetooth microphones force the operating system into a mono narrowband profile the instant capture opens, costing you audio quality precisely when the audio is the demo. A wireless handheld with its own receiver is fine; it is the profile switch that hurts, not wirelessness.
 - *Optional:* **PyAudio**, only for [`cli.py`](#clipy-the-same-tags-without-a-browser). Wheels ship for Windows. macOS and Linux build from source and need the PortAudio headers first (`brew install portaudio`, or `sudo apt install portaudio19-dev`).
 
 ## Quick Start
+
+Start in `use-cases/10-wall-of-voices/` after cloning the Academy. Commands below are relative to this directory.
 
 ### Python
 
@@ -79,7 +81,7 @@ flowchart LR
 ```
 
 1. The page exchanges the pasted key for a 60-second realtime key, directly against the Management Platform, falling back to `POST /api/token`.
-2. The browser opens a WebSocket to Melia with that temporary key in the query string and streams 16 kHz mono PCM from `getUserMedia`.
+2. The browser opens a WebSocket to Melia 1 with that temporary key in the query string and streams 16 kHz mono PCM from `getUserMedia`.
 3. Partials paint into `#live-line` and finals commit as tiles on `#wall`, both carrying a per-word language code. The counter, legend and ribbon are recomputed once per animation frame from the committed tiles.
 
 **The browser holds the microphone, so the browser holds the socket.** The token endpoint exists only to exchange a long-lived key for a short-lived one, and it never sits in the audio path. Streaming audio through Python instead is a real architecture, and the right one when you need server-side recording or redaction, but it needs a host that can keep a socket open and it adds a hop to a model that is already seconds behind. This demo gains nothing from it, so `speechmatics.rt` appears only in `cli.py`.
@@ -123,9 +125,9 @@ socket.send(JSON.stringify({
 ```
 
 > [!IMPORTANT]
-> **`enable_partials` is required and the quickstart omits it.** Against the live preview endpoint, `{ language: 'multi', model: 'melia-1' }` returns zero `AddPartialTranscript` messages. The failure is silent: finals still arrive, the wall still paints, and the demo just runs seconds behind the speaker.
+> **Partial transcripts are opt-in.** This example sets `enable_partials` so `AddPartialTranscript` messages can update the live line before final text arrives.
 
-`cli.py` sends the same three keys through the SDK, spelled `enable_partials=True`. Keys you may be tempted to add and must not: `max_delay`, `conversation_config`, `translation_config`, `diarization`, `enable_entities`. Melia rejects all of them and the connection fails at `StartRecognition`. It is ASR only, and there is no knob that makes its finals arrive sooner, which is why the demo is designed not to need one.
+`cli.py` sends the same three keys through the SDK, spelled `enable_partials=True`. Keys you may be tempted to add and must not: `max_delay`, `conversation_config`, `translation_config`, `diarization`, `enable_entities`. These are not supported by Melia 1 Realtime. Check the [current model capabilities](https://docs.speechmatics.com/speech-to-text/models) before adding other settings. Model capabilities differ between Realtime and Batch; this example does not implement client-forced utterance boundaries.
 
 ### The per-word tag is the demo
 
@@ -144,7 +146,7 @@ words.push({
 
 From that one field the wall derives a **colour slot** (assigned when the language was first heard), a **label** from `public/languages.js`, and a **text direction** from the same table. No translation, no confidence threshold, no smoothing.
 
-Direction is the clearest case. Melia detects five RTL languages (`ar` Arabic, `he` Hebrew, `fa` Persian, `ur` Urdu and `ug` Uyghur), every entry in `MELIA_LANGUAGES` carries a `dir` field, and a word tagged `ar` gets `dir="rtl"` and lays itself out right-to-left inside a wall that is otherwise left-to-right. Nobody picks a locale, and nothing in the UI has an RTL mode to switch into.
+Direction is the clearest case. Melia 1 detects five RTL languages (`ar` Arabic, `he` Hebrew, `fa` Persian, `ur` Urdu and `ug` Uyghur), every entry in `MELIA_LANGUAGES` carries a `dir` field, and the dominant language of a tile sets its text direction. Mixed-script text still depends on browser bidirectional-text behavior. Nobody picks a locale, and nothing in the UI has an RTL mode to switch into.
 
 ### What is on the screen
 
@@ -165,12 +167,12 @@ Direction is the clearest case. Melia detects five RTL languages (`ar` Arabic, `
 
 ### One sentence, one tile
 
-Melia finalises when it is confident, not when the speaker finishes a sentence, so one spoken sentence often arrives as two finals. A tile per final would split that sentence in half under two identical language labels. So `VoiceWall.commit()` keeps a tile **open** and absorbs later finals until the sentence ends. Two signals close it, because neither is reliable alone: `is_eos` on the last result, and terminal punctuation (`.` `!` `?` `…` `。` `！` `？` `؟` `۔` `।` and the Greek question mark `U+037E`, which is not an ASCII semicolon even though it renders identically).
+Melia 1 finalises when it is confident, not when the speaker finishes a sentence, so one spoken sentence often arrives as two finals. A tile per final would split that sentence in half under two identical language labels. So `VoiceWall.commit()` keeps a tile **open** and absorbs later finals until the sentence ends. Two signals close it, because neither is reliable alone: `is_eos` on the last result, and terminal punctuation (`.` `!` `?` `…` `。` `！` `？` `؟` `۔` `।` and the Greek question mark `U+037E`, which is not an ASCII semicolon even though it renders identically).
 
 > [!IMPORTANT]
 > A language change does **not** close a tile. "So the point is, това е важното, right?" is one sentence and belongs in one tile with the colour flipping inside it. Splitting on language would destroy the moment the whole demo exists for.
 
-A speaker who trails off without punctuation would otherwise absorb whoever gets the microphone next, so `main.js` closes the open tile after a 1.5 second gap measured on Melia's word clock rather than the wall clock, and a 60-word cap backstops the case where punctuation never arrives at all. A wrong split costs one extra tile nobody notices; a wrong merge puts two people's sentences under one label in front of a room. Melia's finals run roughly three to six seconds behind the speaker, and partials arrive about two seconds ahead of their own finals. **This demo does not care, by design.** One person speaks at a time and the microphone is physically handed to the next, so the previous utterance settles on the wall inside the dead time a passed microphone creates for free.
+A speaker who trails off without punctuation would otherwise absorb whoever gets the microphone next, so `main.js` closes the open tile after a 1.5 second gap measured on Melia 1's word clock rather than the wall clock, and a 60-word cap backstops the case where punctuation never arrives at all. A wrong split costs one extra tile nobody notices; a wrong merge puts two people's sentences under one label in front of a room. The original preview demonstration observed finals roughly three to six seconds behind the speaker and partials about two seconds ahead of their own finals; these are observations, not latency guarantees. **This demo does not care, by design.** One person speaks at a time and the microphone is physically handed to the next, so the previous utterance settles on the wall inside the dead time a passed microphone creates for free.
 
 ### Bring your own key
 
@@ -184,13 +186,13 @@ The key belongs to whoever is at the keyboard. Paste it into the key bar above t
 The browser exchanges that key for a temporary realtime key by calling the Management Platform **directly**, as `POST https://mp.speechmatics.com/v1/api_keys?type=rt` with an `Authorization: Bearer` header and `{ "ttl": 60 }`. If that call fails on CORS or the network, it retries through `POST /api/token` with `{ apiKey }`, which does the identical exchange from Python. Both halves live in `fetchTempKey()` in `public/main.js`. A 401 or 403 is not retried through the proxy: a rejected key is the visitor's to fix, so the session stops with one sentence on screen and the field keeps its value, making a typo an edit rather than a re-paste.
 
 > [!IMPORTANT]
-> **The temporary key, never the long-lived one, is what reaches the WebSocket.** It rides in the URL as `?jwt=`, because a browser's `WebSocket` constructor cannot set an `Authorization` header, and query strings end up in proxy logs and browser history. Sixty seconds is the API's floor and the whole containment strategy: a fresh key is minted per connection attempt, so the one that authorised a lost socket is already dead.
+> **The temporary key, never the long-lived one, is what reaches the WebSocket.** It rides in the URL as `?jwt=`, because a browser's `WebSocket` constructor cannot set an `Authorization` header, and query strings end up in proxy logs and browser history. Sixty seconds is the API's minimum TTL. A fresh key is minted per connection attempt to limit reuse; a previously issued key can still be valid until its own lifetime expires.
 
-The key is never logged, never put in a URL, never echoed back, and never sent anywhere but `mp.speechmatics.com` or this app's own `/api/token`. `api/token.py` silences its own request logging, returns an upstream status and never an upstream body, and answers everything `Cache-Control: no-store`.
+The long-lived key is not deliberately logged, put in a URL or echoed back by this app. It is sent only to `mp.speechmatics.com` or this app's own `/api/token`. `api/token.py` silences its own request logging, returns an upstream status and never an upstream body, and answers everything `Cache-Control: no-store`.
 
 ### cli.py: the same tags without a browser
 
-`python cli.py` opens the **server-side** microphone, meaning the machine running Python is the machine being listened to, which is exactly why it can use the SDK directly. It is also the one part of this example that wants a key in `.env`. It lists the input devices, lets you pick one, starts a session with the same three-key `transcription_config`, and prints every word with the language Melia tagged it with, ending in a per-language tally:
+`python cli.py` opens the **server-side** microphone, meaning the machine running Python is the machine being listened to, which is exactly why it can use the SDK directly. It is also the one part of this example that wants a key in `.env`. It lists the input devices, lets you pick one, starts a session with the same three-key `transcription_config`, and prints every word with the language Melia 1 tagged it with, ending in a per-language tally:
 
 ```
 [final]   so[en] the[en] point[en] is[en] това[bg] е[bg] важното[bg], right[en]?
@@ -222,21 +224,21 @@ A presenter opening in English, code-switching into Bulgarian, then the micropho
 
 Each tile carries a slot-coloured rail down its start edge, and the live line adds a pulsing dot that a committed tile does not have. The counter reads 3, not 4: Hindi is still in the live line, and only committed tiles count.
 
-**The label is a name, not a code.** `wall.js#buildMeta` writes `meta?.name ?? dominant ?? 'Unrecognised'`, so a tile reads `ARABIC`, not `ar`, with the native name beside it in its own script. A bare ISO code means Melia sent a code that is not among the 55 entries in `public/languages.js`. It is shown rather than hidden, because "the model said `bxr`" is a discussable result in front of an audience. `+ Bulgarian` is `.utterance__also`, listing every language in the tile other than the dominant one, most words first, up to three before the remainder collapses to `+N`.
+**The label is a name, not a code.** `wall.js#buildMeta` writes `meta?.name ?? dominant ?? 'Unrecognised'`, so a tile reads `ARABIC`, not `ar`, with the native name beside it in its own script. A bare ISO code means Melia 1 sent a code that is not among the 55 entries in `public/languages.js`. It is shown rather than hidden, because "the model said `bxr`" is a discussable result in front of an audience. `+ Bulgarian` is `.utterance__also`, listing every language in the tile other than the dominant one, most words first, up to three before the remainder collapses to `+N`.
 
 ## Key Features Demonstrated
 
-- **Zero-configuration multilingual ASR:** one model, one config, no language list, no per-speaker setup.
+- **Automatic multilingual speech recognition:** one model, one config, no language list, no per-speaker setup.
 - **Per-word language identification on partials:** the tag arrives while the sentence is still being spoken, which is what makes the mid-sentence colour flip possible at all.
 - **Mid-utterance code-switch detection:** the boundary is drawn at the word, not at the utterance, and RTL scripts render correctly from the same tag.
-- **No credential in the app:** browser-supplied keys, exchanged for 60-second temporary ones.
+- **Visitor-provided credentials:** browser keys are stored in session storage by default and exchanged for 60-second temporary Realtime keys.
 
 ## Configuration Options
 
 - **Colour slots.** Eight CVD-validated values, `--series-1` through `--series-8` in `public/styles.css`, in a dark set and a light set. That stylesheet is the single source of truth for colour: `palette.js` hands out a slot *number*, renderers write `data-series="1"` to `"8"`, and `[data-series="N"] { --slot: var(--series-N) }` is where a number becomes a colour. Assignment is first-heard-first-served and cycles past eight, which is safe only because every surface names its language in text, so a repeated hue costs a grouping cue rather than a meaning. The ribbon, being a chart, refuses to reuse a hue and folds its tail into one achromatic **Other** segment instead.
 - **Realtime host.** `wss://preview.rt.speechmatics.com/v2`, exported as `DEFAULT_MELIA_URL` from `public/melia-socket.js` and overridable via the constructor. It is not an environment variable, because this is browser code with no build step.
 - **Temporary key TTL.** `SM_TOKEN_TTL`, in whole seconds, read by `api/token.py`. The default is 60, the API's floor, and that is the setting you want. Values outside 60 to 86400 are clamped, and an unparseable value falls back to the default rather than failing the request. The dev server's port is `PORT`, defaulting to 3100.
-- **Language table.** `public/languages.js` holds 55 entries: code, English name, native name, direction. Add a row to teach the wall a language Melia tags that it cannot yet label.
+- **Language table.** `public/languages.js` holds 55 entries: code, English name, native name, direction. Add a row to teach the wall a language Melia 1 tags that it cannot yet label.
 
 ## Running It On Stage
 
@@ -249,19 +251,24 @@ Each tile carries a slot-coloured rail down its start edge, and the live line ad
 
 ## Next Steps
 
-- **[Melia Multilingual Transcription](../../basics/12-melia-multilingual/)**: the same model over the Batch API in about twenty lines. Start here if per-word language tags are new to you.
-- **[Voice API Explorer](../../basics/11-voice-api-explorer/)**: the realtime WebSocket surface in depth.
+- **[Melia 1 Multilingual Transcription](../../basics/12-melia-multilingual/)**: the same model over the Batch API in about twenty lines. Start here if per-word language tags are new to you.
+- **[Voice API Explorer](../../basics/11-voice-api-explorer/)**: a Python and JavaScript explorer for the older preview WebSocket protocol; see its compatibility notes before using the current Agent STT API.
 
 ## Troubleshooting
 
+**Current shutdown and connection limitations**
+- The browser closes immediately on Stop, so pending final words can be omitted. Wait for the final tiles before stopping; the CLI waits for a bounded final flush.
+- A WebSocket that opens without `RecognitionStarted` has no browser handshake deadline in this implementation. Stop and reload if it stays on Connecting.
+- Keep the development server local. Its optional environment-key fallback has no Origin/authentication controls; use only a trusted browser/device and do not expose it through a tunnel.
+
 **"Words appear, but only seconds after they are spoken"**
-- `enable_partials` is missing from `transcription_config`. Check this first, always, because nothing errors. Log the `message` field of every frame the socket receives; if `AddPartialTranscript` never appears, that is the cause.
+- Check `enable_partials` in `transcription_config`. If it is enabled but partials do not arrive, inspect server messages and network conditions; model/network delay can also affect responsiveness.
 
 **"The socket closes immediately after StartRecognition"**
-- A schema validation error, almost always from adding `max_delay` or `conversation_config`. Melia rejects both, so send only `language`, `model` and `enable_partials`. Otherwise the temporary key expired: it lives 60 seconds, so a page paused at a permission prompt can miss the window. Press Start again.
+- A schema validation error, almost always from adding `max_delay` or `conversation_config`. Melia 1 rejects both, so send only `language`, `model` and `enable_partials`. Otherwise check whether the temporary key expired before the connection started. Press Start again.
 
 **"Speechmatics rejected that API key"**
-- A 401 or 403, from the direct call or from `/api/token` as `invalid_api_key`. The key is wrong, has a stray space, or lacks Melia preview access. The field keeps its value so you can edit rather than re-paste, and the same key will fail in `python cli.py`, which is the quickest way to tell a bad key from a bad page.
+- A 401 or 403, from the direct call or from `/api/token` as `invalid_api_key`. The key is wrong, has a stray space, or lacks Melia 1 preview access. The field keeps its value so you can edit rather than re-paste, and the same key will fail in `python cli.py`, which is the quickest way to tell a bad key from a bad page.
 
 **"Could not mint a realtime key"**
 - `400 missing_api_key` means no `apiKey` in the request and no server key to fall back to, so paste a key in the browser or add one to `.env` and restart. `502 token_mint_failed` means the Management Platform timed out, refused for another reason, or returned no `key_value`. Only the upstream status comes back, never its body, because an error body can carry credential material.
@@ -282,8 +289,8 @@ Each tile carries a slot-coloured rail down its start edge, and the live line ad
 
 - [Speechmatics documentation](https://docs.speechmatics.com/)
 - [Speechmatics authentication and temporary keys](https://docs.speechmatics.com/get-started/authentication)
-- [Speechmatics realtime API reference](https://docs.speechmatics.com/rt-api-ref)
-- [Supported languages](https://docs.speechmatics.com/introduction/supported-languages)
+- [Speechmatics Realtime API reference](https://docs.speechmatics.com/api-ref/realtime-transcription-websocket)
+- [Supported languages](https://docs.speechmatics.com/speech-to-text/languages)
 - [Speechmatics Python SDK](https://github.com/speechmatics/speechmatics-python-sdk), the `speechmatics.rt` package `cli.py` uses
 
 ---
@@ -298,7 +305,7 @@ Help us improve this guide:
 
 **Time to Complete**: 15 minutes
 **Difficulty**: Intermediate
-**API Mode**: Real-time
+**API Mode**: Realtime
 **Languages**: Python, JavaScript
 
 [Back to Use Cases](../) | [Back to Academy](../../README.md)
