@@ -69,6 +69,9 @@ Keep API keys out of source control. Use a separate environment for each example
 
 Install the requirements supplied with an example. For your own project, choose the package that matches the API you need:
 
+<details>
+<summary><strong>📦 Package details</strong> • Click to see what's included in each package</summary>
+
 | Package | Purpose | Start here |
 |---|---|---|
 | `speechmatics-batch` | Submit audio files and retrieve transcripts | [Hello World](basics/01-hello-world/) |
@@ -76,6 +79,8 @@ Install the requirements supplied with an example. For your own project, choose 
 | `speechmatics-agent-stt` | Receive speaker-attributed segments and speech and turn events | [Agent STT](basics/13-agent-stt/) |
 | `speechmatics-tts` | Generate speech from text | [Text to Speech](basics/06-text-to-speech/) |
 | `speechmatics-voice` | Maintain existing applications using client-side segmentation and turn presets | [Legacy turn detection example](basics/08-voice-agent-turn-detection/) |
+
+</details>
 
 The [Voice SDK is deprecated](https://docs.speechmatics.com/integrations-and-sdks/voice-sdk). Start new voice-agent transcription integrations with agent STT or the current LiveKit and Pipecat integrations. Your application or framework supplies the LLM, speech synthesis, tools, and conversation logic.
 
@@ -119,15 +124,15 @@ Use `model` in new Batch and Realtime configurations. The older `operating_point
 
 | Integration | Example | What it demonstrates |
 |---|---|---|
-| Agora | [Conversational AI agent](integrations/agora/01-conversational-ai-agent/) | Browser audio, transcripts, and a managed conversation pipeline |
-| LiveKit | [Simple voice assistant](integrations/livekit/01-simple-voice-assistant/) | Connect transcription, an LLM, and speech synthesis |
-| LiveKit and Twilio | [Telephony](integrations/livekit/02-telephony-twilio/) | Connect phone calls through SIP |
-| LiveKit | [Speaker focus](integrations/livekit/03-speaker-focus-voice-agent/) | Apply speaker focus and speaker memory in an application |
-| Pipecat | [Local voice bot](integrations/pipecat/01-simple-voice-bot/) | Run a voice pipeline with local microphone and speaker audio |
-| Pipecat | [Web voice bot](integrations/pipecat/02-simple-voice-bot-web/) | Connect a browser through WebRTC |
-| Twilio | [Outbound dialer](integrations/twilio/01-outbound-dialer/) | Place calls and process Media Streams using the deprecated Voice SDK |
-| Vapi | [Voice assistant](integrations/vapi/01-voice-assistant/) | Configure Speechmatics transcription in Vapi |
-| Tambourine | [Healthcare dictation](integrations/tambourine/01-healthcare-dictation/) | Configure desktop dictation and text formatting |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/agora/logo/agora-logo-rgb-blue.svg"><source media="(prefers-color-scheme: light)" srcset="integrations/agora/logo/agora-logo-rgb-blue.svg"><img alt="Agora" src="integrations/agora/logo/agora-logo-rgb-blue.svg" height="22"></picture> | [Conversational AI agent](integrations/agora/01-conversational-ai-agent/) | Browser audio, transcripts, and a managed conversation pipeline |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Simple voice assistant](integrations/livekit/01-simple-voice-assistant/) | Connect transcription, an LLM, and speech synthesis |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Telephony](integrations/livekit/02-telephony-twilio/) | Connect phone calls through SIP |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Speaker focus](integrations/livekit/03-speaker-focus-voice-agent/) | Apply speaker focus and speaker memory in an application |
+| <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Local voice bot](integrations/pipecat/01-simple-voice-bot/) | Run a voice pipeline with local microphone and speaker audio |
+| <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Web voice bot](integrations/pipecat/02-simple-voice-bot-web/) | Connect a browser through WebRTC |
+| <img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"> | [Outbound dialer](integrations/twilio/01-outbound-dialer/) | Place calls and process Media Streams using the deprecated Voice SDK |
+| <div align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vapi/logo/vapi-dark.png"><img alt="VAPI" src="integrations/vapi/logo/vapi-dark.png" height="50"></picture></div> | [Voice assistant](integrations/vapi/01-voice-assistant/) | Configure Speechmatics transcription in Vapi |
+| <div align="center"><img src="integrations/tambourine/logo/icon.png" alt="Tambourine" height="50"></div> | [Healthcare dictation](integrations/tambourine/01-healthcare-dictation/) | Configure desktop dictation and text formatting |
 
 ### Use cases
 
