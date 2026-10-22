@@ -1,80 +1,295 @@
 # Speechmatics Academy - Example Catalog
-# This file is the source of truth for all examples in the Academy
-# Used by CLI tool for search, filtering, and scaffolding
+# Authoritative metadata for generated Markdown navigation.
+# Edit this file, then run .github/scripts/generate_catalog.py.
+# Lifecycle describes the implementation; it does not guarantee service access.
 
-version: "1.0.0"
-last_updated: "2026-10-14"
-total_examples: 32
+# Catalog version and metadata
+version: "2.0.0"
+last_updated: "2026-10-22"
 
-# Example Categories
+# Categories and controlled vocabularies
 categories:
   - id: "basics"
     title: "Basics"
-    description: "Fundamental examples for getting started with Speechmatics SDK"
+    description: "Fundamental examples for Speechmatics APIs and SDKs"
   - id: "integrations"
     title: "Integrations"
     description: "Third-party framework and service integrations"
   - id: "use-cases"
     title: "Use Cases"
-    description: "Production-ready applications for specific industries"
+    description: "Applications demonstrating practical speech workflows"
   - id: "community"
     title: "Community Projects"
     description: "Community-contributed examples, tools, and experiments"
-
-# Difficulty Levels
-difficulty_levels:
-  - beginner
-  - intermediate
-  - advanced
-
-# Supported Languages
-languages:
-  - python
-  - typescript
-  - javascript
-  - go
-  - csharp
-  - dart
-
-# Available Features
+difficulty_levels: ["beginner", "intermediate", "advanced"]
+languages: ["python", "typescript", "javascript", "go", "csharp", "dart", "config"]
+language_labels:
+  python: "Python"
+  typescript: "TypeScript"
+  javascript: "JavaScript"
+  go: "Go"
+  csharp: "C#"
+  dart: "Dart"
+  config: "Configuration"
 features:
-  - batch-transcription
-  - realtime-transcription
-  - speaker-diarization
-  - speaker-identification
-  - channel-diarization
-  - custom-vocabulary
-  - audio-intelligence
-  - sentiment-analysis
-  - topic-detection
-  - summarization
-  - translation
-  - text-to-speech
-  - turn-detection
-  - voice-agents
+  - "batch-transcription"
+  - "realtime-transcription"
+  - "speaker-diarization"
+  - "speaker-identification"
+  - "channel-diarization"
+  - "custom-vocabulary"
+  - "audio-intelligence"
+  - "sentiment-analysis"
+  - "topic-detection"
+  - "summarization"
+  - "translation"
+  - "text-to-speech"
+  - "turn-detection"
+  - "voice-agents"
+feature_labels:
+  batch-transcription: "Batch transcription"
+  realtime-transcription: "Realtime transcription"
+  speaker-diarization: "Speaker diarization"
+  speaker-identification: "Speaker identification"
+  channel-diarization: "Channel diarization"
+  custom-vocabulary: "Custom dictionary"
+  audio-intelligence: "Speech intelligence"
+  sentiment-analysis: "Sentiment analysis"
+  topic-detection: "Topic detection"
+  summarization: "Summarization"
+  translation: "Translation"
+  text-to-speech: "Text to Speech"
+  turn-detection: "Turn detection"
+  voice-agents: "Voice agents"
 
-# Examples Catalog
+# SDK and adapter packages demonstrated by the examples
+packages:
+  - id: "speechmatics-batch"
+    title: "Speechmatics Batch SDK"
+    label: "Batch"
+    url: "https://pypi.org/project/speechmatics-batch/"
+    lifecycle: "current"
+  - id: "speechmatics-rt"
+    title: "Speechmatics Realtime SDK"
+    label: "Realtime"
+    url: "https://pypi.org/project/speechmatics-rt/"
+    lifecycle: "current"
+  - id: "speechmatics-agent-stt"
+    title: "Speechmatics Agent STT SDK"
+    label: "Agent STT"
+    url: "https://pypi.org/project/speechmatics-agent-stt/"
+    lifecycle: "current"
+  - id: "speechmatics-tts"
+    title: "Speechmatics Text to Speech SDK"
+    label: "TTS"
+    url: "https://pypi.org/project/speechmatics-tts/"
+    lifecycle: "current"
+  - id: "speechmatics-voice"
+    title: "Speechmatics Voice SDK (deprecated)"
+    label: "Voice SDK (legacy)"
+    url: "https://pypi.org/project/speechmatics-voice/"
+    lifecycle: "legacy"
+  - id: "livekit-plugins-speechmatics"
+    title: "LiveKit Speechmatics STT and TTS plugin"
+    label: "LiveKit adapter"
+    url: "https://pypi.org/project/livekit-plugins-speechmatics/"
+    lifecycle: "current"
+  - id: "pipecat-ai"
+    title: "Pipecat AI with Speechmatics adapter"
+    label: "Pipecat adapter"
+    url: "https://pypi.org/project/pipecat-ai/"
+    lifecycle: "current"
+  - id: "agora-agents"
+    title: "Agora Conversational AI Agents SDK"
+    label: "Agora Agents"
+    url: "https://pypi.org/project/agora-agents/"
+    lifecycle: "current"
+  - id: "vapi-server-sdk"
+    title: "Vapi Server SDK"
+    label: "Vapi SDK"
+    url: "https://pypi.org/project/vapi-server-sdk/"
+    lifecycle: "current"
+
+# Speechmatics APIs; preview is a separate older protocol
+apis:
+  - id: "batch"
+    title: "Speechmatics Batch API"
+    url: "https://docs.speechmatics.com/speech-to-text/batch/quickstart"
+  - id: "realtime"
+    title: "Speechmatics Realtime API"
+    url: "https://docs.speechmatics.com/speech-to-text/realtime/quickstart"
+  - id: "agent-stt"
+    title: "Speechmatics Agent STT (Linden 1)"
+    url: "https://docs.speechmatics.com/speech-to-text/agent-stt"
+  - id: "tts"
+    title: "Speechmatics Text to Speech API"
+    url: "https://docs.speechmatics.com/text-to-speech/quickstart"
+  - id: "voice-preview"
+    title: "Voice API preview"
+
+# Topic collections and authored workflow hubs
+collections:
+  - id: "healthcare"
+    title: "Healthcare"
+    description: "Medical transcription, clinical dictation, and consultation interfaces."
+    readme: "collections/healthcare/README.md"
+    start_here: "medical-transcription-realtime"
+  - id: "telephony"
+    title: "Telephony"
+    description: "Phone assistants, SIP and Media Streams, and recorded-call analysis."
+    readme: "collections/telephony/README.md"
+    start_here: "livekit-telephony-twilio"
+  - id: "multilingual"
+    title: "Multilingual"
+    description: "Translation, bilingual transcription, and multilingual code-switching."
+    readme: "collections/multilingual/README.md"
+    start_here: "melia-multilingual"
+  - id: "voice-agents"
+    title: "Voice agents"
+    description: "Speech interfaces, turn handling, and complete conversational pipelines."
+    readme: "collections/voice-agents/README.md"
+    start_here: "agent-stt"
+    group_by_lifecycle: true
+  - id: "captions-insights"
+    title: "Captions and insights"
+    description: "Captions, live transcript displays, sentiment, topics, and summaries."
+    readme: "collections/captions-insights/README.md"
+    start_here: "audio-intelligence"
+  - id: "mobile"
+    title: "Mobile"
+    description: "Mobile audio capture and transcription applications."
+
+# Frameworks, platforms, and external services
+integration_frameworks:
+  - id: "agora"
+    title: "Agora"
+    description: "Agora RTC/RTM with Speechmatics Realtime transcription and a managed LLM and speech synthesis pipeline."
+    url: "https://www.agora.io"
+    kind: "platform"
+    logo:
+      light: "integrations/agora/logo/agora-logo-rgb-blue.svg"
+      dark: "integrations/agora/logo/agora-logo-rgb-blue.svg"
+      height: 22
+  - id: "livekit"
+    title: "LiveKit"
+    description: "Voice assistants with Agent STT, speaker controls, browser tools, and SIP telephony."
+    url: "https://livekit.io"
+    kind: "framework"
+    logo:
+      light: "integrations/livekit/logo/LK_wordmark_lightbg.png"
+      dark: "integrations/livekit/logo/LK_wordmark_darkbg.png"
+      height: 19
+    readme: "integrations/livekit/README.md"
+    start_here: "livekit-voice-assistant"
+  - id: "pipecat"
+    title: "Pipecat AI"
+    description: "Local microphone and browser WebRTC voice agents using the Speechmatics adapter."
+    url: "https://github.com/pipecat-ai/pipecat"
+    kind: "framework"
+    logo:
+      light: "integrations/pipecat/logo/pipecat.png"
+      dark: "integrations/pipecat/logo/pipecat.png"
+      height: 28
+    readme: "integrations/pipecat/README.md"
+    start_here: "pipecat-voice-bot"
+  - id: "tambourine"
+    title: "Tambourine Voice"
+    description: "Desktop healthcare dictation with Speechmatics STT and configurable LLM formatting."
+    url: "https://github.com/kstonekuan/tambourine-voice"
+    kind: "platform"
+    logo:
+      light: "integrations/tambourine/logo/icon.png"
+      dark: "integrations/tambourine/logo/icon.png"
+      height: 50
+  - id: "twilio"
+    title: "Twilio"
+    description: "Phone agents through LiveKit SIP or direct Media Streams; the direct example uses the legacy Voice SDK."
+    url: "https://www.twilio.com"
+    kind: "service"
+    logo:
+      light: "integrations/twilio/logo/twillio.png"
+      dark: "integrations/twilio/logo/twillio.png"
+      height: 28
+    readme: "integrations/twilio/README.md"
+    start_here: "livekit-telephony-twilio"
+  - id: "vapi"
+    title: "Vapi"
+    description: "Managed voice assistants with Speechmatics streaming transcription and a custom dictionary."
+    url: "https://vapi.ai"
+    kind: "platform"
+    logo:
+      light: "integrations/vapi/logo/vapi-dark.png"
+      dark: "integrations/vapi/logo/vapi-light.png"
+      height: 50
+  - id: "openai"
+    title: "OpenAI"
+    url: "https://platform.openai.com/docs"
+    kind: "service"
+  - id: "elevenlabs"
+    title: "ElevenLabs"
+    url: "https://elevenlabs.io"
+    kind: "service"
+  - id: "groq"
+    title: "Groq"
+    url: "https://console.groq.com/docs"
+    kind: "service"
+  - id: "cartesia"
+    title: "Cartesia"
+    url: "https://cartesia.ai"
+    kind: "service"
+  - id: "minimax"
+    title: "MiniMax"
+    url: "https://www.minimax.io"
+    kind: "service"
+  - id: "google-calendar"
+    title: "Google Calendar"
+    url: "https://developers.google.com/workspace/calendar/api"
+    kind: "service"
+  - id: "google-translate"
+    title: "Google Cloud Translation"
+    url: "https://cloud.google.com/translate/docs"
+    kind: "service"
+  - id: "flutter"
+    title: "Flutter"
+    url: "https://flutter.dev"
+    kind: "framework"
+  - id: "vercel"
+    title: "Vercel"
+    url: "https://vercel.com"
+    kind: "platform"
+
+# Canonical examples; order controls presentation
 examples:
-  # === BASICS - Getting Started ===
-
   - id: "hello-world"
     title: "Hello World - Your First Transcription"
-    description: "The absolute simplest Speechmatics example"
+    description: "Transcribe a sample audio file with the Batch SDK and a minimal custom dictionary."
+    summary: "Transcribe a sample audio file with the Batch SDK."
     category: "basics"
     difficulty: "beginner"
     languages: ["python"]
     features:
       - "batch-transcription"
+      - "custom-vocabulary"
     integrations: []
     path: "basics/01-hello-world"
     readme: "basics/01-hello-world/README.md"
     tags: ["getting-started", "quickstart", "beginner", "batch"]
     last_updated: "2025-11-27"
     estimated_time: "5 minutes"
-
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 1
+    demos:
+      - type: "local"
+        url: "basics/01-hello-world/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "batch-vs-realtime"
-    title: "Batch vs Real-time - Understanding API Modes"
-    description: "Learn the difference between batch and real-time transcription modes and when to use each."
+    title: "Batch vs Realtime - Understanding API Modes"
+    description: "Learn the difference between Batch and Realtime transcription modes and when to use each."
+    summary: "Compare file transcription with Batch and microphone streaming with Realtime."
     category: "basics"
     difficulty: "beginner"
     languages: ["python"]
@@ -87,10 +302,20 @@ examples:
     tags: ["batch", "realtime", "streaming", "comparison"]
     last_updated: "2025-11-27"
     estimated_time: "10 minutes"
-
+    packages: ["speechmatics-batch", "speechmatics-rt"]
+    apis: ["batch", "realtime"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 2
+    demos:
+      - type: "local"
+        url: "basics/02-batch-vs-realtime/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "configuration-guide"
     title: "Configuration Guide - Common Configuration Options"
-    description: "Guide to common Speechmatics configuration options including diarization, custom vocabulary, and output formats."
+    description: "Configure Batch transcription with speaker diarization, a custom dictionary, smart formatting, and model quality settings."
+    summary: "Configure speaker labels, a custom dictionary, and formatting for Batch transcription."
     category: "basics"
     difficulty: "beginner"
     languages: ["python"]
@@ -104,10 +329,97 @@ examples:
     tags: ["configuration", "diarization", "custom-vocabulary", "formatting", "entities"]
     last_updated: "2025-11-27"
     estimated_time: "15 minutes"
-
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 3
+    demos:
+      - type: "local"
+        url: "basics/03-configuration-guide/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "text-to-speech"
+    title: "Text to Speech"
+    description: "Convert text to natural-sounding speech using Speechmatics TTS."
+    summary: "Convert text into speech with the TTS SDK."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "text-to-speech"
+    integrations: []
+    path: "basics/06-text-to-speech"
+    readme: "basics/06-text-to-speech/README.md"
+    tags: ["tts", "text-to-speech", "synthesis", "audio-generation"]
+    last_updated: "2025-11-28"
+    estimated_time: "10 minutes"
+    packages: ["speechmatics-tts"]
+    apis: ["tts"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 4
+    demos:
+      - type: "local"
+        url: "basics/06-text-to-speech/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "channel-diarization"
+    title: "Channel Diarization"
+    description: "Transcribe separate audio channels with the Realtime SDK and assign a label to each channel."
+    summary: "Transcribe separate audio channels and label each channel."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "channel-diarization"
+    integrations: []
+    path: "basics/10-channel-diarization"
+    readme: "basics/10-channel-diarization/README.md"
+    tags: ["channel", "diarization", "multi-channel", "stereo"]
+    last_updated: "2025-11-30"
+    estimated_time: "10 minutes"
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 5
+    demos:
+      - type: "local"
+        url: "basics/10-channel-diarization/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "melia-multilingual"
+    title: "Melia 1 Multilingual Transcription"
+    description: "Transcribe code-switching audio with Melia 1 using the Batch SDK and automatic multilingual recognition."
+    summary: "Transcribe audio that switches between languages with Melia 1."
+    category: "basics"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "basics/12-melia-multilingual"
+    readme: "basics/12-melia-multilingual/README.md"
+    tags: ["melia", "multilingual", "code-switching", "batch", "language-identification"]
+    last_updated: "2026-06-16"
+    estimated_time: "5 minutes"
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: ["multilingual"]
+    models: ["melia-1"]
+    lifecycle: "current"
+    kind: "code"
+    order: 6
+    demos:
+      - type: "local"
+        url: "basics/12-melia-multilingual/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "audio-intelligence"
-    title: "Audio Intelligence - Extract Insights"
+    title: "Speech intelligence - Sentiment, Topics and Summaries"
     description: "Extract insights with sentiment analysis, topic detection, and automatic summarization."
+    summary: "Extract sentiment, topics, and summaries from a recording."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
@@ -123,15 +435,24 @@ examples:
     tags: ["sentiment", "topics", "summary", "insights", "analysis"]
     last_updated: "2025-11-27"
     estimated_time: "15 minutes"
-
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: ["captions-insights"]
+    lifecycle: "current"
+    kind: "code"
+    order: 7
+    demos:
+      - type: "local"
+        url: "basics/04-audio-intelligence/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "multilingual-translation"
     title: "Multilingual & Translation"
-    description: "Transcribe 50+ languages and translate audio content."
+    description: "Stream English microphone audio to the Realtime API and display partial and final Spanish and Russian translations."
+    summary: "Stream English microphone audio and display Spanish and Russian translations."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
     features:
-      - "batch-transcription"
       - "realtime-transcription"
       - "translation"
     integrations: []
@@ -140,25 +461,20 @@ examples:
     tags: ["multilingual", "translation", "languages", "localization"]
     last_updated: "2025-11-27"
     estimated_time: "10 minutes"
-
-  - id: "text-to-speech"
-    title: "Text-to-Speech"
-    description: "Convert text to natural-sounding speech using Speechmatics TTS."
-    category: "basics"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "text-to-speech"
-    integrations: []
-    path: "basics/06-text-to-speech"
-    readme: "basics/06-text-to-speech/README.md"
-    tags: ["tts", "text-to-speech", "synthesis", "audio-generation"]
-    last_updated: "2025-11-28"
-    estimated_time: "10 minutes"
-
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["multilingual"]
+    lifecycle: "current"
+    kind: "code"
+    order: 8
+    demos:
+      - type: "local"
+        url: "basics/05-multilingual-translation/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "turn-detection"
     title: "Basic Turn Detection"
     description: "Detect when speech ends using silence-based turn detection for real-time applications."
+    summary: "Detect the end of speech using silence-based turn detection."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
@@ -171,14 +487,25 @@ examples:
     tags: ["realtime", "turn-detection", "silence", "conversation"]
     last_updated: "2025-11-28"
     estimated_time: "10 minutes"
-
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 9
+    demos:
+      - type: "local"
+        url: "basics/07-turn-detection/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "voice-agent-turn-detection"
     title: "Intelligent Turn Detection"
-    description: "Intelligent turn detection with Voice SDK presets for voice agent applications."
+    description: "Compare client-side turn-detection presets in the deprecated Voice SDK; start new applications with Agent STT."
+    summary: "Compare turn-detection presets in the deprecated Voice SDK."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
     features:
+      - "realtime-transcription"
       - "voice-agents"
       - "turn-detection"
     integrations: []
@@ -187,14 +514,25 @@ examples:
     tags: ["voice-agent", "turn-detection", "presets", "conversation", "smart-turn"]
     last_updated: "2025-11-28"
     estimated_time: "15 minutes"
-
+    packages: ["speechmatics-voice", "speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["voice-agents"]
+    lifecycle: "legacy"
+    kind: "code"
+    order: 10
+    demos:
+      - type: "local"
+        url: "basics/08-voice-agent-turn-detection/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "voice-agent-speaker-id"
     title: "Speaker ID & Speaker Focus"
-    description: "Extract speaker IDs and control which speakers drive conversation in voice agents."
+    description: "Extract reusable speaker identifiers and apply speaker focus with the deprecated Voice SDK."
+    summary: "Save speaker identifiers and apply speaker focus with the deprecated Voice SDK."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
     features:
+      - "realtime-transcription"
       - "voice-agents"
       - "speaker-diarization"
       - "speaker-identification"
@@ -204,315 +542,21 @@ examples:
     tags: ["voice-agent", "speaker-id", "speaker-focus", "diarization"]
     last_updated: "2025-11-28"
     estimated_time: "15 minutes"
-
-  - id: "channel-diarization"
-    title: "Channel Diarization"
-    description: "Multi-channel transcription with speaker attribution based on audio channels."
-    category: "basics"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "channel-diarization"
-      - "speaker-diarization"
-    integrations: []
-    path: "basics/10-channel-diarization"
-    readme: "basics/10-channel-diarization/README.md"
-    tags: ["channel", "diarization", "multi-channel", "stereo"]
-    last_updated: "2025-11-30"
-    estimated_time: "10 minutes"
-
-  # === INTEGRATIONS ===
-
-  - id: "agora-conversational-ai-agent"
-    title: "Agora Conversational AI Voice Agent"
-    description: "Browser-based voice agent with Agora RTC/RTM, managed agent orchestration, and Speechmatics real-time transcription."
-    category: "integrations"
-    difficulty: "intermediate"
-    languages: ["python", "typescript"]
-    features:
-      - "realtime-transcription"
-      - "voice-agents"
-    integrations: ["agora"]
-    path: "integrations/agora/01-conversational-ai-agent"
-    readme: "integrations/agora/01-conversational-ai-agent/README.md"
-    tags: ["agora", "conversational-ai", "rtc", "rtm", "voice-agent", "realtime"]
-    last_updated: "2026-09-15"
-    estimated_time: "20 minutes"
-
-  - id: "livekit-voice-assistant"
-    title: "LiveKit Voice Assistant"
-    description: "Real-time voice assistant with LiveKit WebRTC integration, VAD, diarization, and focus speakers."
-    category: "integrations"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "speaker-diarization"
-      - "voice-agents"
-    integrations: ["livekit"]
-    path: "integrations/livekit/01-simple-voice-assistant"
-    readme: "integrations/livekit/01-simple-voice-assistant/README.md"
-    tags: ["livekit", "webrtc", "voice-assistant", "realtime", "vad"]
-    last_updated: "2025-11-28"
-    estimated_time: "20 minutes"
-
-  - id: "livekit-telephony-twilio"
-    title: "LiveKit Telephony with Twilio"
-    description: "Phone calls via SIP with LiveKit Agents, Twilio, and Krisp noise cancellation."
-    category: "integrations"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "voice-agents"
-    integrations: ["livekit", "twilio"]
-    path: "integrations/livekit/02-telephony-twilio"
-    readme: "integrations/livekit/02-telephony-twilio/README.md"
-    tags: ["livekit", "twilio", "telephony", "sip", "phone", "krisp"]
-    last_updated: "2025-11-29"
-    estimated_time: "25 minutes"
-
-  - id: "livekit-speaker-focus"
-    title: "Speaker Focus Voice Agent"
-    description: "Voice agent access control: speaker focus (RETAIN/IGNORE), speaker memory, and voice-driven focus tools, with a browser visualiser."
-    category: "integrations"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "speaker-diarization"
-      - "speaker-identification"
-      - "voice-agents"
-      - "custom-vocabulary"
-      - "turn-detection"
-    integrations: ["livekit"]
-    path: "integrations/livekit/03-speaker-focus-voice-agent"
-    readme: "integrations/livekit/03-speaker-focus-voice-agent/README.md"
-    tags: ["livekit", "speaker-focus", "speaker-memory", "diarization", "voice-agent", "realtime"]
-    last_updated: "2026-07-17"
-    estimated_time: "20 minutes"
-
-  - id: "pipecat-voice-bot"
-    title: "Pipecat Simple Voice Bot"
-    description: "Conversational AI voice bot with Pipecat framework, VAD, diarization, and interruption handling."
-    category: "integrations"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "speaker-diarization"
-      - "voice-agents"
-    integrations: ["pipecat"]
-    path: "integrations/pipecat/01-simple-voice-bot"
-    readme: "integrations/pipecat/01-simple-voice-bot/README.md"
-    tags: ["pipecat", "conversational-ai", "voice-bot", "interruptions", "vad"]
-    last_updated: "2025-11-28"
-    estimated_time: "20 minutes"
-
-  - id: "twilio-outbound-dialer"
-    title: "Twilio Outbound Dialer"
-    description: "Outbound phone calls with Twilio REST API, Media Streams, and Speechmatics STT."
-    category: "integrations"
-    difficulty: "advanced"
-    languages: ["python"]
-    features:
-      - "voice-agents"
-    integrations: ["twilio"]
-    path: "integrations/twilio/01-outbound-dialer"
-    readme: "integrations/twilio/01-outbound-dialer/README.md"
-    tags: ["twilio", "outbound", "dialer", "phone", "media-streams"]
-    last_updated: "2025-11-29"
-    estimated_time: "20 minutes"
-
-  - id: "vapi-voice-assistant"
-    title: "VAPI Voice Assistant"
-    description: "Voice AI assistant with VAPI platform, custom vocabulary, and Speechmatics STT."
-    category: "integrations"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "custom-vocabulary"
-      - "voice-agents"
-    integrations: ["vapi"]
-    path: "integrations/vapi/01-voice-assistant"
-    readme: "integrations/vapi/01-voice-assistant/README.md"
-    tags: ["vapi", "voice-assistant", "custom-vocabulary", "platform"]
-    last_updated: "2025-11-30"
-    estimated_time: "15 minutes"
-
-  - id: "tambourine-healthcare-dictation"
-    title: "Tambourine Healthcare Dictation"
-    description: "AI-powered medical dictation with real-time transcription, intelligent formatting, and clinical terminology support using the Tambourine desktop app."
-    category: "integrations"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "turn-detection"
-    integrations: ["tambourine"]
-    path: "integrations/tambourine/01-healthcare-dictation"
-    readme: "integrations/tambourine/01-healthcare-dictation/README.md"
-    tags: ["tambourine", "dictation", "healthcare", "medical", "desktop-app", "pipecat"]
-    last_updated: "2025-12-30"
-    estimated_time: "15 minutes"
-
-  - id: "medical-transcription-realtime"
-    title: "Medical Transcription"
-    description: "Real-time medical transcription with custom medical vocabulary and HIPAA compliance considerations."
-    category: "use-cases"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "custom-vocabulary"
-    integrations: []
-    path: "use-cases/01-medical-transcription-realtime"
-    readme: "use-cases/01-medical-transcription-realtime/README.md"
-    tags: ["medical", "healthcare", "hipaa", "realtime", "custom-vocabulary"]
-    last_updated: "2025-12-01"
-    estimated_time: "20 minutes"
-
-  - id: "video-captioning"
-    title: "Video Captioning"
-    description: "Generate SRT captions for video content with timestamp synchronization and batch processing."
-    category: "use-cases"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "batch-transcription"
-    integrations: []
-    path: "use-cases/02-video-captioning"
-    readme: "use-cases/02-video-captioning/README.md"
-    tags: ["video", "captions", "srt", "subtitles", "batch"]
-    last_updated: "2025-12-01"
-    estimated_time: "15 minutes"
-
-  - id: "call-center-analytics"
-    title: "Call Center Analytics"
-    description: "Analyze call center recordings with sentiment analysis, topic detection, summarization, and diarization."
-    category: "use-cases"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "batch-transcription"
-      - "audio-intelligence"
-      - "sentiment-analysis"
-      - "topic-detection"
-      - "summarization"
-      - "speaker-diarization"
-    integrations: []
-    path: "use-cases/03-call-center-analytics"
-    readme: "use-cases/03-call-center-analytics/README.md"
-    tags: ["call-center", "analytics", "sentiment", "topics", "summary", "diarization"]
-    last_updated: "2025-12-01"
-    estimated_time: "20 minutes"
-
-  - id: "voice-agent-calendar"
-    title: "AI Receptionist"
-    description: "LiveKit voice agent with Twilio SIP, Google Calendar booking, and function calling."
-    category: "use-cases"
-    difficulty: "advanced"
-    languages: ["python"]
-    features:
-      - "voice-agents"
-    integrations: ["livekit", "twilio"]
-    path: "use-cases/04-voice-agent-calendar"
-    readme: "use-cases/04-voice-agent-calendar/README.md"
-    tags: ["voice-agent", "calendar", "booking", "receptionist", "function-calling"]
-    last_updated: "2025-12-02"
-    estimated_time: "30 minutes"
-
-  - id: "santa-voice-agent"
-    title: "Santa Voice Agent"
-    description: "Magical voice agent where adults can call Santa Claus using LiveKit, Speechmatics STT, ElevenLabs TTS, and Twilio SIP telephony."
-    category: "use-cases"
-    difficulty: "advanced"
-    languages: ["python"]
-    features:
-      - "voice-agents"
-      - "custom-vocabulary"
-      - "realtime-transcription"
-    integrations: ["livekit", "twilio", "elevenlabs"]
-    path: "use-cases/05-santa-voice-agent"
-    readme: "use-cases/05-santa-voice-agent/README.md"
-    tags: ["voice-agent", "santa", "christmas", "elevenlabs", "tts", "character-voice", "telephony"]
-    last_updated: "2025-12-19"
-    estimated_time: "20 minutes"
-
-  - id: "medical-assistant"
-    title: "Medical Assistant"
-    description: "Live bilingual (Arabic + English) medical transcription with speaker diarization, AI form extraction, clinical decision support, and SOAP note generation."
-    category: "use-cases"
-    difficulty: "advanced"
-    languages: ["python"]
-    features:
-      - "realtime-transcription"
-      - "speaker-diarization"
-      - "custom-vocabulary"
-    integrations: ["openai"]
-    path: "use-cases/06-medical-assistant"
-    readme: "use-cases/06-medical-assistant/README.md"
-    tags: ["medical", "healthcare", "bilingual", "arabic", "diarization", "soap", "icd-10", "form-extraction", "clinical"]
-    last_updated: "2026-02-10"
-    estimated_time: "15 minutes"
-
-  - id: "medical-microbatching"
-    title: "Medical Microbatching"
-    description: "Continuous microphone transcription via the Batch API. Splits audio at natural speech boundaries with Silero VAD and submits each chunk concurrently. Suitable for HIPAA-compliant on-premises deployment."
-    category: "use-cases"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "batch-transcription"
-    integrations: []
-    path: "use-cases/07-medical-microbatching"
-    readme: "use-cases/07-medical-microbatching/README.md"
-    tags: ["medical", "healthcare", "hipaa", "batch", "microbatching", "vad", "silero", "on-premises"]
-    last_updated: "2026-04-29"
-    estimated_time: "15 minutes"
-
-  - id: "alphanumerics-form-filler"
-    title: "Alphanumerics Voice Form Filler"
-    description: "Real-time voice agent that fills a web form with spoken alphanumeric details (names, emails, phone, account numbers, post codes) using Speechmatics STT/TTS, OpenAI, and LiveKit RPC."
-    category: "use-cases"
-    difficulty: "intermediate"
-    languages: ["python"]
-    features:
-      - "voice-agents"
-      - "realtime-transcription"
-      - "text-to-speech"
-    integrations: ["livekit", "openai"]
-    path: "use-cases/08-alphanumerics-form-filler"
-    readme: "use-cases/08-alphanumerics-form-filler/README.md"
-    tags: ["voice-agent", "form-filling", "alphanumerics", "livekit", "rpc", "function-calling"]
-    last_updated: "2026-05-06"
-    estimated_time: "10 minutes"
-
-  - id: "flutter-mobile-transcription"
-    title: "Flutter Mobile Transcription App"
-    description: "Cross-platform Flutter (Android & iOS) app that records or uploads audio and runs the Speechmatics Batch API end-to-end: multilingual Melia-1 transcription, speaker diarization and identification, translation, and speech intelligence (summary, topics, chapters, subtitles)."
-    category: "use-cases"
-    difficulty: "intermediate"
-    languages: ["dart"]
-    features:
-      - "batch-transcription"
-      - "speaker-diarization"
-      - "speaker-identification"
-      - "translation"
-      - "summarization"
-      - "topic-detection"
-    integrations: []
-    path: "use-cases/09-flutter-mobile-transcription"
-    readme: "use-cases/09-flutter-mobile-transcription/README.md"
-    tags: ["flutter", "mobile", "android", "ios", "batch", "diarization", "speaker-identification", "translation", "speech-intelligence"]
-    last_updated: "2026-06-16"
-    estimated_time: "20 minutes"
-
+    packages: ["speechmatics-voice", "speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["voice-agents"]
+    lifecycle: "legacy"
+    kind: "code"
+    order: 11
+    demos:
+      - type: "local"
+        url: "basics/09-voice-agent-speaker-id/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
   - id: "voice-api-explorer"
-    title: "Voice API Explorer"
-    description: "Comprehensive demo of the unified Voice API WebSocket endpoint - RT and Voice modes, all profiles, speaker focus, and mid-session commands."
+    title: "Preview WebSocket API Explorer"
+    description: "Explore raw Python and JavaScript WebSocket clients for the Voice API preview and its older agent profile routes; confirm access before running."
+    summary: "Explore raw WebSocket clients for the Voice API preview."
+    demo_note: "Confirm access to the Voice API preview and its older agent profile routes before running."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python", "javascript"]
@@ -528,25 +572,20 @@ examples:
     tags: ["voice-api", "websocket", "realtime", "voice-agent", "profiles", "speaker-focus", "force-eou", "diarization"]
     last_updated: "2026-03-12"
     estimated_time: "20 minutes"
-
-  - id: "melia-multilingual"
-    title: "Melia Multilingual Transcription"
-    description: "Transcribe multilingual, code-switching audio with Melia over the Batch API. Set model to melia-1 and language to multi, and one recording that moves between languages returns as a single continuous transcript with per-word language tags."
-    category: "basics"
-    difficulty: "beginner"
-    languages: ["python"]
-    features:
-      - "batch-transcription"
-    integrations: []
-    path: "basics/12-melia-multilingual"
-    readme: "basics/12-melia-multilingual/README.md"
-    tags: ["melia", "multilingual", "code-switching", "batch", "language-identification"]
-    last_updated: "2026-06-16"
-    estimated_time: "5 minutes"
-
+    packages: []
+    apis: ["realtime", "voice-preview"]
+    collections: ["voice-agents"]
+    lifecycle: "preview"
+    kind: "code"
+    order: 12
+    demos:
+      - type: "local"
+        url: "basics/11-voice-api-explorer/README.md"
+        description: "Local Python or JavaScript clients for the Voice API preview."
   - id: "agent-stt"
-    title: "Agent STT - Segments, Turns and Speakers"
-    description: "Transcribe for voice agents with the Agent STT service. Segment-level transcripts rather than word groups, speech and turn events, speaker labels and reusable voiceprints, and a choice of who closes each turn: the service's VAD, or your own Silero VAD calling finalize()."
+    title: "Agent STT Linden 1 - Segments, Turns and Speakers"
+    description: "Use Agent STT for transcript segments, speech and turn events, speaker labels and reusable voiceprints, with service VAD or external finalization."
+    summary: "Handle transcript segments, turns, and speakers with Agent STT Linden 1."
     category: "basics"
     difficulty: "intermediate"
     languages: ["python"]
@@ -562,25 +601,571 @@ examples:
     tags: ["agent-stt", "linden", "turn-detection", "segments", "speaker-identification", "voiceprints", "voice-agent", "realtime", "finalize", "silero", "vad", "pipecat", "livekit"]
     last_updated: "2026-09-15"
     estimated_time: "10 minutes"
-
+    packages: ["speechmatics-agent-stt"]
+    apis: ["agent-stt"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 13
+    demos:
+      - type: "local"
+        url: "basics/13-agent-stt/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "agora-conversational-ai-agent"
+    title: "Agora Conversational AI Voice Agent"
+    description: "Build a Python and TypeScript browser voice agent with Agora RTC/RTM, Speechmatics Realtime transcription, a managed OpenAI LLM, and MiniMax TTS."
+    summary: "Build a browser voice agent with Agora audio, transcripts, and a managed LLM/TTS pipeline."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python", "typescript"]
+    features:
+      - "realtime-transcription"
+      - "voice-agents"
+      - "custom-vocabulary"
+    integrations: ["agora", "openai", "minimax"]
+    path: "integrations/agora/01-conversational-ai-agent"
+    readme: "integrations/agora/01-conversational-ai-agent/README.md"
+    tags: ["agora", "conversational-ai", "rtc", "rtm", "voice-agent", "realtime"]
+    last_updated: "2026-09-15"
+    estimated_time: "20 minutes"
+    packages: ["agora-agents"]
+    apis: ["realtime"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 14
+    demos:
+      - type: "recording"
+        url: "integrations/agora/01-conversational-ai-agent/assets/agora-conversational-ai.gif"
+        description: "Recorded walkthrough of the browser voice agent and pipeline latency display."
+      - type: "local"
+        url: "integrations/agora/01-conversational-ai-agent/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "livekit-voice-assistant"
+    title: "LiveKit Voice Assistant"
+    description: "Build a LiveKit voice assistant with Agent STT Linden 1, VAD, speaker diarization and identification, an OpenAI LLM, and ElevenLabs TTS."
+    summary: "Build a LiveKit voice assistant with Agent STT, speaker labels, an LLM, and TTS."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["livekit", "openai", "elevenlabs"]
+    path: "integrations/livekit/01-simple-voice-assistant"
+    readme: "integrations/livekit/01-simple-voice-assistant/README.md"
+    tags: ["livekit", "webrtc", "voice-assistant", "realtime", "vad"]
+    last_updated: "2025-11-28"
+    estimated_time: "20 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 15
+    demos:
+      - type: "local"
+        url: "integrations/livekit/01-simple-voice-assistant/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "livekit-telephony-twilio"
+    title: "LiveKit Telephony with Twilio"
+    description: "Build an inbound phone assistant with Twilio SIP, LiveKit, Agent STT Linden 1, OpenAI, and Speechmatics TTS."
+    summary: "Receive phone calls through Twilio SIP and respond with a LiveKit voice assistant."
+    demo_note: "Phone testing requires a Twilio number and configured SIP trunking."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "text-to-speech"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["livekit", "twilio", "openai"]
+    path: "integrations/livekit/02-telephony-twilio"
+    readme: "integrations/livekit/02-telephony-twilio/README.md"
+    tags: ["livekit", "twilio", "telephony", "sip", "phone", "krisp"]
+    last_updated: "2025-11-29"
+    estimated_time: "25 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt", "tts"]
+    collections: ["telephony", "voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 16
+    demos:
+      - type: "local"
+        url: "integrations/livekit/02-telephony-twilio/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "livekit-speaker-focus"
+    title: "Speaker Focus Voice Agent"
+    description: "Filter completed Agent STT turns in a LiveKit application using speaker labels and saved identifiers, with a browser visualizer; focus filtering is application-side."
+    summary: "Filter completed Agent STT turns by speaker in a LiveKit app with a browser visualizer."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python", "javascript"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+      - "voice-agents"
+      - "custom-vocabulary"
+      - "turn-detection"
+    integrations: ["livekit", "openai", "elevenlabs"]
+    path: "integrations/livekit/03-speaker-focus-voice-agent"
+    readme: "integrations/livekit/03-speaker-focus-voice-agent/README.md"
+    tags: ["livekit", "speaker-focus", "speaker-memory", "diarization", "voice-agent", "realtime"]
+    last_updated: "2026-07-17"
+    estimated_time: "20 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 17
+    demos:
+      - type: "local"
+        url: "integrations/livekit/03-speaker-focus-voice-agent/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "pipecat-voice-bot"
+    title: "Pipecat Simple Voice Bot"
+    description: "Run a local-microphone Pipecat assistant with Agent STT Linden 1, external VAD finalization, speaker labels, OpenAI, and ElevenLabs."
+    summary: "Run a Pipecat voice assistant through a local microphone and speakers."
+    demo_note: "Requires local microphone and speaker access plus PortAudio; the Web example uses browser audio."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["pipecat", "openai", "elevenlabs"]
+    path: "integrations/pipecat/01-simple-voice-bot"
+    readme: "integrations/pipecat/01-simple-voice-bot/README.md"
+    tags: ["pipecat", "conversational-ai", "voice-bot", "interruptions", "vad"]
+    last_updated: "2025-11-28"
+    estimated_time: "20 minutes"
+    packages: ["pipecat-ai"]
+    apis: ["agent-stt"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 18
+    demos:
+      - type: "local"
+        url: "integrations/pipecat/01-simple-voice-bot/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "pipecat-voice-bot-web"
+    title: "Pipecat Simple Voice Bot (Web)"
+    description: "Build a browser WebRTC assistant with Pipecat, Agent STT Linden 1, external VAD and local smart-turn analysis, a Groq LLM, and Cartesia TTS."
+    summary: "Build a browser voice assistant with Pipecat WebRTC and local turn analysis."
+    demo_note: "Use macOS, Linux, or WSL2 for the documented backend setup; the client runs in a browser."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["pipecat", "groq", "cartesia"]
+    path: "integrations/pipecat/02-simple-voice-bot-web"
+    readme: "integrations/pipecat/02-simple-voice-bot-web/README.md"
+    tags: ["pipecat", "webrtc", "browser", "voice-bot", "vad", "smart-turn", "groq", "cartesia"]
+    last_updated: "2026-10-21"
+    estimated_time: "20 minutes"
+    packages: ["pipecat-ai"]
+    apis: ["agent-stt"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 19
+    demos:
+      - type: "local"
+        url: "integrations/pipecat/02-simple-voice-bot-web/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "twilio-outbound-dialer"
+    title: "Twilio Outbound Dialer"
+    description: "Start outbound Twilio calls and process Media Streams with the deprecated Voice SDK, an OpenAI LLM, and ElevenLabs TTS."
+    summary: "Start outbound phone calls with Twilio Media Streams and the deprecated Voice SDK."
+    demo_note: "Starts real outbound calls. Protect the dial endpoint and validate Twilio callbacks before exposing a tunnel."
+    category: "integrations"
+    difficulty: "advanced"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["twilio", "openai", "elevenlabs"]
+    path: "integrations/twilio/01-outbound-dialer"
+    readme: "integrations/twilio/01-outbound-dialer/README.md"
+    tags: ["twilio", "outbound", "dialer", "phone", "media-streams"]
+    last_updated: "2025-11-29"
+    estimated_time: "20 minutes"
+    packages: ["speechmatics-voice"]
+    apis: ["realtime"]
+    collections: ["telephony", "voice-agents"]
+    lifecycle: "legacy"
+    kind: "code"
+    order: 20
+    demos:
+      - type: "local"
+        url: "integrations/twilio/01-outbound-dialer/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "vapi-voice-assistant"
+    title: "Vapi Voice Assistant"
+    description: "Configure a Vapi assistant with Speechmatics Enhanced streaming STT, a custom dictionary, OpenAI, and ElevenLabs."
+    summary: "Configure a Vapi voice assistant with Speechmatics STT and a custom dictionary."
+    category: "integrations"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "custom-vocabulary"
+      - "speaker-diarization"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["vapi", "openai", "elevenlabs"]
+    path: "integrations/vapi/01-voice-assistant"
+    readme: "integrations/vapi/01-voice-assistant/README.md"
+    tags: ["vapi", "voice-assistant", "custom-vocabulary", "platform"]
+    last_updated: "2025-11-30"
+    estimated_time: "15 minutes"
+    packages: ["vapi-server-sdk"]
+    apis: ["realtime"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 21
+    demos:
+      - type: "local"
+        url: "integrations/vapi/01-voice-assistant/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "tambourine-healthcare-dictation"
+    title: "Tambourine Healthcare Dictation"
+    description: "Configure Tambourine desktop dictation and clinical LLM formatting prompts; its installed STT adapter determines the Speechmatics endpoint and model."
+    summary: "Configure desktop dictation and clinical formatting prompts in Tambourine."
+    demo_note: "Requires a separate Tambourine desktop installation; its installed STT adapter determines the model and endpoint."
+    category: "integrations"
+    difficulty: "beginner"
+    languages: ["config"]
+    features:
+      - "realtime-transcription"
+    integrations: ["tambourine"]
+    path: "integrations/tambourine/01-healthcare-dictation"
+    readme: "integrations/tambourine/01-healthcare-dictation/README.md"
+    tags: ["tambourine", "dictation", "healthcare", "medical", "desktop-app", "pipecat"]
+    last_updated: "2025-12-30"
+    estimated_time: "15 minutes"
+    packages: []
+    apis: ["realtime"]
+    collections: ["healthcare"]
+    kind: "configuration"
+    lifecycle: "current"
+    order: 22
+    demos:
+      - type: "local"
+        url: "integrations/tambourine/01-healthcare-dictation/README.md"
+        description: "Install Tambourine and configure Speechmatics plus an LLM provider."
+  - id: "medical-transcription-realtime"
+    title: "Medical Transcription - Realtime Enhanced Medical"
+    description: "Stream a medical recording with Realtime Enhanced Medical and a custom dictionary for clinical terminology."
+    summary: "Stream a medical recording with Enhanced Medical and a custom dictionary."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "custom-vocabulary"
+      - "speaker-diarization"
+    integrations: []
+    path: "use-cases/01-medical-transcription-realtime"
+    readme: "use-cases/01-medical-transcription-realtime/README.md"
+    tags: ["medical", "healthcare", "hipaa", "realtime", "custom-vocabulary"]
+    last_updated: "2025-12-01"
+    estimated_time: "20 minutes"
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["healthcare"]
+    lifecycle: "current"
+    kind: "code"
+    order: 23
+    demos:
+      - type: "local"
+        url: "use-cases/01-medical-transcription-realtime/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "video-captioning"
+    title: "Video Captioning"
+    description: "Generate SRT captions for video content with timestamp synchronization and batch processing."
+    summary: "Generate SRT captions from video with the Batch API."
+    category: "use-cases"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+    integrations: []
+    path: "use-cases/02-video-captioning"
+    readme: "use-cases/02-video-captioning/README.md"
+    tags: ["video", "captions", "srt", "subtitles", "batch"]
+    last_updated: "2025-12-01"
+    estimated_time: "15 minutes"
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: ["captions-insights"]
+    lifecycle: "current"
+    kind: "code"
+    order: 24
+    demos:
+      - type: "local"
+        url: "use-cases/02-video-captioning/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "call-center-analytics"
+    title: "Call Center Analytics"
+    description: "Analyze stereo call recordings with channel labels, sentiment analysis, topic detection, and summaries."
+    summary: "Analyze recorded calls with channel labels, sentiment, topics, and summaries."
+    category: "use-cases"
+    difficulty: "beginner"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "audio-intelligence"
+      - "sentiment-analysis"
+      - "topic-detection"
+      - "summarization"
+      - "channel-diarization"
+    integrations: []
+    path: "use-cases/03-call-center-analytics"
+    readme: "use-cases/03-call-center-analytics/README.md"
+    tags: ["call-center", "analytics", "sentiment", "topics", "summary", "diarization"]
+    last_updated: "2025-12-01"
+    estimated_time: "20 minutes"
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: ["telephony", "captions-insights"]
+    lifecycle: "current"
+    kind: "code"
+    order: 25
+    demos:
+      - type: "local"
+        url: "use-cases/03-call-center-analytics/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "voice-agent-calendar"
+    title: "AI Receptionist"
+    description: "Build a LiveKit demonstration receptionist with Agent STT, Speechmatics TTS, Twilio SIP, OpenAI tools, and Google Calendar booking."
+    summary: "Build a LiveKit receptionist that manages appointments in Google Calendar."
+    demo_note: "Use a dedicated test calendar: the agent can create, move, and delete real events."
+    category: "use-cases"
+    difficulty: "advanced"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "text-to-speech"
+      - "speaker-diarization"
+      - "custom-vocabulary"
+      - "turn-detection"
+      - "voice-agents"
+    integrations: ["livekit", "twilio", "openai", "google-calendar"]
+    path: "use-cases/04-voice-agent-calendar"
+    readme: "use-cases/04-voice-agent-calendar/README.md"
+    tags: ["voice-agent", "calendar", "booking", "receptionist", "function-calling"]
+    last_updated: "2025-12-02"
+    estimated_time: "30 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt", "tts"]
+    collections: ["telephony", "voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 26
+    demos:
+      - type: "local"
+        url: "use-cases/04-voice-agent-calendar/README.md"
+        description: "Provider credentials and a dedicated test Google Calendar; the local agent can change events."
+  - id: "santa-voice-agent"
+    title: "Santa Voice Agent"
+    description: "Build a Santa character voice agent with LiveKit, Agent STT, an OpenAI LLM, ElevenLabs TTS, and optional Twilio SIP calls."
+    summary: "Build a Santa character voice assistant with LiveKit and optional phone calls."
+    category: "use-cases"
+    difficulty: "advanced"
+    languages: ["python"]
+    features:
+      - "voice-agents"
+      - "custom-vocabulary"
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "turn-detection"
+    integrations: ["livekit", "twilio", "openai", "elevenlabs"]
+    path: "use-cases/05-santa-voice-agent"
+    readme: "use-cases/05-santa-voice-agent/README.md"
+    tags: ["voice-agent", "santa", "christmas", "elevenlabs", "tts", "character-voice", "telephony"]
+    last_updated: "2025-12-19"
+    estimated_time: "20 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt"]
+    collections: ["telephony", "voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 27
+    demos:
+      - type: "local"
+        url: "use-cases/05-santa-voice-agent/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "medical-assistant"
+    title: "Medical Assistant"
+    description: "Build a local Arabic and English clinical transcription dashboard with Enhanced Medical on the preview Realtime endpoint, speaker diarization, and OpenAI extraction and SOAP-note drafting; confirm endpoint and language-pack access."
+    summary: "Transcribe Arabic and English consultations and draft structured fields and SOAP notes."
+    demo_note: "Live transcription requires access to the preview Realtime endpoint and the `ar_en` bilingual language pack. Transcripts are sent to OpenAI; use synthetic or de-identified data. The app has no login. Run Demo uses synthetic transcripts but still requires an OpenAI key and makes billable requests."
+    category: "use-cases"
+    difficulty: "advanced"
+    languages: ["python", "javascript"]
+    features:
+      - "realtime-transcription"
+      - "speaker-diarization"
+      - "custom-vocabulary"
+      - "turn-detection"
+    integrations: ["openai"]
+    path: "use-cases/06-medical-assistant"
+    readme: "use-cases/06-medical-assistant/README.md"
+    tags: ["medical", "healthcare", "bilingual", "arabic", "diarization", "soap", "icd-10", "form-extraction", "clinical"]
+    last_updated: "2026-02-10"
+    estimated_time: "15 minutes"
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["healthcare", "multilingual"]
+    lifecycle: "preview"
+    kind: "code"
+    order: 28
+    demos:
+      - type: "local"
+        url: "use-cases/06-medical-assistant/README.md"
+        description: "Local browser dashboard for live transcription, structured extraction, and a scripted consultation demo."
+  - id: "medical-microbatching"
+    title: "Medical Microbatching"
+    description: "Split microphone audio with Silero VAD and submit concurrent Batch Enhanced jobs, with an optional cross-chunk speaker-identification variant; Medical configuration is optional."
+    summary: "Split microphone audio into Batch jobs with optional speaker tracking and Medical settings."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "batch-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+    integrations: []
+    path: "use-cases/07-medical-microbatching"
+    readme: "use-cases/07-medical-microbatching/README.md"
+    tags: ["medical", "healthcare", "hipaa", "batch", "microbatching", "vad", "silero", "on-premises"]
+    last_updated: "2026-04-29"
+    estimated_time: "15 minutes"
+    packages: ["speechmatics-batch", "speechmatics-rt"]
+    apis: ["batch"]
+    collections: ["healthcare"]
+    lifecycle: "current"
+    kind: "code"
+    order: 29
+    demos:
+      - type: "local"
+        url: "use-cases/07-medical-microbatching/README.md"
+        description: "Speechmatics API key; see the walkthrough for runtime and audio requirements."
+  - id: "alphanumerics-form-filler"
+    title: "Alphanumerics Voice Form Filler"
+    description: "Fill a local browser form from spoken names, emails, and numbers using Agent STT, Speechmatics TTS, OpenAI tools, and LiveKit RPC."
+    summary: "Fill a browser form with spoken names, email addresses, and numbers through LiveKit."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["python", "javascript"]
+    features:
+      - "voice-agents"
+      - "realtime-transcription"
+      - "text-to-speech"
+      - "turn-detection"
+    integrations: ["livekit", "openai"]
+    path: "use-cases/08-alphanumerics-form-filler"
+    readme: "use-cases/08-alphanumerics-form-filler/README.md"
+    tags: ["voice-agent", "form-filling", "alphanumerics", "livekit", "rpc", "function-calling"]
+    last_updated: "2026-05-06"
+    estimated_time: "10 minutes"
+    packages: ["livekit-plugins-speechmatics"]
+    apis: ["agent-stt", "tts"]
+    collections: ["voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 30
+    demos:
+      - type: "local"
+        url: "use-cases/08-alphanumerics-form-filler/README.md"
+        description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "flutter-mobile-transcription"
+    title: "Flutter Mobile Transcription App"
+    description: "Build a Dart mobile client for direct Batch API transcription, speaker and channel labels, speaker identification, captions and speech intelligence, with optional Google Cloud translation."
+    summary: "Record or upload audio from a mobile app, then view transcripts, captions, and insights."
+    demo_note: "Requires a mobile device/emulator and platform toolchain; iOS needs macOS and Xcode. Add keys in-app; do not distribute builds with embedded keys."
+    category: "use-cases"
+    difficulty: "intermediate"
+    languages: ["dart"]
+    features:
+      - "batch-transcription"
+      - "speaker-diarization"
+      - "speaker-identification"
+      - "channel-diarization"
+      - "custom-vocabulary"
+      - "translation"
+      - "audio-intelligence"
+      - "summarization"
+      - "topic-detection"
+    integrations: ["flutter", "google-translate"]
+    path: "use-cases/09-flutter-mobile-transcription"
+    readme: "use-cases/09-flutter-mobile-transcription/README.md"
+    tags: ["flutter", "mobile", "android", "ios", "batch", "diarization", "speaker-identification", "translation", "speech-intelligence"]
+    last_updated: "2026-06-16"
+    estimated_time: "20 minutes"
+    packages: []
+    apis: ["batch"]
+    collections: ["mobile", "multilingual", "captions-insights"]
+    models: ["melia-1", "enhanced", "standard"]
+    lifecycle: "current"
+    kind: "code"
+    order: 31
+    demos:
+      - type: "local"
+        url: "use-cases/09-flutter-mobile-transcription/README.md"
+        description: "Flutter toolchain and mobile device/emulator; Speechmatics key; optional Google Cloud Translation key."
   - id: "wall-of-voices"
     title: "Wall of Voices"
-    description: "A stage demo that proves zero-configuration multilingual ASR to a room. One microphone is passed around the audience and Melia's per-word language tags paint every utterance onto a shared wall, coloured, labelled and correctly oriented, while a counter tracks the distinct languages detected. The browser holds the microphone and opens the Melia socket directly; a small Python token endpoint only exchanges a long-lived key for a short-lived one, and never sits in the audio path."
+    description: "Display multilingual microphone transcripts with Melia 1 and per-word language tags; browser audio uses the preview Realtime host, with a Python token broker and optional SDK CLI."
+    summary: "Display live multilingual transcripts with per-word language labels and colors."
+    demo_note: "The GIF is a recording; running locally requires microphone access and a key with access to the preview Realtime endpoint."
     category: "use-cases"
     difficulty: "intermediate"
     languages: ["python", "javascript"]
     features:
       - "realtime-transcription"
-    integrations: []
+    integrations: ["vercel"]
     path: "use-cases/10-wall-of-voices"
     readme: "use-cases/10-wall-of-voices/README.md"
     tags: ["melia", "multilingual", "code-switching", "realtime", "language-identification", "rtl", "demo", "conference", "bring-your-own-key"]
     last_updated: "2026-08-18"
     estimated_time: "15 minutes"
-
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    collections: ["multilingual", "captions-insights"]
+    lifecycle: "preview"
+    models: ["melia-1"]
+    kind: "code"
+    order: 32
+    demos:
+      - type: "recording"
+        url: "use-cases/10-wall-of-voices/assets/wall-of-voices.gif"
+        description: "Recorded multilingual transcript wall and code-switching demonstration."
+      - type: "local"
+        url: "use-cases/10-wall-of-voices/README.md"
+        description: "Local browser and microphone with a Speechmatics key that can access the preview Realtime endpoint."
   - id: "oak-consultation-studio"
     title: "Oak Consultation Studio"
-    description: "Automatically transcribe uploaded audio or microphone recordings with Oak 1, then explore multilingual medical consultations with language-tagged paragraphs, synchronized playback, word timings, and speaker/channel labels. Includes optional expected-language settings, a Python serverless token broker, user-provided API keys, and Vercel deployment."
+    description: "Build an Oak 1 multilingual medical consultation interface with direct browser Batch API uploads, synchronized playback, language and speaker/channel labels, and a Python token broker."
+    summary: "Explore multilingual medical transcripts with Oak 1, audio playback, and speaker labels."
+    demo_note: "Scripted consultations need no key; transcribing your own audio requires a Speechmatics key with Oak 1 Batch access. A key entered in Settings is saved in this browser until cleared and sent to the deployment's `/api/token` endpoint to obtain a 10-minute Batch key."
     category: "use-cases"
     difficulty: "intermediate"
     languages: ["python", "javascript"]
@@ -588,48 +1173,34 @@ examples:
       - "batch-transcription"
       - "speaker-diarization"
       - "channel-diarization"
-    integrations: []
+    integrations: ["vercel"]
     path: "use-cases/11-oak-consultation-studio"
     readme: "use-cases/11-oak-consultation-studio/README.md"
     tags: ["oak", "oak-1", "medical", "healthcare", "multilingual", "code-switching", "batch", "microphone", "audio-upload", "word-timestamps", "language-identification", "language-hints", "serverless", "vercel", "bring-your-own-key"]
     last_updated: "2026-10-14"
     estimated_time: "20 minutes"
+    packages: []
+    apis: ["batch"]
+    collections: ["healthcare", "multilingual"]
+    models: ["oak-1"]
+    lifecycle: "current"
+    kind: "code"
+    order: 33
+    demos:
+      - type: "hosted"
+        url: "https://oak-consultation-studio.vercel.app/"
+        description: "Hosted browser app with scripted consultations, audio uploads, and recording."
+      - type: "recording"
+        url: "use-cases/11-oak-consultation-studio/assets/oak-consultation-studio.gif"
+        description: "Recorded interface walkthrough and an example Oak 1 transcription."
+      - type: "local"
+        url: "use-cases/11-oak-consultation-studio/README.md"
+        description: "Run the browser app and Python token broker locally."
 
-# Integration Frameworks
-integration_frameworks:
-  - id: "agora"
-    title: "Agora"
-    url: "https://www.agora.io"
-  - id: "livekit"
-    title: "LiveKit"
-    url: "https://livekit.io"
-  - id: "pipecat"
-    title: "Pipecat AI"
-    url: "https://github.com/pipecat-ai/pipecat"
-  - id: "tambourine"
-    title: "Tambourine Voice"
-    url: "https://github.com/nicobailey/tambourine-voice"
-  - id: "twilio"
-    title: "Twilio"
-    url: "https://www.twilio.com"
-  - id: "vapi"
-    title: "VAPI"
-    url: "https://vapi.ai"
-
-# Community Subcategories
-community_subcategories:
-  - use-cases
-  - integrations
-  - tools
-  - experiments
-
-# Community Status Levels
-community_status:
-  - community    # Basic structure, light review
-  - verified     # Full template compliance, maintainer-audited
-
-# Metadata for CLI Tool
+# Community metadata and CLI discovery
+community_subcategories: ["use-cases", "integrations", "tools", "experiments"]
+community_status: ["community", "verified"]
 cli_config:
-  search_fields: ["title", "description", "tags", "features"]
-  filter_fields: ["category", "difficulty", "languages", "features", "integrations", "status"]
-  sort_options: ["title", "difficulty", "last_updated"]
+  search_fields: ["title", "description", "tags", "features", "packages", "apis", "collections"]
+  filter_fields: ["category", "difficulty", "languages", "features", "packages", "apis", "integrations", "collections", "lifecycle", "kind", "status"]
+  sort_options: ["order", "title", "difficulty", "last_updated"]

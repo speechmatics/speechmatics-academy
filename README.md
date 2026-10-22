@@ -13,7 +13,6 @@
 
 Explore code examples for transcription, voice-agent applications, and third-party integrations. Each example explains its setup, dependencies, and limitations.
 
-
 **Examples • Integrations • Use Cases • Developer Guides**
 
 [Browse Examples](#example-categories) • [Quick Start](#quick-start) • [Contributing](#contributing) • [portal](https://portal.speechmatics.com/)  • [Documentation](https://docs.speechmatics.com/) • [Discord Community](https://discord.gg/speechmatics)
@@ -43,7 +42,8 @@ Explore code examples for transcription, voice-agent applications, and third-par
 - [Example Structure](#example-structure)
 - [Contributing](#contributing)
 - [Support & Resources](#support--resources)
-
+- [License](#license)
+- [Links](#links)
 
 ---
 
@@ -52,7 +52,6 @@ Explore code examples for transcription, voice-agent applications, and third-par
 ### Prerequisites
 
 **1. Get your API key** from the [portal](https://portal.speechmatics.com/). Use Python 3.12 to match the repository's Python CI environment, and check the selected example for additional requirements.
-
 
 **2. Install the SDK** for your use case in a virtual environment. When running an Academy example, install its supplied requirements as shown below:
 
@@ -147,7 +146,6 @@ python main.py
 > [!CAUTION]
 > Never hardcode API keys in your source code. Always use environment variables (`.env` files) or secure secret management systems. Never commit `.env` to version control - only `.env.example` with placeholder values.
 
-
 ### Option 2: Direct Copy
 
 Use [degit](https://github.com/Rich-Harris/degit) to copy individual examples:
@@ -160,29 +158,38 @@ npm install -g degit
 degit speechmatics/speechmatics-academy/basics/01-hello-world my-project
 cd my-project
 ```
+
+You are now in the copied example directory. Follow its [Quick Start](basics/01-hello-world/README.md#quick-start), beginning with `cd python` and the virtual environment setup, then install dependencies, configure `.env`, and run the example.
+
 ---
 
 <h2 id="example-categories">📚 Example Categories</h2>
+
+Start with the fundamentals below, or choose an integration or focus to explore related examples and demos. Browse the **[complete catalog](docs/CATALOG.md)** to find examples by package, feature, language, or difficulty.
 
 ### Fundamentals
 
 Fundamental examples for getting started with the Speechmatics SDK.
 
+**Suggested path:** [Hello World](basics/01-hello-world/README.md) → [Batch vs Realtime](basics/02-batch-vs-realtime/README.md) → [Configuration Guide](basics/03-configuration-guide/README.md), then choose a feature below. The table groups introductory examples first; folder numbers are stable identifiers rather than a required lesson sequence.
+
+<!-- BEGIN GENERATED: basics -->
 | Example | Description | Packages | Difficulty |
-|---------|-------------|----------|------------|
-| [Hello World](basics/01-hello-world/) | Submit an audio file to the Batch API | `Batch` |  Beginner |
-| [Batch vs Realtime](basics/02-batch-vs-realtime/) | Learn the difference between API modes | `Batch` `RT` |  Beginner |
-| [Configuration Guide](basics/03-configuration-guide/) | Common configuration options | `Batch` |  Beginner |
-| [Text to Speech](basics/06-text-to-speech/) | Convert text to natural-sounding speech | `TTS` |  Beginner |
-| [Channel Diarization](basics/10-channel-diarization/) | Multi-channel transcription with speaker attribution | `Voice` `RT` |  Beginner |
-| [Melia 1 Multilingual](basics/12-melia-multilingual/) | Transcribe multilingual, code-switching audio with Melia 1 using the Batch API | `Batch` |  Beginner |
-| [Audio Intelligence](basics/04-audio-intelligence/) | Extract insights with sentiment, topics, and summaries | `Batch` |  Intermediate |
-| [Multilingual & Translation](basics/05-multilingual-translation/) | Select a transcription language and translate streaming output | `RT` |  Intermediate |
-| [Basic Turn Detection](basics/07-turn-detection/) | Silence-based turn detection with Realtime SDK | `RT` |  Intermediate |
-| [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/) | Turn detection presets in the deprecated Voice SDK | `Voice` |  Intermediate |
-| [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/) | Reuse speaker identifiers and apply speaker focus with the deprecated Voice SDK | `Voice` |  Intermediate |
-| [Voice API Explorer](basics/11-voice-api-explorer/) | Explore the older preview WebSocket protocol in Python and JavaScript; see the compatibility notes | `WebSocket` |  Intermediate |
-| [Agent STT](basics/13-agent-stt/) | Linden 1 transcript segments, speech and turn events, speaker identifiers, and service or external turn detection | `Agent STT` |  Intermediate |
+| --- | --- | --- | --- |
+| [Hello World - Your First Transcription](<basics/01-hello-world/README.md>) | Transcribe a sample audio file with the Batch SDK. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | beginner |
+| [Batch vs Realtime - Understanding API Modes](<basics/02-batch-vs-realtime/README.md>) | Compare file transcription with Batch and microphone streaming with Realtime. | [Batch](<https://pypi.org/project/speechmatics-batch/>), [Realtime](<https://pypi.org/project/speechmatics-rt/>) | beginner |
+| [Configuration Guide - Common Configuration Options](<basics/03-configuration-guide/README.md>) | Configure speaker labels, a custom dictionary, and formatting for Batch transcription. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | beginner |
+| [Text to Speech](<basics/06-text-to-speech/README.md>) | Convert text into speech with the TTS SDK. | [TTS](<https://pypi.org/project/speechmatics-tts/>) | beginner |
+| [Channel Diarization](<basics/10-channel-diarization/README.md>) | Transcribe separate audio channels and label each channel. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | beginner |
+| [Melia 1 Multilingual Transcription](<basics/12-melia-multilingual/README.md>) | Transcribe audio that switches between languages with Melia 1. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | beginner |
+| [Speech intelligence - Sentiment, Topics and Summaries](<basics/04-audio-intelligence/README.md>) | Extract sentiment, topics, and summaries from a recording. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | intermediate |
+| [Multilingual &amp; Translation](<basics/05-multilingual-translation/README.md>) | Stream English microphone audio and display Spanish and Russian translations. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | intermediate |
+| [Basic Turn Detection](<basics/07-turn-detection/README.md>) | Detect the end of speech using silence-based turn detection. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | intermediate |
+| [Intelligent Turn Detection](<basics/08-voice-agent-turn-detection/README.md>) **Legacy** | Compare turn-detection presets in the deprecated Voice SDK. | [Voice SDK (legacy)](<https://pypi.org/project/speechmatics-voice/>), [Realtime](<https://pypi.org/project/speechmatics-rt/>) | intermediate |
+| [Speaker ID &amp; Speaker Focus](<basics/09-voice-agent-speaker-id/README.md>) **Legacy** | Save speaker identifiers and apply speaker focus with the deprecated Voice SDK. | [Voice SDK (legacy)](<https://pypi.org/project/speechmatics-voice/>), [Realtime](<https://pypi.org/project/speechmatics-rt/>) | intermediate |
+| [Preview WebSocket API Explorer](<basics/11-voice-api-explorer/README.md>) **Preview** | Explore raw WebSocket clients for the Voice API preview. | Direct API / configuration | intermediate |
+| [Agent STT Linden 1 - Segments, Turns and Speakers](<basics/13-agent-stt/README.md>) | Handle transcript segments, turns, and speakers with Agent STT Linden 1. | [Agent STT](<https://pypi.org/project/speechmatics-agent-stt/>) | intermediate |
+<!-- END GENERATED: basics -->
 
 [Browse all basics examples](basics/)
 
@@ -190,43 +197,39 @@ Fundamental examples for getting started with the Speechmatics SDK.
 
 ### Integrations
 
-Third-party framework and service integrations.
+Choose an integration to explore its examples and setup guides. Groups with several examples open a hub; a single example opens its own guide.
 
-| Integration | Example | Features | Languages |
-|-------------|---------|----------|-----------|
-| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/agora/logo/agora-logo-rgb-blue.svg"><source media="(prefers-color-scheme: light)" srcset="integrations/agora/logo/agora-logo-rgb-blue.svg"><img alt="Agora" src="integrations/agora/logo/agora-logo-rgb-blue.svg" height="22"></picture> | [Conversational AI Voice Agent](integrations/agora/01-conversational-ai-agent/) | Agora RTC audio, RTM transcripts, and a managed pipeline combining Speechmatics STT, an LLM, and TTS | Python, TypeScript |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/) | WebRTC, VAD, diarization, focus speakers, passive filtering, speaker identification, LLM, TTS | Python |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Telephony with Twilio](integrations/livekit/02-telephony-twilio/) | Phone calls via SIP, LiveKit Agents, Krisp noise cancellation, LLM, TTS | Python |
-| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><source media="(prefers-color-scheme: light)" srcset="integrations/livekit/logo/LK_wordmark_lightbg.png"><img alt="LiveKit" src="integrations/livekit/logo/LK_wordmark_lightbg.png" height="19"></picture> | [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) | Live diarization, speaker focus (RETAIN/IGNORE), reusable speaker identifiers, application-side focus tools, browser visualizer | Python, JavaScript |
-| <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/) | Local audio, VAD, diarization, focus speakers, passive filtering, LLM, TTS, interruptions | Python |
-| <img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat" height="28"> | [Simple Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/) | Browser-based WebRTC, VAD, diarization, focus speakers, passive filtering, LLM, TTS | Python |
-| <img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"> | [Outbound Dialer](integrations/twilio/01-outbound-dialer/) | REST API, outbound calls, Media Streams, deprecated Voice SDK, and ElevenLabs TTS | Python |
-| <div align="center"><picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><source media="(prefers-color-scheme: light)" srcset="integrations/vapi/logo/vapi-dark.png"><img alt="VAPI" src="integrations/vapi/logo/vapi-dark.png" height="50"></picture></div> | [Voice Assistant](integrations/vapi/01-voice-assistant/) | Voice AI platform, Speechmatics STT, diarization, custom dictionary, LLM, TTS | Python |
-| <div align="center"><img src="integrations/tambourine/logo/icon.png" alt="Tambourine" height="50"></div> | [Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/) | Desktop dictation, medical terminology, LLM formatting, clinical documentation | Config |
+<!-- BEGIN GENERATED: integrations -->
+| Integration | Examples | What you'll build | Languages |
+| --- | --- | --- | --- |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/agora/logo/agora-logo-rgb-blue.svg"><img src="integrations/agora/logo/agora-logo-rgb-blue.svg" alt="Agora" height="22"></picture> | [1&nbsp;example](<integrations/agora/01-conversational-ai-agent/README.md>) | Agora RTC/RTM with Speechmatics Realtime transcription and a managed LLM and speech synthesis pipeline. | Python, TypeScript |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/livekit/logo/LK_wordmark_darkbg.png"><img src="integrations/livekit/logo/LK_wordmark_lightbg.png" alt="LiveKit" height="19"></picture> | [6&nbsp;examples](<integrations/livekit/README.md>) | Voice assistants with Agent STT, speaker controls, browser tools, and SIP telephony. | Python, JavaScript |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/pipecat/logo/pipecat.png"><img src="integrations/pipecat/logo/pipecat.png" alt="Pipecat AI" height="28"></picture> | [2&nbsp;examples](<integrations/pipecat/README.md>) | Local microphone and browser WebRTC voice agents using the Speechmatics adapter. | Python |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/twilio/logo/twillio.png"><img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"></picture> | [4&nbsp;examples](<integrations/twilio/README.md>) | Phone agents through LiveKit SIP or direct Media Streams; the direct example uses the legacy Voice SDK. | Python |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><img src="integrations/vapi/logo/vapi-dark.png" alt="Vapi" height="50"></picture> | [1&nbsp;example](<integrations/vapi/01-voice-assistant/README.md>) | Managed voice assistants with Speechmatics streaming transcription and a custom dictionary. | Python |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/tambourine/logo/icon.png"><img src="integrations/tambourine/logo/icon.png" alt="Tambourine Voice" height="50"></picture> | [1&nbsp;example](<integrations/tambourine/01-healthcare-dictation/README.md>) | Desktop healthcare dictation with Speechmatics STT and configurable LLM formatting. | Configuration |
+<!-- END GENERATED: integrations -->
 
-[Browse all integrations](integrations/)
+[Browse all integrations](docs/CATALOG.md#by-integration)
 
 ---
 
 ### Use Cases
 
-Example applications for specific industries.
+Explore examples by industry or workflow. Each collection brings together related examples from across the Academy; an example can appear in more than one collection.
 
-| Industry | Example | Features |
-|----------|---------|----------|
-| **Healthcare** | [Medical Transcription](use-cases/01-medical-transcription-realtime/) | Realtime API, Enhanced Medical, and a custom dictionary for medical terms |
-| **Media** | [Video Captioning](use-cases/02-video-captioning/) | SRT generation, timestamp sync, batch processing |
-| **Contact Center** | [Call Analytics](use-cases/03-call-center-analytics/) | Channel diarization, sentiment analysis, topic detection, summarization |
-| **Business** | [AI Receptionist](use-cases/04-voice-agent-calendar/) | LiveKit voice agent, Twilio SIP, Google Calendar booking, function calling |
-| **Entertainment** | [Santa Voice Agent](use-cases/05-santa-voice-agent/) | LiveKit, ElevenLabs TTS, custom dictionary, Twilio SIP telephony |
-| **Healthcare** | [Medical Assistant](use-cases/06-medical-assistant/) | Bilingual Arabic and English transcription, speaker diarization, LLM extraction, and draft clinical notes |
-| **Healthcare** | [Medical Microbatching](use-cases/07-medical-microbatching/) | Microphone chunking with Silero VAD, concurrent Batch jobs, and optional speaker identification |
-| **Business** | [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/) | LiveKit voice agent, agent STT with framework turn detection, browser RPC form filling, digit-by-digit confirmation |
-| **Mobile** | [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) | Flutter (Android & iOS), Batch API, Melia 1 multilingual transcription, plus model-dependent diarization, speaker identification, translation, and speech intelligence |
-| **Events** | [Wall of Voices](use-cases/10-wall-of-voices/) | Realtime Melia 1 multilingual transcription, per-word language tags, browser WebSocket audio, right-to-left rendering, short-lived token endpoint |
-| **Healthcare** | [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) · [Live demo](https://oak-consultation-studio.vercel.app/) | Oak 1 multilingual healthcare transcription with the Batch API, synchronized playback, speaker/channel exploration, and a Python token broker; Oak 1 is distinct from Enhanced Medical |
+<!-- BEGIN GENERATED: use-cases -->
+| Focus | Examples | What you'll build | Languages |
+| --- | --- | --- | --- |
+| Healthcare | [5&nbsp;examples](<collections/healthcare/README.md>) | Medical transcription, clinical dictation, and consultation interfaces. | Python, JavaScript, Configuration |
+| Telephony | [5&nbsp;examples](<collections/telephony/README.md>) | Phone assistants, SIP and Media Streams, and recorded-call analysis. | Python |
+| Multilingual | [6&nbsp;examples](<collections/multilingual/README.md>) | Translation, bilingual transcription, and multilingual code-switching. | Python, JavaScript, Dart |
+| Voice agents | [16&nbsp;examples](<collections/voice-agents/README.md>) | Speech interfaces, turn handling, and complete conversational pipelines. | Python, TypeScript, JavaScript |
+| Captions and insights | [5&nbsp;examples](<collections/captions-insights/README.md>) | Captions, live transcript displays, sentiment, topics, and summaries. | Python, JavaScript, Dart |
+| Mobile | [1&nbsp;example](<use-cases/09-flutter-mobile-transcription/README.md>) | Mobile audio capture and transcription applications. | Dart |
+<!-- END GENERATED: use-cases -->
 
-[Browse all use cases](use-cases/)
+[Browse all use cases](docs/CATALOG.md#by-collection)
 
 ---
 
@@ -279,70 +282,18 @@ Switching from another Speech to Text provider? Use the migration guides to comp
 ---
 
 <h2 id="finding-examples">🔍 Finding Examples</h2>
-Find examples by package, feature, integration, programming language, or difficulty. Follow each example's README for its actual dependencies and setup.
 
-### By Package
+<a id="by-package"></a>
+<a id="by-feature"></a>
+<a id="by-integration"></a>
+<a id="by-language"></a>
+<a id="by-difficulty"></a>
 
+Browse the catalog by **[package](docs/CATALOG.md#by-package)** · **[feature](docs/CATALOG.md#by-feature)** · **[integration](docs/CATALOG.md#by-integration)** · **[language](docs/CATALOG.md#by-language)** · **[collection](docs/CATALOG.md#by-collection)** · **[difficulty](docs/CATALOG.md#by-difficulty)**.
 
-| Package | Description | Examples |
-|---------|-------------|----------|
-| **`speechmatics-batch`** | Asynchronous file transcription with the Batch API | [Hello World](basics/01-hello-world/), [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Microbatching](use-cases/07-medical-microbatching/) |
-| **`speechmatics-rt`** | Streaming transcription with the Realtime API | [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Channel Diarization](basics/10-channel-diarization/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Assistant](use-cases/06-medical-assistant/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Wall of Voices](use-cases/10-wall-of-voices/) |
-| **`speechmatics-voice`** | Deprecated client-side segmentation and turn presets for existing applications | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/) |
-| **`speechmatics-agent-stt`** | Segment-level STT for voice agents | [Agent STT](basics/13-agent-stt/) |
-| **`speechmatics-tts`** | Text to Speech synthesis | [Text to Speech](basics/06-text-to-speech/) |
-
-### By Feature
-
-| Feature | Examples |
-|---------|----------|
-| **Batch Transcription** | [Hello World](basics/01-hello-world/), [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Melia 1 Multilingual](basics/12-melia-multilingual/), [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) |
-| **Realtime** | [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Basic Turn Detection](basics/07-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [Agora Conversational AI Agent](integrations/agora/01-conversational-ai-agent/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Assistant](use-cases/06-medical-assistant/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Wall of Voices](use-cases/10-wall-of-voices/) |
-| **Turn Detection** | [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/) |
-| **Voice Agents** | [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [Agora Conversational AI Agent](integrations/agora/01-conversational-ai-agent/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Vapi Voice Assistant](integrations/vapi/01-voice-assistant/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
-| **Speaker Diarization** | [Configuration Guide](basics/03-configuration-guide/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agent STT](basics/13-agent-stt/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Call Analytics](use-cases/03-call-center-analytics/), [Medical Assistant](use-cases/06-medical-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) |
-| **Speaker Identification** | [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Agent STT](basics/13-agent-stt/), [Voice API Explorer](basics/11-voice-api-explorer/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) |
-| **Sentiment Analysis** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/) |
-| **Topic Detection** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) |
-| **Summarization** | [Audio Intelligence](basics/04-audio-intelligence/), [Call Analytics](use-cases/03-call-center-analytics/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) |
-| **Translation** | [Multilingual & Translation](basics/05-multilingual-translation/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) |
-| **Text to Speech** | [Text to Speech](basics/06-text-to-speech/) |
-
-### By Integration
-
-| Integration | Examples | Documentation | Status |
-|-------------|----------|---------------|--------|
-| **Agora** | [Conversational AI Voice Agent](integrations/agora/01-conversational-ai-agent/) | [Agora Conversational AI Docs](https://docs.agora.io/en/conversational-ai/overview/product-overview) | **Available** |
-| **LiveKit** | [Simple Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/) | [LiveKit Docs](https://docs.livekit.io/agents/models/stt/plugins/speechmatics/) | **Available** |
-| **Pipecat AI** | [Simple Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Simple Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/) | [Pipecat Docs](https://docs.pipecat.ai/server/services/stt/speechmatics#speechmatics) | **Available** |
-| **Twilio** | [Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Telephony with Twilio](integrations/livekit/02-telephony-twilio/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/) | [Twilio Media Streams](https://www.twilio.com/docs/voice/media-streams) | **Available** |
-| **Vapi** | [Voice Assistant](integrations/vapi/01-voice-assistant/) | [docs.vapi.ai](https://docs.vapi.ai/) | **Available** |
-| **Tambourine** | [Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/) | [GitHub](https://github.com/nicobailey/tambourine-voice) | **Available** |
-
-### By Language
-
-| Language | Examples | Status |
-|----------|----------|--------|
-| **Python** | [Hello World](basics/01-hello-world/), [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Text to Speech](basics/06-text-to-speech/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Channel Diarization](basics/10-channel-diarization/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agora Conversational AI Agent](integrations/agora/01-conversational-ai-agent/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [Vapi Voice Assistant](integrations/vapi/01-voice-assistant/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Medical Assistant](use-cases/06-medical-assistant/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Melia 1 Multilingual](basics/12-melia-multilingual/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/), [Agent STT](basics/13-agent-stt/), [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) | **Available** |
-| **Dart / Flutter** | [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/) | **Available** |
-| **JavaScript** | [Voice API Explorer](basics/11-voice-api-explorer/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/), [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) | **Available** |
-| **TypeScript** | [Agora Conversational AI Agent](integrations/agora/01-conversational-ai-agent/) | **Available** |
-| **C#** | - | Not yet included |
-
-
-### By Difficulty
-
-| Difficulty | Examples |
-|------------|----------|
-| **Beginner** | [Hello World](basics/01-hello-world/), [Batch vs Realtime](basics/02-batch-vs-realtime/), [Configuration Guide](basics/03-configuration-guide/), [Text to Speech](basics/06-text-to-speech/), [Channel Diarization](basics/10-channel-diarization/), [Vapi Voice Assistant](integrations/vapi/01-voice-assistant/), [Tambourine Healthcare Dictation](integrations/tambourine/01-healthcare-dictation/), [Video Captioning](use-cases/02-video-captioning/), [Call Analytics](use-cases/03-call-center-analytics/), [Melia 1 Multilingual](basics/12-melia-multilingual/) |
-| **Intermediate** | [Audio Intelligence](basics/04-audio-intelligence/), [Multilingual & Translation](basics/05-multilingual-translation/), [Basic Turn Detection](basics/07-turn-detection/), [Intelligent Turn Detection](basics/08-voice-agent-turn-detection/), [Speaker ID & Speaker Focus](basics/09-voice-agent-speaker-id/), [Voice API Explorer](basics/11-voice-api-explorer/), [Agora Conversational AI Agent](integrations/agora/01-conversational-ai-agent/), [LiveKit Voice Assistant](integrations/livekit/01-simple-voice-assistant/), [Pipecat Voice Bot](integrations/pipecat/01-simple-voice-bot/), [Pipecat Voice Bot (Web)](integrations/pipecat/02-simple-voice-bot-web/), [Medical Transcription](use-cases/01-medical-transcription-realtime/), [Medical Microbatching](use-cases/07-medical-microbatching/), [Alphanumerics Form Filler](use-cases/08-alphanumerics-form-filler/), [Mobile Transcription App](use-cases/09-flutter-mobile-transcription/), [Speaker Focus Voice Agent](integrations/livekit/03-speaker-focus-voice-agent/), [Wall of Voices](use-cases/10-wall-of-voices/), [Agent STT](basics/13-agent-stt/), [Oak Consultation Studio](use-cases/11-oak-consultation-studio/) |
-| **Advanced** | [LiveKit Telephony](integrations/livekit/02-telephony-twilio/), [Twilio Outbound Dialer](integrations/twilio/01-outbound-dialer/), [AI Receptionist](use-cases/04-voice-agent-calendar/), [Santa Voice Agent](use-cases/05-santa-voice-agent/), [Medical Assistant](use-cases/06-medical-assistant/) |
-
-
+Follow each example's README for its dependencies, setup, and compatibility notes.
 
 ---
-
-
 <h2 id="example-structure">📁 Example Structure</h2>
 
 Small Python examples generally follow this structure. Web and mobile applications use framework-specific layouts described in their READMEs:
@@ -392,7 +343,7 @@ We welcome contributions! There are many ways to help:
 
 1. **Choose category** (basics/integrations/use-cases)
 2. **Follow structure** (see [EXAMPLE_TEMPLATE.md](docs/EXAMPLE_TEMPLATE.md))
-3. **Add metadata** to [docs/index.yaml](docs/index.yaml)
+3. **Add metadata** to [docs/index.yaml](docs/index.yaml) and [regenerate the discovery pages](docs/CATALOG_GUIDE.md)
 4. **Write README** using the template
 5. **Test thoroughly**
 6. **Submit PR** with clear description
@@ -414,10 +365,9 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
-<h2 id="support--resources"> 🆘 Support & Resources</h2>
+<h2 id="support--resources">🆘 Support & Resources</h2>
 
 ### Getting Help
-
 
 - **GitHub Issues**: [Report bugs or request examples](https://github.com/speechmatics/speechmatics-academy/issues)
 - **GitHub Community Discussions**: [Ask questions, share projects](https://github.com/speechmatics/community/discussions/categories/academy)
@@ -438,17 +388,19 @@ See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
+<a id="license"></a>
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
+<a id="links"></a>
+
 ## 🔗 Links
 
-- **SDK**: [github.com/speechmatics/speechmatics-python-sdk](https://github.com/speechmatics/speechmatics-python-sdk)
-- **Docs**: [docs.speechmatics.com](https://docs.speechmatics.com)
-- **portal**: [portal.speechmatics.com](https://portal.speechmatics.com)
+[SDK](https://github.com/speechmatics/speechmatics-python-sdk) · [Documentation](https://docs.speechmatics.com) · [portal](https://portal.speechmatics.com)
 
 ---
 

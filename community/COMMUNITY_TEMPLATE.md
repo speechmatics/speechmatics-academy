@@ -127,6 +127,13 @@ Add your project to `docs/index.yaml` under the `examples:` section:
     features:
       - "batch-transcription"
     integrations: []
+    packages: ["speechmatics-batch"]
+    apis: ["batch"]
+    collections: []
+    lifecycle: "current"
+    kind: "code"
+    order: 100
+    demos: []
     path: "community/use-cases/your-project-id"
     readme: "community/use-cases/your-project-id/README.md"
     tags: ["tag1", "tag2"]
@@ -138,6 +145,8 @@ Add your project to `docs/index.yaml` under the `examples:` section:
       github: "your-github-username"
 ```
 
+Follow the [catalog maintenance guide](../docs/CATALOG_GUIDE.md) to select registered metadata values and regenerate the discovery pages. Community review `status` and implementation `lifecycle` are separate fields.
+
 ## Quality Checklist
 
 Before submitting:
@@ -146,7 +155,7 @@ Before submitting:
 - [ ] CONTRIBUTORS.md is filled in
 - [ ] .env.example includes all required variables (no real secrets)
 - [ ] Code runs end-to-end
-- [ ] Metadata added to `docs/index.yaml`
+- [ ] Metadata added to `docs/index.yaml` and discovery pages regenerated
 - [ ] No hardcoded API keys or secrets
 
 ## Code Style
