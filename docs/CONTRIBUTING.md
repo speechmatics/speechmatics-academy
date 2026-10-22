@@ -82,7 +82,7 @@ Verify feature support for the selected model and API. Link current [release not
 
 ### Add catalog metadata
 
-Add an entry to `docs/index.yaml` using the existing schema and update `total_examples`:
+Add one entry to `docs/index.yaml` using the [catalog schema](catalog.schema.yaml). Example counts and discovery tables are derived automatically:
 
 ```yaml
 - id: "your-example-id"
@@ -94,6 +94,13 @@ Add an entry to `docs/index.yaml` using the existing schema and update `total_ex
   features:
     - "batch-transcription"
   integrations: []
+  packages: ["speechmatics-batch"]
+  apis: ["batch"]
+  collections: []
+  lifecycle: "current"
+  kind: "code"
+  order: 100
+  demos: []
   path: "basics/NN-your-example-id"
   readme: "basics/NN-your-example-id/README.md"
   tags: ["batch", "getting-started"]
@@ -101,7 +108,7 @@ Add an entry to `docs/index.yaml` using the existing schema and update `total_ex
   estimated_time: "10 minutes"
 ```
 
-Use an actual date and existing category, language, feature, and integration identifiers. Keep the root README's example list in sync. The current structure checker does not discover migration guides or arbitrary new integration framework folders, so include those additions explicitly in the review description.
+Use an actual date, a suitable presentation order, and registered category, language, feature, package, API, collection, and integration identifiers. Only list languages and capabilities demonstrated by the checked-in example. Then run `python .github/scripts/generate_catalog.py` and include its output in your change. Do not edit generated tables by hand. The [catalog maintenance guide](CATALOG_GUIDE.md) explains metadata, hub membership, demo links, and retrieval-friendly documentation. Migration guides remain separate from the runnable example catalog.
 
 ## Testing and local checks
 
@@ -110,16 +117,18 @@ The repository's Python CI runs on **Python 3.12**. Use that version as the defa
 Run the repository checks from its root:
 
 ```bash
-python -m pip install ruff
+python -m pip install ruff -r .github/requirements-catalog.txt
 ruff check .
 ruff format --check .
 python .github/scripts/check_structure.py
+python .github/scripts/generate_catalog.py --check
 python .github/scripts/check_community_structure.py
+python -m unittest discover -s .github/tests -v
 ```
 
 Ruff configuration is in `ruff.toml`: Python 3.12 target, a 120-character line length, and pycodestyle, pyflakes, and import-order rules. Markdown is excluded from Ruff.
 
-Run the selected example's own tests and build commands, as documented in its README. Existing suites include the Agora backend/frontend tests, Flutter tests, and Oak Consultation Studio's JavaScript/Python tests. They are **not currently run by the root CI workflow**.
+Run the selected example's own tests and build commands before submitting a change. The **Application Tests** workflow runs the existing Agora, Flutter, and Oak Consultation Studio suites when relevant files change. It also builds the Agora and Flutter web applications. See [application testing](TESTING.md) for exact commands, runtime versions, and change-selection rules.
 
 Test the documented quick start from a fresh checkout. For a microphone or streaming example, check startup, authentication failure, interruption, and final-transcript handling. For a UI, check that changing a setting changes the request it sends. Keep offline tests separate from live probes that need credentials and may incur usage.
 
@@ -131,12 +140,16 @@ Include the actual commands, results, runtime, and any untested live-service ste
 |---|---|
 | Python Checks | Repository-wide Ruff lint/format and Python syntax |
 | JavaScript Checks | Dependency installation and syntax checks for the Voice API Explorer's three JavaScript files |
-| Structure & Catalog Check | Catalog paths, README existence, declared count, and selected layout checks; some problems are warnings |
+| Structure & Catalog Check | YAML/schema and path validation, example coverage, catalog and application-selection tooling tests, and freshness of generated Markdown and the LLM index |
 | Dependency Resolution Check | Files named `requirements.txt` on Python 3.12, allowing prereleases; this does not run the applications |
 | Community Project Checks | Community structure and a separate warning-only lint step |
 | Docker Build | The Vapi example on Linux amd64 |
+| Oak tests | JavaScript application modules and Python configuration/token-service tests |
+| Agora tests and web build | Mocked backend tests, frontend tests, API contracts, and the Next.js production build |
+| Flutter tests and web build | Dart tests and a release web build using the committed dependency lockfile |
+| Application checks | Confirms every selected application job succeeded; documentation-only changes may skip the application jobs |
 
-The repository-wide Python job also includes community code, so Python lint and formatting can currently block community contributions despite the separate warning-only step. JavaScript/TypeScript web builds, Flutter analysis/tests, other Dockerfiles, `pyproject.toml`-only projects, and `requirements-dev.txt` are not covered by the corresponding root jobs. Passing CI does not replace testing the example.
+The repository-wide Python job also includes community code, so Python lint and formatting can currently block community contributions despite the separate warning-only step. Application checks cover the three applications listed above; other frontend builds, Flutter static analysis and native builds, other Dockerfiles, and dependency manifests outside the configured jobs still need their own validation. Agora's application job installs `requirements-dev.txt`; the general dependency-resolution job continues to discover only files named `requirements.txt`. Passing CI does not replace testing audio devices or live service behavior.
 
 ## Pull request process
 
@@ -164,7 +177,7 @@ Required checks must pass before merge. Maintainers review scope, correctness, d
 - [ ] Resources are cleaned up on normal exit and failure.
 - [ ] Required README sections and navigation links are present.
 - [ ] Model and API terminology matches current documentation.
-- [ ] Catalog metadata and the root example list are updated where applicable.
+- [ ] Catalog metadata is updated and generated discovery pages pass `generate_catalog.py --check`.
 - [ ] Relevant checks and existing tests pass; untested steps are disclosed.
 - [ ] No credentials or generated private data are committed.
 

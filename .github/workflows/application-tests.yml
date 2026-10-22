@@ -1,0 +1,167 @@
+name: Application Tests
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: application-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: Select application checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      oak: ${{ steps.select.outputs.oak }}
+      agora: ${{ steps.select.outputs.agora }}
+      flutter: ${{ steps.select.outputs.flutter }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Test application selection
+        run: python -m unittest discover -s .github/tests -p test_application_selection.py -v
+      - name: Select changed applications
+        id: select
+        run: python .github/scripts/select_application_tests.py
+
+  oak:
+    name: Oak tests
+    needs: changes
+    if: needs.changes.outputs.oak == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: use-cases/11-oak-consultation-studio
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: use-cases/11-oak-consultation-studio/requirements.txt
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      # Oak's JavaScript tests use Node's built-in runner and have no npm dependencies.
+      - name: Test JavaScript application modules
+        run: npm test
+      - name: Test Python configuration and token service
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+  agora:
+    name: Agora tests and web build
+    needs: changes
+    if: needs.changes.outputs.agora == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: integrations/agora/01-conversational-ai-agent
+    env:
+      AGENT_BACKEND_URL: http://127.0.0.1:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          package-manager-cache: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            integrations/agora/01-conversational-ai-agent/server/requirements.txt
+            integrations/agora/01-conversational-ai-agent/server/requirements-dev.txt
+      - name: Install locked web dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Install backend test dependencies
+        run: python -m pip install -r server/requirements-dev.txt
+      - name: Test backend with mocked providers
+        run: python -m pytest server/tests -q
+      - name: Test frontend modules
+        run: bun test
+      - name: Verify API contracts and build frontend
+        run: bun run verify:web
+
+  flutter:
+    name: Flutter tests and web build
+    needs: changes
+    if: needs.changes.outputs.flutter == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: use-cases/09-flutter-mobile-transcription/flutter
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.44.8"
+          channel: stable
+          cache: true
+      - name: Install locked dependencies
+        run: flutter pub get --enforce-lockfile
+      - name: Test Dart application modules
+        run: flutter test --no-pub
+      - name: Build web application
+        run: flutter build web --release --no-pub
+
+  application-checks:
+    name: Application checks
+    if: always()
+    needs: [changes, oak, agora, flutter]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify all selected checks passed
+        env:
+          CHECK_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          checks = json.loads(os.environ['CHECK_RESULTS'])
+          if checks['changes']['result'] != 'success':
+              sys.exit('Application selection failed or was cancelled.')
+
+          failures = []
+          selected = checks['changes']['outputs']
+          for app in ('oak', 'agora', 'flutter'):
+              requested = selected.get(app)
+              result = checks[app]['result']
+              print(f'{app}: selected={requested}, result={result}')
+              allowed = {'success'} if requested == 'true' else {'success', 'skipped'}
+              if requested not in ('true', 'false') or result not in allowed:
+                  failures.append(app)
+          if failures:
+              sys.exit('Application checks failed: ' + ', '.join(failures))
+          PY

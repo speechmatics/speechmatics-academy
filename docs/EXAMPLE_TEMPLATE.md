@@ -331,26 +331,33 @@ Use versions you have tested together and document the supported Python version.
 
 ## Metadata Entry (index.yaml)
 
-Add your example to `docs/index.yaml`:
+Add one metadata entry to `docs/index.yaml`; use the [catalog maintenance guide](CATALOG_GUIDE.md) and [schema](catalog.schema.yaml):
 
 ```yaml
 - id: "your-example-id"
   title: "Your Example Title"
   description: "One-line description"
-  category: "basics|integrations|use-cases"
-  difficulty: "beginner|intermediate"
+  category: "basics"  # Choose basics, integrations, or use-cases
+  difficulty: "beginner"  # Choose beginner, intermediate, or advanced
   languages: ["python"]
   features:
-    - "batch-transcription"
-    - "realtime-transcription"
-    - "voice-agents"
-  integrations: []  # Or ["livekit", "pipecat", "twilio", "vapi"]
+    - "batch-transcription"  # Only features demonstrated by this example
+  integrations: []  # Use registered framework/platform/service IDs
+  packages: ["speechmatics-batch"]
+  apis: ["batch"]
+  collections: []  # For example, ["healthcare"] when applicable
+  lifecycle: "current"  # current, legacy, or preview
+  kind: "code"  # code or configuration
+  order: 100  # Choose the intended presentation order
+  demos: []  # Add only real hosted, recording, or local-run links
   path: "category/your-example-id"
   readme: "category/your-example-id/README.md"
   tags: ["tag1", "tag2", "tag3"]
   last_updated: "YYYY-MM-DD"
   estimated_time: "X minutes"
 ```
+
+After filling in the metadata, run `python .github/scripts/generate_catalog.py` from the repository root. It updates the catalog, relevant hub tables, root category tables, and `llms.txt`. Keep authored learning guidance outside generated blocks.
 
 ## Quality Checklist
 
@@ -366,7 +373,7 @@ Before submitting your example:
 - [ ] Model and API feature claims link to current documentation
 - [ ] Existing tests and applicable build checks pass; untested live steps are stated
 - [ ] No hardcoded API keys or secrets
-- [ ] Metadata added to docs/index.yaml
+- [ ] Metadata added to docs/index.yaml and generated discovery pages updated
 - [ ] Feedback section included with GitHub links
 - [ ] Footer includes time, difficulty, and APIs used
 - [ ] Footer includes section link and "Back to Academy" link

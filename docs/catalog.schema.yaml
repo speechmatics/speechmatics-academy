@@ -1,0 +1,173 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://github.com/speechmatics/speechmatics-academy/docs/catalog.schema.yaml
+title: Speechmatics Academy catalog
+type: object
+additionalProperties: false
+required: [version, last_updated, categories, difficulty_levels, languages, language_labels, features, feature_labels, packages, apis, collections, integration_frameworks, examples]
+properties:
+  version:
+    const: '2.0.0'
+  last_updated:
+    $ref: '#/$defs/date'
+  categories:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title, description]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        description: {$ref: '#/$defs/text'}
+  difficulty_levels: {$ref: '#/$defs/ids'}
+  languages: {$ref: '#/$defs/ids'}
+  features: {$ref: '#/$defs/ids'}
+  language_labels: {$ref: '#/$defs/labels'}
+  feature_labels: {$ref: '#/$defs/labels'}
+  packages:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title, label, url, lifecycle]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        label: {$ref: '#/$defs/text'}
+        url: {$ref: '#/$defs/https'}
+        lifecycle: {$ref: '#/$defs/lifecycle'}
+  apis:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        url: {$ref: '#/$defs/https'}
+  collections:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title, description]
+      dependentRequired:
+        readme: [start_here]
+        start_here: [readme]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        description: {$ref: '#/$defs/text'}
+        readme: {$ref: '#/$defs/text'}
+        start_here: {$ref: '#/$defs/id'}
+        group_by_lifecycle: {type: boolean}
+  integration_frameworks:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title, url, kind]
+      dependentRequired:
+        readme: [start_here]
+        start_here: [readme]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        url: {$ref: '#/$defs/https'}
+        kind: {enum: [framework, platform, service]}
+        description: {$ref: '#/$defs/text'}
+        readme: {$ref: '#/$defs/text'}
+        start_here: {$ref: '#/$defs/id'}
+        group_by_lifecycle: {type: boolean}
+        logo:
+          type: object
+          additionalProperties: false
+          required: [light, dark, height]
+          properties:
+            light: {$ref: '#/$defs/text'}
+            dark: {$ref: '#/$defs/text'}
+            height: {type: integer, minimum: 1, maximum: 300}
+  community_subcategories: {$ref: '#/$defs/ids'}
+  community_status: {$ref: '#/$defs/ids'}
+  cli_config:
+    type: object
+    additionalProperties: false
+    properties:
+      search_fields: {$ref: '#/$defs/ids'}
+      filter_fields: {$ref: '#/$defs/ids'}
+      sort_options: {$ref: '#/$defs/ids'}
+  examples:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [id, title, description, category, difficulty, languages, features, integrations, path, tags, last_updated, estimated_time, packages, apis, collections, lifecycle, kind, order, demos]
+      properties:
+        id: {$ref: '#/$defs/id'}
+        title: {$ref: '#/$defs/text'}
+        description: {$ref: '#/$defs/text'}
+        summary: {$ref: '#/$defs/text'}
+        demo_note: {$ref: '#/$defs/text'}
+        category: {$ref: '#/$defs/id'}
+        difficulty: {$ref: '#/$defs/id'}
+        languages: {$ref: '#/$defs/ids'}
+        features: {$ref: '#/$defs/ids'}
+        integrations: {$ref: '#/$defs/ids'}
+        packages: {$ref: '#/$defs/ids'}
+        apis: {$ref: '#/$defs/ids'}
+        collections: {$ref: '#/$defs/ids'}
+        tags:
+          type: array
+          uniqueItems: true
+          items: {$ref: '#/$defs/text'}
+        models:
+          type: array
+          uniqueItems: true
+          items: {$ref: '#/$defs/text'}
+        path: {$ref: '#/$defs/text'}
+        readme: {$ref: '#/$defs/text'}
+        last_updated: {$ref: '#/$defs/date'}
+        estimated_time: {$ref: '#/$defs/text'}
+        lifecycle: {$ref: '#/$defs/lifecycle'}
+        kind: {enum: [code, configuration]}
+        order: {type: integer, minimum: 1}
+        status: {$ref: '#/$defs/id'}
+        subcategory: {$ref: '#/$defs/id'}
+        author: {$ref: '#/$defs/text'}
+        contributor:
+          type: object
+          additionalProperties: false
+          required: [name, github]
+          properties:
+            name: {$ref: '#/$defs/text'}
+            github: {$ref: '#/$defs/text'}
+        contributors:
+          type: array
+          items: {$ref: '#/$defs/text'}
+        demos:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [type, url, description]
+            properties:
+              type: {enum: [hosted, recording, local]}
+              url: {$ref: '#/$defs/text'}
+              description: {$ref: '#/$defs/text'}
+$defs:
+  text: {type: string, minLength: 1}
+  id: {type: string, pattern: '^[a-z0-9]+(?:[-_][a-z0-9]+)*$'}
+  ids:
+    type: array
+    uniqueItems: true
+    items: {$ref: '#/$defs/id'}
+  labels:
+    type: object
+    propertyNames: {$ref: '#/$defs/id'}
+    additionalProperties: {$ref: '#/$defs/text'}
+  date: {type: string, format: date}
+  https: {type: string, pattern: '^https://', format: uri}
+  lifecycle: {enum: [current, legacy, preview]}
