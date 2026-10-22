@@ -117,15 +117,48 @@ jobs:
     defaults:
       run:
         working-directory: use-cases/09-flutter-mobile-transcription/flutter
+    env:
+      FLUTTER_VERSION: "3.44.8"
+      # https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json
+      FLUTTER_ARCHIVE_SHA256: "672089e001571a9fbb209a495c583580c0c6c73ef98999264ba07fa93ace332d"
     steps:
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - uses: subosito/flutter-action@v2
+      - name: Set Flutter SDK path
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = "Linux"
+          test "$RUNNER_ARCH" = "X64"
+          echo "FLUTTER_ROOT=$RUNNER_TOOL_CACHE/flutter/$FLUTTER_VERSION" >> "$GITHUB_ENV"
+      - name: Cache Flutter SDK
+        id: flutter-cache
+        uses: actions/cache@v5
         with:
-          flutter-version: "3.44.8"
-          channel: stable
-          cache: true
+          path: ${{ env.FLUTTER_ROOT }}
+          key: flutter-sdk-${{ runner.os }}-${{ runner.arch }}-${{ env.FLUTTER_VERSION }}-${{ env.FLUTTER_ARCHIVE_SHA256 }}
+      - name: Install verified Flutter SDK
+        if: steps.flutter-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/flutter-sdk.tar.xz"
+          curl --fail --location --proto '=https' --proto-redir '=https' \
+            --retry 3 --connect-timeout 20 --max-time 600 \
+            --output "$archive" \
+            "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
+          printf '%s  %s\n' "$FLUTTER_ARCHIVE_SHA256" "$archive" | sha256sum --check --strict
+          mkdir -p "$FLUTTER_ROOT"
+          tar --extract --xz --file "$archive" --directory "$FLUTTER_ROOT" --strip-components=1
+      - name: Configure Flutter
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -x "$FLUTTER_ROOT/bin/flutter"
+          echo "$FLUTTER_ROOT/bin" >> "$GITHUB_PATH"
+          "$FLUTTER_ROOT/bin/flutter" config --no-analytics
+          "$FLUTTER_ROOT/bin/flutter" --version
       - name: Install locked dependencies
         run: flutter pub get --enforce-lockfile
       - name: Test Dart application modules

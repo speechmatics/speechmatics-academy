@@ -74,6 +74,8 @@ flutter build web --release --no-pub
 
 Use the pinned Flutter version above to reproduce CI. The committed lockfile requires Dart 3.12 or later and Flutter 3.44 or later; a broadly compatible version in `pubspec.yaml` does not override that lockfile. Update the workflow version deliberately when upgrading dependencies. The web build checks compilation; it does not test Android/iOS packaging or browser audio behavior.
 
+CI installs Flutter from its official Linux x64 archive, verifies the pinned SHA-256 checksum before extraction, and caches the SDK with GitHub's cache action. This setup uses a GitHub-owned action permitted by the repository's allowed-actions policy. When changing Flutter versions, update the version and checksum together using the [official Linux release manifest](https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json), then verify the lockfile and run the tests/build with that SDK.
+
 ## Extend coverage
 
 When adding a tested application, add a job and its path/dependency rules to [select_application_tests.py](../.github/scripts/select_application_tests.py), then include the job in the final **Application checks** gate. Update the selector regression tests and this guide. Prefer fake clients and local fixtures for routine CI; keep live probes with credentials as a separate, explicit operation.
