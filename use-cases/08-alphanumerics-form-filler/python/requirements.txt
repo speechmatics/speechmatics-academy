@@ -1,4 +1,4 @@
-fastapi>=0.143.3
+fastapi>=0.162.0
 livekit-agents==1.8.8
 livekit-plugins-openai==1.8.8
 livekit-plugins-silero==1.8.8
