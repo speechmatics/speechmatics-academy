@@ -134,7 +134,7 @@ jobs:
           echo "FLUTTER_ROOT=$RUNNER_TOOL_CACHE/flutter/$FLUTTER_VERSION" >> "$GITHUB_ENV"
       - name: Cache Flutter SDK
         id: flutter-cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ${{ env.FLUTTER_ROOT }}
           key: flutter-sdk-${{ runner.os }}-${{ runner.arch }}-${{ env.FLUTTER_VERSION }}-${{ env.FLUTTER_ARCHIVE_SHA256 }}
