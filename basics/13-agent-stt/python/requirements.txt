@@ -1,8 +1,8 @@
 # Speechmatics Agent STT SDK (pulls in speechmatics-rt)
-speechmatics-agent-stt>=0.1.0
+speechmatics-agent-stt>=0.3.0
 
 # Utilities
-python-dotenv>=1.2.3
+python-dotenv>=1.2.4
 
 # Optional extras, installed separately so the default run stays light:
 #
