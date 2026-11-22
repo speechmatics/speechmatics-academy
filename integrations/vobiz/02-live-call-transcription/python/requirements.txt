@@ -1,0 +1,4 @@
+speechmatics-rt[jwt]>=0.1.0
+websockets>=10.0,<13
+python-dotenv>=1.0.0
+ngrok>=1.0.0

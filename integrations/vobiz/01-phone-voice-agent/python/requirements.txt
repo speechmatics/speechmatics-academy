@@ -1,0 +1,5 @@
+# HTTP server, WebSocket server and client for Vobiz, Speechmatics and the LLM
+aiohttp>=3.9,<4
+
+# Environment variables
+python-dotenv>=1.0.0

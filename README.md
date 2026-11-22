@@ -208,6 +208,7 @@ Choose an integration to explore its examples and setup guides. Groups with seve
 | <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/twilio/logo/twillio.png"><img src="integrations/twilio/logo/twillio.png" alt="Twilio" height="28"></picture> | [4&nbsp;examples](<integrations/twilio/README.md>) | Phone agents through LiveKit SIP or direct Media Streams; the direct example uses the legacy Voice SDK. | Python |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vapi/logo/vapi-light.png"><img src="integrations/vapi/logo/vapi-dark.png" alt="Vapi" height="50"></picture> | [1&nbsp;example](<integrations/vapi/01-voice-assistant/README.md>) | Managed voice assistants with Speechmatics streaming transcription and a custom dictionary. | Python |
 | <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/tambourine/logo/icon.png"><img src="integrations/tambourine/logo/icon.png" alt="Tambourine Voice" height="50"></picture> | [1&nbsp;example](<integrations/tambourine/01-healthcare-dictation/README.md>) | Desktop healthcare dictation with Speechmatics STT and configurable LLM formatting. | Configuration |
+| <picture><source media="(prefers-color-scheme: dark)" srcset="integrations/vobiz/logo/vobiz-dark.png"><img src="integrations/vobiz/logo/vobiz-light.png" alt="Vobiz" height="28"></picture> | [2&nbsp;examples](<integrations/vobiz/README.md>) | Phone voice agents and live two-party call transcription over Vobiz audio streams, with no framework in between. | Python |
 <!-- END GENERATED: integrations -->
 
 [Browse all integrations](docs/CATALOG.md#by-integration)
@@ -222,10 +223,10 @@ Explore examples by industry or workflow. Each collection brings together relate
 | Focus | Examples | What you'll build | Languages |
 | --- | --- | --- | --- |
 | Healthcare | [5&nbsp;examples](<collections/healthcare/README.md>) | Medical transcription, clinical dictation, and consultation interfaces. | Python, JavaScript, Configuration |
-| Telephony | [5&nbsp;examples](<collections/telephony/README.md>) | Phone assistants, SIP and Media Streams, and recorded-call analysis. | Python |
+| Telephony | [7&nbsp;examples](<collections/telephony/README.md>) | Phone assistants, SIP and Media Streams, and recorded-call analysis. | Python |
 | Multilingual | [6&nbsp;examples](<collections/multilingual/README.md>) | Translation, bilingual transcription, and multilingual code-switching. | Python, JavaScript, Dart |
-| Voice agents | [16&nbsp;examples](<collections/voice-agents/README.md>) | Speech interfaces, turn handling, and complete conversational pipelines. | Python, TypeScript, JavaScript |
-| Captions and insights | [5&nbsp;examples](<collections/captions-insights/README.md>) | Captions, live transcript displays, sentiment, topics, and summaries. | Python, JavaScript, Dart |
+| Voice agents | [17&nbsp;examples](<collections/voice-agents/README.md>) | Speech interfaces, turn handling, and complete conversational pipelines. | Python, TypeScript, JavaScript |
+| Captions and insights | [6&nbsp;examples](<collections/captions-insights/README.md>) | Captions, live transcript displays, sentiment, topics, and summaries. | Python, JavaScript, Dart |
 | Mobile | [1&nbsp;example](<use-cases/09-flutter-mobile-transcription/README.md>) | Mobile audio capture and transcription applications. | Dart |
 <!-- END GENERATED: use-cases -->
 

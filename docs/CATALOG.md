@@ -4,7 +4,7 @@
 
 <!-- Generated from docs/index.yaml; run .github/scripts/generate_catalog.py. -->
 
-33 examples. Metadata updated 2026-10-22.
+35 examples. Metadata updated 2026-10-22.
 
 Service availability: implementation lifecycle describes this example, not an access guarantee. Check the linked API documentation and your account access before running it. A local demo requires setup; a recording shows a captured session.
 
@@ -42,6 +42,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Medical Assistant](<../use-cases/06-medical-assistant/README.md>) **Preview** · [Details](#example-medical-assistant) | Transcribe Arabic and English consultations and draft structured fields and SOAP notes. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | advanced |
 | [Medical Microbatching](<../use-cases/07-medical-microbatching/README.md>) · [Details](#example-medical-microbatching) | Split microphone audio into Batch jobs with optional speaker tracking and Medical settings. | [Batch](<https://pypi.org/project/speechmatics-batch/>), [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 | [Wall of Voices](<../use-cases/10-wall-of-voices/README.md>) **Preview** · [Details](#example-wall-of-voices) | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="package-speechmatics-agent-stt"></a>
 ### Speechmatics Agent STT SDK
@@ -109,6 +110,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Tambourine Healthcare Dictation](<../integrations/tambourine/01-healthcare-dictation/README.md>) · [Details](#example-tambourine-healthcare-dictation) | Configure desktop dictation and clinical formatting prompts in Tambourine. | Direct API / configuration | Configuration | beginner |
 | [Flutter Mobile Transcription App](<../use-cases/09-flutter-mobile-transcription/README.md>) · [Details](#example-flutter-mobile-transcription) | Record or upload audio from a mobile app, then view transcripts, captions, and insights. | Direct API / configuration | Dart | intermediate |
 | [Oak Consultation Studio](<../use-cases/11-oak-consultation-studio/README.md>) · [Details](#example-oak-consultation-studio) | Explore multilingual medical transcripts with Oak 1, audio playback, and speaker labels. | Direct API / configuration | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="by-feature"></a>
 ## By feature
@@ -157,6 +159,8 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Medical Assistant](<../use-cases/06-medical-assistant/README.md>) **Preview** · [Details](#example-medical-assistant) | Transcribe Arabic and English consultations and draft structured fields and SOAP notes. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
 | [Wall of Voices](<../use-cases/10-wall-of-voices/README.md>) **Preview** · [Details](#example-wall-of-voices) | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="feature-speaker-diarization"></a>
 ### Speaker diarization
@@ -202,6 +206,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Call Center Analytics](<../use-cases/03-call-center-analytics/README.md>) · [Details](#example-call-center-analytics) | Analyze recorded calls with channel labels, sentiment, topics, and summaries. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | Python | beginner |
 | [Flutter Mobile Transcription App](<../use-cases/09-flutter-mobile-transcription/README.md>) · [Details](#example-flutter-mobile-transcription) | Record or upload audio from a mobile app, then view transcripts, captions, and insights. | Direct API / configuration | Dart | intermediate |
 | [Oak Consultation Studio](<../use-cases/11-oak-consultation-studio/README.md>) · [Details](#example-oak-consultation-studio) | Explore multilingual medical transcripts with Oak 1, audio playback, and speaker labels. | Direct API / configuration | Python, JavaScript | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="feature-custom-vocabulary"></a>
 ### Custom dictionary
@@ -271,6 +276,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [LiveKit Telephony with Twilio](<../integrations/livekit/02-telephony-twilio/README.md>) · [Details](#example-livekit-telephony-twilio) | Receive phone calls through Twilio SIP and respond with a LiveKit voice assistant. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | intermediate |
 | [AI Receptionist](<../use-cases/04-voice-agent-calendar/README.md>) · [Details](#example-voice-agent-calendar) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="feature-turn-detection"></a>
 ### Turn detection
@@ -292,6 +298,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Santa Voice Agent](<../use-cases/05-santa-voice-agent/README.md>) · [Details](#example-santa-voice-agent) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Medical Assistant](<../use-cases/06-medical-assistant/README.md>) **Preview** · [Details](#example-medical-assistant) | Transcribe Arabic and English consultations and draft structured fields and SOAP notes. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="feature-voice-agents"></a>
 ### Voice agents
@@ -313,6 +320,7 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [AI Receptionist](<../use-cases/04-voice-agent-calendar/README.md>) · [Details](#example-voice-agent-calendar) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Santa Voice Agent](<../use-cases/05-santa-voice-agent/README.md>) · [Details](#example-santa-voice-agent) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="by-language"></a>
 ## By language
@@ -353,6 +361,8 @@ Browse: [Package](#by-package) · [Feature](#by-feature) · [Language](#by-langu
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
 | [Wall of Voices](<../use-cases/10-wall-of-voices/README.md>) **Preview** · [Details](#example-wall-of-voices) | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | intermediate |
 | [Oak Consultation Studio](<../use-cases/11-oak-consultation-studio/README.md>) · [Details](#example-oak-consultation-studio) | Explore multilingual medical transcripts with Oak 1, audio playback, and speaker labels. | Direct API / configuration | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="language-typescript"></a>
 ### TypeScript
@@ -459,6 +469,18 @@ Managed voice assistants with Speechmatics streaming transcription and a custom 
 | --- | --- | --- | --- | --- |
 | [Vapi Voice Assistant](<../integrations/vapi/01-voice-assistant/README.md>) · [Details](#example-vapi-voice-assistant) | Configure a Vapi voice assistant with Speechmatics STT and a custom dictionary. | [Vapi SDK](<https://pypi.org/project/vapi-server-sdk/>) | Python | beginner |
 
+<a id="integration-vobiz"></a>
+### Vobiz
+
+Phone voice agents and live two-party call transcription over Vobiz audio streams, with no framework in between.
+
+[Open the Vobiz guide](<../integrations/vobiz/README.md>)
+
+| Example | Description | Packages | Languages | Difficulty |
+| --- | --- | --- | --- | --- |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
+
 <a id="integration-openai"></a>
 ### OpenAI
 
@@ -475,6 +497,13 @@ Managed voice assistants with Speechmatics streaming transcription and a custom 
 | [Santa Voice Agent](<../use-cases/05-santa-voice-agent/README.md>) · [Details](#example-santa-voice-agent) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Medical Assistant](<../use-cases/06-medical-assistant/README.md>) **Preview** · [Details](#example-medical-assistant) | Transcribe Arabic and English consultations and draft structured fields and SOAP notes. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
+
+<a id="integration-gemini"></a>
+### Google Gemini
+
+| Example | Description | Packages | Languages | Difficulty |
+| --- | --- | --- | --- | --- |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="integration-elevenlabs"></a>
 ### ElevenLabs
@@ -570,6 +599,8 @@ Phone assistants, SIP and Media Streams, and recorded-call analysis.
 | [Call Center Analytics](<../use-cases/03-call-center-analytics/README.md>) · [Details](#example-call-center-analytics) | Analyze recorded calls with channel labels, sentiment, topics, and summaries. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | Python | beginner |
 | [AI Receptionist](<../use-cases/04-voice-agent-calendar/README.md>) · [Details](#example-voice-agent-calendar) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Santa Voice Agent](<../use-cases/05-santa-voice-agent/README.md>) · [Details](#example-santa-voice-agent) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="collection-multilingual"></a>
 ### Multilingual
@@ -612,6 +643,7 @@ Speech interfaces, turn handling, and complete conversational pipelines.
 | [AI Receptionist](<../use-cases/04-voice-agent-calendar/README.md>) · [Details](#example-voice-agent-calendar) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Santa Voice Agent](<../use-cases/05-santa-voice-agent/README.md>) · [Details](#example-santa-voice-agent) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python | advanced |
 | [Alphanumerics Voice Form Filler](<../use-cases/08-alphanumerics-form-filler/README.md>) · [Details](#example-alphanumerics-form-filler) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
 
 <a id="collection-captions-insights"></a>
 ### Captions and insights
@@ -627,6 +659,7 @@ Captions, live transcript displays, sentiment, topics, and summaries.
 | [Call Center Analytics](<../use-cases/03-call-center-analytics/README.md>) · [Details](#example-call-center-analytics) | Analyze recorded calls with channel labels, sentiment, topics, and summaries. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | Python | beginner |
 | [Flutter Mobile Transcription App](<../use-cases/09-flutter-mobile-transcription/README.md>) · [Details](#example-flutter-mobile-transcription) | Record or upload audio from a mobile app, then view transcripts, captions, and insights. | Direct API / configuration | Dart | intermediate |
 | [Wall of Voices](<../use-cases/10-wall-of-voices/README.md>) **Preview** · [Details](#example-wall-of-voices) | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="collection-mobile"></a>
 ### Mobile
@@ -680,6 +713,8 @@ Mobile audio capture and transcription applications.
 | [Flutter Mobile Transcription App](<../use-cases/09-flutter-mobile-transcription/README.md>) · [Details](#example-flutter-mobile-transcription) | Record or upload audio from a mobile app, then view transcripts, captions, and insights. | Direct API / configuration | Dart | intermediate |
 | [Wall of Voices](<../use-cases/10-wall-of-voices/README.md>) **Preview** · [Details](#example-wall-of-voices) | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript | intermediate |
 | [Oak Consultation Studio](<../use-cases/11-oak-consultation-studio/README.md>) · [Details](#example-oak-consultation-studio) | Explore multilingual medical transcripts with Oak 1, audio playback, and speaker labels. | Direct API / configuration | Python, JavaScript | intermediate |
+| [Vobiz Phone Voice Agent](<../integrations/vobiz/01-phone-voice-agent/README.md>) · [Details](#example-vobiz-phone-voice-agent) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python | intermediate |
+| [Vobiz Live Call Transcription](<../integrations/vobiz/02-live-call-transcription/README.md>) · [Details](#example-vobiz-live-call-transcription) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python | intermediate |
 
 <a id="difficulty-advanced"></a>
 ### Advanced
@@ -1271,6 +1306,44 @@ Implementation: current; kind: code; difficulty: intermediate; languages: Python
 - Demos: [Hosted](<https://oak-consultation-studio.vercel.app/>): Hosted browser app with scripted consultations, audio uploads, and recording.<br>[Recording](<../use-cases/11-oak-consultation-studio/assets/oak-consultation-studio.gif>): Recorded interface walkthrough and an example Oak 1 transcription.<br>[Local](<../use-cases/11-oak-consultation-studio/README.md>): Run the browser app and Python token broker locally.
 - Demonstrated model IDs: oak-1
 - Demo access: Scripted consultations need no key; transcribing your own audio requires a Speechmatics key with Oak 1 Batch access. A key entered in Settings is saved in this browser until cleared and sent to the deployment's `/api/token` endpoint to obtain a 10-minute Batch key.
+
+<a id="example-vobiz-phone-voice-agent"></a>
+### Vobiz Phone Voice Agent
+
+Example ID: `vobiz-phone-voice-agent`. [Canonical README](<../integrations/vobiz/01-phone-voice-agent/README.md>).
+
+Answer Vobiz phone calls with Speechmatics agent STT (Linden 1) turn detection, an OpenAI-compatible LLM such as Gemini, and streamed Speechmatics Text to Speech over a bidirectional audio stream, with barge-in.
+
+Implementation: current; kind: code; difficulty: intermediate; languages: Python.
+
+- APIs: [Speechmatics Agent STT (Linden 1)](<https://docs.speechmatics.com/speech-to-text/agent-stt>), [Speechmatics Text to Speech API](<https://docs.speechmatics.com/text-to-speech/quickstart>)
+- Packages: Direct API / configuration
+- Features: Realtime transcription, Turn detection, Text to Speech, Voice agents
+- Integrations: Vobiz, Google Gemini
+- Collections: Telephony, Voice agents
+- Estimated time: 20 minutes; last updated: 2026-11-23
+- Demos: [Local](<../integrations/vobiz/01-phone-voice-agent/README.md>): Speechmatics, LLM and Vobiz accounts plus an HTTPS tunnel; see the walkthrough for setup.
+- Demonstrated model IDs: linden-1
+- Demo access: Requires a Vobiz number and a public HTTPS tunnel; dial.py places real, billed outbound calls.
+
+<a id="example-vobiz-live-call-transcription"></a>
+### Vobiz Live Call Transcription
+
+Example ID: `vobiz-live-call-transcription`. [Canonical README](<../integrations/vobiz/02-live-call-transcription/README.md>).
+
+Transcribe both people on a bridged Vobiz phone call in one Speechmatics Realtime API session with channel diarization, labeling the caller and the bridged party, with a live web transcript.
+
+Implementation: current; kind: code; difficulty: intermediate; languages: Python.
+
+- APIs: [Speechmatics Realtime API](<https://docs.speechmatics.com/speech-to-text/realtime/quickstart>)
+- Packages: [Realtime](<https://pypi.org/project/speechmatics-rt/>)
+- Features: Realtime transcription, Channel diarization
+- Integrations: Vobiz
+- Collections: Telephony, Captions and insights
+- Estimated time: 20 minutes; last updated: 2026-11-23
+- Demos: [Local](<../integrations/vobiz/02-live-call-transcription/README.md>): Speechmatics and Vobiz accounts, two phones, and an HTTPS tunnel; see the walkthrough for setup.
+- Demonstrated model IDs: enhanced
+- Demo access: Requires a Vobiz number, a second phone to bridge to, and a public HTTPS tunnel; the proxy repoints the number unless run with `--no-setup`.
 
 ---
 

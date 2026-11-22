@@ -35,11 +35,13 @@ Captions, diarization, summaries, sentiment, and topics are separate request fea
 | [Call Center Analytics](<../../use-cases/03-call-center-analytics/README.md>) | Analyze recorded calls with channel labels, sentiment, topics, and summaries. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | Python<br>beginner | [Local](<../../use-cases/03-call-center-analytics/README.md>) |
 | [Flutter Mobile Transcription App](<../../use-cases/09-flutter-mobile-transcription/README.md>) | Record or upload audio from a mobile app, then view transcripts, captions, and insights. | Direct API / configuration | Dart<br>intermediate | [Local](<../../use-cases/09-flutter-mobile-transcription/README.md>) |
 | [Wall of Voices](<../../use-cases/10-wall-of-voices/README.md>) **Preview** | Display live multilingual transcripts with per-word language labels and colors. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python, JavaScript<br>intermediate | [Recording](<../../use-cases/10-wall-of-voices/assets/wall-of-voices.gif>) · [Local](<../../use-cases/10-wall-of-voices/README.md>) |
+| [Vobiz Live Call Transcription](<../../integrations/vobiz/02-live-call-transcription/README.md>) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python<br>intermediate | [Local](<../../integrations/vobiz/02-live-call-transcription/README.md>) |
 
 ### Demo access
 
 - [Flutter Mobile Transcription App](<../../use-cases/09-flutter-mobile-transcription/README.md>): Requires a mobile device/emulator and platform toolchain; iOS needs macOS and Xcode. Add keys in-app; do not distribute builds with embedded keys.
 - [Wall of Voices](<../../use-cases/10-wall-of-voices/README.md>): The GIF is a recording; running locally requires microphone access and a key with access to the preview Realtime endpoint.
+- [Vobiz Live Call Transcription](<../../integrations/vobiz/02-live-call-transcription/README.md>): Requires a Vobiz number, a second phone to bridge to, and a public HTTPS tunnel; the proxy repoints the number unless run with `--no-setup`.
 
 API reference: [Speechmatics Batch API](<https://docs.speechmatics.com/speech-to-text/batch/quickstart>) · [Speechmatics Realtime API](<https://docs.speechmatics.com/speech-to-text/realtime/quickstart>).
 <!-- END GENERATED: examples -->
