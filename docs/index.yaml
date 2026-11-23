@@ -221,9 +221,24 @@ integration_frameworks:
       light: "integrations/vapi/logo/vapi-dark.png"
       dark: "integrations/vapi/logo/vapi-light.png"
       height: 50
+  - id: "vobiz"
+    title: "Vobiz"
+    description: "Phone voice agents and live two-party call transcription over Vobiz audio streams, with no framework in between."
+    url: "https://vobiz.ai"
+    kind: "service"
+    logo:
+      light: "integrations/vobiz/logo/vobiz-light.png"
+      dark: "integrations/vobiz/logo/vobiz-dark.png"
+      height: 28
+    readme: "integrations/vobiz/README.md"
+    start_here: "vobiz-phone-voice-agent"
   - id: "openai"
     title: "OpenAI"
     url: "https://platform.openai.com/docs"
+    kind: "service"
+  - id: "gemini"
+    title: "Google Gemini"
+    url: "https://ai.google.dev/gemini-api/docs"
     kind: "service"
   - id: "elevenlabs"
     title: "ElevenLabs"
@@ -815,6 +830,65 @@ examples:
       - type: "local"
         url: "integrations/twilio/01-outbound-dialer/README.md"
         description: "Provider accounts and API keys; see the walkthrough for setup requirements."
+  - id: "vobiz-phone-voice-agent"
+    title: "Vobiz Phone Voice Agent"
+    description: "Answer Vobiz phone calls with Speechmatics agent STT (Linden 1) turn detection and a custom dictionary, an OpenAI-compatible LLM such as Gemini or OpenAI, and streamed Text to Speech from Speechmatics, ElevenLabs or Cartesia over a bidirectional audio stream, with barge-in."
+    summary: "Answer phone calls with agent STT, an LLM, and streamed TTS over a Vobiz audio stream."
+    demo_note: "Requires a Vobiz number and a public HTTPS tunnel; dial.py places real, billed outbound calls."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "turn-detection"
+      - "custom-vocabulary"
+      - "text-to-speech"
+      - "voice-agents"
+    integrations: ["vobiz", "gemini", "openai", "elevenlabs", "cartesia"]
+    path: "integrations/vobiz/01-phone-voice-agent"
+    readme: "integrations/vobiz/01-phone-voice-agent/README.md"
+    tags: ["vobiz", "phone", "telephony", "voice-agent", "agent-stt", "tts", "barge-in", "custom-vocabulary", "gemini", "openai", "elevenlabs", "cartesia"]
+    last_updated: "2026-11-23"
+    estimated_time: "20 minutes"
+    packages: ["speechmatics-agent-stt", "speechmatics-tts"]
+    apis: ["agent-stt", "tts"]
+    models: ["linden-1"]
+    collections: ["telephony", "voice-agents"]
+    lifecycle: "current"
+    kind: "code"
+    order: 34
+    demos:
+      - type: "local"
+        url: "integrations/vobiz/01-phone-voice-agent/README.md"
+        description: "Speechmatics, LLM and Vobiz accounts plus an HTTPS tunnel; an ElevenLabs or Cartesia key only if you choose that TTS. See the walkthrough for setup."
+  - id: "vobiz-live-call-transcription"
+    title: "Vobiz Live Call Transcription"
+    description: "Transcribe both people on a bridged Vobiz phone call in one Speechmatics Realtime API session with channel diarization, labeling the caller and the bridged party, with a live web transcript."
+    summary: "Transcribe both sides of a live phone call as separate speakers with channel diarization."
+    demo_note: "Requires a Vobiz number, a second phone to bridge to, and a public HTTPS tunnel; the proxy repoints the number unless run with `--no-setup`."
+    category: "integrations"
+    difficulty: "intermediate"
+    languages: ["python"]
+    features:
+      - "realtime-transcription"
+      - "channel-diarization"
+    integrations: ["vobiz"]
+    path: "integrations/vobiz/02-live-call-transcription"
+    readme: "integrations/vobiz/02-live-call-transcription/README.md"
+    tags: ["vobiz", "phone", "telephony", "call-transcription", "channel-diarization", "multichannel"]
+    last_updated: "2026-11-23"
+    estimated_time: "20 minutes"
+    packages: ["speechmatics-rt"]
+    apis: ["realtime"]
+    models: ["enhanced"]
+    collections: ["telephony", "captions-insights"]
+    lifecycle: "current"
+    kind: "code"
+    order: 35
+    demos:
+      - type: "local"
+        url: "integrations/vobiz/02-live-call-transcription/README.md"
+        description: "Speechmatics and Vobiz accounts, two phones, and an HTTPS tunnel; see the walkthrough for setup."
   - id: "vapi-voice-assistant"
     title: "Vapi Voice Assistant"
     description: "Configure a Vapi assistant with Speechmatics Enhanced streaming STT, a custom dictionary, OpenAI, and ElevenLabs."

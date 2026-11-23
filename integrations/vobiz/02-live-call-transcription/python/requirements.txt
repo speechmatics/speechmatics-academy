@@ -1,0 +1,11 @@
+# Speechmatics Realtime SDK (multi-channel client, JWT key check)
+speechmatics-rt[jwt]>=1.3.0,<2
+
+# WebSocket server for the Vobiz audio stream and the transcript page
+websockets>=12.0,<13
+
+# Environment variables
+python-dotenv>=1.2.4
+
+# Optional public tunnel when PUBLIC_URL is not set
+ngrok>=1.8.0

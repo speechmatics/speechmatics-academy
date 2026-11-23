@@ -35,12 +35,16 @@ Live call examples need telephony routing and provider accounts. Recorded-call a
 | [Call Center Analytics](<../../use-cases/03-call-center-analytics/README.md>) | Analyze recorded calls with channel labels, sentiment, topics, and summaries. | [Batch](<https://pypi.org/project/speechmatics-batch/>) | Python<br>beginner | [Local](<../../use-cases/03-call-center-analytics/README.md>) |
 | [AI Receptionist](<../../use-cases/04-voice-agent-calendar/README.md>) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python<br>advanced | [Local](<../../use-cases/04-voice-agent-calendar/README.md>) |
 | [Santa Voice Agent](<../../use-cases/05-santa-voice-agent/README.md>) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python<br>advanced | [Local](<../../use-cases/05-santa-voice-agent/README.md>) |
+| [Vobiz Phone Voice Agent](<../../integrations/vobiz/01-phone-voice-agent/README.md>) | Answer phone calls with agent STT, an LLM, and streamed TTS over a Vobiz audio stream. | [Agent STT](<https://pypi.org/project/speechmatics-agent-stt/>), [TTS](<https://pypi.org/project/speechmatics-tts/>) | Python<br>intermediate | [Local](<../../integrations/vobiz/01-phone-voice-agent/README.md>) |
+| [Vobiz Live Call Transcription](<../../integrations/vobiz/02-live-call-transcription/README.md>) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python<br>intermediate | [Local](<../../integrations/vobiz/02-live-call-transcription/README.md>) |
 
 ### Demo access
 
 - [LiveKit Telephony with Twilio](<../../integrations/livekit/02-telephony-twilio/README.md>): Phone testing requires a Twilio number and configured SIP trunking.
 - [Twilio Outbound Dialer](<../../integrations/twilio/01-outbound-dialer/README.md>): Starts real outbound calls. Protect the dial endpoint and validate Twilio callbacks before exposing a tunnel.
 - [AI Receptionist](<../../use-cases/04-voice-agent-calendar/README.md>): Use a dedicated test calendar: the agent can create, move, and delete real events.
+- [Vobiz Phone Voice Agent](<../../integrations/vobiz/01-phone-voice-agent/README.md>): Requires a Vobiz number and a public HTTPS tunnel; dial.py places real, billed outbound calls.
+- [Vobiz Live Call Transcription](<../../integrations/vobiz/02-live-call-transcription/README.md>): Requires a Vobiz number, a second phone to bridge to, and a public HTTPS tunnel; the proxy repoints the number unless run with `--no-setup`.
 
 API reference: [Speechmatics Batch API](<https://docs.speechmatics.com/speech-to-text/batch/quickstart>) · [Speechmatics Realtime API](<https://docs.speechmatics.com/speech-to-text/realtime/quickstart>) · [Speechmatics Agent STT (Linden 1)](<https://docs.speechmatics.com/speech-to-text/agent-stt>) · [Speechmatics Text to Speech API](<https://docs.speechmatics.com/text-to-speech/quickstart>).
 <!-- END GENERATED: examples -->

@@ -42,6 +42,7 @@ Speechmatics provides the Speech to Text layer. An application or framework conn
 | [AI Receptionist](<../../use-cases/04-voice-agent-calendar/README.md>) | Build a LiveKit receptionist that manages appointments in Google Calendar. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python<br>advanced | [Local](<../../use-cases/04-voice-agent-calendar/README.md>) |
 | [Santa Voice Agent](<../../use-cases/05-santa-voice-agent/README.md>) | Build a Santa character voice assistant with LiveKit and optional phone calls. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python<br>advanced | [Local](<../../use-cases/05-santa-voice-agent/README.md>) |
 | [Alphanumerics Voice Form Filler](<../../use-cases/08-alphanumerics-form-filler/README.md>) | Fill a browser form with spoken names, email addresses, and numbers through LiveKit. | [LiveKit adapter](<https://pypi.org/project/livekit-plugins-speechmatics/>) | Python, JavaScript<br>intermediate | [Local](<../../use-cases/08-alphanumerics-form-filler/README.md>) |
+| [Vobiz Phone Voice Agent](<../../integrations/vobiz/01-phone-voice-agent/README.md>) | Answer phone calls with agent STT, an LLM, and streamed TTS over a Vobiz audio stream. | [Agent STT](<https://pypi.org/project/speechmatics-agent-stt/>), [TTS](<https://pypi.org/project/speechmatics-tts/>) | Python<br>intermediate | [Local](<../../integrations/vobiz/01-phone-voice-agent/README.md>) |
 
 ### Legacy and preview examples
 
@@ -58,6 +59,7 @@ Speechmatics provides the Speech to Text layer. An application or framework conn
 - [Pipecat Simple Voice Bot](<../../integrations/pipecat/01-simple-voice-bot/README.md>): Requires local microphone and speaker access plus PortAudio; the Web example uses browser audio.
 - [Pipecat Simple Voice Bot (Web)](<../../integrations/pipecat/02-simple-voice-bot-web/README.md>): Use macOS, Linux, or WSL2 for the documented backend setup; the client runs in a browser.
 - [AI Receptionist](<../../use-cases/04-voice-agent-calendar/README.md>): Use a dedicated test calendar: the agent can create, move, and delete real events.
+- [Vobiz Phone Voice Agent](<../../integrations/vobiz/01-phone-voice-agent/README.md>): Requires a Vobiz number and a public HTTPS tunnel; dial.py places real, billed outbound calls.
 - [Preview WebSocket API Explorer](<../../basics/11-voice-api-explorer/README.md>): Confirm access to the Voice API preview and its older agent profile routes before running.
 - [Twilio Outbound Dialer](<../../integrations/twilio/01-outbound-dialer/README.md>): Starts real outbound calls. Protect the dial endpoint and validate Twilio callbacks before exposing a tunnel.
 
