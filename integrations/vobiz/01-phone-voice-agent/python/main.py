@@ -2,8 +2,9 @@
 """
 Phone Voice Agent - Vobiz + Speechmatics
 
-A phone voice agent built on Speechmatics agent STT and Speechmatics Text to
-Speech, with any OpenAI-compatible LLM (Gemini by default).
+A phone voice agent built on Speechmatics agent STT, any OpenAI-compatible LLM
+(Gemini by default), and streamed Text to Speech: Speechmatics (default),
+ElevenLabs, or Cartesia.
 
     caller --PSTN--> Vobiz <Stream bidirectional> --WebSocket--> this server
                                                                     |
@@ -11,7 +12,7 @@ Speech, with any OpenAI-compatible LLM (Gemini by default).
                                                                     | EndOfTurn
                                                      LLM (streamed, OpenAI-compatible)
                                                                     | one sentence at a time
-           Speechmatics TTS (16 kHz PCM, streamed) --playAudio--> caller
+           TTS: Speechmatics / ElevenLabs / Cartesia (16 kHz PCM, streamed) --playAudio--> caller
 
 Run `python main.py`, then point a Vobiz number or an outbound call at the
 answer URL it prints (see dial.py).
@@ -43,6 +44,20 @@ SM_RT_URL = os.getenv("SPEECHMATICS_RT_URL")
 SM_VOICE = tts.Voice(os.getenv("SM_VOICE", "sarah"))  # sarah, theo (UK English) - megan, jack (US English)
 LANGUAGE = os.getenv("SM_LANGUAGE", "en")
 
+# Text to Speech provider for the agent's voice: speechmatics (default), elevenlabs, or cartesia.
+# Every option streams raw 16-bit PCM at 16 kHz, the format the Stream element plays.
+TTS_PROVIDER = os.getenv("TTS_PROVIDER", "speechmatics").strip().lower()
+TTS_NAMES = {"speechmatics": "Speechmatics", "elevenlabs": "ElevenLabs", "cartesia": "Cartesia"}
+
+CARTESIA_API_KEY = os.getenv("CARTESIA_API_KEY")
+CARTESIA_MODEL = os.getenv("CARTESIA_MODEL", "sonic-3.6")
+CARTESIA_VOICE_ID = os.getenv("CARTESIA_VOICE_ID", "62ae83ad-4f6a-430b-af41-a9bede9286ca")  # Gemma (UK English)
+CARTESIA_VERSION = "2026-08-14"
+
+ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_MODEL = os.getenv("ELEVENLABS_MODEL", "eleven_flash_v2_5")
+ELEVENLABS_VOICE_ID = os.getenv("ELEVENLABS_VOICE_ID", "JBFqnCBsd6RMkjVDRZzb")  # George
+
 # Any OpenAI-compatible chat completions endpoint. The default is Gemini.
 LLM_URL = (
     os.getenv("LLM_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai").rstrip("/")
@@ -53,6 +68,9 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.1-flash-lite")
 # Model "thinking" delays the first word; a phone agent should answer at once.
 # Set LLM_REASONING_EFFORT to an empty value for models that reject the field.
 LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT", "minimal")
+# Reasoning models such as OpenAI's GPT-5 and later accept only their default temperature:
+# set LLM_TEMPERATURE=default (or empty) to leave the field out.
+LLM_TEMPERATURE = os.getenv("LLM_TEMPERATURE", "0.6").strip()
 
 PUBLIC_URL = (os.getenv("PUBLIC_URL") or "").rstrip("/")
 PORT = int(os.getenv("PORT", "8765"))
@@ -71,10 +89,18 @@ CHUNK = FRAME * 3  # 60 ms per playAudio message keeps barge-in responsive
 
 HANGUP_TOKEN = "[END_CALL]"
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "assets" / "agent.md"
+TTS_NAME = TTS_NAMES.get(TTS_PROVIDER, TTS_PROVIDER)
 GREETING = (
     "Hi, I'm Vee, the Vobiz voice assistant. I'm listening with Speechmatics speech to text "
-    "and talking with Speechmatics text to speech. What would you like to know?"
+    f"and talking with {TTS_NAME} text to speech. What would you like to know?"
 )
+
+# Custom dictionary: brand names agent STT should spell correctly. `sounds_like`
+# lists how callers actually say them, including mishearings seen in test calls.
+CUSTOM_VOCAB = [
+    {"content": "Speechmatics", "sounds_like": ["speech matics", "speech mattics"]},
+    {"content": "Vobiz", "sounds_like": ["vo biz", "voh biz", "voi biz", "fabius", "fabies"]},
+]
 
 SENTENCE_END = re.compile(r"(.+?[.!?])(\s+|$)", re.S)
 
@@ -98,7 +124,9 @@ def answer_xml() -> str:
 
 def system_prompt() -> str:
     """Load the agent's instructions from assets/agent.md."""
-    return PROMPT_FILE.read_text(encoding="utf-8").replace("{HANGUP_TOKEN}", HANGUP_TOKEN)
+    return (
+        PROMPT_FILE.read_text(encoding="utf-8").replace("{HANGUP_TOKEN}", HANGUP_TOKEN).replace("{TTS_NAME}", TTS_NAME)
+    )
 
 
 class Call:
@@ -147,14 +175,24 @@ class Call:
                 }
             )
 
-    async def barge_in(self) -> None:
-        """The caller started talking: stop the reply and flush queued audio."""
-        if self.reply_task and not self.reply_task.done():
-            self.reply_task.cancel()
+    async def barge_in(self, new_turn: bool) -> None:
+        """The caller talked: stop audio that is playing, and drop a reply that is out of date.
+
+        Audio already playing is cleared on any caller speech, together with the rest of
+        the reply it belongs to. A reply that has not started speaking yet is cancelled
+        only for a new turn (a recognized word), never for voice activity alone, so a
+        cough or line noise cannot silently drop it.
+        """
+        pending = self.reply_task is not None and not self.reply_task.done()
         if self.speaking:
             log("BARGE-IN  caller spoke over the agent, clearing audio")
+            if pending:
+                self.reply_task.cancel()
             await self.send_vobiz({"event": "clearAudio", "streamId": self.stream_id})
             self.speaking = False
+        elif new_turn and pending:
+            log("TURN      caller started a new turn before the reply was spoken, replacing it")
+            self.reply_task.cancel()
 
     # ---------- Speechmatics agent STT ----------
     async def start_stt(self) -> None:
@@ -165,7 +203,9 @@ class Call:
             app="speechmatics-academy/vobiz-phone-voice-agent",
             # 16 kHz signed 16-bit PCM is the SDK default and what the Stream element asks Vobiz for.
             # `model` defaults to Linden 1; turns are closed by the service's VAD.
-            transcription_config=TranscriptionConfig(language=LANGUAGE, enable_partials=True),
+            transcription_config=TranscriptionConfig(
+                language=LANGUAGE, enable_partials=True, additional_vocab=CUSTOM_VOCAB
+            ),
             record_events=False,
         )
         self.register_stt_handlers(self.stt)
@@ -178,12 +218,18 @@ class Call:
         def on_started(message):
             log("STT       Speechmatics session started", message.get("id"))
 
-        # StartOfTurn fires on the caller's first word; SpeechStarted on voice activity.
-        # Either one while the agent is talking means the caller is interrupting.
+        # StartOfTurn fires on the caller's first recognized word: a new turn, so a reply
+        # that has not been spoken yet is out of date and is replaced.
         @client.on(ServerMessageType.START_OF_TURN)
+        def on_turn_start(_message):
+            self.spawn(self.barge_in(new_turn=True))
+
+        # SpeechStarted fires on any voice activity, which can be a cough or line noise.
+        # It only interrupts audio that is already playing, so barge-in stays quick.
         @client.on(ServerMessageType.SPEECH_STARTED)
-        def on_caller_speaking(_message):
-            self.spawn(self.barge_in())
+        def on_voice_activity(_message):
+            if self.speaking:
+                self.spawn(self.barge_in(new_turn=False))
 
         @client.on(ServerMessageType.ADD_SEGMENT)
         def on_segment(message):
@@ -208,7 +254,10 @@ class Call:
     # ---------- LLM + Speechmatics TTS ----------
     async def llm_sentences(self):
         """Stream the LLM reply and yield it one sentence at a time."""
-        body = {"model": LLM_MODEL, "messages": self.history, "stream": True, "temperature": 0.6, "max_tokens": 200}
+        # max_completion_tokens is the current name; reasoning models reject the older max_tokens.
+        body = {"model": LLM_MODEL, "messages": self.history, "stream": True, "max_completion_tokens": 200}
+        if LLM_TEMPERATURE and LLM_TEMPERATURE.lower() != "default":
+            body["temperature"] = float(LLM_TEMPERATURE)
         if LLM_REASONING_EFFORT:
             body["reasoning_effort"] = LLM_REASONING_EFFORT
         buf = ""
@@ -230,18 +279,41 @@ class Call:
         if buf.strip():
             yield buf.strip()
 
+    async def tts_request(self, text: str) -> aiohttp.ClientResponse:
+        """Start a streamed 16 kHz PCM synthesis with the configured provider."""
+        if TTS_PROVIDER == "cartesia":
+            return await self.http.post(
+                "https://api.cartesia.ai/tts/bytes",
+                headers={"Authorization": f"Bearer {CARTESIA_API_KEY}", "Cartesia-Version": CARTESIA_VERSION},
+                json={
+                    "model_id": CARTESIA_MODEL,
+                    "transcript": text,
+                    "voice": {"id": CARTESIA_VOICE_ID},
+                    "language": LANGUAGE,
+                    "output_format": {"container": "raw", "encoding": "pcm_s16le", "sample_rate": RATE},
+                },
+            )
+        if TTS_PROVIDER == "elevenlabs":
+            return await self.http.post(
+                f"https://api.elevenlabs.io/v1/text-to-speech/{ELEVENLABS_VOICE_ID}/stream",
+                params={"output_format": f"pcm_{RATE}"},
+                headers={"xi-api-key": ELEVENLABS_API_KEY},
+                json={"text": text, "model_id": ELEVENLABS_MODEL},
+            )
+        return await self.tts.generate(text=text, voice=SM_VOICE, output_format=tts.OutputFormat.RAW_PCM_16000)
+
     async def speak(self, text: str) -> None:
-        """Speechmatics TTS: stream 16 kHz PCM straight into playAudio as it arrives."""
+        """Stream the TTS provider's 16 kHz PCM straight into playAudio as it arrives."""
         try:
-            response = await self.tts.generate(text=text, voice=SM_VOICE, output_format=tts.OutputFormat.RAW_PCM_16000)
-        except (tts.AuthenticationError, tts.TransportError) as e:
-            log(f"TTS       error: {e}")
+            response = await self.tts_request(text)
+        except (tts.AuthenticationError, tts.TransportError, tts.ConnectionError, aiohttp.ClientError) as e:
+            log(f"TTS       {TTS_NAME} error: {e}")
             return
         first = True
         carry = b""
         try:
             if response.status != 200:
-                log("TTS       error", response.status, (await response.text())[:300])
+                log(f"TTS       {TTS_NAME} error", response.status, (await response.text())[:300])
                 return
             self.speaking = True
             async for chunk in response.content.iter_chunked(CHUNK):
@@ -254,6 +326,8 @@ class Call:
                 cut = len(chunk) - (len(chunk) % 2)  # send whole 16-bit samples only
                 chunk, carry = chunk[:cut], chunk[cut:]
                 await self.play_pcm(chunk)
+        except aiohttp.ClientError as e:
+            log(f"TTS       {TTS_NAME} stream interrupted: {e}")
         finally:
             response.release()
 
@@ -413,6 +487,12 @@ def check_config() -> None:
         )
         if not value
     ]
+    if TTS_PROVIDER not in TTS_NAMES:
+        sys.exit(f"TTS_PROVIDER must be one of: {', '.join(TTS_NAMES)} (got {TTS_PROVIDER!r})")
+    if TTS_PROVIDER == "cartesia" and not CARTESIA_API_KEY:
+        missing.append("CARTESIA_API_KEY (or set TTS_PROVIDER)")
+    if TTS_PROVIDER == "elevenlabs" and not ELEVENLABS_API_KEY:
+        missing.append("ELEVENLABS_API_KEY (or set TTS_PROVIDER)")
     if missing:
         sys.exit(f"Missing required settings in .env: {', '.join(missing)}")
     if not PUBLIC_URL.startswith("https://"):
@@ -425,5 +505,6 @@ if __name__ == "__main__":
     check_config()
     log(f"Answer URL: {PUBLIC_URL}/answer/{PATH_TOKEN}")
     log(f"Hangup URL: {PUBLIC_URL}/hangup/{PATH_TOKEN}")
-    log(f"Voice: {SM_VOICE.value}  LLM: {LLM_MODEL}  Listening on http://127.0.0.1:{PORT}")
+    voice = {"cartesia": CARTESIA_VOICE_ID, "elevenlabs": ELEVENLABS_VOICE_ID}.get(TTS_PROVIDER, SM_VOICE.value)
+    log(f"TTS: {TTS_NAME} ({voice})  LLM: {LLM_MODEL}  Listening on http://127.0.0.1:{PORT}")
     web.run_app(make_app(), host="127.0.0.1", port=PORT, print=None)
