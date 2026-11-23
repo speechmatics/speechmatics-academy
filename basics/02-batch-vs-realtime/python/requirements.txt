@@ -1,6 +1,6 @@
 # Speechmatics SDKs
-speechmatics-batch>=1.1.0
-speechmatics-rt>=1.2.1
+speechmatics-batch>=1.2.0
+speechmatics-rt>=1.3.0
 
 # Utilities
 python-dotenv>=1.2.4
