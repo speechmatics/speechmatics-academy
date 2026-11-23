@@ -12,7 +12,7 @@
 
 </div>
 
-A Vobiz phone number streams the caller's audio to a small Python server over a bidirectional WebSocket. The server sends that audio to [agent STT](https://docs.speechmatics.com/speech-to-text/agent-stt) (Linden 1), which detects the end of each caller turn. The turn goes to an LLM, and each sentence of the reply is synthesized with [Speechmatics Text to Speech (TTS)](https://docs.speechmatics.com/text-to-speech/quickstart) and played back into the call over the same WebSocket. No voice-agent framework or media server sits in between.
+A Vobiz phone number streams the caller's audio to a small Python server over a bidirectional WebSocket. The server sends that audio to Speechmatics [agent STT](https://docs.speechmatics.com/speech-to-text/agent-stt) (Linden 1), the Speech to Text (STT) interface for voice agents, which detects the end of each caller turn. The turn goes to an LLM, and each sentence of the reply is synthesized with [Speechmatics Text to Speech (TTS)](https://docs.speechmatics.com/text-to-speech/quickstart) and played back into the call over the same WebSocket. No voice-agent framework or media server sits in between.
 
 The LLM is any OpenAI-compatible chat completions endpoint. The default is Gemini through its [OpenAI-compatible API](https://ai.google.dev/gemini-api/docs/openai).
 
@@ -29,7 +29,7 @@ The LLM is any OpenAI-compatible chat completions endpoint. The default is Gemin
 - **Gemini API key** (or another OpenAI-compatible LLM): Get one from [Google AI Studio](https://aistudio.google.com/apikey)
 - **Vobiz account**: Sign up at [vobiz.ai](https://vobiz.ai/), buy a voice-capable number, and note your Auth ID and Auth Token from the [Vobiz console](https://console.vobiz.ai/)
 - **A public HTTPS tunnel** to your machine, such as [ngrok](https://ngrok.com/) or [cloudflared](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/do-more-with-tunnels/trycloudflare/)
-- **Python 3.12** (tested with Python 3.12)
+- **Python 3.12**
 
 > [!NOTE]
 > Speechmatics TTS supports English voices. Agent STT supports the languages listed in the [agent STT documentation](https://docs.speechmatics.com/speech-to-text/agent-stt); set `SM_LANGUAGE` to change the transcription language.

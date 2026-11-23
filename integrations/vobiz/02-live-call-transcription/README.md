@@ -29,7 +29,7 @@ The audio stream is one-way, so transcription never delays or changes the call i
 - **Vobiz account**: Sign up at [vobiz.ai](https://vobiz.ai/), buy a voice-capable number, and note your Auth ID and Auth Token from the [Vobiz console](https://console.vobiz.ai/)
 - **Two phones**: one to call your Vobiz number, and a second number for Vobiz to bridge the call to
 - **A public HTTPS tunnel**: an [ngrok](https://ngrok.com/) auth token, or your own tunnel URL set as `PUBLIC_URL`
-- **Python 3.12** (tested with Python 3.12)
+- **Python 3.12**
 
 ## Quick Start
 
@@ -167,7 +167,7 @@ Vobiz number +919876543210 pointed at https://xxxx.ngrok-free.app/answer/<token>
 ## Key Features Demonstrated
 
 **Channel diarization:**
-- Each person is on their own audio channel, so speaker labels come from the channel rather than from voice characteristics. Two people with similar voices are never mixed up.
+- Each person is on their own audio channel, so speaker labels come from the channel rather than from voice characteristics. Labels do not depend on how similar the two voices sound.
 
 **One session for two tracks:**
 - `AsyncMultiChannelClient` sends both channels over a single Realtime WebSocket connection.

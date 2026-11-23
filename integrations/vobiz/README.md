@@ -12,7 +12,7 @@
 
 </div>
 
-[Vobiz](https://vobiz.ai/) is a cloud telephony platform with phone numbers, voice calls, SIP trunking, and VobizXML for call control. Its `<Stream>` element sends live call audio to your server over a WebSocket as 16-bit PCM at 16 kHz, which Speechmatics accepts without transcoding. Both examples run as a single Python process with no voice-agent framework or media server.
+[Vobiz](https://vobiz.ai/) is a cloud telephony platform with phone numbers, voice calls, SIP trunking, and VobizXML for call control. Its `<Stream>` element sends live call audio to your server over a WebSocket as 16-bit PCM at 16 kHz, which Speechmatics accepts without transcoding. Speechmatics provides the Speech to Text (STT) and Text to Speech (TTS) on the call. Both examples run as a single Python process with no voice-agent framework or media server.
 
 **Start with [Phone Voice Agent](01-phone-voice-agent/README.md)** to answer calls with agent STT, an LLM, and Speechmatics Text to Speech.
 
