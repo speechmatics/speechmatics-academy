@@ -26,6 +26,7 @@ import re
 import secrets
 import sys
 import time
+from dataclasses import dataclass, field
 from html import escape
 from pathlib import Path
 
@@ -86,6 +87,12 @@ MAX_CALL_SECONDS = int(os.getenv("MAX_CALL_SECONDS", "600"))
 RATE = 16000
 FRAME = 640  # 20 ms of 16-bit mono PCM at 16 kHz
 CHUNK = FRAME * 3  # 60 ms per playAudio message keeps barge-in responsive
+# A sound over the agent pauses it. If no words follow within this many seconds, it was a
+# cough or an "mhm", and the agent carries on from the sentence it was cut off in.
+RESUME_AFTER_SECONDS = 2.0
+# Network delay means audio plays a little later than it is sent: count a sentence as heard
+# only once it should have finished this long ago.
+PLAYBACK_MARGIN_SECONDS = 0.3
 
 HANGUP_TOKEN = "[END_CALL]"
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "assets" / "agent.md"
@@ -129,6 +136,17 @@ def system_prompt() -> str:
     )
 
 
+@dataclass
+class Sentence:
+    """One spoken sentence, kept so a paused reply can be replayed."""
+
+    text: str
+    pcm: bytearray = field(default_factory=bytearray)
+    sent: int = 0  # bytes sent to Vobiz since the last clearAudio
+    ends_at: float = 0.0  # estimated time its last sent byte finishes playing
+    complete: bool = False  # Text to Speech has delivered all of it
+
+
 class Call:
     """One phone call: Vobiz audio in, agent STT, LLM, TTS, Vobiz audio out."""
 
@@ -145,6 +163,16 @@ class Call:
         self.speaking = False
         self.hangup_after_speech = False
         self.turn_ended_at = 0.0
+        # The greeting or reply being spoken, sentence by sentence.
+        self.sentences: list[Sentence] = []
+        self.speech_done = False  # every sentence of it has been written
+        self.checkpoint_name: str | None = None  # the end-of-speech checkpoint sent to Vobiz
+        self.checkpoints = 0
+        self.play_end = 0.0  # when the audio sent so far should finish playing
+        self.paused = False
+        self.resume_from = 0  # first sentence the caller has not fully heard
+        self.resume_task: asyncio.Task | None = None
+        self.send_lock = asyncio.Lock()  # keeps playAudio in order across tasks
 
     def spawn(self, coro) -> asyncio.Task:
         """Run a coroutine in the background and keep a reference until it finishes."""
@@ -175,24 +203,102 @@ class Call:
                 }
             )
 
-    async def barge_in(self, new_turn: bool) -> None:
-        """The caller talked: stop audio that is playing, and drop a reply that is out of date.
+    def start_speech(self) -> None:
+        """Begin a new greeting or reply: forget the previous one's audio."""
+        self.sentences = []
+        self.speech_done = False
+        self.checkpoint_name = None
 
-        Audio already playing is cleared on any caller speech, together with the rest of
-        the reply it belongs to. A reply that has not started speaking yet is cancelled
-        only for a new turn (a recognized word), never for voice activity alone, so a
-        cough or line noise cannot silently drop it.
+    async def flush(self) -> None:
+        """Send all buffered audio not yet sent, in order, then the end-of-speech checkpoint.
+
+        Nothing is sent while the agent is paused; the audio stays buffered for a replay.
+        """
+        async with self.send_lock:
+            while not self.paused:
+                sentence = next((s for s in self.sentences if s.sent < len(s.pcm)), None)
+                if sentence is None:
+                    break
+                chunk = bytes(sentence.pcm[sentence.sent : sentence.sent + CHUNK])
+                sentence.sent += len(chunk)
+                # Vobiz plays audio back to back, so track when what was sent will have played.
+                self.play_end = max(time.monotonic(), self.play_end) + len(chunk) / (RATE * 2)
+                sentence.ends_at = self.play_end
+                self.speaking = True
+                await self.play_pcm(chunk)
+            if self.speech_done and self.sentences and self.checkpoint_name is None and not self.paused:
+                # Vobiz answers with playedStream once everything queued before it has played.
+                self.checkpoints += 1
+                self.checkpoint_name = f"speech-{self.checkpoints}"
+                await self.send_vobiz({"event": "checkpoint", "streamId": self.stream_id, "name": self.checkpoint_name})
+
+    async def pause(self) -> None:
+        """The caller made a sound over the agent: stop the audio, but keep the reply.
+
+        SpeechStarted fires on any voice activity, including a cough or an "mhm". Only
+        recognized words (StartOfTurn) drop the reply; otherwise it carries on after
+        RESUME_AFTER_SECONDS from the sentence it was cut off in.
+        """
+        if self.resume_task:
+            self.resume_task.cancel()  # each new sound restarts the wait
+        self.resume_task = self.spawn(self.resume_after(RESUME_AFTER_SECONDS))
+        if self.paused:
+            return
+        self.paused = True
+        self.speaking = False
+        now = time.monotonic()
+        self.resume_from = next(
+            (
+                i
+                for i, s in enumerate(self.sentences)
+                if not (s.complete and s.sent == len(s.pcm) and s.ends_at + PLAYBACK_MARGIN_SECONDS <= now)
+            ),
+            len(self.sentences),
+        )
+        log("PAUSE     caller made a sound over the agent, pausing until words follow")
+        async with self.send_lock:
+            await self.send_vobiz({"event": "clearAudio", "streamId": self.stream_id})
+        self.play_end = 0.0
+
+    async def resume_after(self, seconds: float) -> None:
+        """No words followed the sound: replay from the sentence that was cut off."""
+        await asyncio.sleep(seconds)
+        if not self.paused:
+            return
+        for sentence in self.sentences[self.resume_from :]:
+            sentence.sent, sentence.ends_at = 0, 0.0
+        self.checkpoint_name = None
+        self.paused = False
+        if self.resume_from < len(self.sentences):
+            log(f"RESUME    no words followed, carrying on from: {self.sentences[self.resume_from].text}")
+        else:
+            log("RESUME    no words followed, and the reply had already been heard")
+        await self.flush()
+
+    async def barge_in(self) -> None:
+        """The caller said words: drop the reply, and stop its audio if it is playing.
+
+        A reply that has not started speaking yet is replaced too: the caller has
+        started a new turn, so the reply is out of date.
         """
         pending = self.reply_task is not None and not self.reply_task.done()
-        if self.speaking:
-            log("BARGE-IN  caller spoke over the agent, clearing audio")
-            if pending:
-                self.reply_task.cancel()
-            await self.send_vobiz({"event": "clearAudio", "streamId": self.stream_id})
-            self.speaking = False
-        elif new_turn and pending:
+        was_playing = self.speaking
+        if was_playing or self.paused:
+            log("BARGE-IN  caller spoke over the agent, dropping the reply")
+        elif pending:
             log("TURN      caller started a new turn before the reply was spoken, replacing it")
+        else:
+            return
+        if pending:
             self.reply_task.cancel()
+        if self.resume_task:
+            self.resume_task.cancel()
+        self.paused = self.speaking = self.hangup_after_speech = False
+        self.start_speech()
+        if was_playing:  # a paused reply's audio was already cleared
+            async with self.send_lock:
+                await self.send_vobiz({"event": "clearAudio", "streamId": self.stream_id})
+        self.play_end = 0.0
 
     # ---------- Speechmatics agent STT ----------
     async def start_stt(self) -> None:
@@ -218,18 +324,18 @@ class Call:
         def on_started(message):
             log("STT       Speechmatics session started", message.get("id"))
 
-        # StartOfTurn fires on the caller's first recognized word: a new turn, so a reply
-        # that has not been spoken yet is out of date and is replaced.
+        # StartOfTurn fires on the caller's first recognized word: a new turn, so the
+        # reply, spoken or not, is out of date and is dropped.
         @client.on(ServerMessageType.START_OF_TURN)
         def on_turn_start(_message):
-            self.spawn(self.barge_in(new_turn=True))
+            self.spawn(self.barge_in())
 
         # SpeechStarted fires on any voice activity, which can be a cough or line noise.
-        # It only interrupts audio that is already playing, so barge-in stays quick.
+        # It pauses the agent at once, so barge-in stays quick, but keeps the reply.
         @client.on(ServerMessageType.SPEECH_STARTED)
         def on_voice_activity(_message):
-            if self.speaking:
-                self.spawn(self.barge_in(new_turn=False))
+            if self.speaking or self.paused:
+                self.spawn(self.pause())
 
         @client.on(ServerMessageType.ADD_SEGMENT)
         def on_segment(message):
@@ -303,19 +409,20 @@ class Call:
         return await self.tts.generate(text=text, voice=SM_VOICE, output_format=tts.OutputFormat.RAW_PCM_16000)
 
     async def speak(self, text: str) -> None:
-        """Stream the TTS provider's 16 kHz PCM straight into playAudio as it arrives."""
+        """Stream the TTS provider's 16 kHz PCM to the caller as it arrives, keeping a copy."""
         try:
             response = await self.tts_request(text)
         except (tts.AuthenticationError, tts.TransportError, tts.ConnectionError, aiohttp.ClientError) as e:
             log(f"TTS       {TTS_NAME} error: {e}")
             return
+        sentence = Sentence(text)
+        self.sentences.append(sentence)
         first = True
         carry = b""
         try:
             if response.status != 200:
                 log(f"TTS       {TTS_NAME} error", response.status, (await response.text())[:300])
                 return
-            self.speaking = True
             async for chunk in response.content.iter_chunked(CHUNK):
                 if first and self.turn_ended_at:
                     elapsed_ms = (time.time() - self.turn_ended_at) * 1000
@@ -325,15 +432,18 @@ class Call:
                 chunk = carry + chunk
                 cut = len(chunk) - (len(chunk) % 2)  # send whole 16-bit samples only
                 chunk, carry = chunk[:cut], chunk[cut:]
-                await self.play_pcm(chunk)
+                sentence.pcm += chunk
+                await self.flush()
         except aiohttp.ClientError as e:
             log(f"TTS       {TTS_NAME} stream interrupted: {e}")
         finally:
+            sentence.complete = True
             response.release()
 
     async def reply(self, user_text: str) -> None:
         """Answer one caller turn, speaking each sentence as soon as the LLM writes it."""
         self.history.append({"role": "user", "content": user_text})
+        self.start_speech()
         said = []
         try:
             async for sentence in self.llm_sentences():
@@ -345,10 +455,8 @@ class Call:
                     await self.speak(sentence)
                 if end:
                     self.hangup_after_speech = True
-            # Vobiz answers with playedStream once everything queued so far has played.
-            await self.send_vobiz(
-                {"event": "checkpoint", "streamId": self.stream_id, "name": f"turn-{len(self.history)}"}
-            )
+            self.speech_done = True
+            await self.flush()  # sends the end-of-speech checkpoint, unless paused
         except asyncio.CancelledError:
             said.append("(interrupted)")
             raise
@@ -360,8 +468,10 @@ class Call:
         """Speak the opening line."""
         log(f"AGENT     {GREETING}")
         self.history.append({"role": "assistant", "content": GREETING})
+        self.start_speech()
         await self.speak(GREETING)
-        await self.send_vobiz({"event": "checkpoint", "streamId": self.stream_id, "name": "greeting"})
+        self.speech_done = True
+        await self.flush()
 
     async def end_after(self, seconds: int) -> None:
         """Stop the stream after the time limit; with no XML after it, Vobiz hangs up."""
@@ -398,6 +508,10 @@ class Call:
                     self.reply_task = self.spawn(self.greet())
                     self.spawn(self.end_after(MAX_CALL_SECONDS))
                 elif event == "playedStream":
+                    # Skip an answer to a checkpoint whose audio was cleared, or while paused.
+                    name = data.get("name")
+                    if self.paused or (name and name != self.checkpoint_name):
+                        continue
                     self.speaking = False
                     if self.hangup_after_speech:
                         log("CALL      goodbye played, ending the call")

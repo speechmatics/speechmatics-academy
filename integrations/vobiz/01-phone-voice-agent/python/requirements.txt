@@ -4,7 +4,7 @@ speechmatics-agent-stt>=0.3.0,<1
 # Speechmatics TTS SDK
 speechmatics-tts>=0.2.0,<1
 
-# HTTP and WebSocket server for Vobiz; HTTP client for the LLM
+# HTTP and WebSocket server for Vobiz; HTTP client for the LLM, ElevenLabs and Cartesia
 aiohttp>=3.12.14,<4
 
 # Environment variables

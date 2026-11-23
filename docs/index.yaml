@@ -832,8 +832,8 @@ examples:
         description: "Provider accounts and API keys; see the walkthrough for setup requirements."
   - id: "vobiz-phone-voice-agent"
     title: "Vobiz Phone Voice Agent"
-    description: "Answer Vobiz phone calls with Speechmatics agent STT (Linden 1) turn detection, an OpenAI-compatible LLM such as Gemini, and streamed Speechmatics Text to Speech over a bidirectional audio stream, with barge-in."
-    summary: "Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream."
+    description: "Answer Vobiz phone calls with Speechmatics agent STT (Linden 1) turn detection and a custom dictionary, an OpenAI-compatible LLM such as Gemini or OpenAI, and streamed Text to Speech from Speechmatics, ElevenLabs or Cartesia over a bidirectional audio stream, with barge-in."
+    summary: "Answer phone calls with agent STT, an LLM, and streamed TTS over a Vobiz audio stream."
     demo_note: "Requires a Vobiz number and a public HTTPS tunnel; dial.py places real, billed outbound calls."
     category: "integrations"
     difficulty: "intermediate"
@@ -841,12 +841,13 @@ examples:
     features:
       - "realtime-transcription"
       - "turn-detection"
+      - "custom-vocabulary"
       - "text-to-speech"
       - "voice-agents"
-    integrations: ["vobiz", "gemini"]
+    integrations: ["vobiz", "gemini", "openai", "elevenlabs", "cartesia"]
     path: "integrations/vobiz/01-phone-voice-agent"
     readme: "integrations/vobiz/01-phone-voice-agent/README.md"
-    tags: ["vobiz", "phone", "telephony", "voice-agent", "agent-stt", "tts", "barge-in", "gemini"]
+    tags: ["vobiz", "phone", "telephony", "voice-agent", "agent-stt", "tts", "barge-in", "custom-vocabulary", "gemini", "openai", "elevenlabs", "cartesia"]
     last_updated: "2026-11-23"
     estimated_time: "20 minutes"
     packages: ["speechmatics-agent-stt", "speechmatics-tts"]
@@ -859,7 +860,7 @@ examples:
     demos:
       - type: "local"
         url: "integrations/vobiz/01-phone-voice-agent/README.md"
-        description: "Speechmatics, LLM and Vobiz accounts plus an HTTPS tunnel; see the walkthrough for setup."
+        description: "Speechmatics, LLM and Vobiz accounts plus an HTTPS tunnel; an ElevenLabs or Cartesia key only if you choose that TTS. See the walkthrough for setup."
   - id: "vobiz-live-call-transcription"
     title: "Vobiz Live Call Transcription"
     description: "Transcribe both people on a bridged Vobiz phone call in one Speechmatics Realtime API session with channel diarization, labeling the caller and the bridged party, with a live web transcript."

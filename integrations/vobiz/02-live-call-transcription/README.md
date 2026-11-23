@@ -207,7 +207,7 @@ See [`python/tests/README.md`](python/tests/README.md) for what each file covers
 
 ## Next Steps
 
-- **[Phone Voice Agent](../01-phone-voice-agent/)** - answer calls with agent STT, an LLM, and Speechmatics TTS
+- **[Phone Voice Agent](../01-phone-voice-agent/)** - answer calls with agent STT, an LLM, and streamed Text to Speech
 - **[Channel Diarization](../../../basics/10-channel-diarization/)** - channel diarization with audio files
 - **[Call Center Analytics](../../../use-cases/03-call-center-analytics/)** - analyze recorded calls with the Batch API
 
