@@ -118,7 +118,6 @@ class Call:
             await self.send_vobiz(
                 {
                     "event": "playAudio",
-                    "streamId": self.stream_id,
                     "media": {
                         "contentType": "audio/x-l16",
                         "sampleRate": RATE,
