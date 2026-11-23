@@ -215,7 +215,7 @@ def test_consecutive_finals_on_one_channel_have_single_spaces(capsys):
     assert "  " not in out.replace("[outbound]", "").strip()
 
 
-def test_channel_change_starts_a_new_labelled_line(capsys):
+def test_channel_change_starts_a_new_labeled_line(capsys):
     """
     Scenario: The speaker changes between finals
         Given a final on "inbound" followed by one on "outbound"

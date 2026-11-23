@@ -1,8 +1,8 @@
 # Python tests
 
-Pytest suite covering the pieces of `../proxy.py` that map to the
-integration requirements — audio queueing, call-session routing, answer
-XML generation, Vobiz number setup, and Vobiz audio stream event handling.
+Pytest suite covering the parts of `../proxy.py` that talk to Vobiz and
+Speechmatics: audio queueing, call-session routing, answer XML generation,
+Vobiz number setup, and Vobiz audio stream event handling.
 It uses a fake WebSocket and mocks the Speechmatics client and the Vobiz
 API, so no live services (Vobiz, Speechmatics, ngrok) are contacted while
 the tests run.
@@ -12,8 +12,8 @@ the tests run.
 From the `python/` folder:
 
 ```bash
-pip install -r requirements-dev.txt
-pytest
+python -m pip install -r requirements-dev.txt
+python -m pytest
 ```
 
 ## Layout

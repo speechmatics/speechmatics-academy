@@ -14,7 +14,7 @@
 
 Someone calls your Vobiz number and Vobiz bridges them to a second phone. While they talk, Vobiz copies both sides of the call to a local proxy, which sends them to one Speechmatics [Realtime API](https://docs.speechmatics.com/speech-to-text/realtime/quickstart) session with [channel diarization](https://docs.speechmatics.com/speech-to-text/features/diarization). Transcripts appear in the console and in a live web page, labeled `inbound` (the caller) and `outbound` (the person they were bridged to).
 
-The audio stream is one-way, so transcription never delays or changes the call itself.
+The audio stream is one-way: the proxy only receives audio and does not control the call.
 
 ## What You'll Learn
 
@@ -35,6 +35,9 @@ The audio stream is one-way, so transcription never delays or changes the call i
 
 > [!IMPORTANT]
 > On startup the proxy creates or updates a Vobiz application named `speechmatics-transcription-<number>` and attaches `VOBIZ_PHONE_NUMBER` to it. If the number was attached to another application, the proxy prints that application's ID so you can re-attach it later. Use `--no-setup` to leave the number's routing alone. Bridged calls are billed to your Vobiz account.
+
+> [!IMPORTANT]
+> The answer URL, audio WebSocket, transcript page, and its event socket share one random path token that changes on every run. Anyone with the token can read every call's transcript and the phone numbers on the page, so keep the answer URL and the page link private. The sample does not validate Vobiz callback signatures; add signature validation before exposing the server for anything other than a test.
 
 ### Python
 
@@ -119,7 +122,7 @@ The answer XML forks the call to the proxy and bridges it:
 ```python
 f'<Stream audioTrack="both" contentType="audio/x-l16;rate=16000">{escape(stream_url)}</Stream>'
 "<Speak>This call is being transcribed.</Speak>"
-f'<Dial callerId="{escape(caller_id)}" timeout="30"><Number>{escape(forward_to)}</Number></Dial>'
+f'<Dial callerId="{escape(caller_id)}" timeout="30" timeLimit="{MAX_CALL_SECONDS}"><Number>{escape(forward_to)}</Number></Dial>'
 ```
 
 One Realtime session covers both tracks:
@@ -182,6 +185,7 @@ Vobiz number +919876543210 pointed at https://xxxx.ngrok-free.app/answer/<token>
 | `SPEECHMATICS_LANGUAGE` | `en` | Transcription language, for example `hi` for Hindi. See [supported languages](https://docs.speechmatics.com/speech-to-text/languages) |
 | `PUBLIC_URL` | unset | Your own `https://` tunnel; ngrok is not started when it is set |
 | `SM_VOBIZ_PROXY_PORT` | `5000` | Local port |
+| `MAX_CALL_SECONDS` | `3600` | Longest a bridged call can last; also sent as `time_limit` with `--call` |
 
 Command-line options:
 

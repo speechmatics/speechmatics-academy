@@ -142,9 +142,9 @@ flowchart LR
 > 1. **Answer**: Vobiz fetches `/answer/<token>`. The server returns a `<Stream bidirectional="true" keepCallAlive="true" audioTrack="inbound" contentType="audio/x-l16;rate=16000">` element that points at `/ws/<token>`.
 > 2. **Listen**: Vobiz sends a `start` event, then 20 ms `media` frames of 16-bit PCM. The server forwards the decoded frames to agent STT as binary messages.
 > 3. **Detect the turn**: Agent STT returns finalized `AddSegment` messages and an `EndOfTurn` when the caller has finished. The server joins the turn's segments and sends them to the LLM.
-> 4. **Speak**: The LLM reply is streamed and split into sentences. Each sentence is sent to Speechmatics TTS with `output_format=pcm_16000`; the audio is streamed back to Vobiz in 60 ms `playAudio` messages as it arrives.
+> 4. **Speak**: The LLM reply is streamed and split into sentences. Each sentence is sent to Speechmatics TTS with `output_format=pcm_16000`; the audio is streamed back to Vobiz in 60 ms `playAudio` messages as it arrives. Each `playAudio` message carries only `event` and `media`; Vobiz plays it on the stream it arrives on. `checkpoint`, `clearAudio`, and `stop` carry the `streamId` from the `start` event.
 > 5. **Barge-in**: When agent STT reports `StartOfTurn` or `SpeechStarted` while the agent is talking, the server cancels the reply and sends `clearAudio` so Vobiz drops the queued audio.
-> 6. **Hang up**: When the LLM ends its goodbye with `[END_CALL]`, the server sends a `checkpoint`. Vobiz answers with `playedStream` once the goodbye has played, and the server sends `stop` to end the call.
+> 6. **Hang up**: When the LLM ends its goodbye with `[END_CALL]`, the server sends a `checkpoint`. Vobiz answers with `playedStream` once the goodbye has played, and the server sends `stop` to end the call. The server also ends any call that reaches `MAX_CALL_SECONDS`.
 
 ### Code Walkthrough
 
@@ -192,8 +192,8 @@ The full implementation is in [`python/main.py`](python/main.py). The agent's in
 
 ```
 00:17:01 CALL      started call=4b0c... format={'encoding': 'audio/x-l16', 'sampleRate': 16000}
-00:17:02 AGENT     Hi, I'm Vee, the Vobiz voice assistant. ... What would you like to know?
 00:17:02 STT       Speechmatics session started 1b4f6675-...
+00:17:02 AGENT     Hi, I'm Vee, the Vobiz voice assistant. ... What would you like to know?
 00:17:11 CALLER    Can you tell me in one sentence what Vobiz is?
 00:17:13 AGENT     Vobiz is a cloud telephony platform that provides phone numbers, voice calls, and tools for call control.
 00:17:13 LATENCY   end of caller turn -> first agent audio: 1584 ms
@@ -202,7 +202,7 @@ The full implementation is in [`python/main.py`](python/main.py). The agent's in
 00:18:05 CALL      ended
 ```
 
-`LATENCY` measures from agent STT's `EndOfTurn` to the first TTS audio sent to Vobiz. It includes the LLM's time to the first sentence, so it depends on the model you choose.
+The timings above are example values. `LATENCY` measures from agent STT's `EndOfTurn` to the first TTS audio sent to Vobiz. It includes the LLM's time to the first sentence, so it depends on the model you choose.
 
 ## Key Features Demonstrated
 
@@ -227,6 +227,8 @@ The full implementation is in [`python/main.py`](python/main.py). The agent's in
 | `LLM_REASONING_EFFORT` | `minimal` | Sent as `reasoning_effort`; set it empty for models that reject the field |
 | `PORT` | `8765` | Local port |
 | `PATH_TOKEN` | random per run | Secret path segment for the answer URL and WebSocket |
+| `MAX_CALLS` | `5` | Calls handled at once; further streams are closed |
+| `MAX_CALL_SECONDS` | `600` | Longest a call can last before the agent ends it |
 
 Change what the agent knows and how it talks by editing [`assets/agent.md`](assets/agent.md).
 
@@ -244,8 +246,8 @@ Change what the agent knows and how it talks by editing [`assets/agent.md`](asse
 **The call connects, then hangs up at once**
 - Vobiz could not fetch the answer URL. Check that the tunnel forwards to port 8765 and that the application's answer URL matches the one `main.py` printed, including the token. Restarting `main.py` without `PATH_TOKEN` generates a new token.
 
-**The call is silent and the log shows `STT could not connect` or `TTS error 401`**
-- Check `SPEECHMATICS_API_KEY`.
+**The call is silent and the log shows `STT       could not start a Speechmatics session` or `TTS       error`**
+- Check `SPEECHMATICS_API_KEY`. With an invalid key the log names the authentication failure.
 
 **`LLM error 400` or `LLM error 404`**
 - Check `LLM_MODEL` is available to your key. If the error mentions `reasoning_effort`, set `LLM_REASONING_EFFORT=` (empty).

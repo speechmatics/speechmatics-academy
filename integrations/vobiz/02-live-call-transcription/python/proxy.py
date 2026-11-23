@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Vobiz Voice <-> Speechmatics Realtime proxy server (multi-channel).
 
@@ -9,10 +10,12 @@ transcribed via a single Speechmatics RT multi-channel session.
 Run:
     python proxy.py
 
-The server listens on localhost:<PORT> and, on startup, opens an ngrok
-tunnel and points the configured Vobiz number at the tunnel's /answer
-endpoint through a Vobiz application. Dial the Vobiz number to trigger
-a call.
+The server listens on localhost:<PORT>. On startup it uses PUBLIC_URL, or
+opens an ngrok tunnel when that is unset, and points the configured Vobiz
+number at the tunnel's /answer endpoint through a Vobiz application. Dial
+the Vobiz number to start a call. With --call it places an outbound call
+instead, and with --no-setup it only prints the answer URL; neither changes
+the number's routing.
 """
 
 import argparse
@@ -58,6 +61,9 @@ PUBLIC_URL = os.getenv("PUBLIC_URL")
 PORT = int(os.getenv("SM_VOBIZ_PROXY_PORT", "5000"))
 LANGUAGE = os.getenv("SPEECHMATICS_LANGUAGE") or "en"
 CHANNELS = ["inbound", "outbound"]
+# Upper bound on a bridged call, in seconds. Each call bills telephony and a
+# Speechmatics session for as long as it lasts.
+MAX_CALL_SECONDS = int(os.getenv("MAX_CALL_SECONDS", "3600"))
 
 VOBIZ_API_BASE = "https://api.vobiz.ai/api/v1"
 VOBIZ_APP_PREFIX = "speechmatics-transcription"
@@ -102,16 +108,23 @@ class AsyncQueueSource:
         self._buffer = b""
         self._closed = False
 
+    # About 10 s of 20 ms frames. A backlog beyond that means audio is arriving faster
+    # than real time; drop it rather than let memory grow without limit.
+    MAX_QUEUED_FRAMES = 500
+
     def enqueue(self, data: bytes) -> None:
-        if data and not self._closed:
+        """Queue one audio frame unless the source is closed or the backlog is full."""
+        if data and not self._closed and self._queue.qsize() < self.MAX_QUEUED_FRAMES:
             self._queue.put_nowait(data)
 
     def close(self) -> None:
+        """Signal end of audio to the reader."""
         # Signal EOF; the sentinel unblocks any pending read().
         self._closed = True
         self._queue.put_nowait(b"")
 
     async def read(self, n: int) -> bytes:
+        """Return up to n bytes, waiting for audio; empty bytes only after close()."""
         while len(self._buffer) < n:
             chunk = await self._queue.get()
             if not chunk:
@@ -138,14 +151,17 @@ class CallSession:
         self._last_final_channel: str | None = None
 
     def start(self) -> None:
+        """Start the Speechmatics session in the background."""
         self._task = asyncio.create_task(self._run())
 
     def enqueue(self, track: str, frame: bytes) -> None:
+        """Route one frame to its channel's source by Vobiz track label."""
         if self._closed or track not in self.sources:
             return
         self.sources[track].enqueue(frame)
 
     async def close(self) -> None:
+        """Close both sources and wait for the final transcripts."""
         self._closed = True
         for source in self.sources.values():
             source.close()
@@ -250,6 +266,8 @@ async def handle_vobiz_call(ws) -> None:
             event = message.get("event")
 
             if event == "start":
+                if session is not None:
+                    continue  # one Speechmatics session per stream
                 start = message.get("start") or {}
                 stream_id = start.get("streamId")
                 media_format = start.get("mediaFormat", {})
@@ -311,6 +329,7 @@ async def handle_vobiz_call(ws) -> None:
 
 
 def _check_env_vars() -> None:
+    """Exit if a required setting is missing from .env."""
     missing = [name for name in ENV_VARS if not os.getenv(name)]
     if PUBLIC_URL and "NGROK_AUTHTOKEN" in missing:
         missing.remove("NGROK_AUTHTOKEN")  # an existing tunnel replaces ngrok
@@ -359,7 +378,7 @@ def _build_answer_xml(stream_url: str, forward_to: str, caller_id: str) -> bytes
         f'<Stream audioTrack="both" contentType="{VOBIZ_CONTENT_TYPE}">'
         f"{escape(stream_url)}</Stream>"
         "<Speak>This call is being transcribed.</Speak>"
-        f'<Dial callerId="{escape(caller_id)}" timeout="30"><Number>{escape(forward_to)}</Number></Dial>'
+        f'<Dial callerId="{escape(caller_id)}" timeout="30" timeLimit="{MAX_CALL_SECONDS}"><Number>{escape(forward_to)}</Number></Dial>'
         "</Response>"
     ).encode()
 
@@ -469,12 +488,14 @@ def _place_outbound_call(to: str, answer_url: str, hangup_url: str) -> str:
             "answer_method": "GET",
             "hangup_url": hangup_url,
             "hangup_method": "GET",
+            "time_limit": MAX_CALL_SECONDS,
         },
     )
     return response.get("request_uuid", "")
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:
+    """Parse the --call and --no-setup options."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[1])
     parser.add_argument(
         "--no-setup",
@@ -549,6 +570,7 @@ def make_process_request(
 
 
 async def ws_handler(websocket, _path=None):
+    """Route a WebSocket to the transcript page events or the Vobiz audio handler."""
     path = (_path or getattr(websocket, "path", "") or "").split("?", 1)[0]
     if path.startswith("/events/"):
         await ui.serve_events(websocket)
@@ -558,6 +580,7 @@ async def ws_handler(websocket, _path=None):
 
 
 async def main(argv: list[str] | None = None) -> None:
+    """Check settings, configure Vobiz, and serve until interrupted."""
     args = _parse_args(sys.argv[1:] if argv is None else argv)
     _check_env_vars()
     await _check_speechmatics_key()

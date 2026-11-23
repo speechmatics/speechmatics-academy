@@ -51,6 +51,7 @@ def test_call_request_uses_the_vobiz_number_and_get_callbacks():
             "answer_method": "GET",
             "hangup_url": HANGUP,
             "hangup_method": "GET",
+            "time_limit": proxy.MAX_CALL_SECONDS,
         },
     )
 

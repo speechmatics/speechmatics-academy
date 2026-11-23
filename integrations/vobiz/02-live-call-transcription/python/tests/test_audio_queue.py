@@ -212,3 +212,24 @@ async def test_read_at_vobiz_frame_size(chunks):
 
     # A single 640-byte read is what the SDK issues per source.
     assert await src.read(640) == b"".join(chunks)
+
+
+async def test_backlog_beyond_the_cap_is_dropped():
+    """
+    Scenario: Audio arriving much faster than real time
+        Given an AsyncQueueSource already holding MAX_QUEUED_FRAMES frames
+         When one more frame is enqueued
+         Then the queue does not grow
+          And close() still delivers EOF after the queued frames
+
+    Purpose:
+        Bounds memory if a stream sends audio faster than it is read.
+    """
+    src = AsyncQueueSource()
+    for _ in range(AsyncQueueSource.MAX_QUEUED_FRAMES + 10):
+        src.enqueue(b"x")
+    assert src._queue.qsize() == AsyncQueueSource.MAX_QUEUED_FRAMES
+
+    src.close()
+    data = await src.read(AsyncQueueSource.MAX_QUEUED_FRAMES + 100)
+    assert data == b"x" * AsyncQueueSource.MAX_QUEUED_FRAMES

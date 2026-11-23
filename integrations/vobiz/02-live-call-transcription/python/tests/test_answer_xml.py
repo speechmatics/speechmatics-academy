@@ -22,7 +22,7 @@ Feature: Answer XML builder (_build_answer_xml)
 
 from xml.etree import ElementTree as ET
 
-from proxy import VOBIZ_CONTENT_TYPE, _build_answer_xml
+from proxy import MAX_CALL_SECONDS, VOBIZ_CONTENT_TYPE, _build_answer_xml
 
 STREAM_URL = "wss://tunnel.example.dev/vobiz/abc123"
 # +44 7700 900xxx is Ofcom's reserved drama range - never a real subscriber.
@@ -109,6 +109,7 @@ def test_dial_bridges_to_the_forward_number_from_the_vobiz_number():
     assert dial.find("./Number").text == FORWARD_TO
     assert dial.attrib["callerId"] == CALLER_ID
     assert dial.attrib["timeout"] == "30"
+    assert dial.attrib["timeLimit"] == str(MAX_CALL_SECONDS)
 
 
 def test_speak_greeting_comes_before_the_dial():

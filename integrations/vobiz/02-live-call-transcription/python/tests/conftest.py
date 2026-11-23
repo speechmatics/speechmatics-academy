@@ -13,7 +13,7 @@ The tests here never contact Vobiz, ngrok, or Speechmatics. Instead:
     dicts so tests don't repeat boilerplate.
 
 Keep all shared test data here so individual test files stay focused
-on the behaviour they're proving.
+on the behavior they're proving.
 """
 
 import base64

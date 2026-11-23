@@ -7,6 +7,7 @@ browser before (or during) a call to watch both speakers transcribed live.
 
 import asyncio
 import json
+from html import escape
 
 CLIENTS: set = set()
 
@@ -47,9 +48,9 @@ async def serve_events(ws) -> None:
 def page(events_path: str, vobiz_number: str, forward_to: str, language: str) -> bytes:
     return (
         PAGE.replace("__EVENTS_PATH__", events_path)
-        .replace("__VOBIZ_NUMBER__", vobiz_number or "")
-        .replace("__FORWARD_TO__", forward_to or "")
-        .replace("__LANGUAGE__", language or "en")
+        .replace("__VOBIZ_NUMBER__", escape(vobiz_number or ""))
+        .replace("__FORWARD_TO__", escape(forward_to or ""))
+        .replace("__LANGUAGE__", escape(language or "en"))
         .encode()
     )
 

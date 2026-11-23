@@ -382,3 +382,22 @@ async def test_payload_with_stray_characters_is_rejected(fake_ws, start_event, m
 
     instance.enqueue.assert_not_called()
     assert "dropped 1 undecodable" in capsys.readouterr().err
+
+
+async def test_repeated_start_does_not_open_a_second_session(fake_ws, start_event, mock_session):
+    """
+    Scenario: The same stream sends start twice
+        Given a fake WebSocket queued with [<start>, <start>]
+         When handle_vobiz_call consumes the stream
+         Then only one CallSession is created and started
+
+    Purpose:
+        A second session would never be closed and would keep a paid
+        Speechmatics connection open after the call.
+    """
+    Session, instance = mock_session
+
+    await proxy.handle_vobiz_call(fake_ws([start_event, start_event]))
+
+    Session.assert_called_once()
+    instance.start.assert_called_once()

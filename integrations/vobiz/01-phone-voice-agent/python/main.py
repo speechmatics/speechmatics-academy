@@ -33,7 +33,7 @@ from aiohttp import web
 from dotenv import load_dotenv
 
 from speechmatics import tts
-from speechmatics.agent_stt import AgentSttAsyncClient, ServerMessageType, TranscriptionConfig
+from speechmatics.agent_stt import AgentSttAsyncClient, AuthenticationError, ServerMessageType, TranscriptionConfig
 
 load_dotenv()
 
@@ -60,6 +60,11 @@ PORT = int(os.getenv("PORT", "8765"))
 # this run: the Vobiz audio WebSocket itself carries no signature.
 PATH_TOKEN = os.getenv("PATH_TOKEN") or secrets.token_urlsafe(16)
 
+# Each call holds a paid agent STT session and LLM and TTS requests, so cap both
+# how many calls run at once and how long one can last.
+MAX_CALLS = int(os.getenv("MAX_CALLS", "5"))
+MAX_CALL_SECONDS = int(os.getenv("MAX_CALL_SECONDS", "600"))
+
 RATE = 16000
 FRAME = 640  # 20 ms of 16-bit mono PCM at 16 kHz
 CHUNK = FRAME * 3  # 60 ms per playAudio message keeps barge-in responsive
@@ -75,6 +80,7 @@ SENTENCE_END = re.compile(r"(.+?[.!?])(\s+|$)", re.S)
 
 
 def log(*parts: object) -> None:
+    """Print a timestamped log line."""
     print(time.strftime("%H:%M:%S"), *parts, flush=True)
 
 
@@ -91,6 +97,7 @@ def answer_xml() -> str:
 
 
 def system_prompt() -> str:
+    """Load the agent's instructions from assets/agent.md."""
     return PROMPT_FILE.read_text(encoding="utf-8").replace("{HANGUP_TOKEN}", HANGUP_TOKEN)
 
 
@@ -120,10 +127,12 @@ class Call:
 
     # ---------- Vobiz side ----------
     async def send_vobiz(self, msg: dict) -> None:
+        """Send one JSON event to Vobiz if the call is still connected."""
         if not self.vobiz.closed:
             await self.vobiz.send_str(json.dumps(msg))
 
     async def play_pcm(self, pcm: bytes) -> None:
+        """Send 16 kHz PCM to the caller as base64 playAudio messages."""
         # playAudio carries only the event and the media. Vobiz plays these messages
         # on the stream they arrive on.
         for i in range(0, len(pcm), CHUNK):
@@ -149,6 +158,7 @@ class Call:
 
     # ---------- Speechmatics agent STT ----------
     async def start_stt(self) -> None:
+        """Open this call's agent STT session."""
         self.stt = AgentSttAsyncClient(
             api_key=SM_API_KEY,
             url=SM_RT_URL,
@@ -248,6 +258,7 @@ class Call:
             response.release()
 
     async def reply(self, user_text: str) -> None:
+        """Answer one caller turn, speaking each sentence as soon as the LLM writes it."""
         self.history.append({"role": "user", "content": user_text})
         said = []
         try:
@@ -272,13 +283,21 @@ class Call:
                 self.history.append({"role": "assistant", "content": " ".join(said)})
 
     async def greet(self) -> None:
+        """Speak the opening line."""
         log(f"AGENT     {GREETING}")
         self.history.append({"role": "assistant", "content": GREETING})
         await self.speak(GREETING)
         await self.send_vobiz({"event": "checkpoint", "streamId": self.stream_id, "name": "greeting"})
 
+    async def end_after(self, seconds: int) -> None:
+        """Stop the stream after the time limit; with no XML after it, Vobiz hangs up."""
+        await asyncio.sleep(seconds)
+        log(f"CALL      reached the {seconds} s limit, ending the call")
+        await self.send_vobiz({"event": "stop", "streamId": self.stream_id})
+
     # ---------- main loop ----------
     async def run(self) -> None:
+        """Handle Vobiz stream events until the call ends."""
         try:
             async for msg in self.vobiz:
                 if msg.type != aiohttp.WSMsgType.TEXT:
@@ -289,15 +308,21 @@ class Call:
                     if self.stt:
                         await self.stt.send_audio(base64.b64decode(data["media"]["payload"]))
                 elif event == "start":
+                    if self.stt:
+                        continue  # one agent STT session per stream
                     start = data["start"]
                     self.stream_id = start.get("streamId")
                     log(f"CALL      started call={start.get('callId')} format={start.get('mediaFormat')}")
                     try:
                         await self.start_stt()
-                    except Exception as e:  # noqa: BLE001 - auth, network and session errors alike
+                    except AuthenticationError:
+                        log("STT       could not start a Speechmatics session: check SPEECHMATICS_API_KEY")
+                        break
+                    except Exception as e:  # noqa: BLE001 - network and session errors
                         log(f"STT       could not start a Speechmatics session: {e}")
                         break
                     self.reply_task = self.spawn(self.greet())
+                    self.spawn(self.end_after(MAX_CALL_SECONDS))
                 elif event == "playedStream":
                     self.speaking = False
                     if self.hangup_after_speech:
@@ -310,8 +335,10 @@ class Call:
             await self.close()
 
     async def close(self) -> None:
+        """Cancel the call's tasks and close its agent STT session."""
         for task in list(self.tasks):
             task.cancel()
+        await asyncio.gather(*self.tasks, return_exceptions=True)
         if self.stt:
             try:
                 # Sends EndOfStream and waits briefly for the service to flush.
@@ -322,36 +349,51 @@ class Call:
 
 
 async def answer(_request: web.Request) -> web.Response:
+    """Return the VobizXML that connects the call to the audio WebSocket."""
     log("HTTP      answer URL fetched")
     return web.Response(text=answer_xml(), content_type="application/xml")
 
 
 async def hangup(request: web.Request) -> web.Response:
+    """Log the hangup callback Vobiz sends when the call ends."""
     form = await request.post() if request.can_read_body else request.query
     log(f"HTTP      hangup cause={form.get('HangupCause')} duration={form.get('Duration')}")
     return web.Response(text="OK")
 
 
 async def media_stream(request: web.Request) -> web.WebSocketResponse:
+    """Accept the Vobiz audio WebSocket and run one call on it."""
     sock = web.WebSocketResponse()
     await sock.prepare(request)
-    await Call(sock, request.app).run()
+    if request.app["calls"]["active"] >= MAX_CALLS:
+        log(f"CALL      rejected: {MAX_CALLS} calls already in progress")
+        await sock.close()
+        return sock
+    request.app["calls"]["active"] += 1
+    try:
+        await Call(sock, request.app).run()
+    finally:
+        request.app["calls"]["active"] -= 1
     return sock
 
 
 async def on_startup(app: web.Application) -> None:
+    """Create the shared HTTP and TTS clients."""
     app["http"] = aiohttp.ClientSession()
     app["tts"] = tts.AsyncClient(api_key=SM_API_KEY)
 
 
 async def on_cleanup(app: web.Application) -> None:
+    """Close the shared HTTP and TTS clients."""
     await app["tts"].close()
     await app["http"].close()
 
 
 def make_app() -> web.Application:
+    """Build the web app with token-protected routes."""
     app = web.Application()
     app["prompt"] = system_prompt()
+    app["calls"] = {"active": 0}  # mutable: app state is frozen once the server starts
     app.router.add_route("*", f"/answer/{PATH_TOKEN}", answer)
     app.router.add_route("*", f"/hangup/{PATH_TOKEN}", hangup)
     app.router.add_get(f"/ws/{PATH_TOKEN}", media_stream)
@@ -361,6 +403,7 @@ def make_app() -> web.Application:
 
 
 def check_config() -> None:
+    """Exit with a clear message when a required setting is missing."""
     missing = [
         name
         for name, value in (
