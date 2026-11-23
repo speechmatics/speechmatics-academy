@@ -849,7 +849,7 @@ examples:
     tags: ["vobiz", "phone", "telephony", "voice-agent", "agent-stt", "tts", "barge-in", "gemini"]
     last_updated: "2026-11-23"
     estimated_time: "20 minutes"
-    packages: []
+    packages: ["speechmatics-agent-stt", "speechmatics-tts"]
     apis: ["agent-stt", "tts"]
     models: ["linden-1"]
     collections: ["telephony", "voice-agents"]

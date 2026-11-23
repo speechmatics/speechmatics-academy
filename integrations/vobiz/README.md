@@ -28,7 +28,7 @@ Both examples need a Vobiz number and a public HTTPS tunnel to your machine. Fol
 <!-- BEGIN GENERATED: examples -->
 | Example | What you'll build | SDK / adapter | Language / level | Demo |
 | --- | --- | --- | --- | --- |
-| [Vobiz Phone Voice Agent](<01-phone-voice-agent/README.md>) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | Direct API / configuration | Python<br>intermediate | [Local](<01-phone-voice-agent/README.md>) |
+| [Vobiz Phone Voice Agent](<01-phone-voice-agent/README.md>) | Answer phone calls with agent STT, an LLM, and Speechmatics TTS over a Vobiz audio stream. | [Agent STT](<https://pypi.org/project/speechmatics-agent-stt/>), [TTS](<https://pypi.org/project/speechmatics-tts/>) | Python<br>intermediate | [Local](<01-phone-voice-agent/README.md>) |
 | [Vobiz Live Call Transcription](<02-live-call-transcription/README.md>) | Transcribe both sides of a live phone call as separate speakers with channel diarization. | [Realtime](<https://pypi.org/project/speechmatics-rt/>) | Python<br>intermediate | [Local](<02-live-call-transcription/README.md>) |
 
 ### Demo access

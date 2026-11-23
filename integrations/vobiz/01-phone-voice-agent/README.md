@@ -19,8 +19,8 @@ The LLM is any OpenAI-compatible chat completions endpoint. The default is Gemin
 ## What You'll Learn
 
 - How to connect a Vobiz call to your server with a bidirectional `<Stream>` and play audio back with `playAudio`
-- How to use the agent STT WebSocket protocol directly: `StartRecognition`, `AddSegment`, `StartOfTurn` and `EndOfTurn`
-- How to stream Speechmatics TTS output as 16 kHz PCM into a phone call, one sentence at a time
+- How to drive a conversation from agent STT events with the `speechmatics-agent-stt` SDK: `AddSegment`, `StartOfTurn` and `EndOfTurn`
+- How to stream Speechmatics TTS output from the `speechmatics-tts` SDK as 16 kHz PCM into a phone call, one sentence at a time
 - How to handle barge-in with `clearAudio`, and how to hang up after the goodbye has played with `checkpoint` and `stop`
 
 ## Prerequisites
@@ -148,38 +148,42 @@ flowchart LR
 
 ### Code Walkthrough
 
-Start an agent STT session with the same audio format Vobiz sends:
+Open one agent STT session per call. The SDK's default audio format, 16 kHz signed 16-bit PCM, is the format the `<Stream>` element asks Vobiz for, so frames pass straight through:
 
 ```python
-self.stt = await self.http.ws_connect(
-    SM_STT_URL, headers={"Authorization": f"Bearer {SM_API_KEY}"}, heartbeat=20
+self.stt = AgentSttAsyncClient(
+    api_key=SM_API_KEY,
+    app="speechmatics-academy/vobiz-phone-voice-agent",
+    transcription_config=TranscriptionConfig(language=LANGUAGE, enable_partials=True),
 )
-await self.stt.send_str(json.dumps({
-    "message": "StartRecognition",
-    "audio_format": {"type": "raw", "encoding": "pcm_s16le", "sample_rate": 16000},
-    "transcription_config": {"language": LANGUAGE, "model": "linden-1", "enable_partials": True},
-}))
+await self.stt.connect()  # returns once the service is ready for audio
+...
+await self.stt.send_audio(base64.b64decode(data["media"]["payload"]))
 ```
 
-React to turns instead of running your own silence detection:
+React to turns instead of running your own silence detection. SDK handlers are synchronous, so the slow work runs in a task:
 
 ```python
-elif kind == "AddSegment":
-    self.turn_text.append(data["segment"]["transcript"].strip())
-elif kind == "EndOfTurn":
-    text = " ".join(self.turn_text).strip()
-    self.reply_task = asyncio.create_task(self.reply(text))
-elif kind in ("StartOfTurn", "SpeechStarted"):
-    await self.barge_in()
+@client.on(ServerMessageType.ADD_SEGMENT)
+def on_segment(message):
+    self.turn_text.append(message["segment"]["transcript"].strip())
+
+@client.on(ServerMessageType.END_OF_TURN)
+def on_turn_end(_message):
+    self.reply_task = self.spawn(self.reply(" ".join(self.turn_text)))
+
+@client.on(ServerMessageType.START_OF_TURN)
+@client.on(ServerMessageType.SPEECH_STARTED)
+def on_caller_speaking(_message):
+    self.spawn(self.barge_in())  # cancel the reply and send clearAudio
 ```
 
-Stream TTS audio straight into the call. The PCM format matches what `playAudio` declares, so no resampling is needed:
+Stream TTS audio into the call as it arrives. `generate()` returns the HTTP response before the audio has finished, and the PCM matches what `playAudio` declares, so there is no resampling:
 
 ```python
-async with self.http.post(SM_TTS_URL.format(voice=SM_VOICE), json={"text": text},
-                          headers={"Authorization": f"Bearer {SM_API_KEY}"}) as r:
-    async for chunk in r.content.iter_chunked(CHUNK):
-        await self.play_pcm(chunk)  # base64 inside {"event": "playAudio", ...}
+response = await self.tts.generate(text=text, voice=SM_VOICE, output_format=tts.OutputFormat.RAW_PCM_16000)
+async for chunk in response.content.iter_chunked(CHUNK):
+    await self.play_pcm(chunk)  # base64 inside {"event": "playAudio", "media": {...}}
 ```
 
 The full implementation is in [`python/main.py`](python/main.py). The agent's instructions are in [`assets/agent.md`](assets/agent.md).
@@ -209,7 +213,7 @@ The full implementation is in [`python/main.py`](python/main.py). The agent's in
 - Replies are spoken sentence by sentence, so the caller hears the first sentence while the LLM is still writing the rest.
 
 **Native phone audio:**
-- Vobiz sends and accepts 16-bit PCM at 16 kHz, which is what agent STT takes and what TTS returns with `output_format=pcm_16000`. There is no transcoding in either direction.
+- Vobiz sends and accepts 16-bit PCM at 16 kHz, which is what agent STT takes and what TTS returns with `OutputFormat.RAW_PCM_16000`. There is no transcoding in either direction.
 
 ## Configuration Options
 
@@ -217,7 +221,7 @@ The full implementation is in [`python/main.py`](python/main.py). The agent's in
 |---|---|---|
 | `SM_VOICE` | `sarah` | TTS voice: `sarah`, `theo` (UK English), `megan`, `jack` (US English) |
 | `SM_LANGUAGE` | `en` | Agent STT language |
-| `SM_STT_URL` | `wss://eu2.rt.speechmatics.com/v2/agent` | Agent STT endpoint |
+| `SPEECHMATICS_RT_URL` | `wss://eu2.rt.speechmatics.com/v2` | Agent STT region endpoint; the SDK adds `/agent` |
 | `LLM_BASE_URL` | Gemini OpenAI-compatible URL | Any OpenAI-compatible base URL |
 | `LLM_MODEL` | `gemini-3.1-flash-lite` | Chat model |
 | `LLM_REASONING_EFFORT` | `minimal` | Sent as `reasoning_effort`; set it empty for models that reject the field |
