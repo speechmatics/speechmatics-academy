@@ -7,11 +7,11 @@ Speech, with any OpenAI-compatible LLM (Gemini by default).
 
     caller --PSTN--> Vobiz <Stream bidirectional> --WebSocket--> this server
                                                                     |
-           Speechmatics agent STT (Linden 1, server-side turn detection)
+           Speechmatics agent STT (Linden 1, service-side turn detection)
                                                                     | EndOfTurn
                                                      LLM (streamed, OpenAI-compatible)
                                                                     | one sentence at a time
-           Speechmatics TTS (HTTPS, 16 kHz PCM, streamed) --playAudio--> caller
+           Speechmatics TTS (16 kHz PCM, streamed) --playAudio--> caller
 
 Run `python main.py`, then point a Vobiz number or an outbound call at the
 answer URL it prints (see dial.py).
@@ -32,12 +32,15 @@ import aiohttp
 from aiohttp import web
 from dotenv import load_dotenv
 
+from speechmatics import tts
+from speechmatics.agent_stt import AgentSttAsyncClient, ServerMessageType, TranscriptionConfig
+
 load_dotenv()
 
 SM_API_KEY = os.getenv("SPEECHMATICS_API_KEY")
-SM_STT_URL = os.getenv("SM_STT_URL", "wss://eu2.rt.speechmatics.com/v2/agent")
-SM_TTS_URL = "https://preview.tts.speechmatics.com/generate/{voice}?output_format=pcm_16000"
-SM_VOICE = os.getenv("SM_VOICE", "sarah")  # sarah, theo (UK English) - megan, jack (US English)
+# Optional: the agent STT SDK defaults to the EU endpoint and appends /agent itself.
+SM_RT_URL = os.getenv("SPEECHMATICS_RT_URL")
+SM_VOICE = tts.Voice(os.getenv("SM_VOICE", "sarah"))  # sarah, theo (UK English) - megan, jack (US English)
 LANGUAGE = os.getenv("SM_LANGUAGE", "en")
 
 # Any OpenAI-compatible chat completions endpoint. The default is Gemini.
@@ -94,19 +97,26 @@ def system_prompt() -> str:
 class Call:
     """One phone call: Vobiz audio in, agent STT, LLM, TTS, Vobiz audio out."""
 
-    def __init__(self, vobiz: web.WebSocketResponse, http: aiohttp.ClientSession, prompt: str):
+    def __init__(self, vobiz: web.WebSocketResponse, app: web.Application):
         self.vobiz = vobiz
-        self.http = http
-        self.stt: aiohttp.ClientWebSocketResponse | None = None
-        self.stt_reader: asyncio.Task | None = None
+        self.http: aiohttp.ClientSession = app["http"]
+        self.tts: tts.AsyncClient = app["tts"]
+        self.stt: AgentSttAsyncClient | None = None
         self.stream_id: str | None = None
-        self.history: list[dict] = [{"role": "system", "content": prompt}]
+        self.history: list[dict] = [{"role": "system", "content": app["prompt"]}]
         self.turn_text: list[str] = []
         self.reply_task: asyncio.Task | None = None
+        self.tasks: set[asyncio.Task] = set()
         self.speaking = False
         self.hangup_after_speech = False
-        self.seq = 0
         self.turn_ended_at = 0.0
+
+    def spawn(self, coro) -> asyncio.Task:
+        """Run a coroutine in the background and keep a reference until it finishes."""
+        task = asyncio.create_task(coro)
+        self.tasks.add(task)
+        task.add_done_callback(self.tasks.discard)
+        return task
 
     # ---------- Vobiz side ----------
     async def send_vobiz(self, msg: dict) -> None:
@@ -114,6 +124,8 @@ class Call:
             await self.vobiz.send_str(json.dumps(msg))
 
     async def play_pcm(self, pcm: bytes) -> None:
+        # playAudio carries only the event and the media. Vobiz plays these messages
+        # on the stream they arrive on.
         for i in range(0, len(pcm), CHUNK):
             await self.send_vobiz(
                 {
@@ -137,48 +149,51 @@ class Call:
 
     # ---------- Speechmatics agent STT ----------
     async def start_stt(self) -> None:
-        self.stt = await self.http.ws_connect(
-            SM_STT_URL, headers={"Authorization": f"Bearer {SM_API_KEY}"}, heartbeat=20
+        self.stt = AgentSttAsyncClient(
+            api_key=SM_API_KEY,
+            url=SM_RT_URL,
+            app="speechmatics-academy/vobiz-phone-voice-agent",
+            # 16 kHz signed 16-bit PCM is the SDK default and what the Stream element asks Vobiz for.
+            # `model` defaults to Linden 1; turns are closed by the service's VAD.
+            transcription_config=TranscriptionConfig(language=LANGUAGE, enable_partials=True),
+            record_events=False,
         )
-        await self.stt.send_str(
-            json.dumps(
-                {
-                    "message": "StartRecognition",
-                    "audio_format": {"type": "raw", "encoding": "pcm_s16le", "sample_rate": RATE},
-                    "transcription_config": {"language": LANGUAGE, "model": "linden-1", "enable_partials": True},
-                }
-            )
-        )
-        self.stt_reader = asyncio.create_task(self.read_stt())
+        self.register_stt_handlers(self.stt)
+        await self.stt.connect()  # returns once the service is ready for audio
 
-    async def read_stt(self) -> None:
-        async for msg in self.stt:
-            if msg.type != aiohttp.WSMsgType.TEXT:
-                continue
-            data = json.loads(msg.data)
-            kind = data.get("message")
-            if kind == "RecognitionStarted":
-                log("STT       Speechmatics session started", data.get("id"))
-            elif kind in ("StartOfTurn", "SpeechStarted"):
-                await self.barge_in()
-            elif kind == "AddSegment":
-                text = data["segment"]["transcript"].strip()
-                if text:
-                    self.turn_text.append(text)
-            elif kind == "EndOfTurn":
-                text = " ".join(self.turn_text).strip()
-                self.turn_text = []
-                if text:
-                    self.turn_ended_at = time.time()
-                    log(f"CALLER    {text}")
-                    self.reply_task = asyncio.create_task(self.reply(text))
-            elif kind in ("Error", "Warning"):
-                log("STT      ", msg.data[:300])
+    def register_stt_handlers(self, client: AgentSttAsyncClient) -> None:
+        """SDK handlers are synchronous callbacks: anything slow is handed to a task."""
 
-    async def send_audio(self, pcm: bytes) -> None:
-        if self.stt and not self.stt.closed:
-            await self.stt.send_bytes(pcm)
-            self.seq += 1
+        @client.on(ServerMessageType.RECOGNITION_STARTED)
+        def on_started(message):
+            log("STT       Speechmatics session started", message.get("id"))
+
+        # StartOfTurn fires on the caller's first word; SpeechStarted on voice activity.
+        # Either one while the agent is talking means the caller is interrupting.
+        @client.on(ServerMessageType.START_OF_TURN)
+        @client.on(ServerMessageType.SPEECH_STARTED)
+        def on_caller_speaking(_message):
+            self.spawn(self.barge_in())
+
+        @client.on(ServerMessageType.ADD_SEGMENT)
+        def on_segment(message):
+            text = message["segment"]["transcript"].strip()
+            if text:
+                self.turn_text.append(text)
+
+        # EndOfTurn is the last message of a turn: the moment to answer.
+        @client.on(ServerMessageType.END_OF_TURN)
+        def on_turn_end(_message):
+            text = " ".join(self.turn_text).strip()
+            self.turn_text = []
+            if text:
+                self.turn_ended_at = time.time()
+                log(f"CALLER    {text}")
+                self.reply_task = self.spawn(self.reply(text))
+
+        @client.on(ServerMessageType.ERROR)
+        def on_error(message):
+            log("STT       error:", message.get("reason", message))
 
     # ---------- LLM + Speechmatics TTS ----------
     async def llm_sentences(self):
@@ -206,17 +221,20 @@ class Call:
             yield buf.strip()
 
     async def speak(self, text: str) -> None:
-        """Speechmatics TTS: stream 16 kHz PCM straight into playAudio."""
+        """Speechmatics TTS: stream 16 kHz PCM straight into playAudio as it arrives."""
+        try:
+            response = await self.tts.generate(text=text, voice=SM_VOICE, output_format=tts.OutputFormat.RAW_PCM_16000)
+        except (tts.AuthenticationError, tts.TransportError) as e:
+            log(f"TTS       error: {e}")
+            return
         first = True
         carry = b""
-        async with self.http.post(
-            SM_TTS_URL.format(voice=SM_VOICE), json={"text": text}, headers={"Authorization": f"Bearer {SM_API_KEY}"}
-        ) as r:
-            if r.status != 200:
-                log("TTS       error", r.status, (await r.text())[:300])
+        try:
+            if response.status != 200:
+                log("TTS       error", response.status, (await response.text())[:300])
                 return
             self.speaking = True
-            async for chunk in r.content.iter_chunked(CHUNK):
+            async for chunk in response.content.iter_chunked(CHUNK):
                 if first and self.turn_ended_at:
                     elapsed_ms = (time.time() - self.turn_ended_at) * 1000
                     log(f"LATENCY   end of caller turn -> first agent audio: {elapsed_ms:.0f} ms")
@@ -226,6 +244,8 @@ class Call:
                 cut = len(chunk) - (len(chunk) % 2)  # send whole 16-bit samples only
                 chunk, carry = chunk[:cut], chunk[cut:]
                 await self.play_pcm(chunk)
+        finally:
+            response.release()
 
     async def reply(self, user_text: str) -> None:
         self.history.append({"role": "user", "content": user_text})
@@ -266,17 +286,18 @@ class Call:
                 data = json.loads(msg.data)
                 event = data.get("event")
                 if event == "media":
-                    await self.send_audio(base64.b64decode(data["media"]["payload"]))
+                    if self.stt:
+                        await self.stt.send_audio(base64.b64decode(data["media"]["payload"]))
                 elif event == "start":
                     start = data["start"]
                     self.stream_id = start.get("streamId")
                     log(f"CALL      started call={start.get('callId')} format={start.get('mediaFormat')}")
                     try:
                         await self.start_stt()
-                    except aiohttp.ClientError as e:
-                        log(f"STT       could not connect to Speechmatics: {e}")
+                    except Exception as e:  # noqa: BLE001 - auth, network and session errors alike
+                        log(f"STT       could not start a Speechmatics session: {e}")
                         break
-                    self.reply_task = asyncio.create_task(self.greet())
+                    self.reply_task = self.spawn(self.greet())
                 elif event == "playedStream":
                     self.speaking = False
                     if self.hangup_after_speech:
@@ -289,17 +310,14 @@ class Call:
             await self.close()
 
     async def close(self) -> None:
-        if self.reply_task:
-            self.reply_task.cancel()
-        if self.stt and not self.stt.closed:
+        for task in list(self.tasks):
+            task.cancel()
+        if self.stt:
             try:
-                await self.stt.send_str(json.dumps({"message": "EndOfStream", "last_seq_no": self.seq}))
-            except (aiohttp.ClientError, ConnectionError):
+                # Sends EndOfStream and waits briefly for the service to flush.
+                await asyncio.wait_for(self.stt.disconnect(), timeout=5)
+            except Exception:  # noqa: BLE001 - the call is over either way
                 pass
-            finally:
-                await self.stt.close()
-        if self.stt_reader:
-            self.stt_reader.cancel()
         log("CALL      ended")
 
 
@@ -317,15 +335,17 @@ async def hangup(request: web.Request) -> web.Response:
 async def media_stream(request: web.Request) -> web.WebSocketResponse:
     sock = web.WebSocketResponse()
     await sock.prepare(request)
-    await Call(sock, request.app["http"], request.app["prompt"]).run()
+    await Call(sock, request.app).run()
     return sock
 
 
 async def on_startup(app: web.Application) -> None:
     app["http"] = aiohttp.ClientSession()
+    app["tts"] = tts.AsyncClient(api_key=SM_API_KEY)
 
 
 async def on_cleanup(app: web.Application) -> None:
+    await app["tts"].close()
     await app["http"].close()
 
 
@@ -362,5 +382,5 @@ if __name__ == "__main__":
     check_config()
     log(f"Answer URL: {PUBLIC_URL}/answer/{PATH_TOKEN}")
     log(f"Hangup URL: {PUBLIC_URL}/hangup/{PATH_TOKEN}")
-    log(f"Voice: {SM_VOICE}  LLM: {LLM_MODEL}  Listening on http://127.0.0.1:{PORT}")
+    log(f"Voice: {SM_VOICE.value}  LLM: {LLM_MODEL}  Listening on http://127.0.0.1:{PORT}")
     web.run_app(make_app(), host="127.0.0.1", port=PORT, print=None)

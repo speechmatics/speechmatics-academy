@@ -1,5 +1,11 @@
-# HTTP server, WebSocket server and client for Vobiz, Speechmatics and the LLM
+# Speechmatics Agent STT SDK (pulls in speechmatics-rt)
+speechmatics-agent-stt>=0.3.0
+
+# Speechmatics TTS SDK
+speechmatics-tts>=0.2.0
+
+# HTTP and WebSocket server for Vobiz; HTTP client for the LLM
 aiohttp>=3.9,<4
 
 # Environment variables
-python-dotenv>=1.0.0
+python-dotenv>=1.2.4
